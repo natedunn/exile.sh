@@ -967,6 +967,20 @@ html body .topbar nav a {
 html body .market-layout {
   grid-row: 1;
 }
+@media (min-width: 901px) {
+  html body .market-layout {
+    position: relative;
+  }
+  html body .market-layout::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(232px + (var(--space-xl) + var(--space-lg)) / 2);
+    border-left: var(--rule-thin) solid var(--color-rule);
+    pointer-events: none;
+  }
+}
 html body .categories nav button {
   min-height: 40px;
   height: auto;
