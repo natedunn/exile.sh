@@ -1134,3 +1134,7 @@ html body .empty-state :is(h1, h2, h3, p, button) {
 html body .empty-state button {
   border-color: var(--color-rule-strong);
 }
+html body .market-table-panel > .compact-empty {
+  flex: 1;
+  justify-content: center;
+}
