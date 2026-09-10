@@ -259,3 +259,37 @@ test("economy routes redirect to the market and provide page navigation", async 
   await page.goBack()
   await expect(page).toHaveURL(/\/economy\/market/)
 })
+
+test("Auto display persists and carries each item's quote into its chart", async ({
+  page,
+}) => {
+  await page.goto("/economy/market?q=Exalted%20Orb")
+  await expect(page.locator(".currency-table tbody tr").first()).toBeVisible()
+  const select = page.getByRole("combobox", {
+    name: "Quote currency",
+    exact: true,
+  })
+  await select.click()
+  await page.getByRole("option", { name: "Auto", exact: true }).click()
+  await expect(page).toHaveURL(/quote=Auto/)
+  const row = page
+    .locator(".currency-table tbody tr")
+    .filter({
+      has: page.getByRole("button", { name: "Exalted Orb", exact: true }),
+    })
+  const quote = await row.locator(".price-cell img").getAttribute("alt")
+  expect(["Chaos", "Divine"]).toContain(quote)
+  await row
+    .getByRole("button", { name: "View Exalted Orb history", exact: true })
+    .click()
+  await expect(page.locator(".chart-wrap")).toBeVisible()
+  await expect(page.locator(".detail-stats").first()).toContainText(quote!)
+  await page.reload()
+  await expect(select).toContainText("Auto")
+  await expect(page.locator(".detail-stats").first()).toContainText(quote!)
+  await select.click()
+  await page.getByRole("option", { name: "Exalted", exact: true }).click()
+  await expect(page.locator(".detail-stats strong").first()).toHaveText(
+    "1 Exalted"
+  )
+})

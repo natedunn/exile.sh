@@ -58,10 +58,15 @@ import { compact, number, percent, utc } from "../lib/format"
 import { ANCHORS, DEFAULT_LEAGUE, LEAGUES, QUOTES } from "../../shared/economy"
 import type { ItemRow, Pair, Quote } from "../../shared/economy"
 
+import {
+  autoDisplayQuotes,
+  DISPLAY_CURRENCIES,
+} from "../../shared/display-currency"
+
 const MarketChart = lazy(() => import("../components/market-chart"))
 export const filters = z.object({
   league: z.enum(LEAGUES).catch(DEFAULT_LEAGUE),
-  quote: z.enum(QUOTES).catch("Exalted"),
+  quote: z.enum(DISPLAY_CURRENCIES).catch("Exalted"),
   category: z.string().catch("All currencies"),
   q: z.string().max(120).catch(""),
   sort: z.enum(["price", "name", "change", "volume"]).catch("price"),
@@ -176,13 +181,19 @@ export function EconomyPage({
     }
   }
   const data = query.data,
-    rows = data?.prices ?? [],
-    qi = QUOTES.indexOf(f.quote)
-  const rate =
-    f.quote === "Exalted"
+    rows = data?.prices ?? []
+  const autoQuotes = autoDisplayQuotes(rows, data?.pairs ?? [])
+  const displayQuote = (id: string): Quote =>
+    f.quote === "Auto" ? (autoQuotes.get(id) ?? "Exalted") : f.quote
+  const quoteIndex = (id: string) => QUOTES.indexOf(displayQuote(id))
+  const rate = (id: string) =>
+    displayQuote(id) === "Exalted"
       ? 1
-      : rows.find((r) => r.id === ANCHORS[f.quote])?.price
-  const value = (r: ItemRow) => (rate ? r.price / rate : null)
+      : rows.find((r) => r.id === ANCHORS[displayQuote(id)])?.price
+  const value = (r: ItemRow) => {
+    const conversion = rate(r.id)
+    return conversion ? r.price / conversion : null
+  }
   const visible = rows
     .filter((r) => {
       const item = itemInfo(r.id)
@@ -197,8 +208,8 @@ export function EconomyPage({
       if (f.sort === "name")
         diff = itemInfo(a.id).name.localeCompare(itemInfo(b.id).name)
       else if (f.sort === "change") {
-        const av = a.changes[qi],
-          bv = b.changes[qi]
+        const av = a.changes[quoteIndex(a.id)],
+          bv = b.changes[quoteIndex(b.id)]
         if (av === null) return 1
         if (bv === null) return -1
         diff = av - bv
@@ -212,14 +223,16 @@ export function EconomyPage({
   const pages = Math.max(1, Math.ceil(visible.length / 25)),
     page = Math.min(f.page, pages),
     displayed = visible.slice((page - 1) * 25, page * 25)
-  const movers = rows.filter((r) => r.eligible[qi] && r.changes[qi] !== null)
+  const movers = rows.filter(
+    (r) => r.eligible[quoteIndex(r.id)] && r.changes[quoteIndex(r.id)] !== null
+  )
   const rising = [...movers]
-    .filter((r) => r.changes[qi]! > 0)
-    .sort((a, b) => b.changes[qi]! - a.changes[qi]!)
+    .filter((r) => r.changes[quoteIndex(r.id)]! > 0)
+    .sort((a, b) => b.changes[quoteIndex(b.id)]! - a.changes[quoteIndex(a.id)]!)
     .slice(0, 10)
   const falling = [...movers]
-    .filter((r) => r.changes[qi]! < 0)
-    .sort((a, b) => a.changes[qi]! - b.changes[qi]!)
+    .filter((r) => r.changes[quoteIndex(r.id)]! < 0)
+    .sort((a, b) => a.changes[quoteIndex(a.id)]! - b.changes[quoteIndex(b.id)]!)
     .slice(0, 10)
   const stale = !!data && now > (data.hour + 3 * 3600) * 1000
   const sort = (key: Filters["sort"]) =>
@@ -316,13 +329,16 @@ export function EconomyPage({
                 onValueChange={(quote) => {
                   if (quote) patch({ quote })
                 }}
-                items={QUOTES.map((quote) => ({ label: quote, value: quote }))}
+                items={DISPLAY_CURRENCIES.map((quote) => ({
+                  label: quote,
+                  value: quote,
+                }))}
               >
                 <SelectTrigger aria-label="Quote currency" size="sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent alignItemWithTrigger={false}>
-                  {QUOTES.map((quote) => (
+                  {DISPLAY_CURRENCIES.map((quote) => (
                     <SelectItem key={quote} value={quote}>
                       {quote}
                     </SelectItem>
@@ -373,11 +389,12 @@ export function EconomyPage({
               <ItemDetail
                 id={f.item}
                 league={f.league}
-                quote={f.quote}
+                quote={displayQuote(f.item)}
                 row={rows.find((r) => r.id === f.item)}
                 price={
-                  rate
-                    ? (rows.find((r) => r.id === f.item)?.price ?? 0) / rate
+                  rate(f.item)
+                    ? (rows.find((r) => r.id === f.item)?.price ?? 0) /
+                      rate(f.item)!
                     : null
                 }
                 hour={data.hour}
@@ -447,11 +464,11 @@ export function EconomyPage({
                               {itemInfo(r.id).name}
                               <small>
                                 {value(r) === null ? "—" : number(value(r)!)}{" "}
-                                {f.quote.toLowerCase()}
+                                {displayQuote(r.id).toLowerCase()}
                               </small>
                             </span>
-                            <Sparkline values={r.trends[qi]} />
-                            <Delta value={r.changes[qi]} />
+                            <Sparkline values={r.trends[quoteIndex(r.id)]} />
+                            <Delta value={r.changes[quoteIndex(r.id)]} />
                           </Button>
                         ))
                       ) : (
@@ -690,17 +707,19 @@ export function EconomyPage({
                               <TableCell className="price-cell">
                                 {value(r) === null ? "—" : number(value(r)!)}
                                 <img
-                                  src={itemInfo(ANCHORS[f.quote]).icon}
+                                  src={
+                                    itemInfo(ANCHORS[displayQuote(r.id)]).icon
+                                  }
                                   width="17"
                                   height="17"
-                                  alt={f.quote}
+                                  alt={displayQuote(r.id)}
                                 />
                               </TableCell>
                               <TableCell>
-                                <Delta value={r.changes[qi]} />
+                                <Delta value={r.changes[quoteIndex(r.id)]} />
                               </TableCell>
                               <TableCell className="hide-small">
-                                <Delta value={r.changes7[qi]} />
+                                <Delta value={r.changes7[quoteIndex(r.id)]} />
                               </TableCell>
                               <TableCell
                                 className="hide-medium volume-cell"
@@ -709,7 +728,9 @@ export function EconomyPage({
                                 {compact(r.volume)}
                               </TableCell>
                               <TableCell className="hide-small">
-                                <Sparkline values={r.trends[qi]} />
+                                <Sparkline
+                                  values={r.trends[quoteIndex(r.id)]}
+                                />
                               </TableCell>
                               <TableCell>
                                 <Button

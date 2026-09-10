@@ -42,6 +42,15 @@ function Methodology() {
         is not the whole exchange’s turnover. The Exalted base itself sums its
         traded units across pairs.
       </p>
+      <p>
+        Auto display chooses Exalted, Chaos, or Divine separately for each item,
+        using the pair with the most traded item units in the latest completed
+        hour. Ties prefer Exalted, then Chaos, then Divine. Inactive pairs and
+        quotes without a usable conversion are excluded; without a qualifying
+        pair, Auto falls back to Exalted. Prices retain the same normalized
+        calculation described above. Changes and history use the selected quote;
+        price sorting compares Exalted values even when displayed units differ.
+      </p>
       <h2>Trends that earn their place</h2>
       <p>
         24-hour and 7-day changes compare two three-hour, item-volume-weighted
