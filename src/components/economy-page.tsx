@@ -490,6 +490,28 @@ export function EconomyPage({
                 <section className="market-layout">
                   <aside className="categories">
                     <nav aria-label="Currency categories">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={f.favorites ? "active" : ""}
+                        aria-pressed={f.favorites}
+                        onClick={() =>
+                          patch({ favorites: true, category: "All currencies" })
+                        }
+                      >
+                        <span>
+                          <span className="item-icon">
+                            <Star size={18} />
+                          </span>
+                          Watchlist
+                        </span>
+                        <small>
+                          {
+                            rows.filter((row) => favorites.includes(row.id))
+                              .length
+                          }
+                        </small>
+                      </Button>
                       {CATEGORIES.map((cat) => {
                         const categoryRows = rows.filter(
                           (r) =>
@@ -513,9 +535,13 @@ export function EconomyPage({
                             variant="ghost"
                             size="sm"
                             key={cat}
-                            className={f.category === cat ? "active" : ""}
-                            aria-pressed={f.category === cat}
-                            onClick={() => patch({ category: cat })}
+                            className={
+                              !f.favorites && f.category === cat ? "active" : ""
+                            }
+                            aria-pressed={!f.favorites && f.category === cat}
+                            onClick={() =>
+                              patch({ category: cat, favorites: false })
+                            }
                           >
                             <span>
                               {mostTraded && (
@@ -565,19 +591,6 @@ export function EconomyPage({
                           </InputGroupAddon>
                         )}
                       </InputGroup>
-                      <Toggle
-                        size="sm"
-                        className={`favorites-filter ${f.favorites ? "active" : ""}`}
-                        onPressedChange={(pressed) =>
-                          patch({ favorites: pressed })
-                        }
-                        pressed={f.favorites}
-                      >
-                        <Star size={14} /> Watchlist{" "}
-                        {favorites.length > 0 && (
-                          <span>{favorites.length}</span>
-                        )}
-                      </Toggle>
                       <span className="table-count">
                         {visible.length} currencies
                       </span>
@@ -671,7 +684,19 @@ export function EconomyPage({
                         </TableHeader>
                         <TableBody>
                           {displayed.map((r) => (
-                            <TableRow key={r.id}>
+                            <TableRow
+                              key={r.id}
+                              className="currency-row"
+                              onClick={(event) => {
+                                if (
+                                  (event.target as HTMLElement).closest(
+                                    "button, a, input"
+                                  )
+                                )
+                                  return
+                                openItem(r.id)
+                              }}
+                            >
                               <TableCell className="star-column">
                                 <Toggle
                                   size="sm"

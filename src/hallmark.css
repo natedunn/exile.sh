@@ -1116,3 +1116,7 @@ html body .footer-info p {
     width: auto;
   }
 }
+
+html body .currency-row {
+  cursor: pointer;
+}

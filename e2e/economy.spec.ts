@@ -272,11 +272,9 @@ test("Auto display persists and carries each item's quote into its chart", async
   await select.click()
   await page.getByRole("option", { name: "Auto", exact: true }).click()
   await expect(page).toHaveURL(/quote=Auto/)
-  const row = page
-    .locator(".currency-table tbody tr")
-    .filter({
-      has: page.getByRole("button", { name: "Exalted Orb", exact: true }),
-    })
+  const row = page.locator(".currency-table tbody tr").filter({
+    has: page.getByRole("button", { name: "Exalted Orb", exact: true }),
+  })
   const quote = await row.locator(".price-cell img").getAttribute("alt")
   expect(["Chaos", "Divine"]).toContain(quote)
   await row
@@ -292,4 +290,44 @@ test("Auto display persists and carries each item's quote into its chart", async
   await expect(page.locator(".detail-stats strong").first()).toHaveText(
     "1 Exalted"
   )
+})
+
+test("currency rows open details and sidebar watchlist keeps stars independent", async ({
+  page,
+}) => {
+  await page.goto("/economy/market?q=Divine%20Orb")
+  const row = page
+    .locator(".currency-row")
+    .filter({
+      has: page.getByRole("button", { name: "Divine Orb", exact: true }),
+    })
+  await expect(row).toBeVisible()
+  await row
+    .getByRole("button", { name: "Add Divine Orb to watchlist", exact: true })
+    .click()
+  await expect(page.locator(".detail-view")).toHaveCount(0)
+  const sidebar = page.getByRole("navigation", { name: "Currency categories" })
+  await expect(sidebar.getByRole("button").first()).toContainText("Watchlist")
+  await sidebar.getByRole("button", { name: /^Watchlist/ }).click()
+  await expect(
+    sidebar.getByRole("button", { name: /^Watchlist/ })
+  ).toHaveAttribute("aria-pressed", "true")
+  await row.locator(".price-cell").click()
+  await expect(page.locator(".chart-wrap")).toBeVisible()
+  await page
+    .getByRole("button", { name: "Back to market", exact: true })
+    .click()
+  await row
+    .getByRole("button", {
+      name: "Remove Divine Orb from watchlist",
+      exact: true,
+    })
+    .click()
+  await expect(page.locator(".currency-row")).toHaveCount(0)
+  await expect(page.locator(".detail-view")).toHaveCount(0)
+  await sidebar.getByRole("button", { name: /^All currencies/ }).click()
+  await expect(row).toBeVisible()
+  await expect(
+    sidebar.getByRole("button", { name: /^Watchlist/ })
+  ).toHaveAttribute("aria-pressed", "false")
 })
