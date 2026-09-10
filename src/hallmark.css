@@ -1161,3 +1161,90 @@ html body .movers-controls {
   flex-wrap: wrap;
   gap: var(--space-lg);
 }
+
+/* Exchange pairs: keep table cells in the table formatting context. */
+html body .pairs-panel {
+  margin-top: var(--space-2xl);
+}
+html body .pairs-panel > .section-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+html body .pairs-panel > .section-title h2 {
+  margin: 0;
+}
+html body .pairs-panel > .table-toolbar {
+  border: 0;
+  padding: 0 0 var(--space-xl);
+}
+html body .pairs-table {
+  min-width: 750px;
+  border-top: var(--rule-thin) solid var(--color-rule-strong);
+}
+html body .pairs-table tr {
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+}
+html body .pairs-table tbody tr:last-child {
+  border-bottom: 0;
+}
+html body .pairs-table th,
+html body .pairs-table td {
+  border: 0;
+  padding: var(--space-lg);
+  height: auto;
+  text-align: left;
+  vertical-align: middle;
+}
+html body .pairs-table th {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-transform: none;
+  letter-spacing: normal;
+}
+html body .pairs-table td,
+html body .pairs-table td:first-child {
+  font-size: var(--text-body);
+}
+html body .pairs-table td:first-child {
+  display: table-cell;
+  min-height: 0;
+}
+html body .pair-currencies {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto minmax(160px, 1fr);
+  align-items: center;
+  gap: var(--space-lg);
+}
+html body .pairs-table .pair-currencies button {
+  justify-content: flex-start;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  padding: var(--space-xs) 0;
+  font-size: var(--text-sm);
+}
+html body .pair-currencies > svg {
+  color: var(--color-text-muted);
+}
+html body .pairs-panel > .pagination {
+  padding: var(--space-lg) 0;
+  align-items: center;
+  gap: var(--space-lg);
+  border-top: var(--rule-thin) solid var(--color-rule);
+}
+html body .pairs-panel > .pagination > span {
+  max-width: none;
+  line-height: 1.6;
+}
+@media (max-width: 600px) {
+  html body .pairs-panel > .pagination {
+    flex-wrap: wrap;
+  }
+  html body .pairs-panel > .pagination > span {
+    flex-basis: 100%;
+  }
+}
