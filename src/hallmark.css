@@ -1279,13 +1279,14 @@ html body .currency-name .item-icon .item-icon-glow {
   inset: 0;
   margin: auto;
   z-index: -1;
-  filter: blur(6px);
+  filter: blur(7px);
+  transform: scale(1.2);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--dur-fast) var(--ease-out);
 }
 html body .currency-row:is(:hover, :focus-within) .item-icon-glow {
-  opacity: 0.4;
+  opacity: 0.65;
 }
 html body .currency-row:is(:hover, :focus-within) .currency-name .item-icon img:not(.item-icon-glow) {
   transform: scale(1.04);
@@ -1339,4 +1340,8 @@ html body .display-currency-label .item-icon,
 html body .display-currency-label .item-icon img {
   width: 22px;
   height: 22px;
+}
+
+html body .currency-name {
+  gap: var(--space-md);
 }
