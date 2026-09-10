@@ -850,7 +850,10 @@ html body .view-tabs [data-slot="tabs-trigger"]::after {
   display: none;
 }
 html body .league-picker[data-slot="select-trigger"] {
-  height: auto;
+  margin-left: auto;
+  flex-shrink: 0;
+  height: 28px;
+  padding: var(--space-xs) var(--space-sm);
 }
 html body .quote-picker [data-slot="select-trigger"] {
   height: auto;
@@ -1082,5 +1085,34 @@ html body .economy-page-nav a:hover {
     font-size: var(--text-xs);
     gap: var(--space-xs);
     padding: var(--space-md) 0;
+  }
+}
+
+html body footer > .footer-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-left: 0;
+  min-width: 0;
+}
+html body .footer-info p {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  html body .topbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 56px;
+    gap: var(--space-sm);
+    padding-block: var(--space-sm);
+  }
+  html body .topbar nav {
+    height: 40px;
+  }
+  html body .league-picker[data-slot="select-trigger"] {
+    font-size: var(--text-xs);
+  }
+  html body footer > .footer-info {
+    width: auto;
   }
 }

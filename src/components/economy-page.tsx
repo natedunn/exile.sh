@@ -44,7 +44,6 @@ import {
   ChevronRight,
   CircleHelp,
   ExternalLink,
-  GitBranch,
   Search,
   Star,
   X,
@@ -245,49 +244,36 @@ export function EconomyPage({
             Economy
           </Link>
         </nav>
-        <a
-          className="source-link"
-          href="https://github.com/natedunn/exile.sh"
-          target="_blank"
-          rel="noreferrer"
+        <Select
+          value={f.league}
+          onValueChange={(league) => {
+            if (league) patch({ league, item: "" })
+          }}
+          items={LEAGUES.map((league) => ({
+            label: league,
+            value: league,
+          }))}
         >
-          <GitBranch size={14} />
-          <span>Open source</span>
-          <ExternalLink size={12} />
-        </a>
+          <SelectTrigger
+            className="league-picker"
+            aria-label="League"
+            size="sm"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent alignItemWithTrigger={false}>
+            {LEAGUES.map((league) => (
+              <SelectItem key={league} value={league}>
+                {league}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </header>
       <main id="main">
         <section className="market-heading">
           <div>
             <h1>{moversPage ? "Market movers" : "Exchange economy"}</h1>
-          </div>
-          <div className="market-context">
-            <Select
-              value={f.league}
-              onValueChange={(league) => {
-                if (league) patch({ league, item: "" })
-              }}
-              items={LEAGUES.map((league) => ({
-                label: league,
-                value: league,
-              }))}
-            >
-              <SelectTrigger className="league-picker" aria-label="League">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent alignItemWithTrigger={false}>
-                {LEAGUES.map((league) => (
-                  <SelectItem key={league} value={league}>
-                    {league}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <span className="source-time">
-              {data
-                ? `Last completed hour · ${utc(data.hour)}`
-                : "Waiting for a completed exchange hour"}
-            </span>
           </div>
         </section>
         {stale && (
@@ -810,7 +796,14 @@ export function EconomyPage({
         <a className="footer-brand" href="/economy">
           exile.sh
         </a>
-        <p>Not affiliated with or endorsed by Grinding Gear Games.</p>
+        <div className="footer-info">
+          <p>Not affiliated with or endorsed by Grinding Gear Games.</p>
+          <span className="source-time">
+            {data
+              ? `Last completed hour · ${utc(data.hour)}`
+              : "Waiting for a completed exchange hour"}
+          </span>
+        </div>
         <div>
           <a href="/methodology">Data & attribution</a>
           <a href="https://github.com/natedunn/exile.sh">
