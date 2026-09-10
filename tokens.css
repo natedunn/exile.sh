@@ -1,0 +1,37 @@
+/* Hallmark · Workbench tokens · existing Geist / Cormorant pairing */
+:root {
+  --color-paper: oklch(17% 0.006 70);
+  --color-surface: oklch(20% 0.006 70);
+  --color-hover: oklch(25% 0.008 70);
+  --color-ink: oklch(90% 0.014 80);
+  --color-muted: oklch(70% 0.014 80);
+  --color-accent: oklch(76% 0.083 72);
+  --color-focus: oklch(84% 0.09 72);
+  --color-rule: oklch(30% 0.01 70);
+  --color-rule-strong: oklch(45% 0.025 70);
+  --color-positive: oklch(78% 0.09 155);
+  --color-negative: oklch(76% 0.105 30);
+  --color-volume: oklch(66% 0.045 72 / 0.22);
+  --color-notice: oklch(76% 0.083 72 / 0.07);
+  --color-clear: oklch(0% 0 0 / 0);
+  --font-body: "Geist Variable", sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-body: 14px;
+  --text-title: 36px;
+  --text-section: 22px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 100ms;
+  --rule-thin: 1px;
+  --radius-control: 2px;
+}

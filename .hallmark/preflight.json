@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-10",
+  "fonts": ["Geist Variable", "Cormorant Garamond"],
+  "palette": "existing dark green and gold",
+  "motion": "none",
+  "spacing": "ad hoc; introducing 4pt semantic scale",
+  "framework": "TanStack Start",
+  "referencesAvailable": false
+}

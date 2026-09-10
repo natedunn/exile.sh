@@ -50,7 +50,7 @@ export default function MarketChart({
           data={data}
           margin={{ top: 20, right: 6, left: 6, bottom: 12 }}
         >
-          <CartesianGrid stroke="#ffffff09" vertical={false} />
+          <CartesianGrid stroke="var(--color-rule)" vertical={false} />
           <XAxis
             dataKey="time"
             tickFormatter={(v: number) =>
@@ -63,7 +63,7 @@ export default function MarketChart({
             minTickGap={55}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#7e867e", fontSize: 11 }}
+            tick={{ fill: "var(--color-muted)", fontSize: 11 }}
           />
           <YAxis
             yAxisId="price"
@@ -72,7 +72,7 @@ export default function MarketChart({
             tickFormatter={(v: number) => number(v)}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#999f95", fontSize: 11 }}
+            tick={{ fill: "var(--color-muted)", fontSize: 11 }}
             width={65}
           />
           <YAxis yAxisId="volume" hide domain={[0, (max: number) => max * 5]} />
@@ -85,18 +85,18 @@ export default function MarketChart({
               name,
             ]}
             contentStyle={{
-              background: "#1a1e1a",
-              border: "1px solid #645639",
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-rule-strong)",
               borderRadius: 4,
               fontSize: 12,
-              color: "#ddd9cb",
+              color: "var(--color-ink)",
             }}
           />
           <Bar
             yAxisId="volume"
             dataKey="volume"
             name="Traded units"
-            fill="#9caa8b22"
+            fill="var(--color-volume)"
             isAnimationActive={false}
           />
           <Line
@@ -104,7 +104,7 @@ export default function MarketChart({
             dataKey="price"
             name="Price"
             type="linear"
-            stroke="#c6a56a"
+            stroke="var(--color-accent)"
             strokeWidth={2}
             dot={points.length < 4 ? { r: 3 } : false}
             connectNulls={false}

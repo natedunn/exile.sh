@@ -63,3 +63,42 @@ test("mobile market stays within the viewport and categories filter", async ({
     fullPage: true,
   })
 })
+
+for (const width of [320, 375, 414, 768]) {
+  test(`workbench remains readable at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 950 })
+    await page.goto("/")
+    await expect(page.locator(".currency-table tbody tr").first()).toBeVisible()
+    const layout = await page.evaluate(() => {
+      const root = document.documentElement
+      const main = document.querySelector("#main")!.getBoundingClientRect()
+      const table = document
+        .querySelector(".currency-table")!
+        .getBoundingClientRect()
+      return {
+        viewport: innerWidth,
+        scroll: root.scrollWidth,
+        mainRight: main.right,
+        tableRight: table.right,
+        rootOverflow: getComputedStyle(root).overflowX,
+        bodyOverflow: getComputedStyle(document.body).overflowX,
+      }
+    })
+    expect(layout.scroll).toBeLessThanOrEqual(width)
+    expect(layout.mainRight).toBeLessThanOrEqual(width)
+    expect(layout.tableRight).toBeLessThanOrEqual(width)
+    expect(layout.rootOverflow).toBe("clip")
+    expect(layout.bodyOverflow).toBe("clip")
+    await page.screenshot({
+      path: `test-results/workbench-${width}.png`,
+      fullPage: true,
+    })
+    await page
+      .getByRole("button", { name: "View Divine Orb history", exact: true })
+      .click()
+    await expect(page.locator(".chart-wrap")).toBeVisible()
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth)
+    ).toBeLessThanOrEqual(width)
+  })
+}

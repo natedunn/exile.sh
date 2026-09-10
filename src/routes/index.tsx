@@ -210,12 +210,6 @@ function EconomyPage() {
           <a className="nav-active" href="/">
             Economy
           </a>
-          <span
-            className="coming-soon"
-            title="More tools will join the collection"
-          >
-            The collection <span>01</span>
-          </span>
         </nav>
         <a
           className="source-link"
@@ -229,62 +223,35 @@ function EconomyPage() {
         </a>
       </header>
       <main id="main">
-        <section className="hero">
-          <div className="hero-copy">
-            <div className="eyebrow">
-              <span className="tiny-diamond" /> PATH OF EXILE II{" "}
-              <span className="eyebrow-divider">/</span> THE ECONOMY
-            </div>
-            <h1>
-              Fortune favors
-              <br className="mobile-break" /> the informed<span>.</span>
-            </h1>
-            <p>
-              A clearer view of Wraeclast. Follow the currencies. Find your next
-              move.
-            </p>
-            <div className="hero-bottom">
-              <label className="league-picker">
-                <span className="status-dot" />
-                <select
-                  aria-label="League"
-                  value={f.league}
-                  onChange={(e) =>
-                    patch({
-                      league: e.target.value as Filters["league"],
-                      item: "",
-                    })
-                  }
-                >
-                  {LEAGUES.map((l) => (
-                    <option key={l}>{l}</option>
-                  ))}
-                </select>
-                <ChevronDown size={13} />
-              </label>
-              <span className="hero-meta">
-                {data
-                  ? `${utc(data.hour)} · completed hour`
-                  : "Hourly exchange intelligence"}
-              </span>
-            </div>
+        <section className="market-heading">
+          <div>
+            <p className="game-label">Path of Exile 2</p>
+            <h1>Exchange economy</h1>
           </div>
-          <div className="hero-art" aria-hidden="true">
-            <div className="orbit orbit-one" />
-            <div className="orbit orbit-two" />
-            <span className="orbit-cross cross-one">✦</span>
-            <span className="orbit-cross cross-two">✧</span>
-            <img
-              className="orb-main"
-              src={itemInfo(ANCHORS.Divine).icon}
-              alt=""
-            />
-            <img
-              className="orb-small"
-              src={itemInfo(ANCHORS.Exalted).icon}
-              alt=""
-            />
-            <span className="art-caption">VALUE IS ALWAYS IN MOTION</span>
+          <div className="market-context">
+            <label className="league-picker">
+              <span className="status-dot" />
+              <select
+                aria-label="League"
+                value={f.league}
+                onChange={(e) =>
+                  patch({
+                    league: e.target.value as Filters["league"],
+                    item: "",
+                  })
+                }
+              >
+                {LEAGUES.map((l) => (
+                  <option key={l}>{l}</option>
+                ))}
+              </select>
+              <ChevronDown size={13} />
+            </label>
+            <span className="source-time">
+              {data
+                ? `Last completed hour · ${utc(data.hour)}`
+                : "Waiting for a completed exchange hour"}
+            </span>
           </div>
         </section>
         <section
@@ -388,7 +355,7 @@ function EconomyPage() {
         ) : !data ? (
           <div className="empty-state">
             <Gem />
-            <h2>Every market starts somewhere.</h2>
+            <h2>No exchange data yet.</h2>
             <p>
               No completed exchange hours have been imported for this league
               yet.
@@ -418,15 +385,14 @@ function EconomyPage() {
         ) : f.tab === "exchange" ? (
           <PairTable pairs={data.pairs} onItem={openItem} />
         ) : (
-          <>
+          <div className="economy-workbench">
             <section className="movers-section">
               <div className="section-title">
                 <div>
-                  <span className="section-kicker">THE PULSE</span>
-                  <h2>On the move</h2>
+                  <h2>Market movers</h2>
                 </div>
                 <span className="period-label">
-                  24-hour change <span>·</span> Activity-filtered{" "}
+                  24h · Activity-filtered{" "}
                   <CircleHelp size={13}>
                     <title>
                       Three-hour weighted windows, at least 12 active hours, and
@@ -437,8 +403,8 @@ function EconomyPage() {
               </div>
               <div className="movers-grid">
                 {[
-                  { title: "Gaining ground", data: rising, up: true },
-                  { title: "Losing ground", data: falling, up: false },
+                  { title: "Gainers", data: rising, up: true },
+                  { title: "Decliners", data: falling, up: false },
                 ].map((group) => (
                   <div
                     className={`mover-card ${group.up ? "gainers" : "losers"}`}
@@ -488,7 +454,7 @@ function EconomyPage() {
             </section>
             <section className="market-layout">
               <aside className="categories">
-                <span className="section-kicker">EXPLORE THE MARKET</span>
+                <span className="category-label">Categories</span>
                 <nav aria-label="Currency categories">
                   {CATEGORIES.map((cat) => {
                     const count = rows.filter(
@@ -518,7 +484,7 @@ function EconomyPage() {
                 </nav>
                 <div className="sidebar-note">
                   <span className="status-dot" />
-                  <strong>From the source.</strong>
+                  <strong>Source: GGG Currency Exchange</strong>
                   <p>
                     Completed trades from GGG's official Currency Exchange.
                     Updated hourly when collection is running.
@@ -742,7 +708,7 @@ function EconomyPage() {
                 </div>
               </div>
             </section>
-          </>
+          </div>
         )}
         <section className="bottom-note">
           <CircleHelp size={15} />
@@ -751,7 +717,6 @@ function EconomyPage() {
             markets can be volatile.{" "}
             <a href="/methodology">Read the methodology.</a>
           </p>
-          <span>BUILT FOR EXILES, BY AN EXILE.</span>
         </section>
       </main>
       <footer>
@@ -962,8 +927,7 @@ function PairTable({
     <section className="pairs-panel">
       <div className="section-title">
         <div>
-          <span className="section-kicker">COMPLETED EXCHANGES</span>
-          <h2>Inside the market</h2>
+          <h2>Exchange pairs</h2>
         </div>
         <button
           className="favorites-filter"
