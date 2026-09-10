@@ -1,5 +1,10 @@
 import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "../components/ui/input-group"
 import {
   Select,
   SelectContent,
@@ -566,25 +571,29 @@ function EconomyPage() {
                   </aside>
                   <div className="market-table-panel">
                     <div className="table-toolbar">
-                      <label className="search-input">
-                        <Search size={16} />
-                        <Input
+                      <InputGroup className="search-input">
+                        <InputGroupAddon>
+                          <Search size={16} />
+                        </InputGroupAddon>
+                        <InputGroupInput
                           value={f.q}
                           onChange={(e) => patch({ q: e.target.value })}
                           placeholder="Find a currency…"
                           aria-label="Search currencies"
                         />
                         {f.q && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            aria-label="Clear search"
-                            onClick={() => patch({ q: "" })}
-                          >
-                            <X size={13} />
-                          </Button>
+                          <InputGroupAddon align="inline-end">
+                            <InputGroupButton
+                              variant="ghost"
+                              size="icon-xs"
+                              aria-label="Clear search"
+                              onClick={() => patch({ q: "" })}
+                            >
+                              <X size={13} />
+                            </InputGroupButton>
+                          </InputGroupAddon>
                         )}
-                      </label>
+                      </InputGroup>
                       <Toggle
                         size="sm"
                         className={`favorites-filter ${f.favorites ? "active" : ""}`}
@@ -1064,9 +1073,11 @@ function PairTable({
         </Button>
       </div>
       <div className="table-toolbar">
-        <label className="search-input">
-          <Search size={15} />
-          <Input
+        <InputGroup className="search-input">
+          <InputGroupAddon>
+            <Search size={15} />
+          </InputGroupAddon>
+          <InputGroupInput
             aria-label="Search exchange pairs"
             placeholder="Search either currency…"
             value={q}
@@ -1075,7 +1086,7 @@ function PairTable({
               setPage(1)
             }}
           />
-        </label>
+        </InputGroup>
         <span className="table-count">{visible.length} pairs</span>
       </div>
       <div className="table-scroll">

@@ -164,3 +164,36 @@ test("Base UI selects, tabs, and tooltip support keyboard interaction", async ({
   await expect(help).toHaveAccessibleDescription(/1,000 Exalted/)
   expect(errors).toEqual([])
 })
+
+test("input groups own focus styling without page-specific classes", async ({
+  page,
+}) => {
+  await page.goto("/")
+  const input = page.getByRole("textbox", {
+    name: "Search currencies",
+    exact: true,
+  })
+  await expect(input).toBeVisible()
+  const group = input.locator("..")
+  await expect(group).toHaveAttribute("data-slot", "input-group")
+  // Removing the layout class must not remove the component's focus treatment.
+  await group.evaluate((element) => element.classList.remove("search-input"))
+  const unfocusedBorder = await group.evaluate(
+    (element) => getComputedStyle(element).borderColor
+  )
+  await input.focus()
+  const focused = await input.evaluate((element) => ({
+    innerOutline: getComputedStyle(element).outlineStyle,
+    innerShadow: getComputedStyle(element).boxShadow,
+    groupShadow: getComputedStyle(element.parentElement!).boxShadow,
+    groupBorder: getComputedStyle(element.parentElement!).borderColor,
+  }))
+  expect(focused.innerOutline).toBe("none")
+  expect(focused.innerShadow).toBe("none")
+  expect(focused.groupShadow).toContain("3px")
+  expect(focused.groupBorder).not.toBe(unfocusedBorder)
+  await input.blur()
+  expect(
+    await group.evaluate((element) => getComputedStyle(element).boxShadow)
+  ).toBe("none")
+})

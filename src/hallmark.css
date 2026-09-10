@@ -965,14 +965,7 @@ html body [data-slot="select-item"][data-highlighted] {
   background: var(--color-hover);
   color: var(--color-ink);
 }
-html body .search-input [data-slot="input"] {
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  height: 34px;
-  padding: 0;
-  background: none;
-}
+
 html body .currency-name[data-slot="button"],
 html body .mover-row[data-slot="button"] {
   justify-content: flex-start;
@@ -1024,15 +1017,23 @@ html body [data-slot="skeleton"] {
   }
 }
 
-/* Composite search fields own the focus treatment, including their icons. */
-html body .search-input:focus-within {
-  border-color: var(--color-focus);
-  box-shadow: 0 0 0 3px var(--color-focus-glow);
-}
-html body .search-input [data-slot="input"]:focus-visible {
-  outline: none;
-  box-shadow: none;
-}
 html body .market-table-panel {
   overflow: visible;
+}
+
+/* Page layout only: focus and inner-control resets live in ui/field.css. */
+html body .search-input[data-slot="input-group"] {
+  height: auto;
+  min-height: 38px;
+  gap: var(--space-sm);
+}
+html body .search-input [data-slot="input-group-control"] {
+  height: 34px;
+  padding: 0;
+}
+html body .search-input [data-slot="input-group-addon"] {
+  padding: 0;
+}
+html body .quote-picker [data-slot="select-trigger"] {
+  border: 1px solid var(--color-clear);
 }

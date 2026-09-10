@@ -21,3 +21,8 @@ Add components with the existing `components.json` configuration, then adapt
 shared styles to the workbench tokens in `tokens.css`. Keep custom economy
 charts, data calculations, and layout where a generic control is not a fit.
 Verify keyboard behavior and mobile widths when replacing interactive controls.
+
+Field focus styling belongs in `src/components/ui/field.css`, consumed by the
+shared Input, Textarea, SelectTrigger, and InputGroup components. Use InputGroup
+with InputGroupInput/Addon/Button for fields containing icons or actions; do not
+add route-specific focus outlines or rings to the inner control.
