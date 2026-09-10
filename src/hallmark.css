@@ -1023,3 +1023,16 @@ html body [data-slot="skeleton"] {
     gap: var(--space-md);
   }
 }
+
+/* Composite search fields own the focus treatment, including their icons. */
+html body .search-input:focus-within {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 3px var(--color-focus-glow);
+}
+html body .search-input [data-slot="input"]:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+html body .market-table-panel {
+  overflow: visible;
+}

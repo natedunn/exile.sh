@@ -7,6 +7,7 @@
   --color-text-muted: oklch(70% 0.014 80);
   --color-brand: oklch(76% 0.083 72);
   --color-focus: oklch(84% 0.09 72);
+  --color-focus-glow: oklch(84% 0.09 72 / 0.18);
   --color-rule: oklch(30% 0.01 70);
   --color-rule-strong: oklch(45% 0.025 70);
   --color-positive: oklch(78% 0.09 155);
