@@ -45,6 +45,7 @@ import {
   CircleHelp,
   ExternalLink,
   Search,
+  Shuffle,
   Star,
   X,
   SlidersHorizontal,
@@ -94,6 +95,18 @@ function Icon({ id, large = false }: { id: string; large?: boolean }) {
       ) : (
         <Gem size={large ? 30 : 19} />
       )}
+    </span>
+  )
+}
+function DisplayCurrencyLabel({ quote }: { quote: Filters["quote"] }) {
+  return (
+    <span className="display-currency-label">
+      {quote === "Auto" ? (
+        <Shuffle size={18} aria-hidden="true" />
+      ) : (
+        <Icon id={ANCHORS[quote]} />
+      )}
+      {quote}
     </span>
   )
 }
@@ -342,12 +355,14 @@ export function EconomyPage({
                 }))}
               >
                 <SelectTrigger aria-label="Quote currency" size="sm">
-                  <SelectValue />
+                  <SelectValue>
+                    <DisplayCurrencyLabel quote={f.quote} />
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent alignItemWithTrigger={false}>
                   {DISPLAY_CURRENCIES.map((quote) => (
                     <SelectItem key={quote} value={quote}>
-                      {quote}
+                      <DisplayCurrencyLabel quote={quote} />
                     </SelectItem>
                   ))}
                 </SelectContent>

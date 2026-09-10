@@ -1139,3 +1139,18 @@ html body .market-table-panel > .compact-empty {
   flex: 1;
   justify-content: center;
 }
+
+html body .display-currency-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+html body .display-currency-label .item-icon,
+html body .display-currency-label .item-icon img {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+}
+html body .display-currency-label > svg {
+  flex-shrink: 0;
+}
