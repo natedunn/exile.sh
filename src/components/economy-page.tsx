@@ -81,11 +81,30 @@ export const filters = z.object({
 })
 export type Filters = z.infer<typeof filters>
 
-function Icon({ id, large = false }: { id: string; large?: boolean }) {
+function Icon({
+  id,
+  large = false,
+  glow = false,
+}: {
+  id: string
+  large?: boolean
+  glow?: boolean
+}) {
   const [broken, setBroken] = useState(false)
   const item = itemInfo(id)
   return (
     <span className={`item-icon ${large ? "large" : ""}`}>
+      {glow && item.icon && !broken && (
+        <img
+          className="item-icon-glow"
+          src={item.icon}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          width={32}
+          height={32}
+        />
+      )}
       {item.icon && !broken ? (
         <img
           src={item.icon}
@@ -804,7 +823,7 @@ export function EconomyPage({
                                   className="currency-name"
                                   onClick={() => openItem(r.id)}
                                 >
-                                  <Icon id={r.id} />
+                                  <Icon id={r.id} glow />
                                   <span>{itemInfo(r.id).name}</span>
                                 </Button>
                               </TableCell>

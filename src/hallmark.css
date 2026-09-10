@@ -1264,3 +1264,42 @@ html body .pairs-panel > .pagination > span {
     flex-basis: 100%;
   }
 }
+
+/* The blurred icon preserves each currency's own colors in its hover glow. */
+html body .currency-name .item-icon {
+  position: relative;
+  overflow: visible;
+  isolation: isolate;
+}
+html body .currency-name .item-icon img {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+html body .currency-name .item-icon .item-icon-glow {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  z-index: -1;
+  filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+html body .currency-row:is(:hover, :focus-within) .item-icon-glow {
+  opacity: 0.4;
+}
+html body .currency-row:is(:hover, :focus-within) .currency-name .item-icon img:not(.item-icon-glow) {
+  transform: scale(1.04);
+}
+html body .currency-row:is(:hover, :focus-within) .currency-name > span:last-child {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html body .currency-name .item-icon img {
+    transition: none;
+  }
+  html body .currency-row:is(:hover, :focus-within) .currency-name .item-icon img:not(.item-icon-glow) {
+    transform: none;
+  }
+}
