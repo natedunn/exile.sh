@@ -591,9 +591,6 @@ export function EconomyPage({
                           </InputGroupAddon>
                         )}
                       </InputGroup>
-                      <span className="table-count">
-                        {visible.length} currencies
-                      </span>
                     </div>
                     <div className="table-scroll">
                       <Table className="currency-table">
