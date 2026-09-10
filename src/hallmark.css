@@ -359,7 +359,7 @@ html body .mover-card {
   margin-top: var(--space-xl);
 }
 html body .mover-card-title {
-  padding: 0 0 var(--space-sm);
+  padding: 0 var(--space-lg) var(--space-sm);
   border-bottom: var(--rule-thin) solid var(--color-rule-strong);
   font-size: var(--text-sm);
   color: var(--color-ink);
@@ -372,7 +372,7 @@ html body .mover-card-title svg {
   width: 14px;
 }
 html body .mover-row {
-  padding: var(--space-md) 0;
+  padding: var(--space-md) var(--space-lg);
   min-height: 64px;
   border-bottom: var(--rule-thin) solid var(--color-rule);
   gap: var(--space-sm);
@@ -620,7 +620,7 @@ html body .prose-page a {
     flex-wrap: wrap;
     column-gap: var(--space-xs);
     row-gap: 0;
-    padding: var(--space-sm) 0;
+    padding: var(--space-sm) var(--space-md);
   }
   html body .mover-row .item-icon {
     display: none;
@@ -635,6 +635,7 @@ html body .prose-page a {
     margin: var(--space-xs) 0 0;
   }
   html body .mover-card-title {
+    padding-inline: var(--space-md);
     font-size: var(--text-xs);
   }
   html body .categories nav {
