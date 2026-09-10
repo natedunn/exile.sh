@@ -9,8 +9,8 @@ body {
   overflow-x: clip;
 }
 html:root {
-  --gold: var(--color-accent);
-  --muted: var(--color-muted);
+  --gold: var(--color-brand);
+  --muted: var(--color-text-muted);
   --line: var(--color-rule);
   --green: var(--color-positive);
   --red: var(--color-negative);
@@ -65,10 +65,10 @@ html body .topbar nav {
 }
 html body .nav-active {
   color: var(--color-ink);
-  border-bottom: 2px solid var(--color-accent);
+  border-bottom: 2px solid var(--color-brand);
 }
 html body .source-link {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   font-size: var(--text-xs);
 }
 html body .market-heading {
@@ -87,7 +87,7 @@ html body .market-heading h1 {
 }
 html body .game-label {
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   margin-bottom: var(--space-xs);
 }
 html body .market-context {
@@ -107,7 +107,7 @@ html body .league-picker .status-dot {
   display: none;
 }
 html body .source-time {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   font-size: var(--text-xs);
 }
 html body option {
@@ -145,10 +145,10 @@ html body .benchmark strong {
 }
 html body .benchmark strong small {
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .overline {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   font-size: var(--text-xs);
   letter-spacing: 0;
   text-transform: none;
@@ -176,14 +176,14 @@ html body .view-tabs {
 html body .view-tabs button {
   padding: var(--space-lg) 0;
   font-size: var(--text-sm);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .view-tabs button.active {
   color: var(--color-ink);
 }
 html body .quote-picker {
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .quote-picker select {
   color: var(--color-ink);
@@ -212,7 +212,7 @@ html body .categories {
 }
 html body .category-label {
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   display: block;
   margin-bottom: var(--space-sm);
 }
@@ -226,7 +226,7 @@ html body .categories nav button {
   width: 100%;
   justify-content: space-between;
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   padding: 6px var(--space-sm);
   gap: var(--space-sm);
   border: 0;
@@ -241,7 +241,7 @@ html body .category-diamond {
 }
 html body .categories nav button small {
   font-size: 11px;
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .categories nav button.active {
   background: var(--color-hover);
@@ -279,7 +279,7 @@ html body .search-input input {
   min-width: 0;
 }
 html body .search-input input::placeholder {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   opacity: 1;
 }
 html body .favorites-filter {
@@ -287,22 +287,22 @@ html body .favorites-filter {
   border-radius: var(--radius-control);
   font-size: var(--text-xs);
   padding: 9px var(--space-md);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .favorites-filter.active {
-  color: var(--color-accent);
+  color: var(--color-brand);
   background: var(--color-notice);
 }
 html body .table-count {
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .currency-table th {
   font-size: 11px;
   font-weight: 500;
   text-transform: none;
   letter-spacing: 0;
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   padding: var(--space-md) var(--space-sm);
   border-top: var(--rule-thin) solid var(--color-rule-strong);
   background: var(--color-surface);
@@ -329,7 +329,7 @@ html body .currency-name > span:last-child {
   text-overflow: ellipsis;
 }
 html body .currency-name small {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   font-size: 10px;
 }
 html body .currency-name .item-icon {
@@ -347,7 +347,7 @@ html body .price-cell {
   font-variant-numeric: tabular-nums;
 }
 html body .volume-cell {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   font-size: var(--text-xs);
 }
 html body .delta {
@@ -362,18 +362,18 @@ html body .negative {
 }
 html body .neutral,
 html body .muted {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .star-button {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .star-button.saved {
-  color: var(--color-accent);
+  color: var(--color-brand);
 }
 html body .pagination {
   border-top: var(--rule-thin) solid var(--color-rule);
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   padding: var(--space-lg) 0;
 }
 html body .pagination button {
@@ -402,7 +402,7 @@ html body .section-title h2 {
 }
 html body .period-label {
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   letter-spacing: 0;
 }
 html body .movers-grid {
@@ -452,7 +452,7 @@ html body .mover-name {
   color: var(--color-ink);
 }
 html body .mover-name small {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   font-size: 11px;
   margin-top: var(--space-xs);
 }
@@ -465,7 +465,7 @@ html body .mover-row .delta {
 html body .mover-empty {
   padding: var(--space-lg) 0;
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .notice {
   padding: var(--space-md);
@@ -473,13 +473,13 @@ html body .notice {
   font-size: var(--text-xs);
   border: var(--rule-thin) solid var(--color-rule-strong);
   background: var(--color-notice);
-  color: var(--color-accent);
+  color: var(--color-brand);
 }
 html body .bottom-note {
   margin-top: var(--space-xl);
   border-top: var(--rule-thin) solid var(--color-rule);
   padding-top: var(--space-lg);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .bottom-note p {
   font-size: var(--text-xs);
@@ -489,7 +489,7 @@ html body footer {
   margin-top: var(--space-xl);
   font-size: var(--text-xs);
   gap: var(--space-xl);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   padding: var(--space-xl) 0;
 }
 html body .footer-brand {
@@ -505,14 +505,14 @@ html body .section-kicker {
   font-size: var(--text-xs);
   letter-spacing: 0;
   text-transform: none;
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .detail-header p,
 html body .detail-stats .overline,
 html body .history-caption,
 html body .detail-links {
   font-size: var(--text-xs);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .detail-stats,
 html body .chart-panel {
@@ -533,15 +533,15 @@ html body .range-tabs button {
   padding: var(--space-sm);
 }
 html body .range-tabs button.active {
-  color: var(--color-accent);
+  color: var(--color-brand);
   background: var(--color-hover);
 }
 html body .chart-legend {
-  color: var(--color-muted);
+  color: var(--color-text-muted);
   font-size: var(--text-xs);
 }
 html body .chart-legend i {
-  background: var(--color-accent);
+  background: var(--color-brand);
 }
 html body .chart-legend .volume-dot {
   background: var(--color-volume);
@@ -564,10 +564,10 @@ html body .prose-page h2 {
 html body .prose-page p,
 html body .prose-page li {
   font-size: var(--text-body);
-  color: var(--color-muted);
+  color: var(--color-text-muted);
 }
 html body .prose-page a {
-  color: var(--color-accent);
+  color: var(--color-brand);
 }
 @media (max-width: 1250px) {
   html body .economy-workbench {
@@ -913,5 +913,113 @@ html body .section-title {
 @media (max-width: 600px) {
   html body .categories nav {
     flex-wrap: nowrap;
+  }
+}
+
+/* Base UI-backed shadcn controls retain the workbench's size and rhythm. */
+html body .economy-tabs {
+  display: block;
+}
+html body .view-tabs[data-slot="tabs-list"] {
+  height: auto;
+  padding: 0;
+  border-radius: 0;
+}
+html body .view-tabs [data-slot="tabs-trigger"] {
+  flex: none;
+  height: auto;
+  border-radius: 0;
+  border: 0;
+  border-bottom: 2px solid var(--color-clear);
+}
+html body .view-tabs [data-slot="tabs-trigger"][data-active] {
+  color: var(--color-ink);
+  border-bottom-color: var(--color-brand);
+}
+html body .view-tabs [data-slot="tabs-trigger"]::after {
+  display: none;
+}
+html body .league-picker[data-slot="select-trigger"] {
+  height: auto;
+}
+html body .quote-picker [data-slot="select-trigger"] {
+  height: auto;
+  padding: var(--space-xs);
+  border: 0;
+  background: none;
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+}
+html body [data-slot="select-content"] {
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  padding: var(--space-xs);
+  font-family: var(--font-body);
+  animation: none;
+}
+html body [data-slot="select-item"] {
+  padding-top: var(--space-sm);
+  padding-bottom: var(--space-sm);
+  font-size: var(--text-sm);
+}
+html body [data-slot="select-item"][data-highlighted] {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+html body .search-input [data-slot="input"] {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  height: 34px;
+  padding: 0;
+  background: none;
+}
+html body .currency-name[data-slot="button"],
+html body .mover-row[data-slot="button"] {
+  justify-content: flex-start;
+  height: auto;
+  text-align: left;
+}
+html body .currency-table th [data-slot="button"] {
+  padding: 0;
+  height: auto;
+  font: inherit;
+}
+html body .currency-table .star-button[data-slot="toggle"] {
+  padding: 0;
+  min-width: 0;
+  width: 24px;
+  height: 28px;
+  background: none;
+}
+html body .currency-table .row-open[data-slot="button"] {
+  padding: 0;
+  width: 16px;
+}
+html body .help-trigger {
+  color: var(--color-text-muted);
+  height: 24px;
+  width: 24px;
+  padding: 0;
+}
+html body [data-slot="tooltip-content"] {
+  font-family: var(--font-body);
+  animation: none;
+}
+html body .history-data [data-slot="collapsible-trigger"] {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: var(--space-md) 0;
+}
+html body [data-slot="skeleton"] {
+  background: var(--color-hover);
+  animation: none;
+}
+@media (max-width: 600px) {
+  html body .quote-picker [data-slot="select-trigger"] {
+    font-size: var(--text-xs);
+    gap: var(--space-xs);
+  }
+  html body .view-tabs[data-slot="tabs-list"] {
+    gap: var(--space-md);
   }
 }

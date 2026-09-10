@@ -1,3 +1,4 @@
+import { Button } from "../components/ui/button"
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { Providers } from "../components/providers"
 import appCss from "../styles.css?url"
@@ -30,7 +31,7 @@ export const Route = createRootRoute({
     <main className="empty-state">
       <h1>The market is out of reach.</h1>
       <p>Something went wrong loading this page.</p>
-      <button onClick={reset}>Try again</button>
+      <Button onClick={reset}>Try again</Button>
     </main>
   ),
   shellComponent: RootDocument,

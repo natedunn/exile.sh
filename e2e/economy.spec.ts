@@ -102,3 +102,65 @@ for (const width of [320, 375, 414, 768]) {
     ).toBeLessThanOrEqual(width)
   })
 }
+
+test("Base UI selects, tabs, and tooltip support keyboard interaction", async ({
+  page,
+}) => {
+  const errors: string[] = []
+  page.on("pageerror", (error) => errors.push(error.message))
+  await page.goto("/")
+  await expect(page.locator(".currency-table tbody tr").first()).toBeVisible()
+  const league = page.getByRole("combobox", { name: "League", exact: true })
+  await league.click()
+  await expect(page.getByRole("listbox")).toBeVisible()
+  await page.getByRole("option", { name: "Standard", exact: true }).click()
+  await expect(league).toContainText("Standard")
+  await expect(page).toHaveURL(/league=Standard/)
+  await league.click()
+  await expect(page.getByRole("listbox")).toBeVisible()
+  await expect(
+    page.getByRole("option", { name: "Standard", exact: true })
+  ).toBeFocused()
+  await page.keyboard.press("Escape")
+  await expect(page.getByRole("listbox")).toHaveCount(0)
+  await expect(league).toBeFocused()
+
+  const quote = page.getByRole("combobox", {
+    name: "Quote currency",
+    exact: true,
+  })
+  await quote.focus()
+  await page.keyboard.press("ArrowDown")
+  await expect(page.getByRole("listbox")).toBeVisible()
+  await page.getByRole("option", { name: "Chaos", exact: true }).click()
+  await expect(quote).toContainText("Chaos")
+  await expect(page).toHaveURL(/quote=Chaos/)
+
+  await page.getByRole("tab", { name: "Currency market", exact: true }).focus()
+  await page.keyboard.press("ArrowRight")
+  await expect(
+    page.getByRole("tab", { name: "Exchange pairs", exact: true })
+  ).toBeFocused()
+  await page.keyboard.press("Enter")
+  await expect(
+    page.getByRole("tab", { name: "Exchange pairs", exact: true })
+  ).toHaveAttribute("aria-selected", "true")
+  await expect(page.locator(".pairs-table")).toBeVisible()
+  await page.getByRole("tab", { name: "Currency market", exact: true }).click()
+  const help = page.getByRole("button", {
+    name: "How market movers are ranked",
+    exact: true,
+  })
+  for (
+    let step = 0;
+    step < 4 &&
+    !(await help.evaluate((element) => element === document.activeElement));
+    step++
+  ) {
+    await page.keyboard.press("Tab")
+  }
+  await expect(help).toBeFocused()
+  await expect(page.getByRole("tooltip")).toContainText("1,000 Exalted")
+  await expect(help).toHaveAccessibleDescription(/1,000 Exalted/)
+  expect(errors).toEqual([])
+})

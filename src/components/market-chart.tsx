@@ -63,7 +63,7 @@ export default function MarketChart({
             minTickGap={55}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "var(--color-muted)", fontSize: 11 }}
+            tick={{ fill: "var(--color-text-muted)", fontSize: 11 }}
           />
           <YAxis
             yAxisId="price"
@@ -72,7 +72,7 @@ export default function MarketChart({
             tickFormatter={(v: number) => number(v)}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "var(--color-muted)", fontSize: 11 }}
+            tick={{ fill: "var(--color-text-muted)", fontSize: 11 }}
             width={65}
           />
           <YAxis yAxisId="volume" hide domain={[0, (max: number) => max * 5]} />
@@ -104,7 +104,7 @@ export default function MarketChart({
             dataKey="price"
             name="Price"
             type="linear"
-            stroke="var(--color-accent)"
+            stroke="var(--color-brand)"
             strokeWidth={2}
             dot={points.length < 4 ? { r: 3 } : false}
             connectNulls={false}

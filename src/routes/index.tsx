@@ -1,3 +1,33 @@
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../components/ui/table"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../components/ui/collapsible"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../components/ui/tooltip"
+import { Skeleton } from "../components/ui/skeleton"
+import { Toggle } from "../components/ui/toggle"
 import { createFileRoute } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { lazy, Suspense, useEffect, useState } from "react"
@@ -6,7 +36,6 @@ import {
   ArrowDownLeft,
   ArrowRight,
   ArrowUpRight,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CircleHelp,
@@ -229,24 +258,27 @@ function EconomyPage() {
             <h1>Exchange economy</h1>
           </div>
           <div className="market-context">
-            <label className="league-picker">
-              <span className="status-dot" />
-              <select
-                aria-label="League"
-                value={f.league}
-                onChange={(e) =>
-                  patch({
-                    league: e.target.value as Filters["league"],
-                    item: "",
-                  })
-                }
-              >
-                {LEAGUES.map((l) => (
-                  <option key={l}>{l}</option>
+            <Select
+              value={f.league}
+              onValueChange={(league) => {
+                if (league) patch({ league, item: "" })
+              }}
+              items={LEAGUES.map((league) => ({
+                label: league,
+                value: league,
+              }))}
+            >
+              <SelectTrigger className="league-picker" aria-label="League">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false}>
+                {LEAGUES.map((league) => (
+                  <SelectItem key={league} value={league}>
+                    {league}
+                  </SelectItem>
                 ))}
-              </select>
-              <ChevronDown size={13} />
-            </label>
+              </SelectContent>
+            </Select>
             <span className="source-time">
               {data
                 ? `Last completed hour · ${utc(data.hour)}`
@@ -302,414 +334,492 @@ function EconomyPage() {
             session.
           </div>
         )}
-        <div className="workspace-header">
-          <div className="view-tabs">
-            <button
-              className={f.tab === "currencies" ? "selected" : ""}
-              onClick={() => patch({ tab: "currencies", item: "" })}
+        <Tabs
+          value={f.tab}
+          onValueChange={(tab) =>
+            patch({ tab: tab as Filters["tab"], item: "" })
+          }
+          className="economy-tabs"
+        >
+          <div className="workspace-header">
+            <TabsList
+              className="view-tabs"
+              variant="line"
+              aria-label="Economy view"
             >
-              <Gem size={15} /> Currency market
-            </button>
-            <button
-              className={f.tab === "exchange" ? "selected" : ""}
-              onClick={() => patch({ tab: "exchange", item: "" })}
-            >
-              <ArrowLeftRight size={15} /> Exchange pairs
-            </button>
+              <TabsTrigger value="currencies">
+                <Gem size={15} /> Currency market
+              </TabsTrigger>
+              <TabsTrigger value="exchange">
+                <ArrowLeftRight size={15} /> Exchange pairs
+              </TabsTrigger>
+            </TabsList>
+            <div className="quote-picker">
+              Display in
+              <Select
+                value={f.quote}
+                onValueChange={(quote) => {
+                  if (quote) patch({ quote })
+                }}
+                items={QUOTES.map((quote) => ({ label: quote, value: quote }))}
+              >
+                <SelectTrigger aria-label="Quote currency" size="sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent alignItemWithTrigger={false}>
+                  {QUOTES.map((quote) => (
+                    <SelectItem key={quote} value={quote}>
+                      {quote}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <label className="quote-picker">
-            Display in{" "}
-            <select
-              value={f.quote}
-              onChange={(e) => patch({ quote: e.target.value as Quote })}
-            >
-              {QUOTES.map((q) => (
-                <option key={q}>{q}</option>
-              ))}
-            </select>
-            <ChevronDown size={12} />
-          </label>
-        </div>
-        {query.isError ? (
-          <div className="empty-state">
-            <CircleHelp />
-            <h2>The market is temporarily unavailable.</h2>
-            <p>
-              Your filters and favorites are safe. Try loading the data again.
-            </p>
-            <button
-              onClick={() => {
-                void query.refetch()
-              }}
-            >
-              Retry
-            </button>
-          </div>
-        ) : query.isPending ? (
-          <div className="loading-market" role="status">
-            <span className="status-dot" /> Reading the market…
-            <div className="skeleton" />
-            <div className="skeleton" />
-            <div className="skeleton" />
-          </div>
-        ) : !data ? (
-          <div className="empty-state">
-            <Gem />
-            <h2>No exchange data yet.</h2>
-            <p>
-              No completed exchange hours have been imported for this league
-              yet.
-            </p>
-            <span>
-              Choose another league or return after collection begins.
-            </span>
-          </div>
-        ) : f.item ? (
-          <ItemDetail
-            id={f.item}
-            league={f.league}
-            quote={f.quote}
-            row={rows.find((r) => r.id === f.item)}
-            price={
-              rate
-                ? (rows.find((r) => r.id === f.item)?.price ?? 0) / rate
-                : null
-            }
-            hour={data.hour}
-            pairs={data.pairs}
-            onBack={() => patch({ item: "" })}
-            onItem={openItem}
-            favorite={favorites.includes(f.item)}
-            onFavorite={() => toggleFavorite(f.item)}
-          />
-        ) : f.tab === "exchange" ? (
-          <PairTable pairs={data.pairs} onItem={openItem} />
-        ) : (
-          <div className="economy-workbench">
-            <section className="movers-section">
-              <div className="section-title">
-                <div>
-                  <h2>Market movers</h2>
-                </div>
-                <span className="period-label">
-                  24h · Activity-filtered{" "}
-                  <CircleHelp size={13}>
-                    <title>
-                      Three-hour weighted windows, at least 12 active hours, and
-                      a minimum traded value.
-                    </title>
-                  </CircleHelp>
+          <TabsContent value={f.tab}>
+            {query.isError ? (
+              <div className="empty-state">
+                <CircleHelp />
+                <h2>The market is temporarily unavailable.</h2>
+                <p>
+                  Your filters and favorites are safe. Try loading the data
+                  again.
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    void query.refetch()
+                  }}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : query.isPending ? (
+              <div className="loading-market" role="status">
+                <span className="status-dot" /> Reading the market…
+                <Skeleton className="skeleton" />
+                <Skeleton className="skeleton" />
+                <Skeleton className="skeleton" />
+              </div>
+            ) : !data ? (
+              <div className="empty-state">
+                <Gem />
+                <h2>No exchange data yet.</h2>
+                <p>
+                  No completed exchange hours have been imported for this league
+                  yet.
+                </p>
+                <span>
+                  Choose another league or return after collection begins.
                 </span>
               </div>
-              <div className="movers-grid">
-                {[
-                  { title: "Gainers", data: rising, up: true },
-                  { title: "Decliners", data: falling, up: false },
-                ].map((group) => (
-                  <div
-                    className={`mover-card ${group.up ? "gainers" : "losers"}`}
-                    key={group.title}
-                  >
-                    <div className="mover-card-title">
-                      <span>
-                        {group.up ? (
-                          <ArrowUpRight size={17} />
-                        ) : (
-                          <ArrowDownLeft size={17} />
-                        )}
-                        {group.title}
-                      </span>
-                      <span>24H</span>
+            ) : f.item ? (
+              <ItemDetail
+                id={f.item}
+                league={f.league}
+                quote={f.quote}
+                row={rows.find((r) => r.id === f.item)}
+                price={
+                  rate
+                    ? (rows.find((r) => r.id === f.item)?.price ?? 0) / rate
+                    : null
+                }
+                hour={data.hour}
+                pairs={data.pairs}
+                onBack={() => patch({ item: "" })}
+                onItem={openItem}
+                favorite={favorites.includes(f.item)}
+                onFavorite={() => toggleFavorite(f.item)}
+              />
+            ) : f.tab === "exchange" ? (
+              <PairTable pairs={data.pairs} onItem={openItem} />
+            ) : (
+              <div className="economy-workbench">
+                <section className="movers-section">
+                  <div className="section-title">
+                    <div>
+                      <h2>Market movers</h2>
                     </div>
-                    {group.data.length ? (
-                      group.data.map((r) => (
-                        <button
-                          className="mover-row"
-                          key={r.id}
-                          onClick={() => openItem(r.id)}
+                    <span className="period-label">
+                      24h · Activity-filtered{" "}
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              className="help-trigger"
+                              aria-label="How market movers are ranked"
+                            />
+                          }
                         >
-                          <Icon id={r.id} />
-                          <span className="mover-name">
-                            {itemInfo(r.id).name}
-                            <small>
-                              {value(r) === null ? "—" : number(value(r)!)}{" "}
-                              {f.quote.toLowerCase()}
-                            </small>
-                          </span>
-                          <Sparkline values={r.trends[qi]} />
-                          <Delta value={r.changes[qi]} />
-                        </button>
-                      ))
-                    ) : (
-                      <div className="mover-empty">
-                        No qualifying {group.up ? "gainers" : "decliners"} yet.
-                        <small>
-                          Rankings appear once enough active hours are recorded.
-                        </small>
-                      </div>
-                    )}
+                          <CircleHelp size={13} />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Three-hour weighted windows, at least 12 active hours,
+                          and at least 1,000 Exalted traded in each comparison
+                          window.
+                        </TooltipContent>
+                      </Tooltip>
+                    </span>
                   </div>
-                ))}
-              </div>
-            </section>
-            <section className="market-layout">
-              <aside className="categories">
-                <span className="category-label">Categories</span>
-                <nav aria-label="Currency categories">
-                  {CATEGORIES.map((cat) => {
-                    const count = rows.filter(
-                      (r) =>
-                        cat === "All currencies" ||
-                        itemInfo(r.id).category === cat
-                    ).length
-                    if (count === 0 && cat !== "All currencies") return null
-                    return (
-                      <button
-                        key={cat}
-                        className={f.category === cat ? "active" : ""}
-                        onClick={() => patch({ category: cat })}
+                  <div className="movers-grid">
+                    {[
+                      { title: "Gainers", data: rising, up: true },
+                      { title: "Decliners", data: falling, up: false },
+                    ].map((group) => (
+                      <div
+                        className={`mover-card ${group.up ? "gainers" : "losers"}`}
+                        key={group.title}
                       >
-                        <span>
-                          {cat === "All currencies" ? (
-                            <Layers3 size={14} />
-                          ) : (
-                            <span className="category-diamond" />
-                          )}
-                          {cat}
-                        </span>
-                        <small>{count}</small>
-                      </button>
-                    )
-                  })}
-                </nav>
-                <div className="sidebar-note">
-                  <span className="status-dot" />
-                  <strong>Source: GGG Currency Exchange</strong>
-                  <p>
-                    Completed trades from GGG's official Currency Exchange.
-                    Updated hourly when collection is running.
-                  </p>
-                  <a href="/methodology">
-                    How prices work <ArrowRight size={12} />
-                  </a>
-                </div>
-              </aside>
-              <div className="market-table-panel">
-                <div className="table-toolbar">
-                  <label className="search-input">
-                    <Search size={16} />
-                    <input
-                      value={f.q}
-                      onChange={(e) => patch({ q: e.target.value })}
-                      placeholder="Find a currency…"
-                      aria-label="Search currencies"
-                    />
-                    {f.q && (
-                      <button
-                        aria-label="Clear search"
-                        onClick={() => patch({ q: "" })}
-                      >
-                        <X size={13} />
-                      </button>
-                    )}
-                  </label>
-                  <button
-                    className={`favorites-filter ${f.favorites ? "active" : ""}`}
-                    onClick={() => patch({ favorites: !f.favorites })}
-                    aria-pressed={f.favorites}
-                  >
-                    <Star size={14} /> Watchlist{" "}
-                    {favorites.length > 0 && <span>{favorites.length}</span>}
-                  </button>
-                  <span className="table-count">
-                    {visible.length} currencies
-                  </span>
-                </div>
-                <div className="table-scroll">
-                  <table className="currency-table">
-                    <thead>
-                      <tr>
-                        <th className="star-column">
-                          <Star size={11} aria-label="Favorite" />
-                        </th>
-                        <th
-                          aria-sort={
-                            f.sort === "name"
-                              ? f.dir === "asc"
-                                ? "ascending"
-                                : "descending"
-                              : "none"
-                          }
-                        >
-                          <button onClick={() => sort("name")}>Currency</button>
-                        </th>
-                        <th
-                          aria-sort={
-                            f.sort === "price"
-                              ? f.dir === "asc"
-                                ? "ascending"
-                                : "descending"
-                              : "none"
-                          }
-                        >
-                          <button onClick={() => sort("price")}>
-                            Price{" "}
-                            {f.sort === "price" && <ArrowDown size={11} />}
-                          </button>
-                        </th>
-                        <th
-                          aria-sort={
-                            f.sort === "change"
-                              ? f.dir === "asc"
-                                ? "ascending"
-                                : "descending"
-                              : "none"
-                          }
-                        >
-                          <button onClick={() => sort("change")}>
-                            24h change
-                          </button>
-                        </th>
-                        <th className="hide-small">7d change</th>
-                        <th
-                          className="hide-medium"
-                          aria-sort={
-                            f.sort === "volume"
-                              ? f.dir === "asc"
-                                ? "ascending"
-                                : "descending"
-                              : "none"
-                          }
-                        >
-                          <button
-                            onClick={() => sort("volume")}
-                            title="Sort by traded value in Exalted"
-                          >
-                            Volume <SlidersHorizontal size={11} />
-                          </button>
-                        </th>
-                        <th className="hide-small">Last 48 hours</th>
-                        <th />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {displayed.map((r) => (
-                        <tr key={r.id}>
-                          <td className="star-column">
-                            <button
-                              className={`star-button ${favorites.includes(r.id) ? "saved" : ""}`}
-                              aria-label={`${favorites.includes(r.id) ? "Remove" : "Add"} ${itemInfo(r.id).name} ${favorites.includes(r.id) ? "from" : "to"} watchlist`}
-                              aria-pressed={favorites.includes(r.id)}
-                              onClick={() => toggleFavorite(r.id)}
-                            >
-                              <Star
-                                size={14}
-                                fill={
-                                  favorites.includes(r.id)
-                                    ? "currentColor"
-                                    : "none"
-                                }
-                              />
-                            </button>
-                          </td>
-                          <td>
-                            <button
-                              className="currency-name"
+                        <div className="mover-card-title">
+                          <span>
+                            {group.up ? (
+                              <ArrowUpRight size={17} />
+                            ) : (
+                              <ArrowDownLeft size={17} />
+                            )}
+                            {group.title}
+                          </span>
+                          <span>24H</span>
+                        </div>
+                        {group.data.length ? (
+                          group.data.map((r) => (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="mover-row"
+                              key={r.id}
                               onClick={() => openItem(r.id)}
                             >
                               <Icon id={r.id} />
-                              <span>
+                              <span className="mover-name">
                                 {itemInfo(r.id).name}
-                                {!r.direct && <small>Derived rate</small>}
+                                <small>
+                                  {value(r) === null ? "—" : number(value(r)!)}{" "}
+                                  {f.quote.toLowerCase()}
+                                </small>
                               </span>
-                            </button>
-                          </td>
-                          <td className="price-cell">
-                            {value(r) === null ? "—" : number(value(r)!)}
-                            <img
-                              src={itemInfo(ANCHORS[f.quote]).icon}
-                              width="17"
-                              height="17"
-                              alt={f.quote}
-                            />
-                          </td>
-                          <td>
-                            <Delta value={r.changes[qi]} />
-                          </td>
-                          <td className="hide-small">
-                            <Delta value={r.changes7[qi]} />
-                          </td>
-                          <td
-                            className="hide-medium volume-cell"
-                            title={`${number(r.volume, 0)} item units in the pricing market`}
+                              <Sparkline values={r.trends[qi]} />
+                              <Delta value={r.changes[qi]} />
+                            </Button>
+                          ))
+                        ) : (
+                          <div className="mover-empty">
+                            No qualifying {group.up ? "gainers" : "decliners"}{" "}
+                            yet.
+                            <small>
+                              Rankings appear once enough active hours are
+                              recorded.
+                            </small>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+                <section className="market-layout">
+                  <aside className="categories">
+                    <span className="category-label">Categories</span>
+                    <nav aria-label="Currency categories">
+                      {CATEGORIES.map((cat) => {
+                        const count = rows.filter(
+                          (r) =>
+                            cat === "All currencies" ||
+                            itemInfo(r.id).category === cat
+                        ).length
+                        if (count === 0 && cat !== "All currencies") return null
+                        return (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            key={cat}
+                            className={f.category === cat ? "active" : ""}
+                            aria-pressed={f.category === cat}
+                            onClick={() => patch({ category: cat })}
                           >
-                            {compact(r.volume)}
-                          </td>
-                          <td className="hide-small">
-                            <Sparkline values={r.trends[qi]} />
-                          </td>
-                          <td>
-                            <button
-                              className="row-open"
-                              onClick={() => openItem(r.id)}
-                              aria-label={`View ${itemInfo(r.id).name} history`}
+                            <span>
+                              {cat === "All currencies" ? (
+                                <Layers3 size={14} />
+                              ) : (
+                                <span className="category-diamond" />
+                              )}
+                              {cat}
+                            </span>
+                            <small>{count}</small>
+                          </Button>
+                        )
+                      })}
+                    </nav>
+                    <div className="sidebar-note">
+                      <span className="status-dot" />
+                      <strong>Source: GGG Currency Exchange</strong>
+                      <p>
+                        Completed trades from GGG's official Currency Exchange.
+                        Updated hourly when collection is running.
+                      </p>
+                      <a href="/methodology">
+                        How prices work <ArrowRight size={12} />
+                      </a>
+                    </div>
+                  </aside>
+                  <div className="market-table-panel">
+                    <div className="table-toolbar">
+                      <label className="search-input">
+                        <Search size={16} />
+                        <Input
+                          value={f.q}
+                          onChange={(e) => patch({ q: e.target.value })}
+                          placeholder="Find a currency…"
+                          aria-label="Search currencies"
+                        />
+                        {f.q && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            aria-label="Clear search"
+                            onClick={() => patch({ q: "" })}
+                          >
+                            <X size={13} />
+                          </Button>
+                        )}
+                      </label>
+                      <Toggle
+                        size="sm"
+                        className={`favorites-filter ${f.favorites ? "active" : ""}`}
+                        onPressedChange={(pressed) =>
+                          patch({ favorites: pressed })
+                        }
+                        pressed={f.favorites}
+                      >
+                        <Star size={14} /> Watchlist{" "}
+                        {favorites.length > 0 && (
+                          <span>{favorites.length}</span>
+                        )}
+                      </Toggle>
+                      <span className="table-count">
+                        {visible.length} currencies
+                      </span>
+                    </div>
+                    <div className="table-scroll">
+                      <Table className="currency-table">
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="star-column">
+                              <Star size={11} aria-label="Favorite" />
+                            </TableHead>
+                            <TableHead
+                              aria-sort={
+                                f.sort === "name"
+                                  ? f.dir === "asc"
+                                    ? "ascending"
+                                    : "descending"
+                                  : "none"
+                              }
                             >
-                              <ChevronRight size={15} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {visible.length === 0 && (
-                  <div className="empty-state compact-empty">
-                    <Search size={24} />
-                    <h3>No currencies found.</h3>
-                    <p>Try a different search or category.</p>
-                    <button
-                      onClick={() =>
-                        patch({
-                          q: "",
-                          category: "All currencies",
-                          favorites: false,
-                        })
-                      }
-                    >
-                      Clear filters
-                    </button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => sort("name")}
+                              >
+                                Currency
+                              </Button>
+                            </TableHead>
+                            <TableHead
+                              aria-sort={
+                                f.sort === "price"
+                                  ? f.dir === "asc"
+                                    ? "ascending"
+                                    : "descending"
+                                  : "none"
+                              }
+                            >
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => sort("price")}
+                              >
+                                Price{" "}
+                                {f.sort === "price" && <ArrowDown size={11} />}
+                              </Button>
+                            </TableHead>
+                            <TableHead
+                              aria-sort={
+                                f.sort === "change"
+                                  ? f.dir === "asc"
+                                    ? "ascending"
+                                    : "descending"
+                                  : "none"
+                              }
+                            >
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => sort("change")}
+                              >
+                                24h change
+                              </Button>
+                            </TableHead>
+                            <TableHead className="hide-small">
+                              7d change
+                            </TableHead>
+                            <TableHead
+                              className="hide-medium"
+                              aria-sort={
+                                f.sort === "volume"
+                                  ? f.dir === "asc"
+                                    ? "ascending"
+                                    : "descending"
+                                  : "none"
+                              }
+                            >
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => sort("volume")}
+                                title="Sort by traded value in Exalted"
+                              >
+                                Volume <SlidersHorizontal size={11} />
+                              </Button>
+                            </TableHead>
+                            <TableHead className="hide-small">
+                              Last 48 hours
+                            </TableHead>
+                            <TableHead />
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {displayed.map((r) => (
+                            <TableRow key={r.id}>
+                              <TableCell className="star-column">
+                                <Toggle
+                                  size="sm"
+                                  className={`star-button ${favorites.includes(r.id) ? "saved" : ""}`}
+                                  aria-label={`${favorites.includes(r.id) ? "Remove" : "Add"} ${itemInfo(r.id).name} ${favorites.includes(r.id) ? "from" : "to"} watchlist`}
+                                  pressed={favorites.includes(r.id)}
+                                  onPressedChange={() => toggleFavorite(r.id)}
+                                >
+                                  <Star
+                                    size={14}
+                                    fill={
+                                      favorites.includes(r.id)
+                                        ? "currentColor"
+                                        : "none"
+                                    }
+                                  />
+                                </Toggle>
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="currency-name"
+                                  onClick={() => openItem(r.id)}
+                                >
+                                  <Icon id={r.id} />
+                                  <span>
+                                    {itemInfo(r.id).name}
+                                    {!r.direct && <small>Derived rate</small>}
+                                  </span>
+                                </Button>
+                              </TableCell>
+                              <TableCell className="price-cell">
+                                {value(r) === null ? "—" : number(value(r)!)}
+                                <img
+                                  src={itemInfo(ANCHORS[f.quote]).icon}
+                                  width="17"
+                                  height="17"
+                                  alt={f.quote}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Delta value={r.changes[qi]} />
+                              </TableCell>
+                              <TableCell className="hide-small">
+                                <Delta value={r.changes7[qi]} />
+                              </TableCell>
+                              <TableCell
+                                className="hide-medium volume-cell"
+                                title={`${number(r.volume, 0)} item units in the pricing market`}
+                              >
+                                {compact(r.volume)}
+                              </TableCell>
+                              <TableCell className="hide-small">
+                                <Sparkline values={r.trends[qi]} />
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="row-open"
+                                  onClick={() => openItem(r.id)}
+                                  aria-label={`View ${itemInfo(r.id).name} history`}
+                                >
+                                  <ChevronRight size={15} />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    {visible.length === 0 && (
+                      <div className="empty-state compact-empty">
+                        <Search size={24} />
+                        <h3>No currencies found.</h3>
+                        <p>Try a different search or category.</p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            patch({
+                              q: "",
+                              category: "All currencies",
+                              favorites: false,
+                            })
+                          }
+                        >
+                          Clear filters
+                        </Button>
+                      </div>
+                    )}
+                    <div className="pagination">
+                      <span>
+                        {visible.length
+                          ? `${(page - 1) * 25 + 1}–${Math.min(page * 25, visible.length)} of ${visible.length}`
+                          : "0 results"}
+                      </span>
+                      <span>
+                        Page {page} of {pages}
+                      </span>
+                      <div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={page <= 1}
+                          onClick={() => patch({ page: page - 1 })}
+                          aria-label="Previous page"
+                        >
+                          <ChevronLeft size={15} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={page >= pages}
+                          onClick={() => patch({ page: page + 1 })}
+                          aria-label="Next page"
+                        >
+                          <ChevronRight size={15} />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                )}
-                <div className="pagination">
-                  <span>
-                    {visible.length
-                      ? `${(page - 1) * 25 + 1}–${Math.min(page * 25, visible.length)} of ${visible.length}`
-                      : "0 results"}
-                  </span>
-                  <span>
-                    Page {page} of {pages}
-                  </span>
-                  <div>
-                    <button
-                      disabled={page <= 1}
-                      onClick={() => patch({ page: page - 1 })}
-                      aria-label="Previous page"
-                    >
-                      <ChevronLeft size={15} />
-                    </button>
-                    <button
-                      disabled={page >= pages}
-                      onClick={() => patch({ page: page + 1 })}
-                      aria-label="Next page"
-                    >
-                      <ChevronRight size={15} />
-                    </button>
-                  </div>
-                </div>
+                </section>
               </div>
-            </section>
-          </div>
-        )}
+            )}
+          </TabsContent>
+        </Tabs>
         <section className="bottom-note">
           <CircleHelp size={15} />
           <p>
@@ -770,9 +880,14 @@ function ItemDetail({
   const points = query.data?.points ?? []
   return (
     <section className="detail-view">
-      <button className="back-button" onClick={onBack}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="back-button"
+        onClick={onBack}
+      >
         <ChevronLeft size={14} /> Back to market
-      </button>
+      </Button>
       <div className="detail-header">
         <Icon id={id} large />
         <div>
@@ -780,13 +895,15 @@ function ItemDetail({
           <h2>{info.name}</h2>
           <p>{info.description}</p>
         </div>
-        <button
+        <Toggle
+          size="sm"
           className={`favorites-filter ${favorite ? "active" : ""}`}
-          onClick={onFavorite}
+          pressed={favorite}
+          onPressedChange={onFavorite}
         >
           <Star size={15} fill={favorite ? "currentColor" : "none"} />
           {favorite ? "Watching" : "Watch currency"}
-        </button>
+        </Toggle>
       </div>
       <div className="detail-stats">
         <div>
@@ -820,26 +937,30 @@ function ItemDetail({
           <h3>Price history</h3>
           <div className="range-tabs">
             {([1, 7, 30, 90] as const).map((d) => (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 key={d}
                 className={days === d ? "active" : ""}
                 onClick={() => setDays(d)}
               >
                 {d === 1 ? "24H" : `${d}D`}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
         {query.isError ? (
           <div className="chart-empty">
             <p>History could not be loaded.</p>
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 void query.refetch()
               }}
             >
               Retry
-            </button>
+            </Button>
           </div>
         ) : query.isPending ? (
           <div className="chart-empty" role="status">
@@ -859,29 +980,33 @@ function ItemDetail({
           · Gaps are not interpolated.
         </div>
       </div>
-      <details className="history-data">
-        <summary>View chart data</summary>
-        <div className="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Time (UTC)</th>
-                <th>Price ({quote})</th>
-                <th>Traded units</th>
-              </tr>
-            </thead>
-            <tbody>
-              {points.map((p) => (
-                <tr key={p[0]}>
-                  <td>{utc(p[0])}</td>
-                  <td>{number(p[1])}</td>
-                  <td>{number(p[2], 0)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </details>
+      <Collapsible className="history-data">
+        <CollapsibleTrigger render={<Button variant="ghost" size="sm" />}>
+          View chart data
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="table-scroll">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Time (UTC)</TableHead>
+                  <TableHead>Price ({quote})</TableHead>
+                  <TableHead>Traded units</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {points.map((p) => (
+                  <TableRow key={p[0]}>
+                    <TableCell>{utc(p[0])}</TableCell>
+                    <TableCell>{number(p[1])}</TableCell>
+                    <TableCell>{number(p[2], 0)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
       <div className="detail-links">
         <a
           href={`https://www.poe2wiki.net/wiki/${encodeURIComponent(info.name.replaceAll(" ", "_"))}`}
@@ -929,17 +1054,19 @@ function PairTable({
         <div>
           <h2>Exchange pairs</h2>
         </div>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           className="favorites-filter"
           onClick={() => setInverted(!inverted)}
         >
           <ArrowLeftRight size={14} /> Invert pairs
-        </button>
+        </Button>
       </div>
       <div className="table-toolbar">
         <label className="search-input">
           <Search size={15} />
-          <input
+          <Input
             aria-label="Search exchange pairs"
             placeholder="Search either currency…"
             value={q}
@@ -952,49 +1079,49 @@ function PairTable({
         <span className="table-count">{visible.length} pairs</span>
       </div>
       <div className="table-scroll">
-        <table className="pairs-table">
-          <thead>
-            <tr>
-              <th>Currency pair</th>
-              <th>Average rate</th>
-              <th>Traded units</th>
-              <th>Hourly high stock</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table className="pairs-table">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Currency pair</TableHead>
+              <TableHead>Average rate</TableHead>
+              <TableHead>Traded units</TableHead>
+              <TableHead>Hourly high stock</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {visible.slice((current - 1) * 20, current * 20).map((p) => {
               const a = inverted ? p.b : p.a,
                 b = inverted ? p.a : p.b,
                 va = inverted ? p.vb : p.va,
                 vb = inverted ? p.va : p.vb
               return (
-                <tr key={p.id}>
-                  <td>
-                    <button onClick={() => onItem(a)}>
+                <TableRow key={p.id}>
+                  <TableCell>
+                    <Button variant="ghost" size="sm" onClick={() => onItem(a)}>
                       <Icon id={a} />
                       {itemInfo(a).name}
-                    </button>
+                    </Button>
                     <ArrowRight size={12} />
-                    <button onClick={() => onItem(b)}>
+                    <Button variant="ghost" size="sm" onClick={() => onItem(b)}>
                       <Icon id={b} />
                       {itemInfo(b).name}
-                    </button>
-                  </td>
-                  <td>
+                    </Button>
+                  </TableCell>
+                  <TableCell>
                     {va > 0 && vb > 0 ? `${number(vb / va)} : 1` : "No trades"}
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     {compact(va)} / {compact(vb)}
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     {compact(inverted ? p.sb : p.sa)} /{" "}
                     {compact(inverted ? p.sa : p.sb)}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
       {!visible.length && <div className="chart-empty">No matching pairs.</div>}
       <div className="pagination">
@@ -1003,20 +1130,24 @@ function PairTable({
           currency per one of the first.
         </span>
         <div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             disabled={current <= 1}
             onClick={() => setPage(current - 1)}
             aria-label="Previous pairs"
           >
             <ChevronLeft size={15} />
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
             disabled={current * 20 >= visible.length}
             onClick={() => setPage(current + 1)}
             aria-label="Next pairs"
           >
             <ChevronRight size={15} />
-          </button>
+          </Button>
         </div>
       </div>
     </section>
