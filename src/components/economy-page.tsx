@@ -596,9 +596,10 @@ export function EconomyPage({
                       <Table className="currency-table">
                         <TableHeader>
                           <TableRow>
-                            <TableHead className="star-column">
-                              <Star size={11} aria-label="Favorite" />
-                            </TableHead>
+                            <TableHead
+                              className="star-column"
+                              aria-label="Watchlist"
+                            />
                             <TableHead
                               aria-sort={
                                 f.sort === "name"
@@ -720,9 +721,7 @@ export function EconomyPage({
                                   onClick={() => openItem(r.id)}
                                 >
                                   <Icon id={r.id} />
-                                  <span>
-                                    {itemInfo(r.id).name}
-                                  </span>
+                                  <span>{itemInfo(r.id).name}</span>
                                 </Button>
                               </TableCell>
                               <TableCell className="price-cell">
