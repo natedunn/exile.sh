@@ -1215,7 +1215,8 @@ html body .pairs-table td:first-child {
 }
 html body .pair-currencies {
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) auto minmax(160px, 1fr);
+  grid-template-columns: max-content auto max-content;
+  justify-content: start;
   align-items: center;
   gap: var(--space-lg);
 }
