@@ -658,6 +658,25 @@ export function EconomyPage({
                               </Button>
                             </TableHead>
                             <TableHead
+                              className="hide-medium"
+                              aria-sort={
+                                f.sort === "volume"
+                                  ? f.dir === "asc"
+                                    ? "ascending"
+                                    : "descending"
+                                  : "none"
+                              }
+                            >
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => sort("volume")}
+                                title="Sort by traded value in Exalted"
+                              >
+                                Volume <SlidersHorizontal size={11} />
+                              </Button>
+                            </TableHead>
+                            <TableHead
                               aria-sort={
                                 f.sort === "change"
                                   ? f.dir === "asc"
@@ -676,25 +695,6 @@ export function EconomyPage({
                             </TableHead>
                             <TableHead className="hide-small">
                               7d change
-                            </TableHead>
-                            <TableHead
-                              className="hide-medium"
-                              aria-sort={
-                                f.sort === "volume"
-                                  ? f.dir === "asc"
-                                    ? "ascending"
-                                    : "descending"
-                                  : "none"
-                              }
-                            >
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => sort("volume")}
-                                title="Sort by traded value in Exalted"
-                              >
-                                Volume <SlidersHorizontal size={11} />
-                              </Button>
                             </TableHead>
                             <TableHead className="hide-small">
                               Last 48 hours
@@ -757,17 +757,17 @@ export function EconomyPage({
                                   alt={displayQuote(r.id)}
                                 />
                               </TableCell>
-                              <TableCell>
-                                <Delta value={r.changes[quoteIndex(r.id)]} />
-                              </TableCell>
-                              <TableCell className="hide-small">
-                                <Delta value={r.changes7[quoteIndex(r.id)]} />
-                              </TableCell>
                               <TableCell
                                 className="hide-medium volume-cell"
                                 title={`${number(r.volume, 0)} item units in the pricing market`}
                               >
                                 {compact(r.volume)}
+                              </TableCell>
+                              <TableCell>
+                                <Delta value={r.changes[quoteIndex(r.id)]} />
+                              </TableCell>
+                              <TableCell className="hide-small">
+                                <Delta value={r.changes7[quoteIndex(r.id)]} />
                               </TableCell>
                               <TableCell className="hide-small">
                                 <Sparkline
