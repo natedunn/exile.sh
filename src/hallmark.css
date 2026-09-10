@@ -199,9 +199,10 @@ html body .economy-workbench {
 html body .market-layout {
   grid-column: 1;
   grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
+  display: grid;
+  grid-template-columns: 156px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-xl);
   min-width: 0;
   margin: 0;
 }
@@ -217,11 +218,13 @@ html body .category-label {
 }
 html body .categories nav {
   display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
+  flex-wrap: nowrap;
+  flex-direction: column;
   gap: var(--space-xs);
 }
 html body .categories nav button {
+  width: 100%;
+  justify-content: space-between;
   font-size: var(--text-xs);
   color: var(--color-muted);
   padding: 6px var(--space-sm);
@@ -887,4 +890,28 @@ html body .section-title h2 {
 }
 html body .section-title {
   margin-bottom: var(--space-md);
+}
+
+@media (min-width: 901px) and (max-width: 1250px) {
+  html body .currency-table .hide-small {
+    display: none;
+  }
+}
+@media (max-width: 900px) {
+  html body .market-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  html body .categories nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  html body .categories nav button {
+    width: auto;
+  }
+}
+@media (max-width: 600px) {
+  html body .categories nav {
+    flex-wrap: nowrap;
+  }
 }
