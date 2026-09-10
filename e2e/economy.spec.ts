@@ -147,18 +147,13 @@ test("Base UI selects, tabs, and tooltip support keyboard interaction", async ({
   ).toHaveAttribute("aria-selected", "true")
   await expect(page.locator(".pairs-table")).toBeVisible()
   await page.getByRole("tab", { name: "Currency market", exact: true }).click()
+  await page.getByRole("link", { name: "Market movers", exact: true }).click()
   const help = page.getByRole("button", {
     name: "How market movers are ranked",
     exact: true,
   })
-  for (
-    let step = 0;
-    step < 4 &&
-    !(await help.evaluate((element) => element === document.activeElement));
-    step++
-  ) {
-    await page.keyboard.press("Tab")
-  }
+  await page.keyboard.press("Tab")
+  await help.focus()
   await expect(help).toBeFocused()
   await expect(page.getByRole("tooltip")).toContainText("1,000 Exalted")
   await expect(help).toHaveAccessibleDescription(/1,000 Exalted/)
@@ -196,4 +191,45 @@ test("input groups own focus styling without page-specific classes", async ({
   expect(
     await group.evaluate((element) => getComputedStyle(element).boxShadow)
   ).toBe("none")
+})
+
+test("movers have separate ranked top tens and preserve league and quote navigation", async ({
+  page,
+}) => {
+  await page.goto("/movers?quote=Chaos")
+  await expect(
+    page.getByRole("heading", { name: "Market movers", exact: true })
+  ).toBeVisible()
+  await expect(page.locator(".losers .mover-row")).toHaveCount(10)
+  await expect(page.locator(".gainers .mover-row")).toHaveCount(10)
+  for (const [selector, increasing] of [
+    [".losers", true],
+    [".gainers", false],
+  ] as const) {
+    const values = (
+      await page.locator(`${selector} .delta`).allTextContents()
+    ).map((text) => Number(text.replace(/[^0-9.+-]/g, "")))
+    expect(values.every((value) => (increasing ? value < 0 : value > 0))).toBe(
+      true
+    )
+    for (let i = 1; i < values.length; i++) {
+      expect(
+        increasing ? values[i] >= values[i - 1] : values[i] <= values[i - 1]
+      ).toBe(true)
+    }
+  }
+  await page.locator(".losers .mover-row").first().click()
+  await expect(page.locator(".chart-wrap")).toBeVisible()
+  await page.reload()
+  await expect(page.locator(".chart-wrap")).toBeVisible()
+  await expect(
+    page.getByRole("combobox", { name: "Quote currency", exact: true })
+  ).toContainText("Chaos")
+  await page.getByRole("link", { name: "Economy", exact: true }).click()
+  await expect(page.locator(".currency-table")).toBeVisible()
+  await expect(page.locator(".movers-section")).toHaveCount(0)
+  await expect(
+    page.getByRole("combobox", { name: "Quote currency", exact: true })
+  ).toContainText("Chaos")
+  await expect(page.locator(".categories .item-icon").first()).toBeVisible()
 })

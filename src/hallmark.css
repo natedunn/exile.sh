@@ -43,7 +43,7 @@ html body :is(button, nav a, footer a) {
   white-space: nowrap;
 }
 html body .site-shell {
-  max-width: 1680px;
+  max-width: 1480px;
   padding: 0 var(--space-2xl);
 }
 html body .topbar {
@@ -140,7 +140,7 @@ html body .quote-picker select {
 }
 html body .economy-workbench {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 290px;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2xl);
   align-items: start;
   margin-top: var(--space-xl);
@@ -149,7 +149,7 @@ html body .market-layout {
   grid-column: 1;
   grid-row: 1;
   display: grid;
-  grid-template-columns: 156px minmax(0, 1fr);
+  grid-template-columns: 232px minmax(0, 1fr);
   align-items: start;
   gap: var(--space-xl);
   min-width: 0;
@@ -183,7 +183,7 @@ html body .category-diamond {
   display: none;
 }
 html body .categories nav button small {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-text-muted);
 }
 html body .categories nav button.active {
@@ -241,7 +241,7 @@ html body .table-count {
   color: var(--color-text-muted);
 }
 html body .currency-table th {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 500;
   text-transform: none;
   letter-spacing: 0;
@@ -273,7 +273,7 @@ html body .currency-name > span:last-child {
 }
 html body .currency-name small {
   color: var(--color-text-muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 html body .currency-name .item-icon {
   flex-shrink: 0;
@@ -396,7 +396,7 @@ html body .mover-name {
 }
 html body .mover-name small {
   color: var(--color-text-muted);
-  font-size: 11px;
+  font-size: var(--text-xs);
   margin-top: var(--space-xs);
 }
 html body .mover-row .sparkline {
@@ -508,7 +508,7 @@ html body .prose-page a {
 }
 @media (max-width: 1250px) {
   html body .economy-workbench {
-    grid-template-columns: minmax(0, 1fr) 250px;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-xl);
   }
   html body .movers-section {
@@ -590,7 +590,7 @@ html body .prose-page a {
     width: 100%;
   }
   html body .source-time {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   html body .workspace-header {
     flex-wrap: wrap;
@@ -697,7 +697,7 @@ html body .prose-page a {
   }
   html body .price-cell,
   html body .delta {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   html body .price-cell img {
     display: none;
@@ -706,7 +706,7 @@ html body .prose-page a {
     display: none;
   }
   html body .pagination {
-    font-size: 11px;
+    font-size: var(--text-xs);
     gap: var(--space-sm);
   }
   html body .pagination button {
@@ -745,7 +745,7 @@ html body .prose-page a {
   }
   html body .chart-legend {
     flex-wrap: wrap;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   html body .pairs-table td:first-child button {
     max-width: 200px;
@@ -932,4 +932,117 @@ html body .search-input [data-slot="input-group-addon"] {
 }
 html body .quote-picker [data-slot="select-trigger"] {
   border: 1px solid var(--color-clear);
+}
+
+/* Dedicated rankings and a roomier currency navigation. */
+html body .topbar nav {
+  gap: var(--space-xl);
+}
+html body .topbar nav a {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+html body .market-layout {
+  grid-row: 1;
+}
+html body .categories nav button {
+  min-height: 40px;
+  height: auto;
+  font-size: var(--text-sm);
+}
+html body .categories nav button > span {
+  gap: var(--space-sm);
+}
+html body .categories .item-icon,
+html body .categories .item-icon img {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+html body .categories nav button svg {
+  display: block;
+}
+html body .movers-section {
+  border: 0;
+  padding: 0;
+  margin-top: var(--space-xl);
+}
+html body .movers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2xl);
+}
+html body .mover-card {
+  min-width: 0;
+}
+html body .mover-card-title {
+  font-size: var(--text-body);
+}
+html body .mover-name {
+  font-size: var(--text-sm);
+}
+html body .mover-row {
+  gap: var(--space-md);
+  min-height: 72px;
+}
+html body .mover-row .item-icon,
+html body .mover-row .item-icon img {
+  width: 32px;
+  height: 32px;
+}
+html body .mover-row .sparkline {
+  display: block;
+  width: 80px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+html body .mover-row .delta {
+  min-width: 72px;
+  justify-content: flex-end;
+  margin-left: 0;
+}
+html body .movers-page .workspace-header {
+  justify-content: flex-end;
+  padding-bottom: var(--space-md);
+}
+@media (max-width: 1100px) {
+  html body .mover-row .sparkline {
+    display: none;
+  }
+  html body .mover-row .delta {
+    margin-left: auto;
+  }
+}
+@media (max-width: 600px) {
+  html body .topbar {
+    gap: var(--space-md);
+  }
+  html body .topbar nav {
+    gap: var(--space-md);
+  }
+  html body .source-link > svg:last-child {
+    display: none;
+  }
+  html body .movers-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-xl);
+  }
+  html body .mover-row {
+    flex-wrap: nowrap;
+  }
+  html body .mover-row .item-icon {
+    display: flex;
+  }
+  html body .mover-name {
+    flex: 1;
+    width: auto;
+  }
+  html body .mover-name small {
+    display: block;
+  }
+  html body .mover-row .delta {
+    flex: 0 0 auto;
+    margin-top: 0;
+  }
 }
