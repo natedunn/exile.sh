@@ -21,20 +21,20 @@ The first tool is **Economy**. Currency categories, market overview, and pair ex
 
 ## Launch experience and parity
 
-| Area | Proposed v1 behavior |
-| --- | --- |
-| Economy landing | Useful data immediately: benchmark rates, biggest gainers/losers, and currency table |
-| Browsing | Search, category filter, sortable price/change/volume, pagination, shareable URL state |
-| Categories | All observed exchange-traded categories, curated from the catalog; unclassified items remain discoverable |
-| Denomination | Exalted default, selectable Chaos/Divine; explicit quote unit everywhere |
-| Table history | Seven-day sparkline, 24h and 7d changes, traded units, source freshness |
-| Currency detail | Hourly price and volume charts, daily rollups, 24h/7d/30d/90d/league ranges, older data loading |
-| Pair explorer | Search both sides, invert direction, show executed average, both volumes, historical stock measures |
-| Market overview | Aggregate traded value and active pairs with historical charts; count each exchange pair once |
-| Links | Item detail and wiki; official trade destination where a verified public navigation URL is available |
-| Favorites | Device-local for launch; account sync after GGG OAuth is available |
-| Data transparency | Definitions, provenance, last completed hour, gaps/backfill status, low-activity labels |
-| Responsive UI | Compact desktop table; mobile prioritizes name, price, change and opens details on tap |
+| Area              | Proposed v1 behavior                                                                                      |
+| ----------------- | --------------------------------------------------------------------------------------------------------- |
+| Economy landing   | Useful data immediately: benchmark rates, biggest gainers/losers, and currency table                      |
+| Browsing          | Search, category filter, sortable price/change/volume, pagination, shareable URL state                    |
+| Categories        | All observed exchange-traded categories, curated from the catalog; unclassified items remain discoverable |
+| Denomination      | Exalted default, selectable Chaos/Divine; explicit quote unit everywhere                                  |
+| Table history     | Seven-day sparkline, 24h and 7d changes, traded units, source freshness                                   |
+| Currency detail   | Hourly price and volume charts, daily rollups, 24h/7d/30d/90d/league ranges, older data loading           |
+| Pair explorer     | Search both sides, invert direction, show executed average, both volumes, historical stock measures       |
+| Market overview   | Aggregate traded value and active pairs with historical charts; count each exchange pair once             |
+| Links             | Item detail and wiki; official trade destination where a verified public navigation URL is available      |
+| Favorites         | Device-local for launch; account sync after GGG OAuth is available                                        |
+| Data transparency | Definitions, provenance, last completed hour, gaps/backfill status, low-activity labels                   |
+| Responsive UI     | Compact desktop table; mobile prioritizes name, price, change and opens details on tap                    |
 
 Parity means comparable exchange analysis, not matching Scout's exact estimates. We will not claim live prices or trade-level OHLC. Show historical stock as such; historical hourly maxima are not a simultaneous order-book snapshot. A “stock value estimate” may be offered with a clear definition after validation; do not call it total market capitalization.
 
@@ -109,23 +109,23 @@ Archive in Convex file storage initially; retain an adapter boundary for object 
 
 These are logical entities and index requirements, not a final schema implementation. Use compact sideA/sideB structures rather than raw metadata paths as object keys.
 
-| Entity | Contents | Primary access/index |
-| --- | --- | --- |
-| `leagues` | Exact GGG name, slug, mode, lifecycle, visibility, default quote | realm + source name; slug |
-| `catalogVersions` | Source URL/hash, game version, imported time | source + hash |
-| `items` | Metadata ID, slug, name, aliases, category, icon, catalog version | realm + metadata ID; category; name search |
-| `markets` | League, original market ID, ordered item IDs | league + source market ID; league + each side |
-| `ingestionStreams` | Realm, forward/backfill cursors, lease, retry time, failures | stream key |
-| `ingestionHours` | Requested/next cursor, archive ID/hash, counts, chunk progress, status | realm + hour |
-| `marketDayBuckets` | At most 24 hourly slots: both volumes, stock/ratio data, presence flags | league + market + UTC day |
-| `itemDayBuckets` | At most 24 derived prices, weights, paths, quality flags, method version | league + item + UTC day + version |
-| `itemDaily` | Weighted mean, first/last hourly estimate, extrema of hourly estimates, volume, coverage | league + item + day + version |
-| `marketDaily` | Pair volume sums, rate aggregates, coverage, historical stock extrema | league + market + day + version |
-| `economyGenerations` | Completed-through hour, methodology version, publication status | league + generation |
-| `latestPrices` | Per-item table data, precomputed changes/sparkline, freshness, quality | league + generation + category + sort value |
-| `moverSnapshots` | Small ranked gain/loss lists per quote and period | league + generation + quote + period |
-| `marketSummaries` | Once-per-pair valued turnover, coverage, active pairs per hour/day | league + time + resolution |
-| `watchlists` (later) | Authenticated owner + item IDs; optional league preferences | owner; owner + item |
+| Entity               | Contents                                                                                 | Primary access/index                          |
+| -------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------- |
+| `leagues`            | Exact GGG name, slug, mode, lifecycle, visibility, default quote                         | realm + source name; slug                     |
+| `catalogVersions`    | Source URL/hash, game version, imported time                                             | source + hash                                 |
+| `items`              | Metadata ID, slug, name, aliases, category, icon, catalog version                        | realm + metadata ID; category; name search    |
+| `markets`            | League, original market ID, ordered item IDs                                             | league + source market ID; league + each side |
+| `ingestionStreams`   | Realm, forward/backfill cursors, lease, retry time, failures                             | stream key                                    |
+| `ingestionHours`     | Requested/next cursor, archive ID/hash, counts, chunk progress, status                   | realm + hour                                  |
+| `marketDayBuckets`   | At most 24 hourly slots: both volumes, stock/ratio data, presence flags                  | league + market + UTC day                     |
+| `itemDayBuckets`     | At most 24 derived prices, weights, paths, quality flags, method version                 | league + item + UTC day + version             |
+| `itemDaily`          | Weighted mean, first/last hourly estimate, extrema of hourly estimates, volume, coverage | league + item + day + version                 |
+| `marketDaily`        | Pair volume sums, rate aggregates, coverage, historical stock extrema                    | league + market + day + version               |
+| `economyGenerations` | Completed-through hour, methodology version, publication status                          | league + generation                           |
+| `latestPrices`       | Per-item table data, precomputed changes/sparkline, freshness, quality                   | league + generation + category + sort value   |
+| `moverSnapshots`     | Small ranked gain/loss lists per quote and period                                        | league + generation + quote + period          |
+| `marketSummaries`    | Once-per-pair valued turnover, coverage, active pairs per hour/day                       | league + time + resolution                    |
+| `watchlists` (later) | Authenticated owner + item IDs; optional league preferences                              | owner; owner + item                           |
 
 Logical uniqueness is enforced in transactional indexed upserts, not assumed from an index declaration. Store UTC epoch seconds consistently and convert in the UI. Bucket slots distinguish unprocessed, processed-with-no-trades, valid, and invalid data; a separate completed-hour ledger distinguishes source inactivity from a collection failure.
 
@@ -151,17 +151,17 @@ Proposed flow when approval exists: GGG authorization code + PKCE → server tok
 
 Launch with public browsing and local preferences. Keep GGG sign-in unavailable until application approval and a tested integration exist; it is not a v1 release blocker.
 
-| Needed | When | Where |
-| --- | --- | --- |
-| Convex team/project selection and CLI login | Backend setup | Owner account; agent can then configure the selected project |
-| Cloudflare account, Worker name and domain | Frontend deployment | Owner account and Worker configuration |
-| `CONVEX_DEPLOYMENT`, `VITE_CONVEX_URL`, `VITE_CONVEX_SITE_URL` | Backend setup | Local environment and hosting configuration |
-| `SITE_URL` / public site URL | Frontend deployment | Framework/auth configuration |
-| `GGG_CONTACT` and descriptive collector User-Agent | Before sustained ingestion | Server configuration |
-| `GGG_CLIENT_ID`, `GGG_CLIENT_SECRET` | Only after GGG approves an application | Server secrets; never public `VITE_*` variables |
-| Stable HTTPS development/production callback URLs | OAuth registration/testing | Owned domains and GGG registration |
-| Auth secret/JWKS required by selected adapter | Auth setup | Generated securely; deployment secrets |
-| Deployment credentials | Cloudflare build setup | Cloudflare-managed build secrets; no GitHub Actions deployment |
+| Needed                                                         | When                                   | Where                                                          |
+| -------------------------------------------------------------- | -------------------------------------- | -------------------------------------------------------------- |
+| Convex team/project selection and CLI login                    | Backend setup                          | Owner account; agent can then configure the selected project   |
+| Cloudflare account, Worker name and domain                     | Frontend deployment                    | Owner account and Worker configuration                         |
+| `CONVEX_DEPLOYMENT`, `VITE_CONVEX_URL`, `VITE_CONVEX_SITE_URL` | Backend setup                          | Local environment and hosting configuration                    |
+| `SITE_URL` / public site URL                                   | Frontend deployment                    | Framework/auth configuration                                   |
+| `GGG_CONTACT` and descriptive collector User-Agent             | Before sustained ingestion             | Server configuration                                           |
+| `GGG_CLIENT_ID`, `GGG_CLIENT_SECRET`                           | Only after GGG approves an application | Server secrets; never public `VITE_*` variables                |
+| Stable HTTPS development/production callback URLs              | OAuth registration/testing             | Owned domains and GGG registration                             |
+| Auth secret/JWKS required by selected adapter                  | Auth setup                             | Generated securely; deployment secrets                         |
+| Deployment credentials                                         | Cloudflare build setup                 | Cloudflare-managed build secrets; no GitHub Actions deployment |
 
 The exchange feed and RePoE need no API key. Commit a placeholder `.env.example`; actual credentials stay in ignored local files or deployment secret stores. Contributors get deterministic fixture mode and an isolated backend; never point forks or tests at production.
 

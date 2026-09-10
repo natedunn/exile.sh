@@ -1,0 +1,4 @@
+convex/functions/generated/** linguist-generated=true whitespace=-blank-at-eof
+convex/functions/_generated/** linguist-generated=true
+convex/shared/api.ts linguist-generated=true
+src/routeTree.gen.ts linguist-generated=true
