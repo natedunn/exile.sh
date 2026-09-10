@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs"
 import {
   Table,
   TableBody,
@@ -36,7 +35,6 @@ import { Toggle } from "../components/ui/toggle"
 import { Link } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { lazy, Suspense, useEffect, useState } from "react"
-import type { ReactNode } from "react"
 import {
   ArrowDown,
   ArrowDownLeft,
@@ -72,7 +70,6 @@ export const filters = z.object({
   page: z.coerce.number().int().min(1).max(1000).catch(1),
   favorites: z.boolean().catch(false),
   item: z.string().max(240).catch(""),
-  tab: z.enum(["currencies", "exchange"]).catch("currencies"),
 })
 export type Filters = z.infer<typeof filters>
 
@@ -235,26 +232,17 @@ export function EconomyPage({
   return (
     <div className="site-shell">
       <header className="topbar">
-        <a className="wordmark" href="/">
+        <a className="wordmark" href="/economy">
           <img src="/favicon.svg" alt="" width="30" height="30" />
           exile<span>.sh</span>
         </a>
         <nav aria-label="Main navigation">
           <Link
-            to="/"
+            to="/economy"
             search={{ ...f, item: "" }}
-            className={!moversPage ? "nav-active" : ""}
-            aria-current={!moversPage ? "page" : undefined}
+            className="nav-active"
           >
             Economy
-          </Link>
-          <Link
-            to="/movers"
-            search={{ ...f, item: "" }}
-            className={moversPage ? "nav-active" : ""}
-            aria-current={moversPage ? "page" : undefined}
-          >
-            Market movers
           </Link>
         </nav>
         <a
@@ -314,29 +302,27 @@ export function EconomyPage({
             session.
           </div>
         )}
-        <EconomyViews
-          moversPage={moversPage}
-          value={f.tab}
-          onValueChange={(tab) =>
-            patch({ tab: tab as Filters["tab"], item: "" })
-          }
-          className="economy-tabs"
-        >
+        <div className="economy-pages">
           <div className="workspace-header">
-            {!moversPage && (
-              <TabsList
-                className="view-tabs"
-                variant="line"
-                aria-label="Economy view"
+            <nav
+              className="view-tabs economy-page-nav"
+              aria-label="Economy views"
+            >
+              <Link
+                to="/economy/market"
+                search={{ ...f, item: "" }}
+                aria-current={!moversPage ? "page" : undefined}
               >
-                <TabsTrigger value="currencies">
-                  <Gem size={15} /> Currency market
-                </TabsTrigger>
-                <TabsTrigger value="exchange">
-                  <ArrowLeftRight size={15} /> Exchange pairs
-                </TabsTrigger>
-              </TabsList>
-            )}
+                <Gem size={15} /> Currency market
+              </Link>
+              <Link
+                to="/economy/movers"
+                search={{ ...f, item: "" }}
+                aria-current={moversPage ? "page" : undefined}
+              >
+                <ArrowUpRight size={15} /> Market movers
+              </Link>
+            </nav>
             <div className="quote-picker">
               Display in
               <Select
@@ -359,7 +345,7 @@ export function EconomyPage({
               </Select>
             </div>
           </div>
-          <EconomyContent moversPage={moversPage} value={f.tab}>
+          <div>
             {query.isError ? (
               <div className="empty-state">
                 <CircleHelp />
@@ -496,8 +482,6 @@ export function EconomyPage({
                   ))}
                 </div>
               </section>
-            ) : f.tab === "exchange" ? (
-              <PairTable pairs={data.pairs} onItem={openItem} />
             ) : (
               <div className="economy-workbench">
                 <section className="market-layout">
@@ -811,8 +795,8 @@ export function EconomyPage({
                 </section>
               </div>
             )}
-          </EconomyContent>
-        </EconomyViews>
+          </div>
+        </div>
         <section className="bottom-note">
           <CircleHelp size={15} />
           <p>
@@ -823,7 +807,7 @@ export function EconomyPage({
         </section>
       </main>
       <footer>
-        <a className="footer-brand" href="/">
+        <a className="footer-brand" href="/economy">
           exile.sh
         </a>
         <p>Not affiliated with or endorsed by Grinding Gear Games.</p>
@@ -1145,34 +1129,5 @@ function PairTable({
         </div>
       </div>
     </section>
-  )
-}
-
-function EconomyViews({
-  moversPage,
-  children,
-  ...props
-}: { moversPage: boolean; children: ReactNode } & React.ComponentProps<
-  typeof Tabs
->) {
-  return moversPage ? (
-    <div className="movers-page">{children}</div>
-  ) : (
-    <Tabs {...props}>{children}</Tabs>
-  )
-}
-function EconomyContent({
-  moversPage,
-  value,
-  children,
-}: {
-  moversPage: boolean
-  value: string
-  children: ReactNode
-}) {
-  return moversPage ? (
-    <div>{children}</div>
-  ) : (
-    <TabsContent value={value}>{children}</TabsContent>
   )
 }

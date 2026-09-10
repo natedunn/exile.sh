@@ -1,20 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { EconomyPage, filters } from "../components/economy-page"
+import { createFileRoute, redirect } from "@tanstack/react-router"
+import { filters } from "../components/economy-page"
 
 export const Route = createFileRoute("/")({
   validateSearch: (search) => filters.parse(search),
-  head: () => ({ meta: [{ title: "Exchange economy · exile.sh" }] }),
-  component: Page,
+  beforeLoad: ({ search }) => {
+    throw redirect({ to: "/economy/market", search, replace: true })
+  },
 })
-function Page() {
-  const f = Route.useSearch()
-  const navigate = Route.useNavigate()
-  return (
-    <EconomyPage
-      f={f}
-      patch={(values) => {
-        void navigate({ search: (prev) => ({ ...prev, page: 1, ...values }) })
-      }}
-    />
-  )
-}

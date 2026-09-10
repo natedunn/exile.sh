@@ -103,7 +103,7 @@ for (const width of [320, 375, 414, 768]) {
   })
 }
 
-test("Base UI selects, tabs, and tooltip support keyboard interaction", async ({
+test("Base UI selects, page links, and tooltip support keyboard interaction", async ({
   page,
 }) => {
   const errors: string[] = []
@@ -136,18 +136,16 @@ test("Base UI selects, tabs, and tooltip support keyboard interaction", async ({
   await expect(quote).toContainText("Chaos")
   await expect(page).toHaveURL(/quote=Chaos/)
 
-  await page.getByRole("tab", { name: "Currency market", exact: true }).focus()
-  await page.keyboard.press("ArrowRight")
+  await page.getByRole("link", { name: "Currency market", exact: true }).focus()
+  await page.keyboard.press("Tab")
   await expect(
-    page.getByRole("tab", { name: "Exchange pairs", exact: true })
+    page.getByRole("link", { name: "Market movers", exact: true })
   ).toBeFocused()
   await page.keyboard.press("Enter")
+  await expect(page).toHaveURL(/\/economy\/movers/)
   await expect(
-    page.getByRole("tab", { name: "Exchange pairs", exact: true })
-  ).toHaveAttribute("aria-selected", "true")
-  await expect(page.locator(".pairs-table")).toBeVisible()
-  await page.getByRole("tab", { name: "Currency market", exact: true }).click()
-  await page.getByRole("link", { name: "Market movers", exact: true }).click()
+    page.getByRole("link", { name: "Market movers", exact: true })
+  ).toHaveAttribute("aria-current", "page")
   const help = page.getByRole("button", {
     name: "How market movers are ranked",
     exact: true,
@@ -196,7 +194,7 @@ test("input groups own focus styling without page-specific classes", async ({
 test("movers have separate ranked top tens and preserve league and quote navigation", async ({
   page,
 }) => {
-  await page.goto("/movers?quote=Chaos")
+  await page.goto("/economy/movers?quote=Chaos")
   await expect(
     page.getByRole("heading", { name: "Market movers", exact: true })
   ).toBeVisible()
@@ -232,4 +230,32 @@ test("movers have separate ranked top tens and preserve league and quote navigat
     page.getByRole("combobox", { name: "Quote currency", exact: true })
   ).toContainText("Chaos")
   await expect(page.locator(".categories .item-icon").first()).toBeVisible()
+})
+
+test("economy routes redirect to the market and provide page navigation", async ({
+  page,
+}) => {
+  await page.goto("/economy?quote=Divine")
+  await expect(page).toHaveURL(/\/economy\/market\?.*quote=Divine/)
+  await expect(
+    page.getByRole("link", { name: "Currency market", exact: true })
+  ).toHaveAttribute("aria-current", "page")
+  await expect(
+    page.getByRole("link", { name: "Exchange pairs", exact: true })
+  ).toHaveCount(0)
+  const nav = page.getByRole("navigation", {
+    name: "Economy views",
+    exact: true,
+  })
+  await nav.getByRole("link", { name: "Market movers", exact: true }).click()
+  await expect(page).toHaveURL(/\/economy\/movers/)
+  await page.reload()
+  await expect(
+    page.getByRole("heading", { name: "Market movers", exact: true })
+  ).toBeVisible()
+  await expect(
+    page.getByRole("combobox", { name: "Quote currency", exact: true })
+  ).toContainText("Divine")
+  await page.goBack()
+  await expect(page).toHaveURL(/\/economy\/market/)
 })

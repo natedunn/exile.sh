@@ -10,12 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MoversRouteImport } from './routes/movers'
+import { Route as EconomyIndexRouteImport } from './routes/economy.index'
+import { Route as EconomyMarketRouteImport } from './routes/economy.market'
+import { Route as EconomyMoversRouteImport } from './routes/economy.movers'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EconomyRoute = EconomyRouteImport.update({
+  id: '/economy',
+  path: '/economy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodologyRoute = MethodologyRouteImport.update({
@@ -28,33 +37,81 @@ const MoversRoute = MoversRouteImport.update({
   path: '/movers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EconomyIndexRoute = EconomyIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EconomyRoute,
+} as any)
+const EconomyMarketRoute = EconomyMarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => EconomyRoute,
+} as any)
+const EconomyMoversRoute = EconomyMoversRouteImport.update({
+  id: '/movers',
+  path: '/movers',
+  getParentRoute: () => EconomyRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/economy': typeof EconomyRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
+  '/economy/market': typeof EconomyMarketRoute
+  '/economy/movers': typeof EconomyMoversRoute
+  '/economy/': typeof EconomyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
+  '/economy/market': typeof EconomyMarketRoute
+  '/economy/movers': typeof EconomyMoversRoute
+  '/economy': typeof EconomyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/economy': typeof EconomyRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
+  '/economy/market': typeof EconomyMarketRoute
+  '/economy/movers': typeof EconomyMoversRoute
+  '/economy/': typeof EconomyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/methodology' | '/movers'
+  fullPaths:
+    | '/'
+    | '/economy'
+    | '/methodology'
+    | '/movers'
+    | '/economy/market'
+    | '/economy/movers'
+    | '/economy/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/methodology' | '/movers'
-  id: '__root__' | '/' | '/methodology' | '/movers'
+  to:
+    | '/'
+    | '/methodology'
+    | '/movers'
+    | '/economy/market'
+    | '/economy/movers'
+    | '/economy'
+  id:
+    | '__root__'
+    | '/'
+    | '/economy'
+    | '/methodology'
+    | '/movers'
+    | '/economy/market'
+    | '/economy/movers'
+    | '/economy/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EconomyRoute: typeof EconomyRouteWithChildren
   MethodologyRoute: typeof MethodologyRoute
   MoversRoute: typeof MoversRoute
 }
@@ -66,6 +123,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/economy': {
+      id: '/economy'
+      path: '/economy'
+      fullPath: '/economy'
+      preLoaderRoute: typeof EconomyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/methodology': {
@@ -82,11 +146,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MoversRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/economy/': {
+      id: '/economy/'
+      path: '/'
+      fullPath: '/economy/'
+      preLoaderRoute: typeof EconomyIndexRouteImport
+      parentRoute: typeof EconomyRoute
+    }
+    '/economy/market': {
+      id: '/economy/market'
+      path: '/market'
+      fullPath: '/economy/market'
+      preLoaderRoute: typeof EconomyMarketRouteImport
+      parentRoute: typeof EconomyRoute
+    }
+    '/economy/movers': {
+      id: '/economy/movers'
+      path: '/movers'
+      fullPath: '/economy/movers'
+      preLoaderRoute: typeof EconomyMoversRouteImport
+      parentRoute: typeof EconomyRoute
+    }
   }
 }
 
+interface EconomyRouteChildren {
+  EconomyMarketRoute: typeof EconomyMarketRoute
+  EconomyMoversRoute: typeof EconomyMoversRoute
+  EconomyIndexRoute: typeof EconomyIndexRoute
+}
+
+const EconomyRouteChildren: EconomyRouteChildren = {
+  EconomyMarketRoute: EconomyMarketRoute,
+  EconomyMoversRoute: EconomyMoversRoute,
+  EconomyIndexRoute: EconomyIndexRoute,
+}
+
+const EconomyRouteWithChildren =
+  EconomyRoute._addFileChildren(EconomyRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EconomyRoute: EconomyRouteWithChildren,
   MethodologyRoute: MethodologyRoute,
   MoversRoute: MoversRoute,
 }

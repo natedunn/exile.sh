@@ -7,7 +7,7 @@ export const Route = createFileRoute("/methodology")({
 function Methodology() {
   return (
     <main id="main" className="prose-page">
-      <a href="/">← Back to the economy</a>
+      <a href="/economy">← Back to the economy</a>
       <h1>Follow the trade. Know the limits.</h1>
       <p>
         exile.sh explores the Path of Exile 2 Currency Exchange. Prices come

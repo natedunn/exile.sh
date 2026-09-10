@@ -24,7 +24,7 @@ export const Route = createRootRoute({
     <main className="empty-state">
       <h1>Lost in Wraeclast.</h1>
       <p>This page does not exist.</p>
-      <a href="/">Return to the economy</a>
+      <a href="/economy">Return to the economy</a>
     </main>
   ),
   errorComponent: ({ reset }) => (
