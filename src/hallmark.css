@@ -1220,7 +1220,8 @@ html body .pair-currencies {
   align-items: center;
   gap: var(--space-lg);
 }
-html body .pairs-table .pair-currencies button {
+html body .pairs-table .pair-currencies button,
+html body .pairs-table td:first-child .pair-currencies button:first-child {
   justify-content: flex-start;
   min-width: 0;
   max-width: none;
