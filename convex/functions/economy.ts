@@ -11,6 +11,12 @@ import {
   quotePoints,
   weightedPrice,
 } from "../../shared/economy"
+import {
+  MOVER_PERIODS,
+  MOVER_PERIOD,
+  COMPARISON_WINDOW,
+  moverMetrics,
+} from "../../shared/movers"
 import type { Point } from "../../shared/economy"
 
 export const overview = publicQuery
@@ -109,5 +115,113 @@ export const itemHistory = publicQuery
           : [[t, value, ps.reduce((sum, p) => sum + p[2], 0), 0] as Point]
       }),
       completedThrough: latest.hour,
+    }
+  })
+
+export const movers = publicQuery
+  .input(z.object({ league: z.enum(LEAGUES), period: z.enum(MOVER_PERIODS) }))
+  .output(
+    z
+      .object({
+        hour: z.number(),
+        period: z.enum(MOVER_PERIODS),
+        hasComparison: z.boolean(),
+        rows: z.array(
+          z.object({
+            id: z.string(),
+            changes: z.array(z.number().nullable()),
+            eligible: z.array(z.boolean()),
+          })
+        ),
+      })
+      .nullable()
+  )
+  .query(async ({ ctx, input }) => {
+    const snapshot = await ctx.orm.query.snapshots.findFirst({
+      where: { league: input.league },
+      orderBy: { hour: "desc" },
+    })
+    if (!snapshot) return null
+    if (input.period === "24h")
+      return {
+        hour: snapshot.hour,
+        period: input.period,
+        hasComparison: snapshot.prices.some((row) =>
+          row.changes.some((value) => value !== null)
+        ),
+        rows: snapshot.prices.map(({ id, changes, eligible }) => ({
+          id,
+          changes,
+          eligible,
+        })),
+      }
+    const offset = MOVER_PERIOD[input.period].seconds
+    const oldEnd = snapshot.hour - offset
+    const windows = [
+      [snapshot.hour - DAY, snapshot.hour],
+      [oldEnd - COMPARISON_WINDOW, oldEnd],
+    ]
+    const runs = (
+      await Promise.all(
+        windows.map(([start, end]) =>
+          ctx.orm.query.imports.findMany({
+            where: { hour: { gt: start, lte: end } },
+            limit: 25,
+          })
+        )
+      )
+    ).flat()
+    const completed = new Set(
+      runs.filter((run) => run.status === "complete").map((run) => run.hour)
+    )
+    const hasComparison =
+      [...completed].filter(
+        (hour) => hour <= oldEnd && hour > oldEnd - COMPARISON_WINDOW
+      ).length >= 2
+    if (!hasComparison)
+      return {
+        hour: snapshot.hour,
+        period: input.period,
+        hasComparison: false,
+        rows: [],
+      }
+    // Read only the latest day's activity and the comparison window's day buckets.
+    // Bounds are independent of the selected period; never scan 90 days per request.
+    const buckets = await Promise.all(
+      windows.map(([start, end]) =>
+        ctx.orm.query.history.findMany({
+          where: {
+            league: input.league,
+            day: {
+              gte: Math.floor(start / DAY) * DAY,
+              lte: Math.floor(end / DAY) * DAY,
+            },
+          },
+          limit: 3500,
+        })
+      )
+    )
+    if (buckets.some((rows) => rows.length === 3500))
+      throw new Error("Mover history safety bound reached")
+    const byItem = new Map<string, Map<number, Point>>()
+    for (const bucket of buckets.flat()) {
+      const points = byItem.get(bucket.item) ?? new Map<number, Point>()
+      for (const point of bucket.points) {
+        if (
+          completed.has(point[0]) &&
+          windows.some(([start, end]) => point[0] > start && point[0] <= end)
+        )
+          points.set(point[0], point)
+      }
+      byItem.set(bucket.item, points)
+    }
+    const series = new Map(
+      [...byItem].map(([id, points]) => [id, [...points.values()]])
+    )
+    return {
+      hour: snapshot.hour,
+      period: input.period,
+      hasComparison,
+      rows: moverMetrics(snapshot.prices, series, snapshot.hour, offset),
     }
   })

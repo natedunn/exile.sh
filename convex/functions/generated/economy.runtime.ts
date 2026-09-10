@@ -15,6 +15,7 @@ import type { OrmTriggerContext } from 'kitcn/orm';
 
 const procedureRegistry = {
   "itemHistory": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../economy").itemHistory>("economy:itemHistory"), () => (require("../economy") as Record<string, unknown>)["itemHistory"])],
+  "movers": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../economy").movers>("economy:movers"), () => (require("../economy") as Record<string, unknown>)["movers"])],
   "overview": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../economy").overview>("economy:overview"), () => (require("../economy") as Record<string, unknown>)["overview"])],
 } as const;
 

@@ -64,6 +64,8 @@ import {
   DISPLAY_CURRENCIES,
 } from "../../shared/display-currency"
 
+import { MOVER_PERIODS, MOVER_PERIOD } from "../../shared/movers"
+
 const MarketChart = lazy(() => import("../components/market-chart"))
 export const filters = z.object({
   league: z.enum(LEAGUES).catch(DEFAULT_LEAGUE),
@@ -74,6 +76,7 @@ export const filters = z.object({
   dir: z.enum(["asc", "desc"]).catch("desc"),
   page: z.coerce.number().int().min(1).max(1000).catch(1),
   favorites: z.boolean().catch(false),
+  period: z.enum(MOVER_PERIODS).catch("24h"),
   item: z.string().max(240).catch(""),
 })
 export type Filters = z.infer<typeof filters>
@@ -172,6 +175,10 @@ export function EconomyPage({
   const query = useQuery(
     crpc.economy.overview.queryOptions({ league: f.league })
   )
+  const moverQuery = useQuery({
+    ...crpc.economy.movers.queryOptions({ league: f.league, period: f.period }),
+    enabled: moversPage && !f.item,
+  })
   const [favorites, setFavorites] = useState<string[]>([])
   const [storageError, setStorageError] = useState(false)
   const [now, setNow] = useState(0)
@@ -243,17 +250,31 @@ export function EconomyPage({
   const pages = Math.max(1, Math.ceil(visible.length / 25)),
     page = Math.min(f.page, pages),
     displayed = visible.slice((page - 1) * 25, page * 25)
+  const metrics = new Map(
+    (moverQuery.data?.hour === data?.hour &&
+    moverQuery.data?.period === f.period
+      ? moverQuery.data.rows
+      : []
+    ).map((row) => [row.id, row])
+  )
+  const moverChange = (r: ItemRow) =>
+    metrics.get(r.id)?.changes[quoteIndex(r.id)] ?? null
   const movers = rows.filter(
-    (r) => r.eligible[quoteIndex(r.id)] && r.changes[quoteIndex(r.id)] !== null
+    (r) =>
+      metrics.get(r.id)?.eligible[quoteIndex(r.id)] && moverChange(r) !== null
   )
   const rising = [...movers]
-    .filter((r) => r.changes[quoteIndex(r.id)]! > 0)
-    .sort((a, b) => b.changes[quoteIndex(b.id)]! - a.changes[quoteIndex(a.id)]!)
-    .slice(0, 10)
+    .filter((r) => moverChange(r)! > 0)
+    .sort(
+      (a, b) => moverChange(b)! - moverChange(a)! || a.id.localeCompare(b.id)
+    )
+    .slice(0, 50)
   const falling = [...movers]
-    .filter((r) => r.changes[quoteIndex(r.id)]! < 0)
-    .sort((a, b) => a.changes[quoteIndex(a.id)]! - b.changes[quoteIndex(b.id)]!)
-    .slice(0, 10)
+    .filter((r) => moverChange(r)! < 0)
+    .sort(
+      (a, b) => moverChange(a)! - moverChange(b)! || a.id.localeCompare(b.id)
+    )
+    .slice(0, 50)
   const stale = !!data && now > (data.hour + 3 * 3600) * 1000
   const sort = (key: Filters["sort"]) =>
     patch({
@@ -428,9 +449,30 @@ export function EconomyPage({
               />
             ) : moversPage ? (
               <section className="movers-section">
-                <div className="section-title">
+                <div className="section-title movers-controls">
+                  <Select
+                    value={f.period}
+                    onValueChange={(period) => {
+                      if (period) patch({ period })
+                    }}
+                    items={MOVER_PERIODS.map((period) => ({
+                      value: period,
+                      label: MOVER_PERIOD[period].label,
+                    }))}
+                  >
+                    <SelectTrigger size="sm" aria-label="Movers period">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent alignItemWithTrigger={false}>
+                      {MOVER_PERIODS.map((period) => (
+                        <SelectItem key={period} value={period}>
+                          {MOVER_PERIOD[period].label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <span className="period-label">
-                    24h · Activity-filtered{" "}
+                    Activity-filtered{" "}
                     <Tooltip>
                       <TooltipTrigger
                         render={
@@ -445,67 +487,87 @@ export function EconomyPage({
                         <CircleHelp size={13} />
                       </TooltipTrigger>
                       <TooltipContent>
-                        Three-hour weighted windows, at least 12 active hours,
-                        and at least 1,000 Exalted traded in each comparison
-                        window.
+                        Three-hour weighted windows separated by the selected
+                        period, at least 12 active hours in the latest day, and
+                        at least 1,000 Exalted traded in each comparison window.
+                        Sparklines show the last 48 hours.
                       </TooltipContent>
                     </Tooltip>
                   </span>
                 </div>
-                <div className="movers-grid">
-                  {[
-                    { title: "Decliners", data: falling, up: false },
-                    { title: "Gainers", data: rising, up: true },
-                  ].map((group) => (
-                    <div
-                      className={`mover-card ${group.up ? "gainers" : "losers"}`}
-                      key={group.title}
+                {moverQuery.isError ? (
+                  <div className="empty-state">
+                    <h2>Could not load this period.</h2>
+                    <Button
+                      onClick={() => {
+                        void moverQuery.refetch()
+                      }}
                     >
-                      <div className="mover-card-title">
-                        <span>
-                          {group.up ? (
-                            <ArrowUpRight size={17} />
-                          ) : (
-                            <ArrowDownLeft size={17} />
-                          )}
-                          {group.title}
-                        </span>
-                        <span>24H</span>
-                      </div>
-                      {group.data.length ? (
-                        group.data.map((r) => (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="mover-row"
-                            key={r.id}
-                            onClick={() => openItem(r.id)}
-                          >
-                            <Icon id={r.id} />
-                            <span className="mover-name">
-                              {itemInfo(r.id).name}
-                              <small>
-                                {value(r) === null ? "—" : number(value(r)!)}{" "}
-                                {displayQuote(r.id).toLowerCase()}
-                              </small>
-                            </span>
-                            <Sparkline values={r.trends[quoteIndex(r.id)]} />
-                            <Delta value={r.changes[quoteIndex(r.id)]} />
-                          </Button>
-                        ))
-                      ) : (
-                        <div className="mover-empty">
-                          No qualifying {group.up ? "gainers" : "decliners"}{" "}
-                          yet.
-                          <small>
-                            Rankings appear once enough active hours are
-                            recorded.
-                          </small>
+                      Retry
+                    </Button>
+                  </div>
+                ) : moverQuery.isPending ||
+                  moverQuery.data?.hour !== data.hour ? (
+                  <div className="loading-market" role="status">
+                    Loading rankings…
+                  </div>
+                ) : (
+                  <div className="movers-grid">
+                    {[
+                      { title: "Decliners", data: falling, up: false },
+                      { title: "Gainers", data: rising, up: true },
+                    ].map((group) => (
+                      <div
+                        className={`mover-card ${group.up ? "gainers" : "losers"}`}
+                        key={group.title}
+                      >
+                        <div className="mover-card-title">
+                          <span>
+                            {group.up ? (
+                              <ArrowUpRight size={17} />
+                            ) : (
+                              <ArrowDownLeft size={17} />
+                            )}
+                            {group.title}
+                          </span>
+                          <span>{f.period}</span>
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                        {group.data.length ? (
+                          group.data.map((r) => (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="mover-row"
+                              key={r.id}
+                              onClick={() => openItem(r.id)}
+                            >
+                              <Icon id={r.id} />
+                              <span className="mover-name">
+                                {itemInfo(r.id).name}
+                                <small>
+                                  {value(r) === null ? "—" : number(value(r)!)}{" "}
+                                  {displayQuote(r.id).toLowerCase()}
+                                </small>
+                              </span>
+                              <Sparkline values={r.trends[quoteIndex(r.id)]} />
+                              <Delta value={moverChange(r)} />
+                            </Button>
+                          ))
+                        ) : (
+                          <div className="mover-empty">
+                            No qualifying {group.up ? "gainers" : "decliners"}{" "}
+                            yet.
+                            <small>
+                              {moverQuery.data?.hasComparison
+                                ? "No active markets meet the liquidity threshold for this period."
+                                : "Not enough recorded history for this period yet."}
+                            </small>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </section>
             ) : (
               <div className="economy-workbench">

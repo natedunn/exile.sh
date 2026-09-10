@@ -8,7 +8,7 @@ Production has not been deployed by this implementation. Confirm the target befo
 
 ## Data collection
 
-The hourly cron runs at minute 5 and exits unless the Convex server environment variable `COLLECTOR_ENABLED=true`. `GGG_CONTACT` defaults to the project contact. Neither belongs in a `VITE_` variable. The separate cleanup cron runs at minute 35, deleting up to 200 expired item-day buckets and 24 expired source archives per execution. Retention is eight full UTC days plus the current partial day; a cleanup backlog can temporarily retain more.
+The hourly cron runs at minute 5 and exits unless the Convex server environment variable `COLLECTOR_ENABLED=true`. `GGG_CONTACT` defaults to the project contact. Neither belongs in a `VITE_` variable. The separate cleanup cron runs at minute 35, deleting up to 200 expired item-day buckets and 24 expired completion records per execution. Price history and completion records retain 92 full UTC days plus the current partial day. Raw source archives retain eight days; a separate 24-record batch clears old archive files while keeping their completion records, using an `archive-cleanup` checkpoint in the collector table. A cleanup backlog can temporarily retain more.
 
 A bounded manual import does not require enabling the continuous collector:
 
@@ -34,7 +34,7 @@ The initial 30-hour development import produced 3,188 item-day records (~1.54 MB
 
 Database bandwidth is the main concern: publication currently reads each league’s recent history and overview subscribers receive a full latest snapshot. Do not extrapolate storage size alone into a promise that continuous collection or public traffic is free. Check Convex’s dashboard usage, including action I/O, database bandwidth, storage, and function calls. Free allowances can change. No paid resources or overages were enabled.
 
-Before enabling continuous production ingestion: measure a representative day, optimize publication reads (incremental rolling aggregates/per-league work), set budget alerts in the account, and verify the free-plan behavior at its cap. Development remains paused while this is unresolved. Eight-day cleanup is deliberately conservative; 30/90-day charts currently show only available data, not promised retained history. Longer retention needs daily rollups and a reviewed budget.
+Before enabling continuous production ingestion: measure a representative day, optimize publication reads (incremental rolling aggregates/per-league work), set budget alerts in the account, and verify the free-plan behavior at its cap. Development remains paused while this is unresolved. The 92-day price-history policy supports rolling 30/90-day rankings as data accumulates; it does not restore expired or uncollected hours. Raw archives still expire after eight days. Measure retained bucket storage and query reads before enabling continuous collection; daily rollups remain a future optimization.
 
 ## Cloudflare managed Git builds
 
@@ -53,3 +53,7 @@ Build-time public environment variables:
 Preview builds must use the development Convex URLs. These `VITE_` values are public, bundled configuration. Do not put secrets in them. Cloudflare does not need a Convex deploy key for a frontend-only build: generated bindings are committed. Deploy the backend separately after approval of the concrete production change.
 
 Run `bun run build` and `bunx wrangler deploy --dry-run --config dist/server/wrangler.json` locally to validate the artifact without publishing. Attach the domain in Cloudflare after ownership/DNS is confirmed. No domain purchase or DNS changes are part of this implementation.
+
+## Movers periods
+
+The public `economy:movers` query accepts `24h`, `48h`, `7d`, `30d`, or `90d` and returns quote-specific changes and eligibility. The UI displays up to 50 entries per direction. Month labels mean rolling 30/90 days. The 24-hour view uses the published snapshot; other periods read only the latest 24-hour activity and the three-hour historical comparison window, checking the completion ledger. Reads are capped at 3,500 day buckets per window and reject that safety bound rather than silently truncating rankings. Unavailable comparison history returns an explicit empty state. Sparkline context stays at 48 hours.

@@ -3,7 +3,9 @@ import { convexTest } from "convex-test"
 import { expect, test } from "vitest"
 import schema from "./functions/schema"
 import { api, internal } from "./functions/_generated/api"
-import { ANCHORS, HOUR } from "../shared/economy"
+import { MOVER_PERIOD, MOVER_PERIODS } from "../shared/movers"
+import type { Point } from "../shared/economy"
+import { ANCHORS, DAY, HOUR } from "../shared/economy"
 const modules = import.meta.glob("./functions/**/*.ts")
 const price = { id: ANCHORS.Divine, price: 200, volume: 50, direct: true }
 
@@ -103,7 +105,7 @@ test("collector lease serializes fetches and rejects release by another worker",
 test("retention deletes expired history and its archive while preserving current imports", async () => {
   const t = convexTest(schema, modules)
   const nowHour = Math.floor(Date.now() / 1000 / HOUR) * HOUR
-  const oldHour = nowHour - 11 * 24 * HOUR
+  const oldHour = nowHour - 95 * 24 * HOUR
   const archive = await t.run(
     async (ctx) => await ctx.storage.store(new Blob(["fixture"]))
   )
@@ -137,4 +139,156 @@ test("retention deletes expired history and its archive while preserving current
   expect(
     await t.query(internal.store.imported, { hour: nowHour })
   ).not.toBeNull()
+})
+
+for (const period of MOVER_PERIODS.filter((p) => p !== "24h")) {
+  test(`movers calculate ${period} windows and quote changes from completed history`, async () => {
+    const t = convexTest(schema, modules)
+    const at = 200 * DAY + 20 * HOUR
+    const end = at - MOVER_PERIOD[period].seconds
+    const item = "fixture-currency"
+    const ids = [item, ANCHORS.Chaos, ANCHORS.Divine]
+    const current = [100, 20, 200],
+      previous = [50, 10, 200]
+    await t.run(async (ctx) => {
+      await ctx.db.insert("snapshots", {
+        league: "Standard",
+        hour: at,
+        method: "fixture",
+        pairs: [],
+        prices: ids.map((id, i) => ({
+          id,
+          price: current[i],
+          volume: 30,
+          direct: true,
+          changes: [null, null, null],
+          changes7: [null, null, null],
+          eligible: [false, false, false],
+          trends: [[], [], []],
+        })),
+      })
+      const hours = [
+        ...Array.from({ length: 24 }, (_, i) => at - i * HOUR),
+        end,
+        end - HOUR,
+        end - 2 * HOUR,
+      ]
+      for (const hour of hours)
+        await ctx.db.insert("imports", {
+          hour,
+          status: "complete",
+          hash: "fixture",
+          archive: "",
+          marketCount: 3,
+          bytes: 0,
+          completedChunks: [],
+          expectedChunks: 0,
+        })
+      for (const [i, id] of ids.entries()) {
+        const days = new Map<number, number[][]>()
+        for (const hour of hours) {
+          const day = Math.floor(hour / DAY) * DAY
+          days.set(day, [
+            ...(days.get(day) ?? []),
+            [hour, hour <= end ? previous[i] : current[i], 30, 1],
+          ])
+        }
+        for (const [day, points] of days)
+          await ctx.db.insert("history", {
+            league: "Standard",
+            item: id,
+            day,
+            points,
+          })
+      }
+      // A processing hour must not pollute either weighted price or liquidity.
+      const day = Math.floor(end / DAY) * DAY
+      const row = await ctx.db
+        .query("history")
+        .withIndex("item_day", (q) =>
+          q.eq("league", "Standard").eq("item", item).eq("day", day)
+        )
+        .unique()
+      const run = await ctx.db
+        .query("imports")
+        .withIndex("hour", (q) => q.eq("hour", end - HOUR))
+        .unique()
+      await ctx.db.patch("imports", run!._id, { status: "processing" })
+      await ctx.db.patch("history", row!._id, {
+        points: row!.points.map((p: Point) =>
+          p[0] === end - HOUR ? [p[0], 999999, 999999, 1] : p
+        ),
+      })
+    })
+    const result = await t.query(api.economy.movers, {
+      league: "Standard",
+      period,
+    })
+    expect(result?.hasComparison).toBe(true)
+    const row = result?.rows.find((r) => r.id === item)
+    expect(row?.changes).toEqual([100, 0, 100])
+    expect(row?.eligible).toEqual([true, true, true])
+    expect(
+      await t.query(api.economy.movers, { league: "Hardcore", period })
+    ).toBeNull()
+  })
+}
+
+test("movers return an explicit missing-history result instead of substituting another period", async () => {
+  const t = convexTest(schema, modules)
+  await t.run(async (ctx) => {
+    await ctx.db.insert("snapshots", {
+      league: "Standard",
+      hour: 200 * DAY,
+      method: "fixture",
+      pairs: [],
+      prices: [],
+    })
+  })
+  const result = await t.query(api.economy.movers, {
+    league: "Standard",
+    period: "90d",
+  })
+  expect(result).toMatchObject({
+    period: "90d",
+    hasComparison: false,
+    rows: [],
+  })
+})
+
+test("raw archives expire before price history and the completion ledger", async () => {
+  const t = convexTest(schema, modules)
+  const hour = Math.floor(Date.now() / 1000 / DAY) * DAY - 11 * DAY
+  const archive = await t.run((ctx) => ctx.storage.store(new Blob(["fixture"])))
+  await t.run(async (ctx) => {
+    await ctx.db.insert("imports", {
+      hour,
+      status: "complete",
+      hash: "fixture",
+      archive,
+      marketCount: 1,
+      bytes: 1,
+      completedChunks: [],
+      expectedChunks: 0,
+    })
+    await ctx.db.insert("history", {
+      league: "Standard",
+      item: price.id,
+      day: hour,
+      points: [[hour, 200, 50, 1]],
+    })
+  })
+  expect(await t.mutation(internal.store.cleanup, {})).toEqual({
+    historyDeleted: 0,
+    archivesDeleted: 1,
+  })
+  expect(await t.run((ctx) => ctx.storage.get(archive))).toBeNull()
+  expect(await t.query(internal.store.imported, { hour })).toMatchObject({
+    status: "complete",
+    archive: "",
+  })
+  expect(await t.mutation(internal.store.cleanup, {})).toEqual({
+    historyDeleted: 0,
+    archivesDeleted: 0,
+  })
 })

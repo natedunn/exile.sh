@@ -59,12 +59,13 @@ function Methodology() {
         windows, not changes from the last trade.
       </p>
       <p>
-        Biggest movers additionally require at least 12 active hours in the last
-        24, activity in the latest published hour, and at least 1,000 Exalted of
-        observed traded value in each comparison window. The liquidity threshold
-        stays in Exalted when you change quote. Your selected quote currency is
-        excluded from its own movers ranking. Thin markets can still be
-        volatile.
+        Movers compare the selected 24-hour, 48-hour, 7-day, 30-day, or 90-day
+        period (months mean rolling 30 and 90 days), and additionally require at
+        least 12 active hours in the last 24, activity in the latest published
+        hour, and at least 1,000 Exalted of observed traded value in each
+        comparison window. The liquidity threshold stays in Exalted when you
+        change quote. Your selected quote currency is excluded from its own
+        movers ranking. Thin markets can still be volatile.
       </p>
       <h2>History, gaps, and collection</h2>
       <p>
@@ -83,9 +84,9 @@ function Methodology() {
       </p>
       <p>
         Raw source digests are compressed and hashed for reproducibility.
-        Automated cleanup retains eight days of source archives and hourly
-        history in this first release. Longer retention and daily archival are
-        planned before a public launch.
+        Automated cleanup retains eight days of source archives and 92 days of
+        hourly price history and completion records. Retention does not restore
+        older observations that were never collected or have already expired.
       </p>
       <h2>Names, artwork, and ownership</h2>
       <p>

@@ -1,3 +1,4 @@
+import { ARCHIVE_RETENTION, HISTORY_RETENTION } from "../../shared/movers"
 import { eq } from "kitcn/orm"
 import { z } from "zod"
 import { privateMutation, privateQuery } from "../lib/crpc"
@@ -294,7 +295,8 @@ export const publish = privateMutation
 
 // Small hourly batches bound retention work, even after a long pause.
 export const cleanup = privateMutation.mutation(async ({ ctx }) => {
-  const cutoff = Math.floor(Date.now() / 1000 / DAY) * DAY - 8 * DAY
+  const today = Math.floor(Date.now() / 1000 / DAY) * DAY
+  const cutoff = today - HISTORY_RETENTION
   const oldHistory = await ctx.orm.query.history.findMany({
     where: { day: { lt: cutoff } },
     limit: 200,
@@ -306,11 +308,51 @@ export const cleanup = privateMutation.mutation(async ({ ctx }) => {
     limit: 24,
   })
   for (const row of oldImports) {
-    await ctx.storage.delete(row.archive as Id<"_storage">)
+    if (row.archive) await ctx.storage.delete(row.archive as Id<"_storage">)
     await ctx.orm.delete(imports).where(eq(imports.id, row.id))
   }
+  // Advance through bounded archive batches while retaining the completion ledger.
+  const key = "archive-cleanup"
+  const checkpoint = await ctx.orm.query.collector.findFirst({ where: { key } })
+  const archives = await ctx.orm.query.imports.findMany({
+    where: {
+      hour: {
+        gt: Math.max(checkpoint?.cursor ?? 0, cutoff),
+        lt: today - ARCHIVE_RETENTION,
+      },
+    },
+    orderBy: { hour: "asc" },
+    limit: 24,
+  })
+  for (const row of archives) {
+    if (row.archive) {
+      await ctx.storage.delete(row.archive as Id<"_storage">)
+      await ctx.orm
+        .update(imports)
+        .set({ archive: "" })
+        .where(eq(imports.id, row.id))
+    }
+  }
+  const cursor = archives.length ? archives.at(-1)!.hour : 0
+  if (checkpoint)
+    await ctx.orm
+      .update(collector)
+      .set({ cursor })
+      .where(eq(collector.id, checkpoint.id))
+  else
+    await ctx.orm.insert(collector).values({
+      key,
+      cursor,
+      leaseUntil: 0,
+      leaseToken: "",
+      nextAllowedAt: 0,
+      failures: 0,
+      lastError: "",
+    })
   return {
     historyDeleted: oldHistory.length,
-    archivesDeleted: oldImports.length,
+    archivesDeleted:
+      oldImports.filter((row) => row.archive).length +
+      archives.filter((row) => row.archive).length,
   }
 })

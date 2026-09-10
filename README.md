@@ -22,7 +22,7 @@ Open http://localhost:3000. The Convex CLI needs access to the development proje
 - Public PoE2 economy browser with league/category filters, search, sorting, pagination, and a local watchlist.
 - Exalted, Chaos, and Divine quote displays; historical price/volume charts; activity-filtered gainers and decliners.
 - Exchange-pair rates, traded units, historical stock, and item details.
-- Bounded, resumable official-feed imports, compressed source archives, a completion ledger, rate-limit handling, and eight-day cleanup.
+- Bounded, resumable official-feed imports, compressed source archives, a completion ledger, rate-limit handling, and bounded cleanup (eight-day raw archives, 92-day price history).
 - Original dark-fantasy interface with attributed community metadata and game artwork.
 
 This is the first development slice, not a public launch or complete Scout parity. Longer history, per-pair historical charts, league rollover automation, collection cost optimization, and production deployment remain. GGG login/account sync is deferred until application registration is available. Unique pricing is outside v1.

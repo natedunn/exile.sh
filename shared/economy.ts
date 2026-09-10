@@ -172,10 +172,14 @@ export function change(
     b = weightedPrice(previous)
   return a !== null && b !== null && b > 0 ? (a / b - 1) * 100 : null
 }
-export function eligibleMover(points: Point[], at: number): boolean {
+export function eligibleMover(
+  points: Point[],
+  at: number,
+  offset = DAY
+): boolean {
   const recent = points.filter((p) => p[0] > at - DAY && p[0] <= at)
   const old = points.filter(
-    (p) => p[0] <= at - DAY && p[0] > at - DAY - 3 * HOUR
+    (p) => p[0] <= at - offset && p[0] > at - offset - 3 * HOUR
   )
   const current = recent.filter((p) => p[0] > at - 3 * HOUR)
   const notional = (ps: Point[]) => ps.reduce((s, p) => s + p[1] * p[2], 0)

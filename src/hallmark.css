@@ -1154,3 +1154,10 @@ html body .display-currency-label .item-icon img {
 html body .display-currency-label > svg {
   flex-shrink: 0;
 }
+
+html body .movers-controls {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+}

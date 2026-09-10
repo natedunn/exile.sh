@@ -36,6 +36,25 @@ export declare const api: {
         points: Array<Array<number | number | number | number>>;
       }
     >;
+    movers: FunctionReference<
+      "query",
+      "public",
+      {
+        league:
+          "Forbidden Rites" | "HC Forbidden Rites" | "Standard" | "Hardcore";
+        period: "24h" | "48h" | "7d" | "30d" | "90d";
+      },
+      {
+        hasComparison: boolean;
+        hour: number;
+        period: "24h" | "48h" | "7d" | "30d" | "90d";
+        rows: Array<{
+          changes: Array<number | null>;
+          eligible: Array<boolean>;
+          id: string;
+        }>;
+      } | null
+    >;
     overview: FunctionReference<
       "query",
       "public",

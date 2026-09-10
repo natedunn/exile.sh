@@ -191,15 +191,20 @@ test("input groups own focus styling without page-specific classes", async ({
   ).toBe("none")
 })
 
-test("movers have separate ranked top tens and preserve league and quote navigation", async ({
+test("movers have separate ranked top fifties and preserve league and quote navigation", async ({
   page,
 }) => {
   await page.goto("/economy/movers?quote=Chaos")
   await expect(
     page.getByRole("heading", { name: "Market movers", exact: true })
   ).toBeVisible()
-  await expect(page.locator(".losers .mover-row")).toHaveCount(10)
-  await expect(page.locator(".gainers .mover-row")).toHaveCount(10)
+  await expect(page.locator(".losers .mover-row").first()).toBeVisible()
+  await expect(page.locator(".gainers .mover-row").first()).toBeVisible()
+  for (const selector of [".losers", ".gainers"]) {
+    const count = await page.locator(`${selector} .mover-row`).count()
+    expect(count).toBeGreaterThan(10)
+    expect(count).toBeLessThanOrEqual(50)
+  }
   for (const [selector, increasing] of [
     [".losers", true],
     [".gainers", false],
@@ -296,11 +301,9 @@ test("currency rows open details and sidebar watchlist keeps stars independent",
   page,
 }) => {
   await page.goto("/economy/market?q=Divine%20Orb")
-  const row = page
-    .locator(".currency-row")
-    .filter({
-      has: page.getByRole("button", { name: "Divine Orb", exact: true }),
-    })
+  const row = page.locator(".currency-row").filter({
+    has: page.getByRole("button", { name: "Divine Orb", exact: true }),
+  })
   await expect(row).toBeVisible()
   await row
     .getByRole("button", { name: "Add Divine Orb to watchlist", exact: true })
@@ -330,4 +333,34 @@ test("currency rows open details and sidebar watchlist keeps stars independent",
   await expect(
     sidebar.getByRole("button", { name: /^Watchlist/ })
   ).toHaveAttribute("aria-pressed", "false")
+})
+
+test("mover periods persist in the URL and show unavailable history honestly", async ({
+  page,
+}) => {
+  await page.goto("/economy/movers")
+  await expect(page.locator(".mover-row").first()).toBeVisible()
+  const period = page.getByRole("combobox", {
+    name: "Movers period",
+    exact: true,
+  })
+  for (const [label, value] of [
+    ["48 hours", "48h"],
+    ["7 days", "7d"],
+    ["1 month (30 days)", "30d"],
+    ["3 months (90 days)", "90d"],
+  ]) {
+    await period.click()
+    await page.getByRole("option", { name: label, exact: true }).click()
+    await expect(page).toHaveURL(new RegExp(`period=${value}`))
+    await expect(
+      page.getByText("Not enough recorded history for this period yet.").first()
+    ).toBeVisible()
+    await expect(page.locator(".mover-row")).toHaveCount(0)
+  }
+  await page.reload()
+  await expect(period).toContainText("3 months (90 days)")
+  await period.click()
+  await page.getByRole("option", { name: "24 hours", exact: true }).click()
+  await expect(page.locator(".mover-row").first()).toBeVisible()
 })

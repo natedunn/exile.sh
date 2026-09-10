@@ -12,6 +12,7 @@ import type { tables } from "../functions/schema";
 export const api = {
   economy: {
     itemHistory: createApiLeaf<"query", typeof import("../functions/economy").itemHistory>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").itemHistory>("economy:itemHistory"), { type: "query" }),
+    movers: createApiLeaf<"query", typeof import("../functions/economy").movers>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").movers>("economy:movers"), { type: "query" }),
     overview: createApiLeaf<"query", typeof import("../functions/economy").overview>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").overview>("economy:overview"), { type: "query" }),
   },
   http: undefined as unknown as typeof httpRouter,
