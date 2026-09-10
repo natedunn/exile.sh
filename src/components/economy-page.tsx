@@ -64,7 +64,7 @@ export const filters = z.object({
   quote: z.enum(QUOTES).catch("Exalted"),
   category: z.string().catch("All currencies"),
   q: z.string().max(120).catch(""),
-  sort: z.enum(["price", "name", "change", "volume"]).catch("volume"),
+  sort: z.enum(["price", "name", "change", "volume"]).catch("price"),
   dir: z.enum(["asc", "desc"]).catch("desc"),
   page: z.coerce.number().int().min(1).max(1000).catch(1),
   favorites: z.boolean().catch(false),
