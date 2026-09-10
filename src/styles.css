@@ -390,10 +390,8 @@ h1 > span {
   border: 1px solid #81937520;
   border-radius: 4px;
   overflow: hidden;
-  background: linear-gradient(120deg, #35473415, #171c1744);
 }
 .mover-card.losers {
-  background: linear-gradient(120deg, #60402a0c, #171c1744);
   border-color: #947d6322;
 }
 .mover-card-title {
@@ -569,7 +567,6 @@ h1 > span {
   gap: 16px;
   padding: 13px 16px;
   border-bottom: 1px solid var(--line);
-  background: #161b1466;
   min-height: 63px;
 }
 .search-input {
@@ -874,7 +871,6 @@ footer > div a {
   gap: 20px;
   margin: 28px 0;
   padding: 22px;
-  background: #1a211644;
   border: 1px solid #81946320;
   border-radius: 3px;
 }
@@ -902,7 +898,6 @@ footer > div a {
 .chart-panel {
   border: 1px solid #859b6a22;
   border-radius: 4px;
-  background: #161c1433;
 }
 .chart-toolbar {
   padding: 18px 22px;
