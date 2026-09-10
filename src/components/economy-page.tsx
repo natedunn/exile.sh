@@ -109,7 +109,13 @@ function Delta({ value }: { value: number | null }) {
     </span>
   )
 }
-function Sparkline({ values }: { values: (number | null)[] }) {
+function Sparkline({
+  values,
+  alignStart = false,
+}: {
+  values: (number | null)[]
+  alignStart?: boolean
+}) {
   const valid = values.filter((v): v is number => v !== null)
   if (valid.length < 2)
     return <span className="muted small">Collecting history</span>
@@ -130,7 +136,8 @@ function Sparkline({ values }: { values: (number | null)[] }) {
   return (
     <svg
       className={`sparkline ${up ? "positive" : "negative"}`}
-      viewBox="0 0 100 32"
+      viewBox={`${alignStart ? (values.findIndex((value) => value !== null) * 100) / (values.length - 1) : 0} 0 100 32`}
+      preserveAspectRatio="xMinYMid meet"
       aria-label={`${up ? "Rising" : "Falling"} over available 48-hour history`}
       role="img"
     >
@@ -749,6 +756,7 @@ export function EconomyPage({
                               </TableCell>
                               <TableCell className="hide-small">
                                 <Sparkline
+                                  alignStart
                                   values={r.trends[quoteIndex(r.id)]}
                                 />
                               </TableCell>
