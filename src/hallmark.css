@@ -1343,5 +1343,5 @@ html body .display-currency-label .item-icon img {
 }
 
 html body .currency-name {
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
