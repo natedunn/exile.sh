@@ -1,0 +1,13 @@
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+**/generated/**
+**/_generated/**
+src/routeTree.gen.ts
+shared/catalog.json
+.agents/
+.claude/
+
+worker-configuration.d.ts
+
+convex/shared/api.ts

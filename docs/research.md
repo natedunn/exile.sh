@@ -14,10 +14,10 @@ Application registration is currently paused. Public exchange access remains usa
 
 Three read-only requests were made, without credentials, on 10 September around 19:37 UTC. Research identification was `exile.sh-research/0.1`; a real contact must be configured before sustained collection.
 
-| Request | Result |
-| --- | --- |
-| `/api/currency-exchange/poe2` | HTTP 200; 42 bytes; no markets; continuation `1733515200` (2024-12-06 20:00 UTC) |
-| `/api/currency-exchange/poe2/1733515200` | HTTP 200; no markets; continuation `1733518800` |
+| Request                                  | Result                                                                            |
+| ---------------------------------------- | --------------------------------------------------------------------------------- |
+| `/api/currency-exchange/poe2`            | HTTP 200; 42 bytes; no markets; continuation `1733515200` (2024-12-06 20:00 UTC)  |
+| `/api/currency-exchange/poe2/1733515200` | HTTP 200; no markets; continuation `1733518800`                                   |
 | `/api/currency-exchange/poe2/1788955200` | HTTP 200; 2,872,583 response-body bytes; 3,474 markets; continuation `1788958800` |
 
 The last request explicitly tested a timestamp for 2026-09-09 12:00 UTC, rather than walking every earlier hour. That timestamp worked in this sample; the documented continuation remains the preferred cursor once collection starts. [Sampled official hour](https://web.poecdn.com/api/currency-exchange/poe2/1788955200)

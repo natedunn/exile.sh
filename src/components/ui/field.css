@@ -1,0 +1,28 @@
+/* Shared focus treatment for standalone fields and composite input groups. */
+.ui-field[data-slot] {
+  transition: none;
+}
+.ui-field[data-slot]:focus-visible,
+.ui-field[data-slot="select-trigger"][data-popup-open],
+.ui-field[data-slot="input-group"]:focus-within {
+  outline: none;
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 3px var(--color-focus-glow);
+}
+.ui-field[data-slot][aria-invalid="true"],
+.ui-field[data-slot="input-group"]:has([aria-invalid="true"]) {
+  border-color: var(--color-negative);
+}
+.ui-field[data-slot][aria-invalid="true"]:focus-visible,
+.ui-field[data-slot="input-group"]:has([aria-invalid="true"]):focus-within {
+  box-shadow: 0 0 0 3px var(--color-error-glow);
+}
+.ui-field[data-slot="input-group"] > [data-slot="input-group-control"],
+.ui-field[data-slot="input-group"]
+  > [data-slot="input-group-control"]:focus-visible {
+  border: 0;
+  border-radius: 0;
+  background: var(--color-clear);
+  outline: none;
+  box-shadow: none;
+}

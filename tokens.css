@@ -1,0 +1,65 @@
+/* Hallmark · Workbench tokens · existing Geist / Cormorant pairing */
+:root {
+  --color-paper: oklch(17% 0.006 70);
+  --color-surface: oklch(20% 0.006 70);
+  --color-hover: oklch(25% 0.008 70);
+  --color-ink: oklch(90% 0.014 80);
+  --color-text-muted: oklch(70% 0.014 80);
+  --color-brand: oklch(76% 0.083 72);
+  --color-focus: oklch(84% 0.09 72);
+  --color-focus-glow: oklch(84% 0.09 72 / 0.18);
+  --color-error-glow: oklch(76% 0.105 30 / 0.18);
+  --color-rule: oklch(30% 0.01 70);
+  --color-rule-strong: oklch(45% 0.025 70);
+  --color-positive: oklch(78% 0.09 155);
+  --color-negative: oklch(76% 0.105 30);
+  --color-volume: oklch(66% 0.045 72 / 0.22);
+  --color-notice: oklch(76% 0.083 72 / 0.07);
+  --color-clear: oklch(0% 0 0 / 0);
+  --font-body: "Geist Variable", sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --text-xs: 13px;
+  --text-sm: 14px;
+  --text-body: 15px;
+  --text-title: 38px;
+  --text-section: 24px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 100ms;
+  --rule-thin: 1px;
+  --radius-control: 2px;
+}
+
+/* shadcn semantic utilities use the workbench palette. */
+@theme inline {
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-brand);
+  --color-primary-foreground: var(--color-paper);
+  --color-secondary: var(--color-hover);
+  --color-secondary-foreground: var(--color-ink);
+  --color-muted: var(--color-hover);
+  --color-muted-foreground: var(--color-text-muted);
+  --color-accent: var(--color-hover);
+  --color-accent-foreground: var(--color-ink);
+  --color-destructive: var(--color-negative);
+  --color-border: var(--color-rule);
+  --color-input: var(--color-rule-strong);
+  --color-ring: var(--color-focus);
+  --radius-sm: var(--radius-control);
+  --radius-md: var(--radius-control);
+  --radius-lg: var(--radius-control);
+  --radius-xl: var(--radius-control);
+}
