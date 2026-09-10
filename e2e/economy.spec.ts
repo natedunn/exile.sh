@@ -94,6 +94,9 @@ for (const width of [320, 375, 414, 768]) {
       fullPage: true,
     })
     await page
+      .getByRole("textbox", { name: "Search currencies", exact: true })
+      .fill("Divine Orb")
+    await page
       .getByRole("button", { name: "View Divine Orb history", exact: true })
       .click()
     await expect(page.locator(".chart-wrap")).toBeVisible()
