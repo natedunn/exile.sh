@@ -1303,3 +1303,40 @@ html body .currency-row:is(:hover, :focus-within) .currency-name > span:last-chi
     transform: none;
   }
 }
+
+/* A larger reading scale, shared across market and detail views. */
+html body .currency-name .item-icon,
+html body .currency-name .item-icon img,
+html body .categories .item-icon,
+html body .categories .item-icon img,
+html body .pairs-table .item-icon,
+html body .pairs-table .item-icon img {
+  width: 32px;
+  height: 32px;
+}
+html body .mover-row .item-icon,
+html body .mover-row .item-icon img {
+  width: 36px;
+  height: 36px;
+}
+html body .currency-table td {
+  height: 62px;
+}
+html body .categories nav button {
+  min-height: 46px;
+}
+html body .search-input[data-slot="input-group"] {
+  min-height: 44px;
+}
+html body .currency-name small {
+  font-size: var(--text-body);
+}
+html body .price-cell > img {
+  width: 20px;
+  height: 20px;
+}
+html body .display-currency-label .item-icon,
+html body .display-currency-label .item-icon img {
+  width: 22px;
+  height: 22px;
+}
