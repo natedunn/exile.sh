@@ -259,7 +259,6 @@ function EconomyPage() {
       <main id="main">
         <section className="market-heading">
           <div>
-            <p className="game-label">Path of Exile 2</p>
             <h1>Exchange economy</h1>
           </div>
           <div className="market-context">
@@ -289,42 +288,6 @@ function EconomyPage() {
                 ? `Last completed hour · ${utc(data.hour)}`
                 : "Waiting for a completed exchange hour"}
             </span>
-          </div>
-        </section>
-        <section
-          className="benchmark-strip"
-          aria-label="Benchmark exchange rates"
-        >
-          {QUOTES.map((quote) => {
-            const row = rows.find((r) => r.id === ANCHORS[quote])
-            return (
-              <div className="benchmark" key={quote}>
-                <Icon id={ANCHORS[quote]} />
-                <div>
-                  <span className="overline">{quote} Orb</span>
-                  <strong>
-                    {row && rate ? number(row.price / rate) : "—"}{" "}
-                    <small>{f.quote.toLowerCase()}</small>
-                  </strong>
-                </div>
-                {row && <Delta value={row.changes[qi]} />}
-              </div>
-            )
-          })}
-          <div className="benchmark activity">
-            <Layers3 size={23} />
-            <div>
-              <span className="overline">Active exchange pairs</span>
-              <strong>
-                {data
-                  ? number(
-                      data.pairs.filter((p) => p.va > 0 && p.vb > 0).length,
-                      0
-                    )
-                  : "—"}
-                <small> this hour</small>
-              </strong>
-            </div>
           </div>
         </section>
         {stale && (
@@ -526,7 +489,6 @@ function EconomyPage() {
                 </section>
                 <section className="market-layout">
                   <aside className="categories">
-                    <span className="category-label">Categories</span>
                     <nav aria-label="Currency categories">
                       {CATEGORIES.map((cat) => {
                         const count = rows.filter(
@@ -900,7 +862,6 @@ function ItemDetail({
       <div className="detail-header">
         <Icon id={id} large />
         <div>
-          <span className="section-kicker">{info.category}</span>
           <h2>{info.name}</h2>
           <p>{info.description}</p>
         </div>
@@ -916,23 +877,23 @@ function ItemDetail({
       </div>
       <div className="detail-stats">
         <div>
-          <span className="overline">Executed average</span>
+          <span className="metric-label">Executed average</span>
           <strong>
             {row && price !== null ? number(price) : "—"} <small>{quote}</small>
           </strong>
         </div>
         <div>
-          <span className="overline">24-hour change</span>
+          <span className="metric-label">24-hour change</span>
           <strong>
             <Delta value={row?.changes[qi] ?? null} />
           </strong>
         </div>
         <div>
-          <span className="overline">Hourly traded units</span>
+          <span className="metric-label">Hourly traded units</span>
           <strong>{row ? compact(row.volume) : "—"}</strong>
         </div>
         <div>
-          <span className="overline">Observation</span>
+          <span className="metric-label">Observation</span>
           <span>{utc(hour)}</span>
           <small>
             {row?.direct

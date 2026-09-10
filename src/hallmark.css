@@ -85,11 +85,6 @@ html body .market-heading h1 {
   letter-spacing: -0.5px;
   line-height: 1.1;
 }
-html body .game-label {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-xs);
-}
 html body .market-context {
   display: flex;
   align-items: flex-end;
@@ -114,57 +109,11 @@ html body option {
   background: var(--color-surface);
   color: var(--color-ink);
 }
-html body .benchmark-strip {
-  display: flex;
-  border: 0;
-  border-top: var(--rule-thin) solid var(--color-rule);
-  border-bottom: var(--rule-thin) solid var(--color-rule);
-  background: none;
-  border-radius: 0;
-}
-html body .benchmark {
-  flex: 1;
-  padding: var(--space-md) var(--space-lg);
-  gap: var(--space-md);
-  border: 0;
-  border-right: var(--rule-thin) solid var(--color-rule);
-  background: none;
-  min-width: 0;
-}
-html body .benchmark:first-child {
-  padding-left: 0;
-}
-html body .benchmark:last-child {
-  border: 0;
-}
-html body .benchmark strong {
-  font-family: var(--font-body);
-  font-size: 18px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-html body .benchmark strong small {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
-html body .overline {
+html body .metric-label {
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   letter-spacing: 0;
   text-transform: none;
-}
-html body .benchmark .item-icon {
-  width: 28px;
-}
-html body .benchmark .item-icon img {
-  width: 28px;
-  height: 28px;
-}
-html body .benchmark > .delta {
-  font-size: var(--text-xs);
-}
-html body .benchmark.activity > svg {
-  display: none;
 }
 html body .workspace-header {
   margin-top: var(--space-lg);
@@ -209,12 +158,6 @@ html body .market-layout {
 html body .categories {
   min-width: 0;
   width: 100%;
-}
-html body .category-label {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  display: block;
-  margin-bottom: var(--space-sm);
 }
 html body .categories nav {
   display: flex;
@@ -501,14 +444,8 @@ html body .detail-header h2 {
   font-size: var(--text-title);
   color: var(--color-ink);
 }
-html body .section-kicker {
-  font-size: var(--text-xs);
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--color-text-muted);
-}
 html body .detail-header p,
-html body .detail-stats .overline,
+html body .detail-stats .metric-label,
 html body .history-caption,
 html body .detail-links {
   font-size: var(--text-xs);
@@ -583,9 +520,6 @@ html body .prose-page a {
   html body .hide-medium {
     display: none;
   }
-  html body .benchmark > .delta {
-    display: none;
-  }
 }
 @media (max-width: 1000px) {
   html body .site-shell {
@@ -658,37 +592,6 @@ html body .prose-page a {
   html body .source-time {
     font-size: 11px;
   }
-  html body .benchmark-strip {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  html body .benchmark {
-    padding: var(--space-sm);
-    gap: var(--space-sm);
-    border: 0;
-  }
-  html body .benchmark:first-child {
-    padding-left: var(--space-sm);
-  }
-  html body .benchmark:nth-child(-n + 2) {
-    border-bottom: var(--rule-thin) solid var(--color-rule);
-  }
-  html body .benchmark strong {
-    font-size: 16px;
-  }
-  html body .benchmark strong small {
-    font-size: 10px;
-  }
-  html body .benchmark .overline {
-    font-size: 11px;
-  }
-  html body .benchmark .item-icon {
-    width: 22px;
-  }
-  html body .benchmark .item-icon img {
-    width: 22px;
-    height: 22px;
-  }
   html body .workspace-header {
     flex-wrap: wrap;
     gap: 0;
@@ -740,9 +643,6 @@ html body .prose-page a {
   }
   html body .categories nav button {
     flex-shrink: 0;
-  }
-  html body .category-label {
-    display: none;
   }
   html body .table-toolbar {
     gap: var(--space-sm);
@@ -863,10 +763,6 @@ html body .prose-page a {
     transition: none;
     scroll-behavior: auto;
   }
-}
-/* Labels share a name with a Tailwind text-decoration utility. */
-html body .overline {
-  text-decoration: none;
 }
 @media (max-width: 600px) {
   html body .mover-name {

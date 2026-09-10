@@ -160,26 +160,11 @@ option {
   z-index: 1;
   padding: 37px 0 32px;
 }
-.eyebrow,
-.section-kicker {
-  font-size: 9px;
-  letter-spacing: 2px;
-  font-weight: 500;
-  color: #9eac95;
-}
-.eyebrow {
-  display: flex;
-  gap: 13px;
-  align-items: center;
-}
 .tiny-diamond {
   width: 5px;
   height: 5px;
   transform: rotate(45deg);
   background: var(--gold);
-}
-.eyebrow-divider {
-  color: #626b5d;
 }
 h1 {
   font-family: "Cormorant Garamond", serif;
@@ -306,47 +291,12 @@ h1 > span {
   color: #8b9272;
   font-size: 7px;
 }
-.benchmark-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border: 1px solid #8a93621d;
-  background: #1b211755;
-  border-radius: 3px;
-}
-.benchmark {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  border-right: 1px solid var(--line);
-}
-.benchmark:last-child {
-  border-right: 0;
-}
-.overline {
+.metric-label {
   display: block;
   font-size: 9px;
   letter-spacing: 0.6px;
   color: #949d8d;
   margin-bottom: 7px;
-}
-.benchmark strong {
-  font-size: 20px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-.benchmark strong small {
-  font-size: 9px;
-  color: #919983;
-  font-weight: 400;
-  margin-left: 3px;
-}
-.benchmark > .delta {
-  margin-left: auto;
-  font-size: 9px;
-}
-.benchmark.activity > svg {
-  color: #8a977e;
 }
 .item-icon {
   width: 36px;
@@ -411,11 +361,6 @@ h1 > span {
   justify-content: space-between;
   margin-bottom: 16px;
   gap: 15px;
-}
-.section-kicker {
-  font-size: 8px;
-  letter-spacing: 1.8px;
-  color: #7f8a72;
 }
 .section-title h2 {
   font-family: "Cormorant Garamond", serif;
@@ -547,10 +492,6 @@ h1 > span {
   grid-template-columns: 190px minmax(0, 1fr);
   gap: 27px;
   margin-top: 38px;
-}
-.categories > .section-kicker {
-  display: block;
-  margin: 0 0 17px 11px;
 }
 .categories nav {
   display: flex;
@@ -946,7 +887,7 @@ footer > div a {
   font-size: 11px;
   color: #88987a;
 }
-.detail-stats > div > span:not(.overline) {
+.detail-stats > div > span:not(.metric-label) {
   font-size: 11px;
 }
 .detail-stats > div > small {
@@ -1142,9 +1083,6 @@ footer > div a {
   .currency-name {
     min-width: 200px;
   }
-  .benchmark {
-    padding: 23px;
-  }
   .mover-row {
     min-height: 66px;
   }
@@ -1159,16 +1097,6 @@ footer > div a {
   }
   .hero h1 {
     font-size: 49px;
-  }
-  .benchmark {
-    padding: 16px 12px;
-    gap: 8px;
-  }
-  .benchmark strong {
-    font-size: 17px;
-  }
-  .benchmark > .delta {
-    display: none;
   }
   .market-layout {
     grid-template-columns: 160px minmax(0, 1fr);
@@ -1240,36 +1168,11 @@ footer > div a {
   .hero-meta {
     font-size: 8px;
   }
-  .eyebrow {
-    font-size: 8px;
-    letter-spacing: 1.3px;
-  }
   .mobile-break {
     display: block;
   }
-  .benchmark-strip {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .benchmark:nth-child(2) {
-    border-right: 0;
-  }
-  .benchmark:nth-child(-n + 2) {
-    border-bottom: 1px solid var(--line);
-  }
-  .benchmark {
-    padding: 14px 10px;
-  }
-  .benchmark strong {
-    font-size: 18px;
-  }
-  .overline {
+  .metric-label {
     font-size: 8px;
-  }
-  .benchmark .item-icon {
-    width: 30px;
-  }
-  .benchmark.activity svg {
-    width: 22px;
   }
   .workspace-header {
     margin-top: 17px;
@@ -1323,7 +1226,6 @@ footer > div a {
     overflow-x: auto;
     padding-bottom: 12px;
   }
-  .categories > .section-kicker,
   .sidebar-note {
     display: none;
   }

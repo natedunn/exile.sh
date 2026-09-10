@@ -26,3 +26,6 @@ Field focus styling belongs in `src/components/ui/field.css`, consumed by the
 shared Input, Textarea, SelectTrigger, and InputGroup components. Use InputGroup
 with InputGroupInput/Addon/Button for fields containing icons or actions; do not
 add route-specific focus outlines or rings to the inner control.
+
+Do not add decorative eyebrows or kickers above headings anywhere in the site.
+Use direct headings; retain functional field and metric labels.
