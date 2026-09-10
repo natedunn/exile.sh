@@ -31,8 +31,8 @@ function Methodology() {
         For a direct Exalted market, the hourly price is traded Exalted units
         divided by traded item units. Zero-volume pairs have no executed price.
         If a direct market is unavailable, we use a same-hour path through Chaos
-        or Divine and mark it “Derived rate.” When both paths exist, the one
-        with more traded item units wins.
+        or Divine. The item detail identifies this under Observation. When both
+        paths exist, the one with more traded item units wins.
       </p>
       <p>
         Changing the displayed quote divides by that anchor’s price in the same

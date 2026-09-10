@@ -722,7 +722,6 @@ export function EconomyPage({
                                   <Icon id={r.id} />
                                   <span>
                                     {itemInfo(r.id).name}
-                                    {!r.direct && <small>Derived rate</small>}
                                   </span>
                                 </Button>
                               </TableCell>
