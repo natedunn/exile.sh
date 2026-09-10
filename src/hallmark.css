@@ -211,6 +211,9 @@ html body .sidebar-note {
   display: none;
 }
 html body .market-table-panel {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
   width: 100%;
   min-width: 0;
   border: 0;
@@ -1119,4 +1122,15 @@ html body .footer-info p {
 
 html body .currency-row {
   cursor: pointer;
+}
+
+html body .market-table-panel > .pagination {
+  margin-top: auto;
+}
+html body .empty-state,
+html body .empty-state :is(h1, h2, h3, p, button) {
+  color: var(--color-text-muted);
+}
+html body .empty-state button {
+  border-color: var(--color-rule-strong);
 }
