@@ -44,7 +44,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <a className="skip-link" href="#main">
-          Skip to market data
+          Skip to content
         </a>
         <Providers>{children}</Providers>
         <Scripts />

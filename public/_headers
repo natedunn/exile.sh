@@ -1,0 +1,14 @@
+/pob-trees/art-v2/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/pob-trees/v2/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/pob-trees/v3/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/gems/v1/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/gems/effects-v1/*
+  Cache-Control: public, max-age=31536000, immutable

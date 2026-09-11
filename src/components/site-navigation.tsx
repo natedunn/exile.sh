@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Gem, Menu, TriangleAlert } from "lucide-react"
+import { Gem, Menu, TriangleAlert, Swords } from "lucide-react"
 import { Link } from "@tanstack/react-router"
 import { Button } from "./ui/button"
 import {
@@ -71,6 +71,7 @@ export function SiteNavigation({
   // Both presentations use the same destinations as the site grows.
   const destinations = [
     { label: "Economy", to: "/economy", icon: Gem },
+    { label: "Builds", to: "/builds", icon: Swords },
   ] as const
   return (
     <>
@@ -79,8 +80,8 @@ export function SiteNavigation({
           <Link
             key={to}
             to={to}
-            search={{ ...filters, item: "" }}
-            className="nav-active"
+            search={to === "/economy" ? { ...filters, item: "" } : {}}
+            activeProps={{ className: "nav-active" }}
           >
             {label}
           </Link>
@@ -130,8 +131,8 @@ export function SiteNavigation({
                 <Link
                   key={to}
                   to={to}
-                  search={{ ...filters, item: "" }}
-                  aria-current="page"
+                  search={to === "/economy" ? { ...filters, item: "" } : {}}
+
                   onClick={() => setOpen(false)}
                 >
                   <Icon size={20} aria-hidden="true" />

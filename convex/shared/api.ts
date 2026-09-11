@@ -10,6 +10,11 @@ import type { httpRouter } from "../functions/http";
 import type { tables } from "../functions/schema";
 
 export const api = {
+  builds: {
+    create: createApiLeaf<"mutation", typeof import("../functions/builds").create>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/builds").create>("builds:create"), { type: "mutation" }),
+    get: createApiLeaf<"query", typeof import("../functions/builds").get>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/builds").get>("builds:get"), { type: "query" }),
+    resolve: createApiLeaf<"action", typeof import("../functions/builds").resolve>(createGeneratedFunctionReference<"action", "public", typeof import("../functions/builds").resolve>("builds:resolve"), { type: "action" }),
+  },
   economy: {
     itemHistory: createApiLeaf<"query", typeof import("../functions/economy").itemHistory>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").itemHistory>("economy:itemHistory"), { type: "query" }),
     movers: createApiLeaf<"query", typeof import("../functions/economy").movers>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").movers>("economy:movers"), { type: "query" }),
