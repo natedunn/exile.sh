@@ -4,7 +4,7 @@
 
 Project: exile.sh (Convex slug `exile-sh`, team `nate-dunn`). Development: `next-axolotl-199`. Production: `brilliant-rooster-193`. Public source: `natedunn/exile.sh`. Contact: `hello@natedunn.net`.
 
-Production has not been deployed by this implementation. Confirm the target before any Convex command. Never copy development deployment keys into Cloudflare production settings.
+The managed build deploys production Convex before Cloudflare publishes the Worker. Confirm the target before any manual Convex command. Never copy development deployment keys into Cloudflare production settings.
 
 ## Data collection
 
@@ -24,7 +24,7 @@ bunx convex run store:state '{}'
 
 Five consecutive failures open a circuit. Inspect `lastError` and Convex logs before running `store:resetCircuit`. Fix the cause before resuming the same hour. Source payloads are gzipped in Convex storage and SHA-256 hashed. A partially processed hour replays its archive and skips committed chunks. Completed item history is gated by the import ledger; current snapshots publish transactionally. Out-of-order imports cannot regress the current snapshot.
 
-The cursor advances monotonically. Cron collection resumes at that cursor, one hour per invocation. A multi-hour outage requires a bounded catch-up, and a cursor older than eight days requires operator review and an explicit recent-hour import. Inspect that the desired league is in `shared/economy.ts` when a new league launches.
+The cursor advances monotonically. On first automatic startup, collection begins 30 completed hours back. Cron collection resumes at the saved cursor and schedules up to 48 hours per invocation, respecting rate limits. Automatic continuations and retries recheck COLLECTOR_ENABLED, so pausing also stops queued work. Larger backlogs drain over subsequent hourly invocations. If the cursor is older than eight days, automatic collection resumes at the earliest supported hour and emits a history-gap log with the omitted interval. Missing older history remains missing. Each successful import logs its source hour and processing duration. Inspect that the desired league is in `shared/economy.ts` when a new league launches.
 
 Current price documents and pair chunks are separate: each pair chunk holds at most 250 pairs. A publication safety bound stops collection if a league reaches 8,000 recent item-day records; split publication/read work before raising that bound. All ingestion, retention, and state changes are internal Convex functions. Public functions only read economic data.
 
@@ -34,25 +34,49 @@ The initial 30-hour development import produced 3,188 item-day records (~1.54 MB
 
 Database bandwidth is the main concern: publication currently reads each league’s recent history and overview subscribers receive a full latest snapshot. Do not extrapolate storage size alone into a promise that continuous collection or public traffic is free. Check Convex’s dashboard usage, including action I/O, database bandwidth, storage, and function calls. Free allowances can change. No paid resources or overages were enabled.
 
-Before enabling continuous production ingestion: measure a representative day, optimize publication reads (incremental rolling aggregates/per-league work), set budget alerts in the account, and verify the free-plan behavior at its cap. Development remains paused while this is unresolved. The 92-day price-history policy supports rolling 30/90-day rankings as data accumulates; it does not restore expired or uncollected hours. Raw archives still expire after eight days. Measure retained bucket storage and query reads before enabling continuous collection; daily rollups remain a future optimization.
+The managed production build enables collection on first initialization. Monitor the first 24 hours in the Convex usage dashboard; no paid plan or overage setting is changed by the scripts. Pause with COLLECTOR_ENABLED=false if usage is too high. Publication read optimization (incremental rolling aggregates/per-league work) remains follow-up work. Development collection remains independently paused. The 92-day price-history policy supports rolling 30/90-day rankings as data accumulates; it does not restore expired or uncollected hours. Raw archives still expire after eight days. Measure retained bucket storage and query reads as history grows; daily rollups remain a future optimization.
 
 ## Cloudflare managed Git builds
 
-Create a **Worker** through Cloudflare’s Git integration and select `natedunn/exile.sh`. Use `main` for production and an appropriate feature/preview branch for development. Do not connect automatic production builds until production Convex functions and configuration have been reviewed and deployed.
+This uses the same two-stage pattern as `natedunn/kino`, without provisioning per-branch databases or auth infrastructure. Cloudflare runs the scripts; there is no GitHub Actions deployment pipeline.
 
-Configure Bun 1.3.9 / Node 24, repository root, build command `bun install --frozen-lockfile && bun run build`, and deployment command `bunx wrangler deploy`. The Cloudflare Vite plugin writes the server bundle/config and Wrangler redirect used by deployment. `wrangler.jsonc` names the Worker `exile-sh` and uses the TanStack Start server entry with `nodejs_compat`.
+In the `exile-sh` Worker's **Settings → Build**, configure:
 
-Build-time public environment variables:
+| Setting                                   | Value                                                       |
+| ----------------------------------------- | ----------------------------------------------------------- |
+| Production branch                         | `main`                                                      |
+| Root directory                            | `/`                                                         |
+| Build command                             | `bun install --frozen-lockfile && bun run build:cloudflare` |
+| Deploy command                            | `bun run deploy`                                            |
+| Version command (non-production branches) | `bun run deploy:preview`                                    |
 
-| Variable               | Production value                             |
-| ---------------------- | -------------------------------------------- |
-| `VITE_CONVEX_URL`      | `https://brilliant-rooster-193.convex.cloud` |
-| `VITE_CONVEX_SITE_URL` | `https://brilliant-rooster-193.convex.site`  |
-| `VITE_SITE_URL`        | The chosen public origin                     |
+Add these **build** variables and secrets:
 
-Preview builds must use the development Convex URLs. These `VITE_` values are public, bundled configuration. Do not put secrets in them. Cloudflare does not need a Convex deploy key for a frontend-only build: generated bindings are committed. Deploy the backend separately after approval of the concrete production change.
+| Name                     | Type       | Value                                                                                     |
+| ------------------------ | ---------- | ----------------------------------------------------------------------------------------- |
+| `BUN_VERSION`            | Plain text | `1.3.9`                                                                                   |
+| `NODE_VERSION`           | Plain text | `24`                                                                                      |
+| `CONVEX_PROD_DEPLOY_KEY` | Secret     | Production deploy key from Convex → `brilliant-rooster-193` → Settings → URL & Deploy Key |
 
-Run `bun run build` and `bunx wrangler deploy --dry-run --config dist/server/wrangler.json` locally to validate the artifact without publishing. Attach the domain in Cloudflare after ownership/DNS is confirmed. No domain purchase or DNS changes are part of this implementation.
+Do not paste the key into chat or put it in a `VITE_` variable. Use a deployment-scoped production key, not a dev or preview key. The script verifies the key's target prefix and fails before running commands if it is wrong. `WORKERS_CI_BRANCH` is supplied by Cloudflare; the script requires it and never guesses production from a local checkout.
+
+The existing `VITE_CONVEX_URL`, `VITE_CONVEX_SITE_URL`, and `VITE_SITE_URL` dashboard variables can be removed: the script sets matching URLs for each branch. Main uses production (`brilliant-rooster-193`) and `https://exile.sh`. Other branches use dev (`next-axolotl-199`) and do not deploy Convex or start collectors. Optional `VITE_SITE_URL_PREVIEW` customizes the preview's public origin. This does not yet implement the separate read-only production economy connection for local development.
+
+### What a production build does
+
+1. Validate the branch and production key, then build the frontend against production URLs. Deployment credentials are removed from the frontend build subprocess environment.
+2. Run `kitcn deploy` to push Convex functions/schema and run kitcn migration/backfill hooks. The Cloudflare release stops on failure.
+3. Set `COLLECTOR_ENABLED=true` only if the variable is absent. An existing `false` remains paused, including after redeployment. `GGG_CONTACT` defaults server-side to `hello@natedunn.net`.
+4. If enabled, call the internal collector once immediately. It imports the first hour and queues the rest of its bounded batch in Convex. A source/import error fails this build; transient retries may still be queued in Convex. Inspect logs before retrying. A successful build is not proof the whole backfill is finished.
+5. Cloudflare's deploy phase runs Wrangler against `dist/server/wrangler.json` to publish the frontend.
+
+The first run imports 30 hourly digests, enough for initial 24-hour changes; charts and longer comparisons fill in as data arrives. Watch the imports ledger and `ingestion-complete` logs for progress. Empty league markets can legitimately publish no price rows. Five consecutive failures stop collection until the cause is fixed and the circuit is reset.
+
+Once deployed, the hourly cron runs on Convex even while your computer is off and with no new commits. Check source freshness in the site footer and compare it with the last completed import. Neither Worker deployment nor a frontend rollback rolls back Convex: this is an ordered deployment, not an atomic cross-service transaction. Keep schema/API changes backward compatible with the previously deployed frontend.
+
+### Local verification
+
+`bun run build` remains frontend-only and never deploys Convex. Run `bun run test:deploy` for mocked orchestration tests (no credentials/network/writes), `bun run test` for collector and data tests, and `bun run typecheck` / `bun run lint`. Backend changes are verified against dev, not production, before opening a PR. Do not run `build:cloudflare` locally with a production key merely to test it.
 
 ## Movers periods
 

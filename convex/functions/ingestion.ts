@@ -45,13 +45,35 @@ export const ingest = privateAction
     })
   )
   .action(async ({ ctx, input }) => {
-    if (input.hour === undefined && process.env.COLLECTOR_ENABLED !== "true")
+    const automatic = input.hour === undefined
+    if (automatic && process.env.COLLECTOR_ENABLED !== "true")
       return { status: "paused" }
     const store = createStoreCaller(ctx)
     const state = await store.state()
+    if (state && state.failures >= 5)
+      return {
+        status: "error",
+        message:
+          "Collector circuit is open; inspect lastError and reset after fixing the cause.",
+      }
     const latestComplete = Math.floor(Date.now() / 1000 / HOUR) * HOUR - HOUR
+    if (automatic && state && state.cursor > latestComplete)
+      return { status: "caught-up" }
+    // Seed enough history for 24h changes on first startup, then resume the cursor.
+    // A long outage recovers the available eight-day window and records the gap.
+    const earliest = latestComplete - 8 * DAY
+    if (automatic && state && state.cursor < earliest)
+      console.warn(
+        JSON.stringify({
+          event: "history-gap",
+          from: state.cursor,
+          to: earliest,
+        })
+      )
     const hour =
-      input.hour ?? Math.min(state?.cursor ?? latestComplete, latestComplete)
+      input.hour ??
+      Math.max(state?.cursor ?? latestComplete - 29 * HOUR, earliest)
+    const remaining = input.remaining ?? (automatic ? 48 : 1)
     if (
       hour % HOUR !== 0 ||
       hour > latestComplete ||
@@ -59,9 +81,10 @@ export const ingest = privateAction
     )
       throw new Error("Hour outside bounded retention window")
     const token = randomUUID()
+    const startedAt = Date.now()
     if (!(await store.acquire({ hour, token }))) {
       // Administrative backfill resumes after a lease or rate-limit pause.
-      if (input.hour !== undefined && (state?.failures ?? 0) < 5)
+      if (!automatic && (state?.failures ?? 0) < 5)
         await createIngestionCaller(ctx)
           .schedule.after(
             Math.max(
@@ -165,11 +188,21 @@ export const ingest = privateAction
         nextAllowedAt: Date.now() + delay,
         error: "",
       })
-      if ((input.remaining ?? 1) > 1 && next <= latestComplete) {
+      if (remaining > 1 && next <= latestComplete) {
         await createIngestionCaller(ctx)
           .schedule.after(delay)
-          .ingest({ hour: next, remaining: (input.remaining ?? 1) - 1 })
+          .ingest({
+            ...(automatic ? {} : { hour: next }),
+            remaining: remaining - 1,
+          })
       }
+      console.info(
+        JSON.stringify({
+          event: "ingestion-complete",
+          hour,
+          durationMs: Date.now() - startedAt,
+        })
+      )
       return { status: "complete", hour }
     } catch (error) {
       const message =
@@ -185,7 +218,7 @@ export const ingest = privateAction
       if ((state?.failures ?? 0) < 4)
         await createIngestionCaller(ctx)
           .schedule.after(delay)
-          .ingest({ ...input, hour })
+          .ingest({ ...input, ...(automatic ? {} : { hour }), remaining })
       console.error(
         JSON.stringify({ event: "ingestion-failed", hour, message })
       )

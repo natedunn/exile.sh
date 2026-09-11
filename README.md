@@ -15,7 +15,7 @@ bun run convex:dev
 bun run dev
 ```
 
-Open http://localhost:3000. The Convex CLI needs access to the development project. `convex:dev` generates cRPC bindings and pushes functions to that deployment. No GGG OAuth client or secret is required. Collection is **paused by default**, so a fresh deployment displays an empty state until an operator imports data.
+Open http://localhost:3000. The Convex CLI needs access to the development project. `convex:dev` generates cRPC bindings and pushes functions to that deployment. No GGG OAuth client or secret is required. Local/dev collection is **paused by default**. The managed production build deploys Convex and initializes hourly collection; see the setup below.
 
 ## What works
 
@@ -25,12 +25,13 @@ Open http://localhost:3000. The Convex CLI needs access to the development proje
 - Bounded, resumable official-feed imports, compressed source archives, a completion ledger, rate-limit handling, and bounded cleanup (eight-day raw archives, 92-day price history).
 - Original dark-fantasy interface with attributed community metadata and game artwork.
 
-This is the first development slice, not a public launch or complete Scout parity. Longer history, per-pair historical charts, league rollover automation, collection cost optimization, and production deployment remain. GGG login/account sync is deferred until application registration is available. Unique pricing is outside v1.
+This is the first development slice, not a public launch or complete Scout parity. Longer history, per-pair historical charts, league rollover automation, and collection cost optimization remain. GGG login/account sync is deferred until application registration is available. Unique pricing is outside v1.
 
 ## Development
 
 ```sh
 bun run test
+bun run test:deploy
 bun run typecheck
 bun run lint
 bun run build

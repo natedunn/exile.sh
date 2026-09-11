@@ -16,7 +16,11 @@
     "typecheck:convex": "tsc --noEmit --project convex/functions/tsconfig.json",
     "convex:codegen": "kitcn codegen",
     "test:e2e": "playwright test",
-    "cf:types": "wrangler types"
+    "cf:types": "wrangler types",
+    "build:cloudflare": "node scripts/cloudflare-build.mjs",
+    "deploy": "wrangler deploy --config dist/server/wrangler.json",
+    "deploy:preview": "wrangler versions upload --config dist/server/wrangler.json",
+    "test:deploy": "node --test scripts/cloudflare-build.test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.8.0",
