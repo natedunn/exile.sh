@@ -81,11 +81,30 @@ export const filters = z.object({
 })
 export type Filters = z.infer<typeof filters>
 
-function Icon({ id, large = false }: { id: string; large?: boolean }) {
+function Icon({
+  id,
+  large = false,
+  glow = false,
+}: {
+  id: string
+  large?: boolean
+  glow?: boolean
+}) {
   const [broken, setBroken] = useState(false)
   const item = itemInfo(id)
   return (
     <span className={`item-icon ${large ? "large" : ""}`}>
+      {glow && item.icon && !broken && (
+        <img
+          className="item-icon-glow"
+          src={item.icon}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          width={32}
+          height={32}
+        />
+      )}
       {item.icon && !broken ? (
         <img
           src={item.icon}
@@ -804,7 +823,7 @@ export function EconomyPage({
                                   className="currency-name"
                                   onClick={() => openItem(r.id)}
                                 >
-                                  <Icon id={r.id} />
+                                  <Icon id={r.id} glow />
                                   <span>{itemInfo(r.id).name}</span>
                                 </Button>
                               </TableCell>
@@ -1146,13 +1165,11 @@ function PairTable({
   return (
     <section className="pairs-panel">
       <div className="section-title">
-        <div>
-          <h2>Exchange pairs</h2>
-        </div>
+        <h2>Exchange pairs</h2>
         <Button
           variant="ghost"
           size="sm"
-          className="favorites-filter"
+          aria-pressed={inverted}
           onClick={() => setInverted(!inverted)}
         >
           <ArrowLeftRight size={14} /> Invert pairs
@@ -1173,7 +1190,6 @@ function PairTable({
             }}
           />
         </InputGroup>
-        <span className="table-count">{visible.length} pairs</span>
       </div>
       <div className="table-scroll">
         <Table className="pairs-table">
@@ -1194,15 +1210,25 @@ function PairTable({
               return (
                 <TableRow key={p.id}>
                   <TableCell>
-                    <Button variant="ghost" size="sm" onClick={() => onItem(a)}>
-                      <Icon id={a} />
-                      {itemInfo(a).name}
-                    </Button>
-                    <ArrowRight size={12} />
-                    <Button variant="ghost" size="sm" onClick={() => onItem(b)}>
-                      <Icon id={b} />
-                      {itemInfo(b).name}
-                    </Button>
+                    <div className="pair-currencies">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onItem(a)}
+                      >
+                        <Icon id={a} />
+                        {itemInfo(a).name}
+                      </Button>
+                      <ArrowRight size={12} />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onItem(b)}
+                      >
+                        <Icon id={b} />
+                        {itemInfo(b).name}
+                      </Button>
+                    </div>
                   </TableCell>
                   <TableCell>
                     {va > 0 && vb > 0 ? `${number(vb / va)} : 1` : "No trades"}

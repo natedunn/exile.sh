@@ -967,6 +967,20 @@ html body .topbar nav a {
 html body .market-layout {
   grid-row: 1;
 }
+@media (min-width: 901px) {
+  html body .market-layout {
+    position: relative;
+  }
+  html body .market-layout::before {
+    content: "";
+    position: absolute;
+    top: calc(-1 * var(--space-xl));
+    bottom: calc(-1 * var(--space-xl));
+    left: calc(232px + (var(--space-xl) + var(--space-lg)) / 2);
+    border-left: var(--rule-thin) solid var(--color-rule);
+    pointer-events: none;
+  }
+}
 html body .categories nav button {
   min-height: 40px;
   height: auto;
@@ -1159,5 +1173,175 @@ html body .movers-controls {
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
+  gap: var(--space-lg);
+}
+
+/* Exchange pairs: keep table cells in the table formatting context. */
+html body .pairs-panel {
+  margin-top: var(--space-2xl);
+}
+html body .pairs-panel > .section-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+html body .pairs-panel > .section-title h2 {
+  margin: 0;
+}
+html body .pairs-panel > .table-toolbar {
+  border: 0;
+  padding: 0 0 var(--space-xl);
+}
+html body .pairs-table {
+  min-width: 750px;
+  border-top: var(--rule-thin) solid var(--color-rule-strong);
+}
+html body .pairs-table tr {
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+}
+html body .pairs-table tbody tr:last-child {
+  border-bottom: 0;
+}
+html body .pairs-table th,
+html body .pairs-table td {
+  border: 0;
+  padding: var(--space-lg);
+  height: auto;
+  text-align: left;
+  vertical-align: middle;
+}
+html body .pairs-table th {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-transform: none;
+  letter-spacing: normal;
+}
+html body .pairs-table td,
+html body .pairs-table td:first-child {
+  font-size: var(--text-body);
+}
+html body .pairs-table td:first-child {
+  display: table-cell;
+  min-height: 0;
+}
+html body .pair-currencies {
+  display: grid;
+  grid-template-columns: max-content auto max-content;
+  justify-content: start;
+  align-items: center;
+  gap: var(--space-lg);
+}
+html body .pairs-table .pair-currencies button,
+html body .pairs-table td:first-child .pair-currencies button:first-child {
+  justify-content: flex-start;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  padding: var(--space-xs) 0;
+  font-size: var(--text-sm);
+}
+html body .pair-currencies > svg {
+  color: var(--color-text-muted);
+}
+html body .pairs-panel > .pagination {
+  padding: var(--space-lg) 0;
+  align-items: center;
+  gap: var(--space-lg);
+  border-top: var(--rule-thin) solid var(--color-rule);
+}
+html body .pairs-panel > .pagination > span {
+  max-width: none;
+  line-height: 1.6;
+}
+@media (max-width: 600px) {
+  html body .pairs-panel > .pagination {
+    flex-wrap: wrap;
+  }
+  html body .pairs-panel > .pagination > span {
+    flex-basis: 100%;
+  }
+}
+
+/* The blurred icon preserves each currency's own colors in its hover glow. */
+html body .currency-name .item-icon {
+  position: relative;
+  overflow: visible;
+  isolation: isolate;
+}
+html body .currency-name .item-icon img {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+html body .currency-name .item-icon .item-icon-glow {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  z-index: -1;
+  filter: blur(7px);
+  transform: scale(1.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+html body .currency-row:is(:hover, :focus-within) .item-icon-glow {
+  opacity: 0.65;
+}
+html body .currency-row:is(:hover, :focus-within) .currency-name .item-icon img:not(.item-icon-glow) {
+  transform: scale(1.04);
+}
+html body .currency-row:is(:hover, :focus-within) .currency-name > span:last-child {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html body .currency-name .item-icon img {
+    transition: none;
+  }
+  html body .currency-row:is(:hover, :focus-within) .currency-name .item-icon img:not(.item-icon-glow) {
+    transform: none;
+  }
+}
+
+/* A larger reading scale, shared across market and detail views. */
+html body .currency-name .item-icon,
+html body .currency-name .item-icon img,
+html body .categories .item-icon,
+html body .categories .item-icon img,
+html body .pairs-table .item-icon,
+html body .pairs-table .item-icon img {
+  width: 32px;
+  height: 32px;
+}
+html body .mover-row .item-icon,
+html body .mover-row .item-icon img {
+  width: 36px;
+  height: 36px;
+}
+html body .currency-table td {
+  height: 62px;
+}
+html body .categories nav button {
+  min-height: 46px;
+}
+html body .search-input[data-slot="input-group"] {
+  min-height: 44px;
+}
+html body .currency-name small {
+  font-size: var(--text-body);
+}
+html body .price-cell > img {
+  width: 20px;
+  height: 20px;
+}
+html body .display-currency-label .item-icon,
+html body .display-currency-label .item-icon img {
+  width: 22px;
+  height: 22px;
+}
+
+html body .currency-name {
   gap: var(--space-lg);
 }
