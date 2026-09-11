@@ -81,3 +81,7 @@ Once deployed, the hourly cron runs on Convex even while your computer is off an
 ## Movers periods
 
 The public `economy:movers` query accepts `24h`, `48h`, `7d`, `30d`, or `90d` and returns quote-specific changes and eligibility. The UI displays up to 50 entries per direction. Month labels mean rolling 30/90 days. The 24-hour view uses the published snapshot; other periods read only the latest 24-hour activity and the three-hour historical comparison window, checking the completion ledger. Reads are capped at 3,500 day buckets per window and reject that safety bound rather than silently truncating rankings. Unavailable comparison history returns an explicit empty state. Sparkline context stays at 48 hours.
+
+## Freshness banner
+
+The UI checks freshness once per minute. A source timestamp marks the start of a completed hour: the 20:00 digest covers 20:00–21:00, and its replacement is scheduled for 22:05. The banner stays hidden through 22:35, giving collection a 30-minute grace period after that next scheduled refresh. The same UTC calculation applies across midnight. A newer snapshot clears the warning automatically. The banner describes delayed data, not a diagnosed collector failure; an initial historical backfill can legitimately trigger it until caught up.
