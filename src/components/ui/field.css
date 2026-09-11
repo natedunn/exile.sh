@@ -26,3 +26,10 @@
   outline: none;
   box-shadow: none;
 }
+
+/* Preserve the CLI Select focus treatment over legacy global button rules. */
+html body [data-slot="select-trigger"]:focus-visible {
+  outline: revert-layer;
+  outline-offset: revert-layer;
+  border-color: var(--color-focus);
+}

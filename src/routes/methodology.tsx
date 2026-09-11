@@ -1,13 +1,25 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { filters, defaultFilters } from "../components/economy-page"
+import {
+  stripSearchParams,
+  createFileRoute,
+  Link,
+} from "@tanstack/react-router"
 
 export const Route = createFileRoute("/methodology")({
+  validateSearch: (search) => filters.parse(search),
+  search: {
+    middlewares: [stripSearchParams<typeof defaultFilters>(defaultFilters)],
+  },
   head: () => ({ meta: [{ title: "Data & methodology · exile.sh" }] }),
   component: Methodology,
 })
 function Methodology() {
+  const search = Route.useSearch()
   return (
     <main id="main" className="prose-page">
-      <a href="/economy">← Back to the economy</a>
+      <Link to="/economy" search={search}>
+        ← Back to the economy
+      </Link>
       <h1>Follow the trade. Know the limits.</h1>
       <p>
         exile.sh explores the Path of Exile 2 Currency Exchange. Prices come
