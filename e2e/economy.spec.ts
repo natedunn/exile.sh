@@ -70,6 +70,29 @@ test("mobile market stays within the viewport and categories filter", async ({
   })
 })
 
+test("touch-first fields stay zoom-safe beyond the phone breakpoint", async ({
+  browser,
+}, testInfo) => {
+  const context = await browser.newContext({
+    baseURL: testInfo.project.use.baseURL as string,
+    hasTouch: true,
+    viewport: { width: 844, height: 390 },
+  })
+  const page = await context.newPage()
+
+  try {
+    await page.goto("/")
+    await expect(
+      page.getByRole("textbox", {
+        name: "Search currencies",
+        exact: true,
+      })
+    ).toHaveCSS("font-size", "16px")
+  } finally {
+    await context.close()
+  }
+})
+
 for (const width of [320, 375, 414, 768]) {
   test(`workbench remains readable at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 950 })
