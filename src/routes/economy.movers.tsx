@@ -1,8 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { EconomyPage, filters } from "../components/economy-page"
+import { stripSearchParams, createFileRoute } from "@tanstack/react-router"
+import {
+  EconomyPage,
+  filters,
+  defaultFilters,
+} from "../components/economy-page"
 
 export const Route = createFileRoute("/economy/movers")({
   validateSearch: (search) => filters.parse(search),
+  search: {
+    middlewares: [stripSearchParams<typeof defaultFilters>(defaultFilters)],
+  },
   head: () => ({ meta: [{ title: "Market movers · exile.sh" }] }),
   component: Page,
 })

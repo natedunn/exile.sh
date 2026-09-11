@@ -49,7 +49,8 @@ test("mobile market stays within the viewport and categories filter", async ({
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto("/")
   await expect(page.locator(".currency-table tbody tr").first()).toBeVisible()
-  await page.getByRole("button", { name: /^Essences/ }).click()
+  await page.getByRole("combobox", { name: "Category", exact: true }).click()
+  await page.getByRole("option", { name: "Essences", exact: true }).click()
   await expect(page.locator(".currency-table tbody tr").first()).toContainText(
     "Essence"
   )
@@ -74,7 +75,7 @@ for (const width of [320, 375, 414, 768]) {
       const main = document.querySelector("#main")!.getBoundingClientRect()
       const table = document
         .querySelector(".currency-table")!
-        .getBoundingClientRect()
+        .parentElement!.getBoundingClientRect()
       return {
         viewport: innerWidth,
         scroll: root.scrollWidth,
@@ -279,7 +280,7 @@ test("Auto display persists and carries each item's quote into its chart", async
   })
   await select.click()
   await page.getByRole("option", { name: "Auto", exact: true }).click()
-  await expect(page).toHaveURL(/quote=Auto/)
+  expect(new URL(page.url()).searchParams.has("quote")).toBe(false)
   const row = page.locator(".currency-table tbody tr").filter({
     has: page.getByRole("button", { name: "Exalted Orb", exact: true }),
   })

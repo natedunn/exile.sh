@@ -1,3 +1,4 @@
+import { SiteNavigation } from "./site-navigation"
 import { Button } from "../components/ui/button"
 import { isEconomyStale } from "../../shared/freshness"
 import {
@@ -70,7 +71,7 @@ import { MOVER_PERIODS, MOVER_PERIOD } from "../../shared/movers"
 const MarketChart = lazy(() => import("../components/market-chart"))
 export const filters = z.object({
   league: z.enum(LEAGUES).catch(DEFAULT_LEAGUE),
-  quote: z.enum(DISPLAY_CURRENCIES).catch("Exalted"),
+  quote: z.enum(DISPLAY_CURRENCIES).catch("Auto"),
   category: z.string().catch("All currencies"),
   q: z.string().max(120).catch(""),
   sort: z.enum(["price", "name", "change", "volume"]).catch("price"),
@@ -80,6 +81,7 @@ export const filters = z.object({
   period: z.enum(MOVER_PERIODS).catch("24h"),
   item: z.string().max(240).catch(""),
 })
+export const defaultFilters = filters.parse({})
 export type Filters = z.infer<typeof filters>
 
 function Icon({
@@ -229,6 +231,35 @@ export function EconomyPage({
   }
   const data = query.data,
     rows = data?.prices ?? []
+  const categoryOptions = CATEGORIES.map((category) => {
+    const categoryRows = rows.filter(
+      (row) =>
+        category === "All currencies" || itemInfo(row.id).category === category
+    )
+    const mostTraded = categoryRows.reduce<ItemRow | undefined>(
+      (best, row) =>
+        !best || row.volume * row.price > best.volume * best.price ? row : best,
+      undefined
+    )
+    return { category, count: categoryRows.length, mostTraded }
+  }).filter(({ category, count }) => count > 0 || category === "All currencies")
+  const categoryLabel = (category: string) => {
+    const item = categoryOptions.find(
+      (option) => option.category === category
+    )?.mostTraded
+    return (
+      <span className="category-option-label">
+        {category === "Watchlist" ? (
+          <Star size={22} aria-hidden="true" />
+        ) : item ? (
+          <Icon key={item.id} id={item.id} />
+        ) : (
+          <Gem size={22} aria-hidden="true" />
+        )}
+        {category}
+      </span>
+    )
+  }
   const autoQuotes = autoDisplayQuotes(rows, data?.pairs ?? [])
   const displayQuote = (id: string): Quote =>
     f.quote === "Auto" ? (autoQuotes.get(id) ?? "Exalted") : f.quote
@@ -305,44 +336,14 @@ export function EconomyPage({
   return (
     <div className="site-shell">
       <header className="topbar">
-        <a className="wordmark" href="/economy">
+        <Link className="wordmark" to="/economy" search={{ ...f, item: "" }}>
           <img src="/favicon.svg" alt="" width="30" height="30" />
           exile<span>.sh</span>
-        </a>
-        <nav aria-label="Main navigation">
-          <Link
-            to="/economy"
-            search={{ ...f, item: "" }}
-            className="nav-active"
-          >
-            Economy
-          </Link>
-        </nav>
-        <Select
-          value={f.league}
-          onValueChange={(league) => {
-            if (league) patch({ league, item: "" })
-          }}
-          items={LEAGUES.map((league) => ({
-            label: league,
-            value: league,
-          }))}
-        >
-          <SelectTrigger
-            className="league-picker"
-            aria-label="League"
-            size="sm"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false}>
-            {LEAGUES.map((league) => (
-              <SelectItem key={league} value={league}>
-                {league}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        </Link>
+        <SiteNavigation
+          filters={f}
+          onLeagueChange={(league) => patch({ league, item: "" })}
+        />
       </header>
       <main id="main">
         <section className="market-heading">
@@ -400,7 +401,7 @@ export function EconomyPage({
                     <DisplayCurrencyLabel quote={f.quote} />
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent alignItemWithTrigger={false}>
+                <SelectContent className="min-w-max">
                   {DISPLAY_CURRENCIES.map((quote) => (
                     <SelectItem key={quote} value={quote}>
                       <DisplayCurrencyLabel quote={quote} />
@@ -483,7 +484,7 @@ export function EconomyPage({
                     <SelectTrigger size="sm" aria-label="Movers period">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent alignItemWithTrigger={false}>
+                    <SelectContent className="min-w-max">
                       {MOVER_PERIODS.map((period) => (
                         <SelectItem key={period} value={period}>
                           {MOVER_PERIOD[period].label}
@@ -592,6 +593,44 @@ export function EconomyPage({
             ) : (
               <div className="economy-workbench">
                 <section className="market-layout">
+                  <div className="category-picker">
+                    <label id="category-label">Category</label>
+                    <Select
+                      value={f.favorites ? "Watchlist" : f.category}
+                      onValueChange={(category) => {
+                        if (category)
+                          patch({
+                            favorites: category === "Watchlist",
+                            category:
+                              category === "Watchlist"
+                                ? "All currencies"
+                                : category,
+                          })
+                      }}
+                      items={["Watchlist", ...CATEGORIES].map((category) => ({
+                        label: category,
+                        value: category,
+                      }))}
+                    >
+                      <SelectTrigger aria-labelledby="category-label">
+                        <SelectValue>
+                          {categoryLabel(
+                            f.favorites ? "Watchlist" : f.category
+                          )}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="min-w-max">
+                        <SelectItem value="Watchlist">
+                          {categoryLabel("Watchlist")}
+                        </SelectItem>
+                        {categoryOptions.map(({ category }) => (
+                          <SelectItem key={category} value={category}>
+                            {categoryLabel(category)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <aside className="categories">
                     <nav aria-label="Currency categories">
                       <Button
@@ -616,47 +655,37 @@ export function EconomyPage({
                           }
                         </small>
                       </Button>
-                      {CATEGORIES.map((cat) => {
-                        const categoryRows = rows.filter(
-                          (r) =>
-                            cat === "All currencies" ||
-                            itemInfo(r.id).category === cat
-                        )
-                        const count = categoryRows.length
-                        const mostTraded = categoryRows.reduce<
-                          ItemRow | undefined
-                        >(
-                          (best, row) =>
-                            !best ||
-                            row.volume * row.price > best.volume * best.price
-                              ? row
-                              : best,
-                          undefined
-                        )
-                        if (count === 0 && cat !== "All currencies") return null
-                        return (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            key={cat}
-                            className={
-                              !f.favorites && f.category === cat ? "active" : ""
-                            }
-                            aria-pressed={!f.favorites && f.category === cat}
-                            onClick={() =>
-                              patch({ category: cat, favorites: false })
-                            }
-                          >
-                            <span>
-                              {mostTraded && (
-                                <Icon key={mostTraded.id} id={mostTraded.id} />
-                              )}
-                              {cat}
-                            </span>
-                            <small>{count}</small>
-                          </Button>
-                        )
-                      })}
+                      {categoryOptions.map(
+                        ({ category: cat, count, mostTraded }) => {
+                          return (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              key={cat}
+                              className={
+                                !f.favorites && f.category === cat
+                                  ? "active"
+                                  : ""
+                              }
+                              aria-pressed={!f.favorites && f.category === cat}
+                              onClick={() =>
+                                patch({ category: cat, favorites: false })
+                              }
+                            >
+                              <span>
+                                {mostTraded && (
+                                  <Icon
+                                    key={mostTraded.id}
+                                    id={mostTraded.id}
+                                  />
+                                )}
+                                {cat}
+                              </span>
+                              <small>{count}</small>
+                            </Button>
+                          )
+                        }
+                      )}
                     </nav>
                     <div className="sidebar-note">
                       <span className="status-dot" />
@@ -665,9 +694,9 @@ export function EconomyPage({
                         Completed trades from GGG's official Currency Exchange.
                         Updated hourly when collection is running.
                       </p>
-                      <a href="/methodology">
+                      <Link to="/methodology" search={f}>
                         How prices work <ArrowRight size={12} />
-                      </a>
+                      </Link>
                     </div>
                   </aside>
                   <div className="market-table-panel">
@@ -697,7 +726,10 @@ export function EconomyPage({
                       </InputGroup>
                     </div>
                     <div className="table-scroll">
-                      <Table className="currency-table">
+                      <Table
+                        className="currency-table"
+                        scrollLabel="Currency market, scroll horizontally for more columns"
+                      >
                         <TableHeader>
                           <TableRow>
                             <TableHead
@@ -934,14 +966,20 @@ export function EconomyPage({
           <p>
             Prices reflect completed exchange trades, not live offers. Thin
             markets can be volatile.{" "}
-            <a href="/methodology">Read the methodology.</a>
+            <Link to="/methodology" search={f}>
+              Read the methodology.
+            </Link>
           </p>
         </section>
       </main>
       <footer>
-        <a className="footer-brand" href="/economy">
+        <Link
+          className="footer-brand"
+          to="/economy"
+          search={{ ...f, item: "" }}
+        >
           exile.sh
-        </a>
+        </Link>
         <div className="footer-info">
           <p>Not affiliated with or endorsed by Grinding Gear Games.</p>
           <span className="source-time">
@@ -951,7 +989,9 @@ export function EconomyPage({
           </span>
         </div>
         <div>
-          <a href="/methodology">Data & attribution</a>
+          <Link to="/methodology" search={f}>
+            Data & attribution
+          </Link>
           <a href="https://github.com/natedunn/exile.sh">
             GitHub <ExternalLink size={11} />
           </a>
@@ -1101,7 +1141,7 @@ function ItemDetail({
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="table-scroll">
-            <Table>
+            <Table scrollLabel="Price history data, scroll horizontally for more columns">
               <TableHeader>
                 <TableRow>
                   <TableHead>Time (UTC)</TableHead>
@@ -1193,7 +1233,10 @@ function PairTable({
         </InputGroup>
       </div>
       <div className="table-scroll">
-        <Table className="pairs-table">
+        <Table
+          className="pairs-table"
+          scrollLabel="Exchange pairs, scroll horizontally for more columns"
+        >
           <TableHeader>
             <TableRow>
               <TableHead>Currency pair</TableHead>
