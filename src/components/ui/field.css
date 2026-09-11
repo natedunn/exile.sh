@@ -27,6 +27,15 @@
   box-shadow: none;
 }
 
+/* iOS zooms the page when an editable control smaller than 16px receives
+   focus. Consumer styles may make fields more compact, so keep the rendered
+   control at the safe size on phone and touch-first viewports. */
+@media (max-width: 767px), (pointer: coarse) {
+  .ui-field:is(input, textarea) {
+    font-size: 16px !important;
+  }
+}
+
 /* Preserve the CLI Select focus treatment over legacy global button rules. */
 html body [data-slot="select-trigger"]:focus-visible {
   outline: revert-layer;

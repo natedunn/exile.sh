@@ -49,6 +49,11 @@ test("mobile market stays within the viewport and categories filter", async ({
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto("/")
   await expect(page.locator(".currency-table tbody tr").first()).toBeVisible()
+  const search = page.getByRole("textbox", {
+    name: "Search currencies",
+    exact: true,
+  })
+  await expect(search).toHaveCSS("font-size", "16px")
   await page.getByRole("combobox", { name: "Category", exact: true }).click()
   await page.getByRole("option", { name: "Essences", exact: true }).click()
   await expect(page.locator(".currency-table tbody tr").first()).toContainText(
