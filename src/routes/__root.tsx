@@ -1,5 +1,6 @@
 import { Button } from "../components/ui/button"
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
+import { useEffect } from "react"
 import { Providers } from "../components/providers"
 import appCss from "../styles.css?url"
 
@@ -14,10 +15,23 @@ export const Route = createRootRoute({
         content:
           "Follow the Path of Exile 2 currency economy. Historical exchange prices, market movements, and currencies worth watching.",
       },
+      { name: "theme-color", content: "#111412" },
+      { name: "color-scheme", content: "dark" },
+      { name: "application-name", content: "exile.sh" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "exile.sh" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      {
+        rel: "apple-touch-icon",
+        href: "/icons/apple-touch-icon.png",
+        sizes: "180x180",
+      },
     ],
   }),
   notFoundComponent: () => (
@@ -37,6 +51,14 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 function RootDocument({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    if (!import.meta.env.PROD || !("serviceWorker" in navigator)) return
+
+    navigator.serviceWorker
+      .register("/sw.js", { scope: "/", updateViaCache: "none" })
+      .catch(() => undefined)
+  }, [])
+
   return (
     <html lang="en">
       <head>

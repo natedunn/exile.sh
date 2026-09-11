@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111412" />
+    <title>Offline — exile.sh</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+        color: #e9e1d1;
+        background: #111412;
+      }
+      body {
+        display: grid;
+        min-height: 100dvh;
+        margin: 0;
+        place-items: center;
+      }
+      main {
+        width: min(32rem, calc(100% - 3rem));
+        border-block: 1px solid #685a43;
+        padding: 2rem 0;
+      }
+      img {
+        width: 3rem;
+        height: 3rem;
+      }
+      h1 {
+        margin: 1rem 0 0.5rem;
+        font-family: Georgia, serif;
+        font-size: clamp(2rem, 10vw, 3.5rem);
+        font-style: italic;
+        font-weight: 500;
+      }
+      p {
+        margin: 0;
+        color: #aca28e;
+        line-height: 1.6;
+      }
+      button {
+        margin-top: 1.5rem;
+        border: 1px solid #bd9d65;
+        padding: 0.65rem 0.9rem;
+        color: #d9c497;
+        background: transparent;
+        font: inherit;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/favicon.svg" alt="" />
+      <h1>The market is out of reach.</h1>
+      <p>exile.sh needs a connection to refresh prices and build data.</p>
+      <button type="button" onclick="location.reload()">Try again</button>
+    </main>
+  </body>
+</html>
