@@ -71,7 +71,7 @@ import { MOVER_PERIODS, MOVER_PERIOD } from "../../shared/movers"
 const MarketChart = lazy(() => import("../components/market-chart"))
 export const filters = z.object({
   league: z.enum(LEAGUES).catch(DEFAULT_LEAGUE),
-  quote: z.enum(DISPLAY_CURRENCIES).catch("Exalted"),
+  quote: z.enum(DISPLAY_CURRENCIES).catch("Auto"),
   category: z.string().catch("All currencies"),
   q: z.string().max(120).catch(""),
   sort: z.enum(["price", "name", "change", "volume"]).catch("price"),

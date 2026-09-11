@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-for (const quote of ["Auto", "Chaos"] as const) {
+for (const quote of ["Auto", "Chaos", "Exalted"] as const) {
   test(`${quote} survives logo links, refresh, and methodology`, async ({
     page,
   }) => {
@@ -18,7 +18,9 @@ for (const quote of ["Auto", "Chaos"] as const) {
     for (const selector of [".wordmark", ".footer-brand"]) {
       await page.locator(selector).click()
       await expect(picker).toContainText(quote)
-      await expect(page).toHaveURL(new RegExp(`quote=${quote}`))
+      expect(new URL(page.url()).searchParams.get("quote")).toBe(
+        quote === "Auto" ? null : quote
+      )
       await expect(page).toHaveURL(/league=Standard/)
     }
     await page

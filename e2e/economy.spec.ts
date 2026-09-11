@@ -280,7 +280,7 @@ test("Auto display persists and carries each item's quote into its chart", async
   })
   await select.click()
   await page.getByRole("option", { name: "Auto", exact: true }).click()
-  await expect(page).toHaveURL(/quote=Auto/)
+  expect(new URL(page.url()).searchParams.has("quote")).toBe(false)
   const row = page.locator(".currency-table tbody tr").filter({
     has: page.getByRole("button", { name: "Exalted Orb", exact: true }),
   })
