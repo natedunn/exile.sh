@@ -1,4 +1,5 @@
 import {
+  Area,
   CartesianGrid,
   ComposedChart,
   Line,
@@ -50,7 +51,45 @@ export default function MarketChart({
           data={data}
           margin={{ top: 20, right: 6, left: 6, bottom: 12 }}
         >
-          <CartesianGrid stroke="var(--color-rule)" vertical={false} />
+          <defs>
+            {/* Ordered-dither fills: volume bars are a dot screen, the price
+                area is a sparser screen that reads as a soft halftone. */}
+            <pattern
+              id="volume-dither"
+              width="4"
+              height="4"
+              patternUnits="userSpaceOnUse"
+            >
+              <rect width="2" height="2" fill="var(--color-brand-deep)" />
+              <rect
+                x="2"
+                y="2"
+                width="2"
+                height="2"
+                fill="var(--color-brand-deep)"
+              />
+            </pattern>
+            <pattern
+              id="price-dither"
+              width="6"
+              height="6"
+              patternUnits="userSpaceOnUse"
+            >
+              <rect width="1.5" height="1.5" fill="var(--color-brand)" />
+              <rect
+                x="3"
+                y="3"
+                width="1.5"
+                height="1.5"
+                fill="var(--color-brand)"
+              />
+            </pattern>
+          </defs>
+          <CartesianGrid
+            stroke="var(--color-rule)"
+            strokeDasharray="1 3"
+            vertical={false}
+          />
           <XAxis
             dataKey="time"
             tickFormatter={(v: number) =>
@@ -63,7 +102,11 @@ export default function MarketChart({
             minTickGap={55}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "var(--color-text-muted)", fontSize: 11 }}
+            tick={{
+              fill: "var(--color-text-muted)",
+              fontSize: 11,
+              fontFamily: "var(--font-mono)",
+            }}
           />
           <YAxis
             yAxisId="price"
@@ -72,7 +115,11 @@ export default function MarketChart({
             tickFormatter={(v: number) => number(v)}
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "var(--color-text-muted)", fontSize: 11 }}
+            tick={{
+              fill: "var(--color-text-muted)",
+              fontSize: 11,
+              fontFamily: "var(--font-mono)",
+            }}
             width={65}
           />
           <YAxis yAxisId="volume" hide domain={[0, (max: number) => max * 5]} />
@@ -87,8 +134,9 @@ export default function MarketChart({
             contentStyle={{
               background: "var(--color-surface)",
               border: "1px solid var(--color-rule-strong)",
-              borderRadius: 4,
+              borderRadius: 2,
               fontSize: 12,
+              fontFamily: "var(--font-mono)",
               color: "var(--color-ink)",
             }}
           />
@@ -96,8 +144,22 @@ export default function MarketChart({
             yAxisId="volume"
             dataKey="volume"
             name="Traded units"
-            fill="var(--color-volume)"
+            fill="url(#volume-dither)"
+            fillOpacity={0.55}
             isAnimationActive={false}
+          />
+          <Area
+            yAxisId="price"
+            dataKey="price"
+            name="Price"
+            type="linear"
+            stroke="none"
+            fill="url(#price-dither)"
+            fillOpacity={0.35}
+            connectNulls={false}
+            isAnimationActive={false}
+            tooltipType="none"
+            legendType="none"
           />
           <Line
             yAxisId="price"

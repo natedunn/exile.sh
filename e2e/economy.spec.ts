@@ -175,6 +175,8 @@ test("input groups own focus styling without page-specific classes", async ({
   await expect(group).toHaveAttribute("data-slot", "input-group")
   // Removing the layout class must not remove the component's focus treatment.
   await group.evaluate((element) => element.classList.remove("search-input"))
+  // The search field takes focus on load, so measure its resting state first.
+  await input.blur()
   const unfocusedBorder = await group.evaluate(
     (element) => getComputedStyle(element).borderColor
   )

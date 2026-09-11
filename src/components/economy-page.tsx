@@ -343,20 +343,41 @@ export function EconomyPage({
         <SiteNavigation
           filters={f}
           onLeagueChange={(league) => patch({ league, item: "" })}
+          notice={
+            stale
+              ? `Updates are delayed. Latest available data: ${utc(data.hour)}.`
+              : undefined
+          }
         />
       </header>
       <main id="main">
-        <section className="market-heading">
-          <div>
+        <section className={`market-heading ${f.item ? "compact" : ""}`}>
+          <div className="hero-orb" aria-hidden="true">
+            <img
+              src="/art/divine-dither.png"
+              alt=""
+              width="176"
+              height="176"
+              decoding="async"
+              fetchPriority="high"
+            />
+          </div>
+          <div className="market-heading-copy">
             <h1>{moversPage ? "Market movers" : "Exchange economy"}</h1>
+            <p className="market-meta">
+              <span>
+                <strong>{f.league}</strong>
+              </span>
+              <span>
+                {data
+                  ? `Updated ${utc(data.hour)}`
+                  : query.isPending
+                    ? "Reading the market"
+                    : "No completed hour yet"}
+              </span>
+            </p>
           </div>
         </section>
-        {stale && (
-          <div className="notice" role="status">
-            <CircleHelp size={15} /> Updates are delayed. Latest available data:{" "}
-            {utc(data.hour)}.
-          </div>
-        )}
         {storageError && (
           <div className="notice">
             Your browser could not save favorites. They will last only for this
@@ -551,10 +572,12 @@ export function EconomyPage({
                             )}
                             {group.title}
                           </span>
-                          <span>{f.period}</span>
+                          <span>
+                            {group.data.length} · {f.period}
+                          </span>
                         </div>
                         {group.data.length ? (
-                          group.data.map((r) => (
+                          group.data.map((r, index) => (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -562,6 +585,9 @@ export function EconomyPage({
                               key={r.id}
                               onClick={() => openItem(r.id)}
                             >
+                              <span className="mover-rank" aria-hidden="true">
+                                {String(index + 1).padStart(2, "0")}
+                              </span>
                               <Icon id={r.id} />
                               <span className="mover-name">
                                 {itemInfo(r.id).name}
@@ -710,6 +736,7 @@ export function EconomyPage({
                           onChange={(e) => patch({ q: e.target.value })}
                           placeholder="Find a currency…"
                           aria-label="Search currencies"
+                          autoFocus
                         />
                         {f.q && (
                           <InputGroupAddon align="inline-end">
