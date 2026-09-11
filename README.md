@@ -23,7 +23,7 @@ Open http://localhost:3000. The Convex CLI needs access to the development proje
 - Exalted, Chaos, and Divine quote displays; historical price/volume charts; activity-filtered gainers and decliners.
 - Exchange-pair rates, traded units, historical stock, and item details.
 - Bounded, resumable official-feed imports, compressed source archives, a completion ledger, rate-limit handling, and bounded cleanup (eight-day raw archives, 92-day price history).
-- Original dark-fantasy interface with attributed community metadata and game artwork.
+- Original dithered-bronze interface: serif titles, mono figures, and ordered-dither art generated from game artwork (`node scripts/dither-art.mjs` rebuilds `public/art`). Community metadata and artwork are attributed.
 
 This is the first development slice, not a public launch or complete Scout parity. Longer history, per-pair historical charts, league rollover automation, and collection cost optimization remain. GGG login/account sync is deferred until application registration is available. Unique pricing is outside v1.
 

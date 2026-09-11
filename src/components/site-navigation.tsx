@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Gem, Menu } from "lucide-react"
+import { Gem, Menu, TriangleAlert } from "lucide-react"
 import { Link } from "@tanstack/react-router"
 import { Button } from "./ui/button"
 import {
@@ -9,6 +9,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip"
 import { LEAGUES } from "../../shared/economy"
 import {
   Select,
@@ -51,9 +52,12 @@ function LeaguePicker({
 export function SiteNavigation({
   filters,
   onLeagueChange,
+  notice,
 }: {
   filters: Filters
   onLeagueChange: (league: Filters["league"]) => void
+  /** A data-freshness warning, shown as an icon with a tooltip. */
+  notice?: string
 }) {
   const [open, setOpen] = useState(false)
   useEffect(() => {
@@ -82,8 +86,28 @@ export function SiteNavigation({
           </Link>
         ))}
       </nav>
-      <div className="desktop-league-picker">
-        <LeaguePicker league={filters.league} onChange={onLeagueChange} />
+      <div className="topbar-status">
+        {notice && (
+          <Tooltip>
+            <TooltipTrigger
+              delay={0}
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="stale-indicator"
+                  aria-label={notice}
+                />
+              }
+            >
+              <TriangleAlert aria-hidden="true" />
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{notice}</TooltipContent>
+          </Tooltip>
+        )}
+        <div className="desktop-league-picker">
+          <LeaguePicker league={filters.league} onChange={onLeagueChange} />
+        </div>
       </div>
       <div className="mobile-navigation">
         <Sheet open={open} onOpenChange={setOpen}>

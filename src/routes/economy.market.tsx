@@ -20,7 +20,12 @@ function Page() {
     <EconomyPage
       f={f}
       patch={(values) => {
-        void navigate({ search: (prev) => ({ ...prev, page: 1, ...values }) })
+        // Filters change in place; only opening or closing an item
+        // starts from the top of the page.
+        void navigate({
+          search: (prev) => ({ ...prev, page: 1, ...values }),
+          resetScroll: "item" in values,
+        })
       }}
     />
   )

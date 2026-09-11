@@ -1,18 +1,7 @@
-/* Keep the CLI's layout and interactions; only adapt the workbench skin.
-   Unlayered legacy button rules must not override shadcn's utilities. */
-html body [data-slot="select-trigger"] {
-  font: revert-layer;
-  transition: revert-layer;
-  border: 1px solid var(--color-rule-strong);
-  background: var(--color-surface);
-  border-radius: var(--radius-control);
-  color: var(--color-ink);
-}
-html body [data-slot="select-trigger"]:hover:not(:disabled) {
-  color: var(--color-ink);
-}
-html body [data-slot="select-content"] {
-  background: var(--color-surface);
-  border: 1px solid var(--color-rule-strong);
-  border-radius: var(--radius-control);
+/* Keep the CLI's layout and interactions; the workbench skin lives in
+   src/styles.css. Focus treatment stays with field.css. */
+html body [data-slot="select-trigger"]:focus-visible {
+  outline: revert-layer;
+  outline-offset: revert-layer;
+  border-color: var(--color-focus);
 }
