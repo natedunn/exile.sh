@@ -54,11 +54,11 @@ import {
   ArrowLeftRight,
   Gem,
 } from "lucide-react"
-import { z } from "zod"
+import type { Filters } from "../lib/economy-filters"
 import { useCRPC } from "../lib/convex/crpc"
 import { CATEGORIES, itemInfo } from "../lib/catalog"
 import { compact, number, percent, utc } from "../lib/format"
-import { ANCHORS, DEFAULT_LEAGUE, LEAGUES, QUOTES } from "../../shared/economy"
+import { ANCHORS, QUOTES } from "../../shared/economy"
 import type { ItemRow, Pair, Quote } from "../../shared/economy"
 
 import {
@@ -69,20 +69,8 @@ import {
 import { MOVER_PERIODS, MOVER_PERIOD } from "../../shared/movers"
 
 const MarketChart = lazy(() => import("../components/market-chart"))
-export const filters = z.object({
-  league: z.enum(LEAGUES).catch(DEFAULT_LEAGUE),
-  quote: z.enum(DISPLAY_CURRENCIES).catch("Auto"),
-  category: z.string().catch("All currencies"),
-  q: z.string().max(120).catch(""),
-  sort: z.enum(["price", "name", "change", "volume"]).catch("price"),
-  dir: z.enum(["asc", "desc"]).catch("desc"),
-  page: z.coerce.number().int().min(1).max(1000).catch(1),
-  favorites: z.boolean().catch(false),
-  period: z.enum(MOVER_PERIODS).catch("24h"),
-  item: z.string().max(240).catch(""),
-})
-export const defaultFilters = filters.parse({})
-export type Filters = z.infer<typeof filters>
+export { filters, defaultFilters } from "../lib/economy-filters"
+export type { Filters } from "../lib/economy-filters"
 
 function Icon({
   id,

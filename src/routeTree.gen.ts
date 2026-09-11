@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MoversRouteImport } from './routes/movers'
+import { Route as BuildsIndexRouteImport } from './routes/builds.index'
+import { Route as BuildsSlugRouteImport } from './routes/builds.$slug'
 import { Route as EconomyIndexRouteImport } from './routes/economy.index'
 import { Route as EconomyMarketRouteImport } from './routes/economy.market'
 import { Route as EconomyMoversRouteImport } from './routes/economy.movers'
@@ -37,6 +39,16 @@ const MoversRoute = MoversRouteImport.update({
   path: '/movers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuildsIndexRoute = BuildsIndexRouteImport.update({
+  id: '/builds/',
+  path: '/builds/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildsSlugRoute = BuildsSlugRouteImport.update({
+  id: '/builds/$slug',
+  path: '/builds/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EconomyIndexRoute = EconomyIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -58,16 +70,20 @@ export interface FileRoutesByFullPath {
   '/economy': typeof EconomyRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
+  '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
+  '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
+  '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
+  '/builds': typeof BuildsIndexRoute
   '/economy': typeof EconomyIndexRoute
 }
 export interface FileRoutesById {
@@ -76,8 +92,10 @@ export interface FileRoutesById {
   '/economy': typeof EconomyRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
+  '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
+  '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
 }
 export interface FileRouteTypes {
@@ -87,16 +105,20 @@ export interface FileRouteTypes {
     | '/economy'
     | '/methodology'
     | '/movers'
+    | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
+    | '/builds/'
     | '/economy/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/methodology'
     | '/movers'
+    | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
+    | '/builds'
     | '/economy'
   id:
     | '__root__'
@@ -104,8 +126,10 @@ export interface FileRouteTypes {
     | '/economy'
     | '/methodology'
     | '/movers'
+    | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
+    | '/builds/'
     | '/economy/'
   fileRoutesById: FileRoutesById
 }
@@ -114,6 +138,8 @@ export interface RootRouteChildren {
   EconomyRoute: typeof EconomyRouteWithChildren
   MethodologyRoute: typeof MethodologyRoute
   MoversRoute: typeof MoversRoute
+  BuildsSlugRoute: typeof BuildsSlugRoute
+  BuildsIndexRoute: typeof BuildsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -144,6 +170,20 @@ declare module '@tanstack/react-router' {
       path: '/movers'
       fullPath: '/movers'
       preLoaderRoute: typeof MoversRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builds/': {
+      id: '/builds/'
+      path: '/builds'
+      fullPath: '/builds/'
+      preLoaderRoute: typeof BuildsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builds/$slug': {
+      id: '/builds/$slug'
+      path: '/builds/$slug'
+      fullPath: '/builds/$slug'
+      preLoaderRoute: typeof BuildsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/economy/': {
@@ -190,6 +230,8 @@ const rootRouteChildren: RootRouteChildren = {
   EconomyRoute: EconomyRouteWithChildren,
   MethodologyRoute: MethodologyRoute,
   MoversRoute: MoversRoute,
+  BuildsSlugRoute: BuildsSlugRoute,
+  BuildsIndexRoute: BuildsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

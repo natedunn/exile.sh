@@ -68,7 +68,8 @@ test("cold startup imports 30 hours through scheduled continuations; redeploy do
     status: "complete",
     hour: at - 29 * HOUR,
   })
-  await t.finishAllScheduledFunctions(() => vi.advanceTimersByTime(5000))
+  // Advance only scheduled timers; polling must not manufacture extra elapsed hours.
+  await t.finishAllScheduledFunctions(() => vi.runOnlyPendingTimers())
   expect(fetcher).toHaveBeenCalledTimes(30)
   expect((await t.query(internal.store.state, {}))?.cursor).toBe(at + HOUR)
   expect(await t.action(internal.ingestion.ingest, {})).toMatchObject({
@@ -80,11 +81,11 @@ test("queued automatic work honors pause and resumes from its cursor", async () 
   const { t, fetcher } = setup()
   await t.action(internal.ingestion.ingest, {})
   vi.stubEnv("COLLECTOR_ENABLED", "false")
-  await t.finishAllScheduledFunctions(() => vi.advanceTimersByTime(5000))
+  await t.finishAllScheduledFunctions(() => vi.runOnlyPendingTimers())
   expect(fetcher).toHaveBeenCalledTimes(1)
   vi.stubEnv("COLLECTOR_ENABLED", "true")
   await t.action(internal.ingestion.ingest, { remaining: 2 })
-  await t.finishAllScheduledFunctions(() => vi.advanceTimersByTime(5000))
+  await t.finishAllScheduledFunctions(() => vi.runOnlyPendingTimers())
   expect(fetcher).toHaveBeenCalledTimes(3)
 })
 test("outages older than the import window recover a bounded batch instead of throwing forever", async () => {
@@ -102,7 +103,7 @@ test("outages older than the import window recover a bounded batch instead of th
   expect(
     await t.action(internal.ingestion.ingest, { remaining: 2 })
   ).toMatchObject({ status: "complete", hour: at - 8 * DAY })
-  await t.finishAllScheduledFunctions(() => vi.advanceTimersByTime(5000))
+  await t.finishAllScheduledFunctions(() => vi.runOnlyPendingTimers())
   expect(fetcher).toHaveBeenCalledTimes(2)
 })
 
@@ -119,7 +120,7 @@ test("automatic catch-up caps each batch at 48 hours", async () => {
     error: "",
   })
   await t.action(internal.ingestion.ingest, {})
-  await t.finishAllScheduledFunctions(() => vi.advanceTimersByTime(5000))
+  await t.finishAllScheduledFunctions(() => vi.runOnlyPendingTimers())
   expect(fetcher).toHaveBeenCalledTimes(48)
   expect((await t.query(internal.store.state, {}))?.cursor).toBe(at - 32 * HOUR)
 })
@@ -139,7 +140,7 @@ test("end of upstream history waits for the next boundary without advancing or r
   expect(await t.action(internal.ingestion.ingest, {})).toMatchObject({
     status: "caught-up",
   })
-  await t.finishAllScheduledFunctions(() => vi.advanceTimersByTime(5000))
+  await t.finishAllScheduledFunctions(() => vi.runOnlyPendingTimers())
   expect(fetcher).toHaveBeenCalledTimes(1)
   expect((await t.query(internal.store.state, {}))?.nextAllowedAt).toBe(
     (at + 2 * HOUR) * 1000

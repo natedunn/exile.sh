@@ -261,6 +261,42 @@ export type DataModel = {
     searchIndexes: {};
     vectorIndexes: {};
   };
+  buildLimits: {
+    document: {
+      count: number;
+      key: string;
+      window: number;
+      _id: Id<"buildLimits">;
+      _creationTime: number;
+    };
+    fieldPaths: "_creationTime" | "_id" | "count" | "key" | "window";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      key: ["key", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
+  builds: {
+    document: {
+      code: string;
+      slug: string;
+      snapshot: any;
+      title: string;
+      _id: Id<"builds">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      "_creationTime" | "_id" | "code" | "slug" | "snapshot" | "title";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      slug: ["slug", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
   collector: {
     document: {
       cursor: number;

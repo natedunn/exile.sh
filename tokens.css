@@ -5,6 +5,7 @@ html:root {
   --color-hover: oklch(23% 0.011 75);
   --color-ink: oklch(93% 0.018 85);
   --color-text-muted: oklch(66% 0.022 80);
+  --color-augment-socket: oklch(82% 0 0 / 0.5);
   --color-text-faint: oklch(55% 0.022 78);
   --color-brand: oklch(79% 0.11 78);
   --color-brand-deep: oklch(58% 0.085 70);
@@ -72,4 +73,43 @@ html:root {
   --radius-md: var(--radius-control);
   --radius-lg: var(--radius-control);
   --radius-xl: var(--radius-control);
+}
+
+/* Weapon set passives: the in-game red/green by default, plus a pair per
+   form of colour blindness chosen so the two sets stay distinct for it. */
+html:root {
+  --color-weapon-1: oklch(66% 0.2 27);
+  --color-weapon-2: oklch(72% 0.17 145);
+  /* Deuteranopia (green-weak): orange / blue. */
+  --color-weapon-1-deutan: oklch(76% 0.16 62);
+  --color-weapon-2-deutan: oklch(68% 0.14 250);
+  /* Protanopia (red-weak): a deep orange that darkens cleanly / blue. */
+  --color-weapon-1-protan: oklch(72% 0.17 52);
+  --color-weapon-2-protan: oklch(66% 0.15 255);
+  /* Tritanopia (blue-weak): blues and greens merge, so red / cyan. */
+  --color-weapon-1-tritan: oklch(66% 0.2 27);
+  --color-weapon-2-tritan: oklch(80% 0.12 200);
+  /* Achromatopsia: separated by lightness alone, near-white / dusky violet. */
+  --color-weapon-1-achroma: oklch(94% 0.02 85);
+  --color-weapon-2-achroma: oklch(56% 0.06 300);
+  /* Passives shared by both sets: bronze by default, but under a
+     colour-vision palette a low-chroma ivory (or mid grey for achromatopsia)
+     so the neutral never reads as a third warm hue. */
+  --color-tree-allocated: var(--color-brand);
+  --color-tree-allocated-ring: var(--color-brand-ink);
+  --color-tree-allocated-neutral: oklch(87% 0.02 90);
+  --color-tree-allocated-neutral-ring: oklch(96% 0.01 90);
+  --color-tree-allocated-achroma: oklch(74% 0.01 80);
+  --color-tree-allocated-achroma-ring: oklch(84% 0.01 80);
+}
+
+/* Equipment rarity and modifier colours. */
+html:root {
+  --color-item-normal: oklch(85% 0.02 85);
+  --color-item-magic: oklch(73% 0.13 285);
+  --color-item-rare: oklch(85% 0.13 95);
+  --color-item-unique: oklch(74% 0.14 55);
+  --color-item-modifier: oklch(76% 0.13 285);
+  --color-item-crafted: oklch(86% 0.07 285);
+  --color-item-fractured: oklch(80% 0.08 75);
 }

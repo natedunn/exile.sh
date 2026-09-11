@@ -2,6 +2,8 @@
  * Bronze on warm black. Serif italics for titles, mono for numbers, and
  * ordered-dither art (scripts/dither-art.mjs) for every gradient and glow. */
 @import "../tokens.css";
+@import "./builds.css";
+@import "./equipment.css";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
 @import "@fontsource/cormorant-garamond/500.css";

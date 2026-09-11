@@ -20,6 +20,16 @@ import type { GenericId as Id } from "convex/values";
  * ```
  */
 export declare const api: {
+  builds: {
+    create: FunctionReference<
+      "mutation",
+      "public",
+      { code: string; slug: string; title: string },
+      any
+    >;
+    get: FunctionReference<"query", "public", { slug: string }, any>;
+    resolve: FunctionReference<"action", "public", { url: string }, string>;
+  };
   economy: {
     itemHistory: FunctionReference<
       "query",
@@ -99,6 +109,9 @@ export declare const api: {
  * ```
  */
 export declare const internal: {
+  buildImportBudget: {
+    reserveImport: FunctionReference<"mutation", "internal", {}, any>;
+  };
   generated: {
     aggregate: {
       aggregateBackfill: FunctionReference<"mutation", "internal", any, any>;

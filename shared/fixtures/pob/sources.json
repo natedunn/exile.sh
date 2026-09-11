@@ -1,0 +1,302 @@
+[
+  {
+    "url": "https://pobb.in/-TeCx6SJiuWv",
+    "root": "PathOfBuilding2",
+    "build": {
+      "level": "1",
+      "ascendClassName": "None",
+      "mainSocketGroup": "2",
+      "className": "Ranger",
+      "viewMode": "IMPORT",
+      "targetVersion": "0_1",
+      "characterLevelAutoMode": "true"
+    },
+    "stats": 101,
+    "nonzero": 36
+  },
+  {
+    "url": "https://pobb.in/0tdNirLOI5ll",
+    "root": "PathOfBuilding2",
+    "build": {
+      "viewMode": "IMPORT",
+      "characterLevelAutoMode": "true",
+      "targetVersion": "0_1",
+      "level": "1",
+      "mainSocketGroup": "1",
+      "className": "Witch",
+      "ascendClassName": "Lich"
+    },
+    "stats": 103,
+    "nonzero": 50
+  },
+  {
+    "url": "https://pobb.in/1NIoh2Be6w2p",
+    "root": "PathOfBuilding2",
+    "build": {
+      "ascendClassName": "Pathfinder",
+      "characterLevelAutoMode": "false",
+      "mainSocketGroup": "4",
+      "targetVersion": "0_1",
+      "level": "94",
+      "className": "Ranger",
+      "viewMode": "IMPORT"
+    },
+    "stats": 106,
+    "nonzero": 73
+  },
+  {
+    "url": "https://pobb.in/1oMAVH1Zttgz",
+    "root": "PathOfBuilding2",
+    "build": {
+      "mainSocketGroup": "7",
+      "targetVersion": "0_1",
+      "characterLevelAutoMode": "true",
+      "viewMode": "IMPORT",
+      "className": "Monk",
+      "ascendClassName": "Invoker",
+      "level": "97"
+    },
+    "stats": 103,
+    "nonzero": 60
+  },
+  {
+    "url": "https://pobb.in/2k0EPn6QOhTx",
+    "root": "PathOfBuilding2",
+    "build": {
+      "mainSocketGroup": "3",
+      "characterLevelAutoMode": "false",
+      "level": "90",
+      "viewMode": "IMPORT",
+      "ascendClassName": "Shaman",
+      "targetVersion": "0_1",
+      "className": "Druid"
+    },
+    "stats": 103,
+    "nonzero": 56
+  },
+  {
+    "url": "https://pobb.in/6Tbj-m4lgdxs",
+    "root": "PathOfBuilding2",
+    "build": {
+      "level": "54",
+      "viewMode": "IMPORT",
+      "ascendClassName": "Stormweaver",
+      "mainSocketGroup": "3",
+      "targetVersion": "0_1",
+      "characterLevelAutoMode": "true",
+      "className": "Sorceress"
+    },
+    "stats": 103,
+    "nonzero": 46
+  },
+  {
+    "url": "https://pobb.in/6ptZVK6KOCxH",
+    "root": "PathOfBuilding2",
+    "build": {
+      "characterLevelAutoMode": "false",
+      "targetVersion": "0_1",
+      "level": "93",
+      "mainSocketGroup": "5",
+      "viewMode": "IMPORT",
+      "ascendClassName": "Gemling Legionnaire",
+      "className": "Mercenary"
+    },
+    "stats": 106,
+    "nonzero": 60
+  },
+  {
+    "url": "https://pobb.in/70HXySRg9wV5",
+    "root": "PathOfBuilding2",
+    "build": {
+      "level": "25",
+      "ascendClassName": "None",
+      "mainSocketGroup": "3",
+      "className": "Ranger",
+      "viewMode": "IMPORT",
+      "targetVersion": "0_1",
+      "characterLevelAutoMode": "true"
+    },
+    "stats": 102,
+    "nonzero": 46
+  },
+  {
+    "url": "https://pobb.in/7m3OySb6VYtd",
+    "root": "PathOfBuilding2",
+    "build": {
+      "characterLevelAutoMode": "false",
+      "targetVersion": "0_1",
+      "viewMode": "IMPORT",
+      "level": "74",
+      "mainSocketGroup": "2",
+      "ascendClassName": "Pathfinder",
+      "className": "Ranger"
+    },
+    "stats": 105,
+    "nonzero": 60
+  },
+  {
+    "url": "https://pobb.in/B-iYfZBN_50L",
+    "root": "PathOfBuilding2",
+    "build": {
+      "className": "Monk",
+      "level": "93",
+      "targetVersion": "0_1",
+      "mainSocketGroup": "4",
+      "characterLevelAutoMode": "false",
+      "viewMode": "IMPORT",
+      "ascendClassName": "Martial Artist"
+    },
+    "stats": 102,
+    "nonzero": 65
+  },
+  {
+    "url": "https://pobb.in/CI4hChFipObn",
+    "root": "PathOfBuilding2",
+    "build": {
+      "targetVersion": "0_1",
+      "viewMode": "IMPORT",
+      "characterLevelAutoMode": "false",
+      "ascendClassName": "Gemling Legionnaire",
+      "mainSocketGroup": "18",
+      "level": "97",
+      "className": "Mercenary"
+    },
+    "stats": 103,
+    "nonzero": 71
+  },
+  {
+    "url": "https://pobb.in/CZfC5voLQXWp",
+    "root": "PathOfBuilding2",
+    "build": {
+      "viewMode": "IMPORT",
+      "level": "94",
+      "className": "Ranger",
+      "characterLevelAutoMode": "true",
+      "mainSocketGroup": "4",
+      "ascendClassName": "Pathfinder",
+      "targetVersion": "0_1"
+    },
+    "stats": 107,
+    "nonzero": 74
+  },
+  {
+    "url": "https://pobb.in/FxGea2RhOoqd",
+    "root": "PathOfBuilding2",
+    "build": {
+      "mainSocketGroup": "2",
+      "viewMode": "IMPORT",
+      "level": "97",
+      "characterLevelAutoMode": "true",
+      "className": "Witch",
+      "ascendClassName": "Infernalist",
+      "targetVersion": "0_1"
+    },
+    "stats": 107,
+    "nonzero": 63
+  },
+  {
+    "url": "https://pobb.in/Igv-YtdqJ4qk",
+    "root": "PathOfBuilding2",
+    "build": {
+      "targetVersion": "0_1",
+      "level": "98",
+      "characterLevelAutoMode": "true",
+      "mainSocketGroup": "3",
+      "ascendClassName": "Invoker",
+      "viewMode": "IMPORT",
+      "className": "Monk"
+    },
+    "stats": 105,
+    "nonzero": 60
+  },
+  {
+    "url": "https://pobb.in/Mu3PxErdMKiE",
+    "root": "PathOfBuilding2",
+    "build": {
+      "viewMode": "IMPORT",
+      "className": "Sorceress",
+      "mainSocketGroup": "3",
+      "characterLevelAutoMode": "false",
+      "targetVersion": "0_1",
+      "ascendClassName": "Stormweaver",
+      "level": "96"
+    },
+    "stats": 104,
+    "nonzero": 53
+  },
+  {
+    "url": "https://pobb.in/QjGswnB0uMw3",
+    "root": "PathOfBuilding2",
+    "build": {
+      "viewMode": "IMPORT",
+      "characterLevelAutoMode": "false",
+      "className": "Huntress",
+      "mainSocketGroup": "6",
+      "targetVersion": "0_1",
+      "level": "80",
+      "ascendClassName": "Spirit Walker"
+    },
+    "stats": 103,
+    "nonzero": 47
+  },
+  {
+    "url": "https://pobb.in/R09ZhxGeretC",
+    "root": "PathOfBuilding2",
+    "build": {
+      "targetVersion": "0_1",
+      "ascendClassName": "Pathfinder",
+      "level": "97",
+      "viewMode": "IMPORT",
+      "mainSocketGroup": "4",
+      "className": "Ranger",
+      "characterLevelAutoMode": "true"
+    },
+    "stats": 106,
+    "nonzero": 73
+  },
+  {
+    "url": "https://pobb.in/RwdBjzKwEoOm",
+    "root": "PathOfBuilding2",
+    "build": {
+      "targetVersion": "0_1",
+      "viewMode": "IMPORT",
+      "characterLevelAutoMode": "true",
+      "mainSocketGroup": "1",
+      "ascendClassName": "Gemling Legionnaire",
+      "className": "Mercenary",
+      "level": "91"
+    },
+    "stats": 107,
+    "nonzero": 58
+  },
+  {
+    "url": "https://pobb.in/SKxx-DkaI_I5",
+    "root": "PathOfBuilding2",
+    "build": {
+      "className": "Witch",
+      "level": "23",
+      "mainSocketGroup": "2",
+      "viewMode": "IMPORT",
+      "targetVersion": "0_1",
+      "characterLevelAutoMode": "true",
+      "ascendClassName": "Infernalist"
+    },
+    "stats": 106,
+    "nonzero": 49
+  },
+  {
+    "url": "https://pobb.in/VmoLNcYh04kO",
+    "root": "PathOfBuilding2",
+    "build": {
+      "level": "26",
+      "viewMode": "IMPORT",
+      "targetVersion": "0_1",
+      "mainSocketGroup": "3",
+      "characterLevelAutoMode": "true",
+      "className": "Ranger",
+      "ascendClassName": "None"
+    },
+    "stats": 103,
+    "nonzero": 52
+  }
+]

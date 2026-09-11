@@ -6,6 +6,7 @@ import {
   json,
   text,
 } from "kitcn/orm"
+import type { BuildSnapshot } from "../../shared/pob"
 import type { ItemRow, Pair, Point } from "../../shared/economy"
 
 export const history = convexTable(
@@ -75,7 +76,36 @@ export const collector = convexTable(
   (t) => [index("key").on(t.key)]
 )
 
-export const tables = { history, snapshots, pairSnapshots, imports, collector }
+export const builds = convexTable(
+  "builds",
+  {
+    slug: text().notNull(),
+    title: text().notNull(),
+    code: text().notNull(),
+    snapshot: json<BuildSnapshot>().notNull(),
+  },
+  (t) => [index("slug").on(t.slug)]
+)
+
+export const buildLimits = convexTable(
+  "buildLimits",
+  {
+    key: text().notNull(),
+    window: integer().notNull(),
+    count: integer().notNull(),
+  },
+  (t) => [index("key").on(t.key)]
+)
+
+export const tables = {
+  history,
+  snapshots,
+  pairSnapshots,
+  imports,
+  collector,
+  builds,
+  buildLimits,
+}
 // Explicit synchronous mutations keep hour publication and checkpoints atomic.
 export default defineSchema(tables, {
   defaults: { mutationExecutionMode: "sync" },

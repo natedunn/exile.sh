@@ -38,7 +38,7 @@ test("search, watchlist persistence, chart, pairs, and attribution", async ({
     .getByRole("link", { name: "Data & attribution", exact: true })
     .click()
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Follow the trade"
+    "Data & methodology"
   )
   expect(errors).toEqual([])
 })
@@ -115,12 +115,14 @@ test("Base UI selects, page links, and tooltip support keyboard interaction", as
   await page.goto("/")
   await expect(page.locator(".currency-table tbody tr").first()).toBeVisible()
   const league = page.getByRole("combobox", { name: "League", exact: true })
-  await league.click()
+  await league.focus()
+  await page.keyboard.press("ArrowDown")
   await expect(page.getByRole("listbox")).toBeVisible()
   await page.getByRole("option", { name: "Standard", exact: true }).click()
   await expect(league).toContainText("Standard")
   await expect(page).toHaveURL(/league=Standard/)
-  await league.click()
+  await league.focus()
+  await page.keyboard.press("ArrowDown")
   await expect(page.getByRole("listbox")).toBeVisible()
   await expect(
     page.getByRole("option", { name: "Standard", exact: true })
