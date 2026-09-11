@@ -1,4 +1,5 @@
 import { Button } from "../components/ui/button"
+import { isEconomyStale } from "../../shared/freshness"
 import {
   InputGroup,
   InputGroupAddon,
@@ -294,7 +295,7 @@ export function EconomyPage({
       (a, b) => moverChange(a)! - moverChange(b)! || a.id.localeCompare(b.id)
     )
     .slice(0, 50)
-  const stale = !!data && now > (data.hour + 3 * 3600) * 1000
+  const stale = !!data && isEconomyStale(data.hour, now)
   const sort = (key: Filters["sort"]) =>
     patch({
       sort: key,
@@ -350,9 +351,9 @@ export function EconomyPage({
           </div>
         </section>
         {stale && (
-          <div className="notice">
-            <CircleHelp size={15} /> Showing historical data from{" "}
-            {utc(data.hour)}. New hours have not been collected yet.
+          <div className="notice" role="status">
+            <CircleHelp size={15} /> Updates are delayed. Latest available data:{" "}
+            {utc(data.hour)}.
           </div>
         )}
         {storageError && (
