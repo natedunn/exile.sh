@@ -57,7 +57,7 @@ test("preview deploys an isolated Convex backend before the Worker build", () =>
   assert.equal(h.calls.length, 1)
   assert.deepEqual(h.calls[0].args.slice(-4), [
     "--preview-name",
-    "feature-one",
+    previewName("feature/one"),
     "--preview-run",
     "seed:local",
   ])
@@ -107,8 +107,17 @@ test("preview builds require a project-scoped preview key", () => {
   assert.equal(h.calls.length, 0)
 })
 test("preview names are safe and stable for Convex and Worker aliases", () => {
-  assert.equal(previewName("Feature/My Big_change"), "feature-my-big-change")
-  assert.equal(previewName("---"), "preview")
+  const name = previewName("Feature/My Big_change")
+  assert.match(name, /^feature-my-big-change-[a-f0-9]{8}$/)
+  assert.equal(name, previewName("Feature/My Big_change"))
+  assert.notEqual(previewName("feature/foo"), previewName("feature-foo"))
+  assert.notEqual(previewName("FEATURE/FOO"), previewName("feature/foo"))
+  assert.notEqual(
+    previewName(`feature/${"a".repeat(80)}-one`),
+    previewName(`feature/${"a".repeat(80)}-two`)
+  )
+  assert.equal(previewName("---").length, 16)
+  assert.equal(previewName("x".repeat(100)).length, 40)
 })
 test("initial collection error fails the build", () => {
   const h = harness({ status: "error" })

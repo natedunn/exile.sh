@@ -61,12 +61,12 @@ Add these **build** variables and secrets:
 
 Do not paste either key into chat or put one in a `VITE_` variable. Use a deployment-scoped production key for production and the project-scoped preview key for branch builds. The script verifies both key prefixes and fails before running commands if one is wrong. `WORKERS_CI_BRANCH` is supplied by Cloudflare; the script requires it and never guesses production from a local checkout.
 
-The existing `VITE_CONVEX_URL`, `VITE_CONVEX_SITE_URL`, and `VITE_SITE_URL` dashboard variables can be removed: Convex injects the selected deployment URL into the nested Vite build, and the script derives the matching site URL. Main uses production (`brilliant-rooster-193`) and `https://exile.sh`. Other branches deploy to `preview/<sanitized-branch>` and never start collectors. The Worker upload uses the same sanitized branch as its preview alias. Optional `VITE_SITE_URL_PREVIEW` overrides the inferred `https://<branch>-exile-sh.hello-fc8.workers.dev` origin.
+The existing `VITE_CONVEX_URL`, `VITE_CONVEX_SITE_URL`, and `VITE_SITE_URL` dashboard variables can be removed: Convex injects the selected deployment URL into the nested Vite build, and the script derives the matching site URL. Main uses production (`brilliant-rooster-193`) and `https://exile.sh`. Other branches deploy to `preview/<readable-prefix>-<branch-hash>` and never start collectors. The Worker upload uses the same collision-resistant name as its preview alias. Optional `VITE_SITE_URL_PREVIEW` overrides the inferred `https://<preview-name>-exile-sh.hello-fc8.workers.dev` origin.
 
 ### What a production build does
 
-1. Validate the branch and production key, then build the frontend against production URLs. Deployment credentials are removed from the frontend build subprocess environment.
-2. Run `kitcn deploy` to push Convex functions/schema and run kitcn migration/backfill hooks. The Cloudflare release stops on failure.
+1. Validate the branch and production key. `kitcn deploy` delegates its `--cmd` to Convex, which builds the frontend against the selected production URL before Convex pushes functions/schema. Deployment credentials are removed from the frontend build subprocess environment.
+2. After the push, kitcn runs its migration and aggregate-backfill hooks. The Cloudflare release stops on any build, deploy, migration, or backfill failure.
 3. Set `COLLECTOR_ENABLED=true` only if the variable is absent. An existing `false` remains paused, including after redeployment. `GGG_CONTACT` defaults server-side to `hello@natedunn.net`.
 4. If enabled, call the internal collector once immediately. It imports the first hour and queues the rest of its bounded batch in Convex. A source/import error fails this build; transient retries may still be queued in Convex. Inspect logs before retrying. A successful build is not proof the whole backfill is finished.
 5. Cloudflare's deploy phase runs Wrangler against `dist/server/wrangler.json` to publish the frontend.

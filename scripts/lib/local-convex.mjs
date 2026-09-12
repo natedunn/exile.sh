@@ -1,5 +1,7 @@
+import { randomUUID } from "node:crypto"
 import { spawnSync } from "node:child_process"
 import fs from "node:fs"
+import os from "node:os"
 import path from "node:path"
 
 export function anonymousEnvFile(workspaceRoot) {
@@ -14,12 +16,13 @@ export function anonymousConvexEnv(env = process.env) {
   const result = {
     ...env,
     CONVEX_AGENT_MODE: "anonymous",
-    CONVEX_DEPLOYMENT: "anonymous-agent",
+    CONVEX_DEPLOYMENT: "anonymous:anonymous-agent",
   }
   delete result.CONVEX_DEPLOY_KEY
   delete result.CONVEX_DEPLOYMENT_TOKEN
   delete result.CONVEX_SELF_HOSTED_URL
   delete result.CONVEX_SELF_HOSTED_ADMIN_KEY
+  delete result.COLLECTOR_ENABLED
   return result
 }
 
@@ -28,7 +31,7 @@ export function ensureAnonymousEnvFile(workspaceRoot) {
   fs.mkdirSync(path.dirname(file), { recursive: true })
   fs.writeFileSync(
     file,
-    "# Isolates this worktree from shared Convex deployments.\nCONVEX_DEPLOYMENT=anonymous-agent\n"
+    "# Isolates this worktree from shared Convex deployments.\nCONVEX_AGENT_MODE=anonymous\nCONVEX_DEPLOYMENT=anonymous:anonymous-agent\nCOLLECTOR_ENABLED=false\n"
   )
   return file
 }
@@ -42,23 +45,90 @@ function hashString(value) {
   return hash >>> 0
 }
 
+const PORT_PROBE = String.raw`
+const net = require("node:net")
+const server = net.createServer()
+const finish = (code) => {
+  server.close(() => process.exit(code))
+  setTimeout(() => process.exit(code), 100).unref()
+}
+server.once("error", () => process.exit(1))
+server.listen({ host: "127.0.0.1", port: Number(process.argv[1]), exclusive: true }, () => finish(0))
+setTimeout(() => process.exit(2), 1500).unref()
+`
+
 function portIsAvailable(port) {
-  if (process.platform === "win32") return true
-  const result = spawnSync("lsof", ["-ti", `tcp:${port}`], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "ignore"],
+  const result = spawnSync(process.execPath, ["-e", PORT_PROBE, String(port)], {
+    stdio: "ignore",
+    timeout: 2_000,
   })
-  return result.status !== 0 || !result.stdout.trim()
+  if (result.error && result.error.code !== "ETIMEDOUT") throw result.error
+  return result.status === 0
 }
 
-export function resolvePorts(workspaceRoot) {
+function processIsAlive(pid) {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (error) {
+    return error?.code === "EPERM"
+  }
+}
+
+function acquirePortLock(cloud, site) {
+  const directory = path.join(os.tmpdir(), "exile-convex-port-locks")
+  fs.mkdirSync(directory, { recursive: true })
+  const file = path.join(directory, `${cloud}-${site}.lock`)
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const token = randomUUID()
+    try {
+      const handle = fs.openSync(file, "wx")
+      fs.writeFileSync(handle, JSON.stringify({ pid: process.pid, token }))
+      fs.closeSync(handle)
+      return () => {
+        try {
+          const current = JSON.parse(fs.readFileSync(file, "utf8"))
+          if (current.token === token) fs.unlinkSync(file)
+        } catch {
+          // The lock was already released or replaced.
+        }
+      }
+    } catch (error) {
+      if (error?.code !== "EEXIST") throw error
+      try {
+        const current = JSON.parse(fs.readFileSync(file, "utf8"))
+        if (Number.isInteger(current.pid) && processIsAlive(current.pid)) {
+          return null
+        }
+        fs.unlinkSync(file)
+      } catch (readError) {
+        if (readError?.code !== "ENOENT") {
+          try {
+            fs.unlinkSync(file)
+          } catch {
+            return null
+          }
+        }
+      }
+    }
+  }
+  return null
+}
+
+export function reserveWorktreePorts(workspaceRoot) {
   const firstCloudPort = 20000
   const pairCount = 6000
   const offset = hashString(workspaceRoot) % pairCount
   for (let attempt = 0; attempt < pairCount; attempt += 1) {
     const cloud = firstCloudPort + ((offset + attempt) % pairCount) * 2
     const site = cloud + 1
-    if (portIsAvailable(cloud) && portIsAvailable(site)) return { cloud, site }
+    const release = acquirePortLock(cloud, site)
+    if (!release) continue
+    if (portIsAvailable(cloud) && portIsAvailable(site)) {
+      return { cloud, site, release }
+    }
+    release()
   }
   throw new Error("Could not find an available local Convex port pair.")
 }
@@ -84,11 +154,9 @@ export function configureWorktreePorts(workspaceRoot) {
   const configFile = localConfigFile(workspaceRoot)
   if (!fs.existsSync(configFile)) return null
   const config = JSON.parse(fs.readFileSync(configFile, "utf8"))
-  const configured = config.ports
-  const ports = resolvePorts(workspaceRoot)
-  if (configured?.cloud !== ports.cloud || configured?.site !== ports.site) {
-    config.ports = { ...configured, ...ports }
-    fs.writeFileSync(configFile, `${JSON.stringify(config)}\n`)
+  const ports = config.ports
+  if (!Number.isInteger(ports?.cloud) || !Number.isInteger(ports?.site)) {
+    throw new Error("Convex local configuration does not contain valid ports.")
   }
   updateEnvFile(path.join(workspaceRoot, ".env.local"), {
     CONVEX_DEPLOYMENT: "anonymous:anonymous-agent",
@@ -96,55 +164,4 @@ export function configureWorktreePorts(workspaceRoot) {
     VITE_CONVEX_SITE_URL: `http://127.0.0.1:${ports.site}`,
   })
   return ports
-}
-
-export function localBackendPids(workspaceRoot) {
-  const configFile = localConfigFile(workspaceRoot)
-  if (!fs.existsSync(configFile) || process.platform === "win32") return []
-  const config = JSON.parse(fs.readFileSync(configFile, "utf8"))
-  const port = config.ports?.cloud
-  if (!Number.isInteger(port)) return []
-  const result = spawnSync("lsof", ["-ti", `tcp:${port}`], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "ignore"],
-  })
-  if (result.status !== 0) return []
-  return result.stdout
-    .trim()
-    .split(/\s+/)
-    .map(Number)
-    .filter(Number.isInteger)
-    .filter((pid) => {
-      const command = spawnSync("ps", ["-p", String(pid), "-o", "command="], {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      })
-      return command.stdout?.includes(path.dirname(configFile))
-    })
-}
-
-export function stopLocalBackend(workspaceRoot) {
-  const pids = localBackendPids(workspaceRoot)
-  for (const pid of pids) {
-    try {
-      process.kill(pid, "SIGTERM")
-    } catch {
-      // Already stopped.
-    }
-  }
-  if (pids.length === 0) return
-
-  const sleepBuffer = new Int32Array(new SharedArrayBuffer(4))
-  const deadline = Date.now() + 5_000
-  while (Date.now() < deadline && localBackendPids(workspaceRoot).length > 0) {
-    Atomics.wait(sleepBuffer, 0, 0, 100)
-  }
-
-  for (const pid of localBackendPids(workspaceRoot)) {
-    try {
-      process.kill(pid, "SIGKILL")
-    } catch {
-      // Already stopped.
-    }
-  }
 }

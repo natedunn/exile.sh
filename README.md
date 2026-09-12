@@ -11,7 +11,7 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-`bun run dev` initializes an anonymous Convex backend inside this worktree, assigns it a collision-resistant port pair, waits for its functions, and starts Vite through Portless. Open the `https://<worktree>.exile.localhost:1355` URL printed in the terminal. Each worktree gets separate data, Convex functions, browser storage, and a stable local hostname. No Convex login, GGG OAuth client, or secret is required; local collection is **paused by default**.
+`bun run dev` initializes an anonymous Convex backend inside this worktree, assigns it a collision-resistant port pair, waits for its functions, and starts Vite through Portless. Open the hashed `https://<worktree>-exile-<hash>.localhost:1355` URL printed in the terminal. Each worktree gets separate data, Convex functions, browser storage, and a stable local hostname. No Convex login, GGG OAuth client, or secret is required; local collection is **paused by default**.
 
 Use `bun run convex:init` to initialize without starting the servers. A fresh backend receives a small synthetic economy dataset covering charts, movers, quote conversions, league switching, and empty states; it does not contain raw archives or start the collector. Set `EXILE_SEED=0` to opt out. `bun run seed:local` safely fills an empty running backend and no-ops when economy data already exists. `bun run dev:shared` remains available when you intentionally want the cloud development deployment configured in `.env.local`.
 

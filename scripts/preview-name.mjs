@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process"
 import { pathToFileURL } from "node:url"
 
+import { boundedHashedName } from "./lib/names.mjs"
+
 export function currentBranch(env = process.env) {
   const configured =
     env.WORKERS_CI_BRANCH ??
@@ -23,14 +25,7 @@ export function currentBranch(env = process.env) {
 }
 
 export function previewName(branch, maxLength = 40) {
-  const name = branch
-    .toLowerCase()
-    .replace(/[^a-z0-9-]/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, maxLength)
-    .replace(/-$/g, "")
-  return name || "preview"
+  return boundedHashedName(branch, branch, { maxLength })
 }
 
 if (

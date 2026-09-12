@@ -90,6 +90,12 @@ const SEED_ITEMS = [
     volume: 900,
     dailyGrowth: 0.005,
   },
+  {
+    id: "Metadata/Items/Currency/CurrencyEssenceLife",
+    price: 2.4,
+    volume: 750,
+    dailyGrowth: -0.004,
+  },
 ] as const
 
 function seedHours(at: number) {

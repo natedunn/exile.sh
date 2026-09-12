@@ -16,7 +16,7 @@ test("the lightweight seed exercises economy views and never overwrites existing
   expect(seeded).toMatchObject({
     seeded: true,
     leagues: 2,
-    items: 12,
+    items: 13,
     completedHours: 42,
   })
 
@@ -27,8 +27,8 @@ test("the lightweight seed exercises economy views and never overwrites existing
     league: "Forbidden Rites",
     method: "executed-volume-v1-synthetic-seed-v1",
   })
-  expect(overview?.prices).toHaveLength(12)
-  expect(overview?.pairs).toHaveLength(11)
+  expect(overview?.prices).toHaveLength(13)
+  expect(overview?.pairs).toHaveLength(12)
 
   for (const period of MOVER_PERIODS) {
     const movers = await t.query(api.economy.movers, {
@@ -36,7 +36,7 @@ test("the lightweight seed exercises economy views and never overwrites existing
       period,
     })
     expect(movers?.hasComparison, period).toBe(true)
-    expect(movers?.rows, period).toHaveLength(12)
+    expect(movers?.rows, period).toHaveLength(13)
     expect(
       movers?.rows.some((row) => row.eligible.some(Boolean)),
       period

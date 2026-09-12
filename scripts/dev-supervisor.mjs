@@ -2,6 +2,8 @@ import { spawn, spawnSync } from "node:child_process"
 import path from "node:path"
 
 import { anonymousConvexEnv, anonymousEnvFile } from "./lib/local-convex.mjs"
+import { ensurePortlessProxy, portlessCli } from "./lib/portless.mjs"
+import { portlessName } from "./portless-name.mjs"
 
 const workspaceRoot = process.cwd()
 const bin = (name) => path.join(workspaceRoot, "node_modules", ".bin", name)
@@ -20,6 +22,15 @@ if (mode === "anonymous") {
   if (initialized.status !== 0) process.exit(initialized.status ?? 1)
 } else if (mode !== "anonymous" && mode !== "shared") {
   throw new Error(`Unknown EXILE_CONVEX_MODE: ${mode}`)
+}
+
+const portlessPort = Number(process.env.PORTLESS_PORT ?? 1355)
+if (
+  !Number.isInteger(portlessPort) ||
+  portlessPort < 1 ||
+  portlessPort > 65535
+) {
+  throw new Error("PORTLESS_PORT must be an integer between 1 and 65535.")
 }
 
 const children = []
@@ -92,6 +103,29 @@ await new Promise((resolve, reject) => {
 })
 
 if (mode === "anonymous") {
+  const pauseCollector = spawnSync(
+    bin("convex"),
+    [
+      "env",
+      "set",
+      "COLLECTOR_ENABLED",
+      "false",
+      "--env-file",
+      anonymousEnvFile(workspaceRoot),
+    ],
+    {
+      cwd: workspaceRoot,
+      env: anonymousConvexEnv(),
+      stdio: "inherit",
+    }
+  )
+  if (pauseCollector.error || pauseCollector.status !== 0) {
+    console.warn(
+      "[convex] could not explicitly pause local collection; stopping startup."
+    )
+    stop()
+    process.exit(pauseCollector.status ?? 1)
+  }
   if (process.env.EXILE_SEED !== "0") {
     const seed = spawnSync(
       bin("convex"),
@@ -126,10 +160,12 @@ if (mode === "anonymous") {
   }
 }
 
+await ensurePortlessProxy(workspaceRoot, portlessPort)
+const routeName = portlessName("exile")
 const vite = start(
-  "sh",
-  ["scripts/dev-portless.sh", "bun", "run", "dev:vite"],
-  process.env
+  process.execPath,
+  [portlessCli(workspaceRoot), routeName, "--force", "bun", "run", "dev:vite"],
+  { ...process.env, PORTLESS_PORT: String(portlessPort) }
 )
 
 for (const child of [convex, vite]) {
