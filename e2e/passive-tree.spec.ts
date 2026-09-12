@@ -8,7 +8,7 @@ test("tree preserves geometry and supports inspection, zoom, pan and dismissal",
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1200 })
-  await page.goto(process.env.BUILD_TEST_URL || "http://localhost:3000/builds")
+  await page.goto(process.env.BUILD_TEST_URL || "/builds")
   await page.getByLabel("PoB export or pobb.in link").fill(code)
   await page.getByRole("tab", { name: "Tree", exact: true }).click()
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
@@ -127,7 +127,7 @@ test("tree node tap works at mobile widths", async ({ browser }) => {
     hasTouch: true,
   })
   const page = await context.newPage()
-  await page.goto(process.env.BUILD_TEST_URL || "http://localhost:3000/builds")
+  await page.goto(process.env.BUILD_TEST_URL || "/builds")
   await page.getByLabel("PoB export or pobb.in link").fill(code)
   await page.getByRole("tab", { name: "Tree", exact: true }).click()
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
@@ -150,7 +150,7 @@ test("From Nothing radius and socketed jewel details render from a real export",
     new URL("../shared/fixtures/pob/Mu3PxErdMKiE.txt", import.meta.url),
     "utf8"
   )
-  await page.goto(process.env.BUILD_TEST_URL || "http://localhost:3000/builds")
+  await page.goto(process.env.BUILD_TEST_URL || "/builds")
   await page.getByLabel("PoB export or pobb.in link").fill(fromNothing)
   await page.getByRole("tab", { name: "Tree", exact: true }).click()
   await expect(page.locator('[data-jewel-radius="From Nothing"]')).toHaveCount(

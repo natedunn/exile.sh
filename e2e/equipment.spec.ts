@@ -6,9 +6,9 @@ const code = readFileSync(
   new URL("../shared/fixtures/pob/2k0EPn6QOhTx.txt", import.meta.url),
   "utf8"
 )
-const base = process.env.BUILD_TEST_URL || "http://localhost:3000"
+const buildsURL = process.env.BUILD_TEST_URL || "/builds"
 async function preview(page: Page) {
-  await page.goto(`${base}/builds`)
+  await page.goto(buildsURL)
   await page.getByLabel("PoB export or pobb.in link").fill(code)
   await page.locator(".equipment-board").scrollIntoViewIfNeeded()
 }

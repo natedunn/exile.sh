@@ -1,6 +1,7 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { build, PRODUCTION, DEVELOPMENT } from "./cloudflare-build.mjs"
+import { build, PREVIEW_KEY_PREFIX, PRODUCTION } from "./cloudflare-build.mjs"
+import { previewName } from "./preview-name.mjs"
 
 const env = {
   WORKERS_CI_BRANCH: "main",
@@ -31,8 +32,7 @@ test("main builds frontend, deploys backend, enables initial collection, and kic
   assert.deepEqual(
     h.calls.map((c) => c.args.slice(0, 3)),
     [
-      ["vite", "build"],
-      ["kitcn", "deploy"],
+      ["kitcn", "deploy", "--cmd"],
       ["convex", "env", "list"],
       ["convex", "env", "set"],
       ["convex", "env", "get"],
@@ -40,29 +40,32 @@ test("main builds frontend, deploys backend, enables initial collection, and kic
     ]
   )
   assert.equal(h.calls[0].env.CONVEX_PROD_DEPLOY_KEY, undefined)
-  assert.equal(h.calls[0].env.CONVEX_DEPLOY_KEY, undefined)
-  assert.equal(
-    h.calls[0].env.VITE_CONVEX_URL,
-    `https://${PRODUCTION}.convex.cloud`
-  )
-  assert.equal(h.calls[1].env.CONVEX_DEPLOY_KEY, env.CONVEX_PROD_DEPLOY_KEY)
+  assert.equal(h.calls[0].env.CONVEX_DEPLOY_KEY, env.CONVEX_PROD_DEPLOY_KEY)
+  assert.equal(h.calls[0].env.VITE_CONVEX_URL, undefined)
 })
-test("preview never deploys, never receives deploy keys, and overrides inherited production URLs", () => {
+test("preview deploys an isolated Convex backend before the Worker build", () => {
   const h = harness()
   build(
     {
       ...env,
       WORKERS_CI_BRANCH: "feature/one",
+      CONVEX_PREVIEW_DEPLOY_KEY: `${PREVIEW_KEY_PREFIX}test-only`,
       VITE_CONVEX_URL: "https://wrong.convex.cloud",
     },
     h.run
   )
   assert.equal(h.calls.length, 1)
+  assert.deepEqual(h.calls[0].args.slice(-4), [
+    "--preview-name",
+    previewName("feature/one"),
+    "--preview-run",
+    "seed:local",
+  ])
   assert.equal(
-    h.calls[0].env.VITE_CONVEX_URL,
-    `https://${DEVELOPMENT}.convex.cloud`
+    h.calls[0].env.CONVEX_DEPLOY_KEY,
+    `${PREVIEW_KEY_PREFIX}test-only`
   )
-  assert.equal(h.calls[0].env.CONVEX_DEPLOY_KEY, undefined)
+  assert.equal(h.calls[0].env.VITE_CONVEX_URL, undefined)
   assert.equal(h.calls[0].env.CONVEX_PROD_DEPLOY_KEY, undefined)
 })
 test("redeployment preserves explicit collection pause", () => {
@@ -86,7 +89,7 @@ test("missing branch or wrong key stops before any command", () => {
   assert.equal(h.calls.length, 0)
 })
 test("frontend or backend failure stops initialization", () => {
-  for (const fail of ["vite", "kitcn"]) {
+  for (const fail of ["kitcn"]) {
     const h = harness({ fail })
     assert.throws(() => build(env, h.run), /simulated failure/)
     assert.equal(
@@ -94,6 +97,27 @@ test("frontend or backend failure stops initialization", () => {
       false
     )
   }
+})
+test("preview builds require a project-scoped preview key", () => {
+  const h = harness()
+  assert.throws(
+    () => build({ WORKERS_CI_BRANCH: "feature/one" }, h.run),
+    /CONVEX_PREVIEW_DEPLOY_KEY/
+  )
+  assert.equal(h.calls.length, 0)
+})
+test("preview names are safe and stable for Convex and Worker aliases", () => {
+  const name = previewName("Feature/My Big_change")
+  assert.match(name, /^feature-my-big-change-[a-f0-9]{8}$/)
+  assert.equal(name, previewName("Feature/My Big_change"))
+  assert.notEqual(previewName("feature/foo"), previewName("feature-foo"))
+  assert.notEqual(previewName("FEATURE/FOO"), previewName("feature/foo"))
+  assert.notEqual(
+    previewName(`feature/${"a".repeat(80)}-one`),
+    previewName(`feature/${"a".repeat(80)}-two`)
+  )
+  assert.equal(previewName("---").length, 16)
+  assert.equal(previewName("x".repeat(100)).length, 40)
 })
 test("initial collection error fails the build", () => {
   const h = harness({ status: "error" })

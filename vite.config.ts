@@ -6,6 +6,8 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
 
+const port = process.env.PORT ? Number(process.env.PORT) : undefined
+
 const config = defineConfig({
   resolve: {
     alias: {
@@ -20,6 +22,10 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  server: {
+    ...(process.env.HOST ? { host: process.env.HOST } : {}),
+    ...(Number.isFinite(port) ? { port, strictPort: true } : {}),
+  },
 })
 
 export default config

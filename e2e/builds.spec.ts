@@ -4,11 +4,11 @@ const code = readFileSync(
   new URL("../shared/fixtures/pob/2k0EPn6QOhTx.txt", import.meta.url),
   "utf8"
 )
-const base = process.env.BUILD_TEST_URL || "http://localhost:3000"
+const buildsURL = process.env.BUILD_TEST_URL || "/builds"
 for (const width of [390, 1440])
   test(`build preview, tabs and tree at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 })
-    await page.goto(`${base}/builds`)
+    await page.goto(buildsURL)
     await expect(
       page.getByRole("heading", { name: "A build worth sharing." })
     ).toBeVisible()
@@ -78,7 +78,7 @@ for (const width of [390, 1440])
     })
   })
 test("invalid code can be corrected without publishing", async ({ page }) => {
-  await page.goto(`${base}/builds`)
+  await page.goto(buildsURL)
   await page.getByLabel("PoB export or pobb.in link").fill("invalid")
   await page.getByRole("button", { name: "Preview build" }).click()
   await expect(page.getByRole("alert")).toBeVisible()
@@ -90,7 +90,7 @@ test("invalid code can be corrected without publishing", async ({ page }) => {
 test("valid pasted exports auto-preview and incomplete input stays editable", async ({
   page,
 }) => {
-  await page.goto(`${base}/builds`)
+  await page.goto(buildsURL)
   const input = page.getByLabel("PoB export or pobb.in link")
   await input.fill("eNrt")
   await page.waitForTimeout(650)
@@ -107,7 +107,7 @@ test("valid pasted exports auto-preview and incomplete input stays editable", as
 test("auto-preview shows checking and loading feedback without resizing the button", async ({
   page,
 }) => {
-  await page.goto(`${base}/builds`)
+  await page.goto(buildsURL)
   const button = page.locator(".build-import-submit")
   const originalWidth = (await button.boundingBox())!.width
   await button.evaluate((element) => {

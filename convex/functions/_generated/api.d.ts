@@ -152,6 +152,9 @@ export declare const internal: {
       any
     >;
   };
+  seed: {
+    local: FunctionReference<"mutation", "internal", { now?: number }, any>;
+  };
   store: {
     acquire: FunctionReference<
       "mutation",

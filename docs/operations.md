@@ -38,7 +38,7 @@ The managed production build enables collection on first initialization. Monitor
 
 ## Cloudflare managed Git builds
 
-This uses the same two-stage pattern as `natedunn/kino`, without provisioning per-branch databases or auth infrastructure. Cloudflare runs the scripts; there is no GitHub Actions deployment pipeline.
+This uses the same two-stage pattern as `natedunn/kino`. Cloudflare runs the scripts; there is no GitHub Actions deployment pipeline. Production targets the fixed production deployment. Every non-production branch gets a reusable, isolated Convex preview deployment and a matching aliased Worker preview URL.
 
 In the `exile-sh` Worker's **Settings → Build**, configure:
 
@@ -52,23 +52,26 @@ In the `exile-sh` Worker's **Settings → Build**, configure:
 
 Add these **build** variables and secrets:
 
-| Name                     | Type       | Value                                                                                     |
-| ------------------------ | ---------- | ----------------------------------------------------------------------------------------- |
-| `BUN_VERSION`            | Plain text | `1.3.9`                                                                                   |
-| `NODE_VERSION`           | Plain text | `24`                                                                                      |
-| `CONVEX_PROD_DEPLOY_KEY` | Secret     | Production deploy key from Convex → `brilliant-rooster-193` → Settings → URL & Deploy Key |
+| Name                        | Type       | Value                                                                                     |
+| --------------------------- | ---------- | ----------------------------------------------------------------------------------------- |
+| `BUN_VERSION`               | Plain text | `1.3.9`                                                                                   |
+| `NODE_VERSION`              | Plain text | `24`                                                                                      |
+| `CONVEX_PROD_DEPLOY_KEY`    | Secret     | Production deploy key from Convex → `brilliant-rooster-193` → Settings → URL & Deploy Key |
+| `CONVEX_PREVIEW_DEPLOY_KEY` | Secret     | Project preview deploy key from Convex → project Settings → Generate Preview Deploy Key   |
 
-Do not paste the key into chat or put it in a `VITE_` variable. Use a deployment-scoped production key, not a dev or preview key. The script verifies the key's target prefix and fails before running commands if it is wrong. `WORKERS_CI_BRANCH` is supplied by Cloudflare; the script requires it and never guesses production from a local checkout.
+Do not paste either key into chat or put one in a `VITE_` variable. Use a deployment-scoped production key for production and the project-scoped preview key for branch builds. The script verifies both key prefixes and fails before running commands if one is wrong. `WORKERS_CI_BRANCH` is supplied by Cloudflare; the script requires it and never guesses production from a local checkout.
 
-The existing `VITE_CONVEX_URL`, `VITE_CONVEX_SITE_URL`, and `VITE_SITE_URL` dashboard variables can be removed: the script sets matching URLs for each branch. Main uses production (`brilliant-rooster-193`) and `https://exile.sh`. Other branches use dev (`next-axolotl-199`) and do not deploy Convex or start collectors. Optional `VITE_SITE_URL_PREVIEW` customizes the preview's public origin. This does not yet implement the separate read-only production economy connection for local development.
+The existing `VITE_CONVEX_URL`, `VITE_CONVEX_SITE_URL`, and `VITE_SITE_URL` dashboard variables can be removed: Convex injects the selected deployment URL into the nested Vite build, and the script derives the matching site URL. Main uses production (`brilliant-rooster-193`) and `https://exile.sh`. Other branches deploy to `preview/<readable-prefix>-<branch-hash>` and never start collectors. The Worker upload uses the same collision-resistant name as its preview alias. Optional `VITE_SITE_URL_PREVIEW` overrides the inferred `https://<preview-name>-exile-sh.hello-fc8.workers.dev` origin.
 
 ### What a production build does
 
-1. Validate the branch and production key, then build the frontend against production URLs. Deployment credentials are removed from the frontend build subprocess environment.
-2. Run `kitcn deploy` to push Convex functions/schema and run kitcn migration/backfill hooks. The Cloudflare release stops on failure.
+1. Validate the branch and production key. `kitcn deploy` delegates its `--cmd` to Convex, which builds the frontend against the selected production URL before Convex pushes functions/schema. Deployment credentials are removed from the frontend build subprocess environment.
+2. After the push, kitcn runs its migration and aggregate-backfill hooks. The Cloudflare release stops on any build, deploy, migration, or backfill failure.
 3. Set `COLLECTOR_ENABLED=true` only if the variable is absent. An existing `false` remains paused, including after redeployment. `GGG_CONTACT` defaults server-side to `hello@natedunn.net`.
 4. If enabled, call the internal collector once immediately. It imports the first hour and queues the rest of its bounded batch in Convex. A source/import error fails this build; transient retries may still be queued in Convex. Inspect logs before retrying. A successful build is not proof the whole backfill is finished.
 5. Cloudflare's deploy phase runs Wrangler against `dist/server/wrangler.json` to publish the frontend.
+
+For a non-production branch, the build instead reuses or creates the branch's Convex preview deployment, runs migrations and aggregate backfills there, builds against that deployment URL, and uploads a Worker version with the same branch alias. On first creation, the preview receives the same small synthetic economy seed used by anonymous worktrees. It does not inherit production/development data, store raw archives, or enable collection.
 
 The first run imports 30 hourly digests, enough for initial 24-hour changes; charts and longer comparisons fill in as data arrives. Watch the imports ledger and `ingestion-complete` logs for progress. Empty league markets can legitimately publish no price rows. Five consecutive failures stop collection until the cause is fixed and the circuit is reset.
 
@@ -76,7 +79,7 @@ Once deployed, the hourly cron runs on Convex even while your computer is off an
 
 ### Local verification
 
-`bun run build` remains frontend-only and never deploys Convex. Run `bun run test:deploy` for mocked orchestration tests (no credentials/network/writes), `bun run test` for collector and data tests, and `bun run typecheck` / `bun run lint`. Backend changes are verified against dev, not production, before opening a PR. Do not run `build:cloudflare` locally with a production key merely to test it.
+`bun run build` remains frontend-only and never deploys Convex. Run `bun run test:deploy` for mocked orchestration tests (no credentials/network/writes), `bun run test` for collector and data tests, and `bun run typecheck` / `bun run lint`. `bun run dev` verifies backend changes against a worktree-local anonymous deployment, not the shared dev or production deployment. Do not run `build:cloudflare` locally with deploy keys merely to test it.
 
 ## Movers periods
 

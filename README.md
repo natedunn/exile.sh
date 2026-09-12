@@ -8,14 +8,12 @@ Requires Bun 1.3.9 and Node 24.
 
 ```sh
 bun install --frozen-lockfile
-cp .env.example .env.local
-# Set your own Convex development deployment and its public URLs.
-bun run convex:dev
-# In another terminal:
 bun run dev
 ```
 
-Open http://localhost:3000. The Convex CLI needs access to the development project. `convex:dev` generates cRPC bindings and pushes functions to that deployment. No GGG OAuth client or secret is required. Local/dev collection is **paused by default**. The managed production build deploys Convex and initializes hourly collection; see the setup below.
+`bun run dev` initializes an anonymous Convex backend inside this worktree, assigns it a collision-resistant port pair, waits for its functions, and starts Vite through Portless. Open the hashed `https://<worktree>-exile-<hash>.localhost:1355` URL printed in the terminal. Each worktree gets separate data, Convex functions, browser storage, and a stable local hostname. No Convex login, GGG OAuth client, or secret is required; local collection is **paused by default**.
+
+Use `bun run convex:init` to initialize without starting the servers. A fresh backend receives a small synthetic economy dataset covering charts, movers, quote conversions, league switching, and empty states; it does not contain raw archives or start the collector. Set `EXILE_SEED=0` to opt out. `bun run seed:local` safely fills an empty running backend and no-ops when economy data already exists. `bun run dev:shared` remains available when you intentionally want the cloud development deployment configured in `.env.local`.
 
 ## What works
 
@@ -44,7 +42,7 @@ Use `bun run format` for formatting and `bun run check` to verify it. Domain and
 - [API research](docs/research.md)
 - [Data attribution](NOTICE.md)
 
-Cloudflare manages branch-triggered builds and deployments. There is no GitHub Actions deployment pipeline. Development collection stays paused until its projected usage fits the free allowance.
+Cloudflare manages branch-triggered builds and deployments. Non-production branches receive matching isolated Convex preview deployments and aliased Worker preview URLs. There is no GitHub Actions deployment pipeline. Development collection stays paused until its projected usage fits the free allowance.
 
 ## License
 
