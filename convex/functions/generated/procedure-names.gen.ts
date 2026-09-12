@@ -7,5 +7,6 @@ export const procedureNames = {
   "builds.ts": [{ column: 3, line: 38, name: "builds:create" }, { column: 3, line: 17, name: "builds:get" }, { column: 3, line: 88, name: "builds:resolve" }],
   "economy.ts": [{ column: 3, line: 69, name: "economy:itemHistory" }, { column: 3, line: 139, name: "economy:movers" }, { column: 3, line: 35, name: "economy:overview" }],
   "ingestion.ts": [{ column: 3, line: 47, name: "ingestion:ingest" }],
+  "seed.ts": [{ column: 3, line: 171, name: "seed:local" }],
   "store.ts": [{ column: 3, line: 38, name: "store:acquire" }, { column: 3, line: 121, name: "store:begin" }, { column: 39, line: 297, name: "store:cleanup" }, { column: 3, line: 106, name: "store:imported" }, { column: 3, line: 204, name: "store:publish" }, { column: 3, line: 182, name: "store:recent" }, { column: 3, line: 78, name: "store:release" }, { column: 44, line: 94, name: "store:resetCircuit" }, { column: 34, line: 65, name: "store:state" }, { column: 3, line: 143, name: "store:writeChunk" }],
 };

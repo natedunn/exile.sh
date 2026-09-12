@@ -1,8 +1,10 @@
 import { spawnSync } from "node:child_process"
 import { pathToFileURL } from "node:url"
 
+import { previewName } from "./preview-name.mjs"
+
 export const PRODUCTION = "brilliant-rooster-193"
-export const DEVELOPMENT = "next-axolotl-199"
+export const PREVIEW_KEY_PREFIX = "preview:nate-dunn:exile-sh|"
 
 function command(args, env, capture = false) {
   const result = spawnSync("bun", ["x", ...args], {
@@ -20,38 +22,64 @@ export function build(env = process.env, run = command) {
   if (!branch)
     throw new Error("WORKERS_CI_BRANCH is required; use bun run build locally.")
   const production = branch === "main"
-  const target = production ? PRODUCTION : DEVELOPMENT
-  // Do not pass deployment credentials to Vite or to preview build commands.
+  const preview = previewName(branch)
+  const key = production
+    ? env.CONVEX_PROD_DEPLOY_KEY
+    : env.CONVEX_PREVIEW_DEPLOY_KEY
+  if (
+    production &&
+    (!key?.startsWith(`prod:${PRODUCTION}|`) || !key.split("|")[1])
+  ) {
+    throw new Error(
+      `Set CONVEX_PROD_DEPLOY_KEY to the production deploy key for ${PRODUCTION}.`
+    )
+  }
+  if (
+    !production &&
+    (!key?.startsWith(PREVIEW_KEY_PREFIX) || !key.split("|")[1])
+  ) {
+    throw new Error(
+      "Set CONVEX_PREVIEW_DEPLOY_KEY to the preview deploy key for nate-dunn/exile-sh."
+    )
+  }
+
+  // Only the Convex deploy subprocess receives its scoped credential. The
+  // nested Vite command strips it again in cloudflare-vite-build.mjs.
   const publicEnv = { ...env }
   for (const key of Object.keys(publicEnv))
     if (key.startsWith("CONVEX_") && /KEY|TOKEN|DEPLOYMENT/.test(key))
       delete publicEnv[key]
-  publicEnv.VITE_CONVEX_URL = `https://${target}.convex.cloud`
-  publicEnv.VITE_CONVEX_SITE_URL = `https://${target}.convex.site`
+  delete publicEnv.VITE_CONVEX_URL
+  delete publicEnv.VITE_CONVEX_SITE_URL
   publicEnv.VITE_SITE_URL = production
     ? "https://exile.sh"
-    : (env.VITE_SITE_URL_PREVIEW ?? "https://exile-sh.hello-fc8.workers.dev")
+    : (env.VITE_SITE_URL_PREVIEW ??
+      `https://${preview}-exile-sh.hello-fc8.workers.dev`)
+  const deployEnv = { ...publicEnv, CONVEX_DEPLOY_KEY: key }
+  const deployArgs = [
+    "kitcn",
+    "deploy",
+    "--cmd",
+    "node scripts/cloudflare-vite-build.mjs",
+    "--cmd-url-env-var-name",
+    "VITE_CONVEX_URL",
+  ]
 
   if (!production) {
     console.log(
-      `Preview ${branch}: build against dev (${target}); no backend deployment.`
+      `Preview ${branch}: deploy isolated Convex preview '${preview}', then build the Worker.`
     )
-    run(["vite", "build"], publicEnv)
+    run(
+      [...deployArgs, "--preview-name", preview, "--preview-run", "seed:local"],
+      deployEnv
+    )
     return
   }
-  const key = env.CONVEX_PROD_DEPLOY_KEY
-  if (!key?.startsWith(`prod:${PRODUCTION}|`) || !key.split("|")[1])
-    throw new Error(
-      `Set CONVEX_PROD_DEPLOY_KEY to the production deploy key for ${PRODUCTION}.`
-    )
 
-  // Compile first. A frontend build failure must not update the backend.
-  run(["vite", "build"], publicEnv)
-  const deployEnv = { ...publicEnv, CONVEX_DEPLOY_KEY: key }
   console.log(
-    `target: prod (${PRODUCTION}) — deploy Convex before publishing the Worker.`
+    `Production ${branch}: build and deploy Convex ${PRODUCTION} before publishing the Worker.`
   )
-  run(["kitcn", "deploy"], deployEnv)
+  run(deployArgs, deployEnv)
   const names = run(
     ["convex", "env", "list", "--names-only"],
     deployEnv,
