@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/install-worktree-env-hook.mjs && node scripts/sync-worktree-env.mjs",
+    "env:sync": "node scripts/sync-worktree-env.mjs",
     "dev": "node scripts/dev-supervisor.mjs",
     "dev:vite": "VITE_SITE_URL=${PORTLESS_URL:-} vite dev",
     "dev:shared": "EXILE_CONVEX_MODE=shared node scripts/dev-supervisor.mjs",
