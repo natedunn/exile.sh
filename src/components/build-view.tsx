@@ -167,22 +167,58 @@ function SectionNav({
   )
 }
 
+/** Which equipment, weapon, skill, and tree set the page is showing. Keys
+ * are absent while the build's own active set is selected, so a shared
+ * build's URL only carries what the reader changed. */
+export type BuildSelection = {
+  items?: string
+  weapons?: WeaponSet
+  skills?: string
+  tree?: string
+}
+
 export function BuildView({
   build,
   code,
   shared = false,
   shareAction,
+  selection: controlled,
+  onSelect,
 }: {
   build: BuildSnapshot
   title: string
   code: string
   shared?: boolean
   shareAction?: ReactNode
+  /** Provide both to own the selection (the shared page keeps it in the
+   * URL); leave them out and the view keeps it locally. */
+  selection?: BuildSelection
+  onSelect?: (patch: BuildSelection) => void
 }) {
-  const [itemSet, setItemSet] = useState(build.activeItemSet)
-  const [weapons, setWeapons] = useState<WeaponSet>("primary")
-  const [skillSet, setSkillSet] = useState(build.activeSkillSet)
-  const [specIndex, setSpecIndex] = useState(String(build.activeSpec))
+  const [local, setLocal] = useState<BuildSelection>({})
+  const selection = controlled ?? local
+  const defaults: Required<BuildSelection> = {
+    items: build.activeItemSet,
+    weapons: "primary",
+    skills: build.activeSkillSet,
+    tree: String(build.activeSpec),
+  }
+  const select = <TKey extends keyof BuildSelection>(
+    key: TKey,
+    value: Required<BuildSelection>[TKey]
+  ) => {
+    const patch = { [key]: value === defaults[key] ? undefined : value }
+    if (onSelect) onSelect(patch)
+    else setLocal((prev) => ({ ...prev, ...patch }))
+  }
+  const itemSet = selection.items ?? defaults.items
+  const weapons = selection.weapons ?? defaults.weapons
+  const skillSet = selection.skills ?? defaults.skills
+  const specIndex =
+    selection.tree !== undefined &&
+    build.treeSpecs.at(Number(selection.tree)) !== undefined
+      ? selection.tree
+      : defaults.tree
   const [message, setMessage] = useState("")
   const [copied, setCopied] = useState("")
   const gear =
@@ -310,10 +346,13 @@ export function BuildView({
                   label="Equipment set"
                   sets={build.itemSets}
                   value={itemSet}
-                  onChange={setItemSet}
+                  onChange={(v) => select("items", v)}
                 />
                 {swappable && (
-                  <WeaponSetSwitch value={weapons} onChange={setWeapons} />
+                  <WeaponSetSwitch
+                    value={weapons}
+                    onChange={(v) => select("weapons", v)}
+                  />
                 )}
               </div>
             </div>
@@ -352,7 +391,7 @@ export function BuildView({
                 label="Skill set"
                 sets={build.skillSets}
                 value={skillSet}
-                onChange={setSkillSet}
+                onChange={(v) => select("skills", v)}
               />
             </div>
             <div className="build-section-body">
@@ -384,7 +423,7 @@ export function BuildView({
                   title: s.title,
                 }))}
                 value={specIndex}
-                onChange={setSpecIndex}
+                onChange={(v) => select("tree", v)}
               />
             </div>
             <div className="build-section-body">

@@ -32,9 +32,10 @@ test("persists notes across reads, throttles imports, and keeps last good conten
   expect(
     (await t.query(api.patchStore.latest.functionRef, {})).items
   ).toHaveLength(1)
-  expect(await t.query(api.patchStore.post.functionRef, { threadId })).toEqual(
-    post
-  )
+  expect(await t.query(api.patchStore.post.functionRef, { threadId })).toEqual({
+    ...post,
+    date: now,
+  })
   expect(
     await t.mutation(internal.patchStore.acquire, { threadId, token: "b" })
   ).toBe(false)
@@ -53,9 +54,10 @@ test("persists notes across reads, throttles imports, and keeps last good conten
     token: "b",
     error: "HTTP 503",
   })
-  expect(await t.query(api.patchStore.post.functionRef, { threadId })).toEqual(
-    post
-  )
+  expect(await t.query(api.patchStore.post.functionRef, { threadId })).toEqual({
+    ...post,
+    date: now,
+  })
   expect(
     await t.mutation(internal.patchStore.acquire, { threadId, token: "c" })
   ).toBe(false)

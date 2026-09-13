@@ -1,7 +1,13 @@
 import { Button } from "../components/ui/button"
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRoute,
+} from "@tanstack/react-router"
 import { useEffect } from "react"
 import { Providers } from "../components/providers"
+import { SiteLayout } from "../components/site-layout"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -34,19 +40,28 @@ export const Route = createRootRoute({
       },
     ],
   }),
+  component: () => (
+    <SiteLayout>
+      <Outlet />
+    </SiteLayout>
+  ),
+  // Missing pages render inside the layout's outlet; the error boundary
+  // replaces the layout, so it brings its own.
   notFoundComponent: () => (
-    <main className="empty-state">
+    <div className="empty-state">
       <h1>Lost in Wraeclast.</h1>
       <p>This page does not exist.</p>
       <a href="/economy">Return to the economy</a>
-    </main>
+    </div>
   ),
   errorComponent: ({ reset }) => (
-    <main className="empty-state">
-      <h1>The market is out of reach.</h1>
-      <p>Something went wrong loading this page.</p>
-      <Button onClick={reset}>Try again</Button>
-    </main>
+    <SiteLayout>
+      <div className="empty-state">
+        <h1>The market is out of reach.</h1>
+        <p>Something went wrong loading this page.</p>
+        <Button onClick={reset}>Try again</Button>
+      </div>
+    </SiteLayout>
   ),
   shellComponent: RootDocument,
 })

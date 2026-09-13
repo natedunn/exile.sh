@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { ArrowRight, Check, Code, Link2, LoaderCircle } from "lucide-react"
-import { BuildShell } from "../components/build-shell"
 import { BuildView } from "../components/build-view"
 import { Button } from "../components/ui/button"
 import {
@@ -166,185 +165,177 @@ function BuildImport() {
       )
     }
   }
-  return (
-    <BuildShell>
-      {!preview ? (
-        <>
-          <section className="build-intro">
-            <div>
-              <h1>A build worth sharing.</h1>
-              <p>
-                Your gear. Your skills. Your next idea.
-                <br />
-                Turn a Path of Building 2 export into a link anyone can explore.
-              </p>
-            </div>
-            <div className="build-intro-art" aria-hidden="true">
-              <img src="/art/divine-dither.png" alt="" />
-            </div>
-          </section>
-          <div className="build-import-layout">
-            <section className="build-import-card">
-              <h2>Bring your build</h2>
-              <p>
-                Paste a PoB export or pobb.in link. Your preview opens
-                automatically.
-              </p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  void inspect(source)
-                }}
-              >
-                <label htmlFor="pob-source">PoB export or pobb.in link</label>
-                <Textarea
-                  id="pob-source"
-                  disabled={!ready}
-                  value={source}
-                  onChange={(e) => {
-                    requestId.current++
-                    pendingSource.current = null
-                    lastAttempt.current = ""
-                    setStatus("idle")
-                    setError("")
-                    setSource(e.target.value)
-                  }}
-                  maxLength={MAX_CODE_LENGTH * 2}
-                  placeholder="PoB code or https://pobb.in/…"
-                  spellCheck={false}
-                  required
-                  aria-describedby="pob-help"
+  return !preview ? (
+    <>
+      <section className="build-intro">
+        <div>
+          <h1>A build worth sharing.</h1>
+          <p>
+            Your gear. Your skills. Your next idea.
+            <br />
+            Turn a Path of Building 2 export into a link anyone can explore.
+          </p>
+        </div>
+        <div className="build-intro-art" aria-hidden="true">
+          <img src="/art/divine-dither.png" alt="" />
+        </div>
+      </section>
+      <div className="build-import-layout">
+        <section className="build-import-card">
+          <h2>Bring your build</h2>
+          <p>
+            Paste a PoB export or pobb.in link. Your preview opens
+            automatically.
+          </p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              void inspect(source)
+            }}
+          >
+            <label htmlFor="pob-source">PoB export or pobb.in link</label>
+            <Textarea
+              id="pob-source"
+              disabled={!ready}
+              value={source}
+              onChange={(e) => {
+                requestId.current++
+                pendingSource.current = null
+                lastAttempt.current = ""
+                setStatus("idle")
+                setError("")
+                setSource(e.target.value)
+              }}
+              maxLength={MAX_CODE_LENGTH * 2}
+              placeholder="PoB code or https://pobb.in/…"
+              spellCheck={false}
+              required
+              aria-describedby="pob-help"
+            />
+            <p id="pob-help">
+              In Path of Building 2: Import/Export Build → Generate → Copy.
+            </p>
+            <Button
+              className="build-primary build-import-submit"
+              aria-busy={busy}
+              aria-label={importLabel}
+              type="submit"
+              size="lg"
+              disabled={busy || !source.trim()}
+            >
+              <span role="status" aria-live="polite">
+                {importLabel}
+              </span>
+              {busy ? (
+                <LoaderCircle
+                  className="animate-spin motion-reduce:animate-none"
+                  aria-hidden="true"
                 />
-                <p id="pob-help">
-                  In Path of Building 2: Import/Export Build → Generate → Copy.
-                </p>
-                <Button
-                  className="build-primary build-import-submit"
-                  aria-busy={busy}
-                  aria-label={importLabel}
-                  type="submit"
-                  size="lg"
-                  disabled={busy || !source.trim()}
-                >
-                  <span role="status" aria-live="polite">
-                    {importLabel}
-                  </span>
-                  {busy ? (
-                    <LoaderCircle
-                      className="animate-spin motion-reduce:animate-none"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <ArrowRight aria-hidden="true" />
-                  )}
-                </Button>
-                {error && (
-                  <p className="build-error" role="alert">
-                    {error}
-                  </p>
-                )}
-              </form>
-            </section>
-            <aside className="build-import-aside">
-              <h2>
-                From your desktop.
-                <br />
-                To your party.
-              </h2>
-              <div>
-                <Code />
-                <p>
-                  <strong>Keep every detail</strong>
-                  <span>
-                    Equipment, gem setups, passive trees, and the stats you
-                    exported.
-                  </span>
-                </p>
-              </div>
-              <div>
-                <Link2 />
-                <p>
-                  <strong>One link, ready to share</strong>
-                  <span>
-                    A readable build page on desktop and mobile. No account
-                    needed.
-                  </span>
-                </p>
-              </div>
-              <div>
-                <Check />
-                <p>
-                  <strong>Back to PoB in a click</strong>
-                  <span>
-                    Your original export stays intact, including every saved
-                    setup.
-                  </span>
-                </p>
-              </div>
-            </aside>
+              ) : (
+                <ArrowRight aria-hidden="true" />
+              )}
+            </Button>
+            {error && (
+              <p className="build-error" role="alert">
+                {error}
+              </p>
+            )}
+          </form>
+        </section>
+        <aside className="build-import-aside">
+          <h2>
+            From your desktop.
+            <br />
+            To your party.
+          </h2>
+          <div>
+            <Code />
+            <p>
+              <strong>Keep every detail</strong>
+              <span>
+                Equipment, gem setups, passive trees, and the stats you
+                exported.
+              </span>
+            </p>
           </div>
-        </>
-      ) : (
-        <>
-          <BuildView
-            key={preview.code}
-            build={preview.build}
-            title={title}
-            code={preview.code}
-            shareAction={
-              <Dialog>
-                <DialogTrigger render={<Button variant="outline" />}>
-                  <Link2 />
-                  Share
-                </DialogTrigger>
-                <DialogContent className="build-share-dialog">
-                  <div>
-                    <DialogTitle>Ready to share?</DialogTitle>
-                    <DialogDescription>
-                      This creates a public, permanent snapshot. Review your
-                      notes and custom modifiers before publishing.
-                    </DialogDescription>
-                  </div>
-                  <div className="build-publish-fields">
-                    <label htmlFor="build-title">Build title</label>
-                    <Input
-                      id="build-title"
-                      value={title}
-                      maxLength={100}
-                      onChange={(e) => setTitle(e.target.value)}
-                    />
-                    <div>
-                      <Button
-                        variant="outline"
-                        disabled={create.isPending}
-                        onClick={() => {
-                          setPreview(null)
-                          setError("")
-                        }}
-                      >
-                        Change export
-                      </Button>
-                      <Button
-                        className="build-primary"
-                        disabled={create.isPending || !title.trim()}
-                        onClick={publish}
-                      >
-                        {create.isPending ? "Publishing…" : "Create share link"}
-                        <ArrowRight />
-                      </Button>
-                    </div>
-                    {error && (
-                      <p className="build-error" role="alert">
-                        {error}
-                      </p>
-                    )}
-                  </div>
-                </DialogContent>
-              </Dialog>
-            }
-          />
-        </>
-      )}
-    </BuildShell>
+          <div>
+            <Link2 />
+            <p>
+              <strong>One link, ready to share</strong>
+              <span>
+                A readable build page on desktop and mobile. No account needed.
+              </span>
+            </p>
+          </div>
+          <div>
+            <Check />
+            <p>
+              <strong>Back to PoB in a click</strong>
+              <span>
+                Your original export stays intact, including every saved setup.
+              </span>
+            </p>
+          </div>
+        </aside>
+      </div>
+    </>
+  ) : (
+    <BuildView
+      key={preview.code}
+      build={preview.build}
+      title={title}
+      code={preview.code}
+      shareAction={
+        <Dialog>
+          <DialogTrigger render={<Button variant="outline" />}>
+            <Link2 />
+            Share
+          </DialogTrigger>
+          <DialogContent className="build-share-dialog">
+            <div>
+              <DialogTitle>Ready to share?</DialogTitle>
+              <DialogDescription>
+                This creates a public, permanent snapshot. Review your notes and
+                custom modifiers before publishing.
+              </DialogDescription>
+            </div>
+            <div className="build-publish-fields">
+              <label htmlFor="build-title">Build title</label>
+              <Input
+                id="build-title"
+                value={title}
+                maxLength={100}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <div>
+                <Button
+                  variant="outline"
+                  disabled={create.isPending}
+                  onClick={() => {
+                    setPreview(null)
+                    setError("")
+                  }}
+                >
+                  Change export
+                </Button>
+                <Button
+                  className="build-primary"
+                  disabled={create.isPending || !title.trim()}
+                  onClick={publish}
+                >
+                  {create.isPending ? "Publishing…" : "Create share link"}
+                  <ArrowRight />
+                </Button>
+              </div>
+              {error && (
+                <p className="build-error" role="alert">
+                  {error}
+                </p>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      }
+    />
   )
 }
