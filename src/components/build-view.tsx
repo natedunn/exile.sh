@@ -188,6 +188,7 @@ export function BuildView({
   const gear =
     build.itemSets.find((s) => s.id === itemSet) ?? build.itemSets.at(0)
   const hasGear = gear?.slots.some((s) => s.itemId && s.itemId !== "0")
+  const swappable = !!gear && equipmentHasSwap(gear)
   const skillSets = useMemo(() => {
     if (
       build.skillSets.every((set) =>
@@ -311,7 +312,7 @@ export function BuildView({
                   value={itemSet}
                   onChange={setItemSet}
                 />
-                {gear && equipmentHasSwap(gear) && (
+                {swappable && (
                   <WeaponSetSwitch value={weapons} onChange={setWeapons} />
                 )}
               </div>
@@ -323,7 +324,7 @@ export function BuildView({
                     key={gear.id}
                     build={build}
                     gear={gear}
-                    weapons={weapons}
+                    weapons={swappable ? weapons : "primary"}
                   />
                 ) : (
                   <p className="build-empty">No equipment saved in this set.</p>

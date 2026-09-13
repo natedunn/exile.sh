@@ -177,3 +177,18 @@ test("auto-preview shows checking and loading feedback without resizing the butt
     expect(state!.width).toBe(originalWidth)
   }
 })
+
+test("legacy /builds links redirect to the Build Bin", async ({ page }) => {
+  await page.goto("/builds")
+  await expect(page).toHaveURL(/\/build-bin$/)
+  await expect(
+    page.getByRole("heading", { name: "A build worth sharing." })
+  ).toBeVisible()
+  const slug = "123e4567-e89b-12d3-a456-426614174000"
+  await page.goto(`/builds/${slug}`)
+  await expect(page).toHaveURL(new RegExp(`/build-bin/${slug}$`))
+  // The slug survives the redirect; an unknown one lands on the not-found page.
+  await expect(
+    page.getByRole("heading", { name: "Build not found." })
+  ).toBeVisible()
+})

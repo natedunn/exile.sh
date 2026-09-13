@@ -23,5 +23,5 @@
 /offline
   Cache-Control: public, max-age=0, must-revalidate
 
-/class-art/*
+/class-art/*.webp
   Cache-Control: public, max-age=31536000, immutable

@@ -1084,6 +1084,12 @@ export function PassiveTree({
             </p>
           )}
         </div>
+        {unmapped.length > 0 && (
+          <p className="build-muted">
+            {unmapped.length} special or unknown node IDs cannot be placed on
+            this map: {unmapped.join(", ")}
+          </p>
+        )}
         <p className="build-muted tree-snapshot-note">
           This build is a snapshot from Path of Building, not a live character.
           Stats reflect the saved setup and do not update when you browse other
@@ -1197,12 +1203,6 @@ export function PassiveTree({
           )}
         </section>
       </aside>
-      {unmapped.length > 0 && (
-        <p className="build-muted">
-          {unmapped.length} special or unknown node IDs cannot be placed on this
-          map: {unmapped.join(", ")}
-        </p>
-      )}
     </>
   )
 }
