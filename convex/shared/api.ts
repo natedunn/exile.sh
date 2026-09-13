@@ -20,6 +20,13 @@ export const api = {
     movers: createApiLeaf<"query", typeof import("../functions/economy").movers>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").movers>("economy:movers"), { type: "query" }),
     overview: createApiLeaf<"query", typeof import("../functions/economy").overview>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").overview>("economy:overview"), { type: "query" }),
   },
+  patchStore: {
+    latest: createApiLeaf<"query", typeof import("../functions/patchStore").latest>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchStore").latest>("patchStore:latest"), { type: "query" }),
+    post: createApiLeaf<"query", typeof import("../functions/patchStore").post>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchStore").post>("patchStore:post"), { type: "query" }),
+  },
+  xStore: {
+    latest: createApiLeaf<"query", typeof import("../functions/xStore").latest>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/xStore").latest>("xStore:latest"), { type: "query" }),
+  },
   http: undefined as unknown as typeof httpRouter,
   _http: {
   },

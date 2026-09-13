@@ -17,6 +17,9 @@ export function BuildShell({ children }: { children: ReactNode }) {
           <Link to="/build-bin" activeProps={{ className: "nav-active" }}>
             Build Bin
           </Link>
+          <Link to="/patch-notes" activeProps={{ className: "nav-active" }}>
+            Patch Notes
+          </Link>
         </nav>
         <span className="build-game">Path of Exile 2</span>
       </header>

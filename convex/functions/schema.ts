@@ -97,7 +97,75 @@ export const buildLimits = convexTable(
   (t) => [index("key").on(t.key)]
 )
 
+export const xPosts = convexTable(
+  "xPosts",
+  {
+    postId: text().notNull(),
+    accountId: text().notNull(),
+    body: text().notNull(),
+    publishedAt: integer().notNull(),
+    originalUrl: text().notNull(),
+    editIds: json<string[]>().notNull(),
+    hidden: integer().notNull(),
+    fetchedAt: integer().notNull(),
+  },
+  (t) => [
+    index("by_postId").on(t.postId),
+    index("by_hidden_publishedAt").on(t.hidden, t.publishedAt),
+  ]
+)
+
+export const xSync = convexTable(
+  "xSync",
+  {
+    key: text().notNull(),
+    accountId: text().notNull(),
+    newestId: text().notNull(),
+    pendingNewestId: text().notNull(),
+    paginationToken: text().notNull(),
+    nextPollAt: integer().notNull(),
+    activeUntil: integer().notNull(),
+    leaseUntil: integer().notNull(),
+    leaseToken: text().notNull(),
+    failures: integer().notNull(),
+    lastError: text().notNull(),
+    lastSuccessAt: integer().notNull(),
+  },
+  (t) => [index("by_key").on(t.key)]
+)
+
+export const patchThreads = convexTable(
+  "patchThreads",
+  {
+    threadId: text().notNull(),
+    title: text().notNull(),
+    publishedAt: integer().notNull(),
+    nextFetchAt: integer().notNull(),
+    leaseToken: text().notNull(),
+    lastError: text().notNull(),
+    fetchedAt: integer().notNull(),
+  },
+  (t) => [
+    index("by_threadId").on(t.threadId),
+    index("by_publishedAt").on(t.publishedAt),
+  ]
+)
+
+export const patchBodies = convexTable(
+  "patchBodies",
+  {
+    threadId: text().notNull(),
+    title: text().notNull(),
+    html: text().notNull(),
+  },
+  (t) => [index("by_threadId").on(t.threadId)]
+)
+
 export const tables = {
+  patchThreads,
+  patchBodies,
+  xPosts,
+  xSync,
   history,
   snapshots,
   pairSnapshots,
