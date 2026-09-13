@@ -14,15 +14,15 @@ export function BuildShell({ children }: { children: ReactNode }) {
           <Link to="/economy" search={defaultFilters}>
             Economy
           </Link>
-          <Link to="/builds" activeProps={{ className: "nav-active" }}>
-            Builds
+          <Link to="/build-bin" activeProps={{ className: "nav-active" }}>
+            Build Bin
           </Link>
         </nav>
         <span className="build-game">Path of Exile 2</span>
       </header>
       <main id="main">{children}</main>
       <footer>
-        <Link className="footer-brand" to="/builds">
+        <Link className="footer-brand" to="/build-bin">
           exile.sh
         </Link>
         <div className="footer-info">

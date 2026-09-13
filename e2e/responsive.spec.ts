@@ -87,7 +87,7 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
         nav.getByRole("link", { name: "Economy", exact: true })
       ).toBeVisible()
       await expect(
-        nav.getByRole("link", { name: "Builds", exact: true })
+        nav.getByRole("link", { name: "Build Bin", exact: true })
       ).toBeVisible()
       await nav.getByRole("link", { name: "Economy", exact: true }).focus()
       await page.keyboard.press("Escape")

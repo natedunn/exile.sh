@@ -2,14 +2,6 @@
   margin: 0 auto;
   max-width: 940px;
 }
-.equipment-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-  min-height: 34px;
-}
 .equipment-footer {
   font: 11px/1.6 var(--font-mono);
   color: var(--color-text-muted);
@@ -39,7 +31,7 @@
   grid-template-rows: repeat(8, minmax(0, 1fr));
   gap: 1.503759%;
   padding: 36px;
-  border: 1px solid var(--color-brand-deep);
+  border: 1px solid var(--color-rule);
   background:
     radial-gradient(
       ellipse at 50% 50%,
@@ -480,10 +472,6 @@
   margin: 12px 0 0;
 }
 @media (max-width: 640px) {
-  .equipment-toolbar {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
   .equipment-board {
     padding: 12px;
   }

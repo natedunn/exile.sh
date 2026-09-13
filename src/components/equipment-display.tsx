@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react"
-import type { ReactNode } from "react"
 import {
   Gem,
   Shield,
@@ -310,24 +309,47 @@ function GearSlot({
     </div>
   )
 }
+export type WeaponSet = "primary" | "swap"
+const swapSlots = new Set(["Weapon 1 Swap", "Weapon 2 Swap"])
+
+export function equipmentHasSwap(gear: BuildSnapshot["itemSets"][number]) {
+  return gear.slots.some(
+    (s) => s.itemId && s.itemId !== "0" && swapSlots.has(s.name)
+  )
+}
+export function WeaponSetSwitch({
+  value,
+  onChange,
+}: {
+  value: WeaponSet
+  onChange: (value: WeaponSet) => void
+}) {
+  return (
+    <Tabs
+      value={value}
+      onValueChange={(v) => onChange(v === "swap" ? "swap" : "primary")}
+      className="equipment-weapon-switch"
+    >
+      <TabsList aria-label="Weapon set">
+        <TabsTrigger value="primary">Set I</TabsTrigger>
+        <TabsTrigger value="swap">Set II</TabsTrigger>
+      </TabsList>
+    </Tabs>
+  )
+}
 export function EquipmentDisplay({
   build,
   gear,
-  setPicker,
+  weapons = "primary",
 }: {
-  setPicker?: ReactNode
   build: BuildSnapshot
   gear: BuildSnapshot["itemSets"][number]
+  weapons?: WeaponSet
 }) {
-  const [weapons, setWeapons] = useState("primary")
   const equipped = gear.slots.filter((s) => s.itemId && s.itemId !== "0")
-  const hasSwap = equipped.some(
-    (s) => s.name === "Weapon 1 Swap" || s.name === "Weapon 2 Swap"
-  )
   const known = new Set<string>([
     ...EQUIPMENT_SLOTS.map((s) => s.name),
-    "Weapon 1 Swap",
-    "Weapon 2 Swap",
+    ...swapSlots,
   ])
   const extras = equipped.filter((s) => !known.has(s.name))
   function slotItem(name: string) {
@@ -339,24 +361,6 @@ export function EquipmentDisplay({
   }
   return (
     <div className="equipment-display">
-      <div className="equipment-toolbar build-section-heading">
-        <h2>Equipment</h2>
-        <div className="equipment-controls">
-          {setPicker}
-          {hasSwap && (
-            <Tabs
-              value={weapons}
-              onValueChange={(v) => setWeapons(String(v))}
-              className="equipment-weapon-switch"
-            >
-              <TabsList aria-label="Weapon set">
-                <TabsTrigger value="primary">Set I</TabsTrigger>
-                <TabsTrigger value="swap">Set II</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          )}
-        </div>
-      </div>
       <div className="equipment-board" aria-label="Equipped items">
         {EQUIPMENT_SLOTS.map((slot) => {
           const name =

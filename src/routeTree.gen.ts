@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MoversRouteImport } from './routes/movers'
+import { Route as BuildBinIndexRouteImport } from './routes/build-bin.index'
+import { Route as BuildBinSlugRouteImport } from './routes/build-bin.$slug'
 import { Route as BuildsIndexRouteImport } from './routes/builds.index'
 import { Route as BuildsSlugRouteImport } from './routes/builds.$slug'
 import { Route as EconomyIndexRouteImport } from './routes/economy.index'
@@ -37,6 +39,16 @@ const MethodologyRoute = MethodologyRouteImport.update({
 const MoversRoute = MoversRouteImport.update({
   id: '/movers',
   path: '/movers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildBinIndexRoute = BuildBinIndexRouteImport.update({
+  id: '/build-bin/',
+  path: '/build-bin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildBinSlugRoute = BuildBinSlugRouteImport.update({
+  id: '/build-bin/$slug',
+  path: '/build-bin/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuildsIndexRoute = BuildsIndexRouteImport.update({
@@ -70,9 +82,11 @@ export interface FileRoutesByFullPath {
   '/economy': typeof EconomyRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
+  '/build-bin/$slug': typeof BuildBinSlugRoute
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
+  '/build-bin/': typeof BuildBinIndexRoute
   '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
 }
@@ -80,9 +94,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
+  '/build-bin/$slug': typeof BuildBinSlugRoute
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
+  '/build-bin': typeof BuildBinIndexRoute
   '/builds': typeof BuildsIndexRoute
   '/economy': typeof EconomyIndexRoute
 }
@@ -92,9 +108,11 @@ export interface FileRoutesById {
   '/economy': typeof EconomyRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
+  '/build-bin/$slug': typeof BuildBinSlugRoute
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
+  '/build-bin/': typeof BuildBinIndexRoute
   '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
 }
@@ -105,9 +123,11 @@ export interface FileRouteTypes {
     | '/economy'
     | '/methodology'
     | '/movers'
+    | '/build-bin/$slug'
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
+    | '/build-bin/'
     | '/builds/'
     | '/economy/'
   fileRoutesByTo: FileRoutesByTo
@@ -115,9 +135,11 @@ export interface FileRouteTypes {
     | '/'
     | '/methodology'
     | '/movers'
+    | '/build-bin/$slug'
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
+    | '/build-bin'
     | '/builds'
     | '/economy'
   id:
@@ -126,9 +148,11 @@ export interface FileRouteTypes {
     | '/economy'
     | '/methodology'
     | '/movers'
+    | '/build-bin/$slug'
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
+    | '/build-bin/'
     | '/builds/'
     | '/economy/'
   fileRoutesById: FileRoutesById
@@ -138,7 +162,9 @@ export interface RootRouteChildren {
   EconomyRoute: typeof EconomyRouteWithChildren
   MethodologyRoute: typeof MethodologyRoute
   MoversRoute: typeof MoversRoute
+  BuildBinSlugRoute: typeof BuildBinSlugRoute
   BuildsSlugRoute: typeof BuildsSlugRoute
+  BuildBinIndexRoute: typeof BuildBinIndexRoute
   BuildsIndexRoute: typeof BuildsIndexRoute
 }
 
@@ -170,6 +196,20 @@ declare module '@tanstack/react-router' {
       path: '/movers'
       fullPath: '/movers'
       preLoaderRoute: typeof MoversRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/build-bin/': {
+      id: '/build-bin/'
+      path: '/build-bin'
+      fullPath: '/build-bin/'
+      preLoaderRoute: typeof BuildBinIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/build-bin/$slug': {
+      id: '/build-bin/$slug'
+      path: '/build-bin/$slug'
+      fullPath: '/build-bin/$slug'
+      preLoaderRoute: typeof BuildBinSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/builds/': {
@@ -230,7 +270,9 @@ const rootRouteChildren: RootRouteChildren = {
   EconomyRoute: EconomyRouteWithChildren,
   MethodologyRoute: MethodologyRoute,
   MoversRoute: MoversRoute,
+  BuildBinSlugRoute: BuildBinSlugRoute,
   BuildsSlugRoute: BuildsSlugRoute,
+  BuildBinIndexRoute: BuildBinIndexRoute,
   BuildsIndexRoute: BuildsIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -977,14 +977,14 @@ export function PassiveTree({
   })
   if (!supported.has(version))
     return (
-      <p className="build-empty">
+      <p className="build-section-main build-empty">
         The map for this tree version is not available yet. Its {nodes.length}{" "}
         node IDs are preserved in the export.
       </p>
     )
   if (tree.isError)
     return (
-      <div className="build-empty">
+      <div className="build-section-main build-empty">
         Tree data could not be loaded.{" "}
         <Button variant="outline" onClick={() => tree.refetch()}>
           Retry
@@ -993,7 +993,7 @@ export function PassiveTree({
     )
   if (!tree.data)
     return (
-      <p className="build-empty" role="status">
+      <p className="build-section-main build-empty" role="status">
         Loading passive tree…
       </p>
     )
@@ -1003,210 +1003,200 @@ export function PassiveTree({
   const attributes = treeAttributes(tree.data.nodes, nodes, attributeOverrides)
   return (
     <>
-      <div className="tree-overview">
-        <div className="tree-overview-left">
-          {maps.map((map) => (
-            <section key={version + map.name + nodes.join(",")}>
-              {map.name ? (
-                <>
-                  <h3>{map.name} ascendancy</h3>
+      <div className="build-section-main tree-overview-left">
+        {maps.map((map) => (
+          <section key={version + map.name + nodes.join(",")}>
+            {map.name ? (
+              <>
+                <h3>{map.name} ascendancy</h3>
+                <TreeMap
+                  data={map.data}
+                  nodes={nodes}
+                  label={map.name}
+                  version={version}
+                  jewels={[]}
+                  weaponSets={weaponSets}
+                  palette={palette}
+                  mode="ascendancy"
+                />
+              </>
+            ) : (
+              <Dialog>
+                <div className="tree-preview">
                   <TreeMap
                     data={map.data}
                     nodes={nodes}
-                    label={map.name}
+                    label="Passive tree preview"
                     version={version}
-                    jewels={[]}
+                    jewels={jewels}
                     weaponSets={weaponSets}
                     palette={palette}
-                    mode="ascendancy"
+                    mode="preview"
                   />
-                </>
-              ) : (
-                <Dialog>
-                  <div className="tree-preview">
-                    <TreeMap
-                      data={map.data}
-                      nodes={nodes}
-                      label="Passive tree preview"
-                      version={version}
-                      jewels={jewels}
-                      weaponSets={weaponSets}
-                      palette={palette}
-                      mode="preview"
-                    />
-                    <DialogTrigger
-                      render={<Button className="tree-open-button" />}
-                    >
-                      <span>Open tree</span>
-                    </DialogTrigger>
-                  </div>
-                  <DialogContent className="tree-fullscreen">
-                    <DialogTitle>Passive tree</DialogTitle>
-                    <TreeMap
-                      data={map.data}
-                      nodes={nodes}
-                      label="Passive tree"
-                      version={version}
-                      jewels={jewels}
-                      weaponSets={weaponSets}
-                      palette={palette}
-                      onPaletteChange={changePalette}
-                    />
-                  </DialogContent>
-                </Dialog>
-              )}
-            </section>
-          ))}
-          <p className="build-muted tree-snapshot-note">
-            This build is a snapshot from Path of Building, not a live
-            character. Stats reflect the saved setup and do not update when you
-            browse other sets.{" "}
-            <a href="/methodology">Data sources & attribution</a>.
-          </p>
-        </div>
-        <aside className="tree-overview-right">
-          <div className="tree-socketed-jewels">
-            <h3>Socketed jewels</h3>
-            {jewels.map((jewel) => {
-              const art = describeEquipment(jewel.item).artwork?.image
-              return (
-                <section key={jewel.origin.id}>
-                  {art ? (
-                    <img
-                      src={art}
-                      alt=""
-                      width={48}
-                      height={48}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <span className="tree-jewel-fallback">
-                      <Diamond aria-hidden="true" />
-                    </span>
-                  )}
-                  <div>
-                    <h4>{jewel.item.name}</h4>
-                    <Lines items={jewel.lines.slice(2)} />
-                    {!jewel.active && <p>Socket not allocated in this tree.</p>}
-                    {jewel.warning && <p>{jewel.warning}</p>}
-                  </div>
-                </section>
-              )
-            })}
-            {!jewels.length && (
-              <p className="build-muted">
-                No socketed jewels saved in this tree.
-              </p>
-            )}
-          </div>
-          <div className="tree-key-passives">
-            <h3>Keystone passives</h3>
-            {tree.data.nodes
-              .filter((n) => nodes.includes(n.id) && n.keystone)
-              .map((n) => (
-                <section key={n.id}>
-                  {artwork.data?.[n.icon] && (
-                    <img
-                      src={artwork.data[n.icon]}
-                      alt=""
-                      width={48}
-                      height={48}
-                      loading="lazy"
-                    />
-                  )}
-                  <div>
-                    <h4>{n.name}</h4>
-                    <Lines items={n.stats} />
-                  </div>
-                </section>
-              ))}
-            {!tree.data.nodes.some(
-              (n) => nodes.includes(n.id) && n.keystone
-            ) && (
-              <p className="build-muted">
-                No Keystone passives allocated in this tree.
-              </p>
-            )}
-          </div>
-          <section className="tree-attributes">
-            <div className="tree-attributes-heading">
-              <h3>Attributes from passives</h3>
-              <Popover>
-                <PopoverTrigger
-                  openOnHover
-                  render={<Button variant="ghost" size="icon-sm" />}
-                  aria-label="About passive attributes"
-                >
-                  <Info aria-hidden="true" />
-                </PopoverTrigger>
-                <PopoverContent
-                  className="gem-reference-info"
-                  side="top"
-                  collisionPadding={12}
-                >
-                  <PopoverTitle>Selected passive attributes</PopoverTitle>
-                  <PopoverDescription>
-                    Attribute nodes are small passives dedicated to flat
-                    attributes, including the author’s saved choices. Other
-                    passives includes flat bonuses on mixed nodes, notables, and
-                    ascendancies. Percentage increases are listed separately,
-                    not applied to the flat totals. These are base tree values:
-                    character starting attributes, gear, jewels, radius effects,
-                    and conditional bonuses are excluded.
-                    {(weaponSetLists[0].length > 0 ||
-                      weaponSetLists[1].length > 0) &&
-                      " Counts include allocations from both weapon sets, once per node; these are not simultaneous character totals."}
-                  </PopoverDescription>
-                </PopoverContent>
-              </Popover>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Attribute</th>
-                  <th>Attribute nodes</th>
-                  <th>Other passives</th>
-                  <th>Flat total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {attributes.rows.map((row) => (
-                  <tr key={row.name}>
-                    <th scope="row">{row.name}</th>
-                    <td>
-                      <strong>+{row.dedicated}</strong>
-                      <small>
-                        {row.nodes} {row.nodes === 1 ? "node" : "nodes"}
-                      </small>
-                    </td>
-                    <td>+{row.other}</td>
-                    <td>
-                      <strong>+{row.dedicated + row.other}</strong>
-                      {row.increased !== 0 && (
-                        <small>
-                          {row.increased > 0 ? "+" : ""}
-                          {row.increased}% separately
-                        </small>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {attributes.unresolved > 0 && (
-              <p>
-                {attributes.unresolved} attribute{" "}
-                {attributes.unresolved === 1 ? "node has" : "nodes have"} no
-                saved choice and {attributes.unresolved === 1 ? "is" : "are"}{" "}
-                excluded.
-              </p>
-            )}
-            {attributes.unmapped > 0 && (
-              <p>{attributes.unmapped} unmapped node IDs are excluded.</p>
+                  <DialogTrigger
+                    render={<Button className="tree-open-button" />}
+                  >
+                    <span>Open tree</span>
+                  </DialogTrigger>
+                </div>
+                <DialogContent className="tree-fullscreen">
+                  <DialogTitle>Passive tree</DialogTitle>
+                  <TreeMap
+                    data={map.data}
+                    nodes={nodes}
+                    label="Passive tree"
+                    version={version}
+                    jewels={jewels}
+                    weaponSets={weaponSets}
+                    palette={palette}
+                    onPaletteChange={changePalette}
+                  />
+                </DialogContent>
+              </Dialog>
             )}
           </section>
-        </aside>
+        ))}
+        <div className="tree-socketed-jewels">
+          <h3>Socketed jewels</h3>
+          {jewels.map((jewel) => {
+            const art = describeEquipment(jewel.item).artwork?.image
+            return (
+              <section key={jewel.origin.id}>
+                {art ? (
+                  <img src={art} alt="" width={48} height={48} loading="lazy" />
+                ) : (
+                  <span className="tree-jewel-fallback">
+                    <Diamond aria-hidden="true" />
+                  </span>
+                )}
+                <div>
+                  <h4>{jewel.item.name}</h4>
+                  <Lines items={jewel.lines.slice(2)} />
+                  {!jewel.active && <p>Socket not allocated in this tree.</p>}
+                  {jewel.warning && <p>{jewel.warning}</p>}
+                </div>
+              </section>
+            )
+          })}
+          {!jewels.length && (
+            <p className="build-muted">
+              No socketed jewels saved in this tree.
+            </p>
+          )}
+        </div>
+        <p className="build-muted tree-snapshot-note">
+          This build is a snapshot from Path of Building, not a live character.
+          Stats reflect the saved setup and do not update when you browse other
+          sets. {nodes.length} saved node IDs; every saved tree specification is
+          preserved in the PoB code.{" "}
+          <a href="/methodology">Data sources & attribution</a>.
+        </p>
       </div>
+      <aside className="build-section-aside tree-overview-right">
+        <div className="tree-key-passives">
+          <h3>Keystone passives</h3>
+          {tree.data.nodes
+            .filter((n) => nodes.includes(n.id) && n.keystone)
+            .map((n) => (
+              <section key={n.id}>
+                {artwork.data?.[n.icon] && (
+                  <img
+                    src={artwork.data[n.icon]}
+                    alt=""
+                    width={48}
+                    height={48}
+                    loading="lazy"
+                  />
+                )}
+                <div>
+                  <h4>{n.name}</h4>
+                  <Lines items={n.stats} />
+                </div>
+              </section>
+            ))}
+          {!tree.data.nodes.some((n) => nodes.includes(n.id) && n.keystone) && (
+            <p className="build-muted">
+              No Keystone passives allocated in this tree.
+            </p>
+          )}
+        </div>
+        <section className="tree-attributes">
+          <div className="tree-attributes-heading">
+            <h3>Attributes from passives</h3>
+            <Popover>
+              <PopoverTrigger
+                openOnHover
+                render={<Button variant="ghost" size="icon-sm" />}
+                aria-label="About passive attributes"
+              >
+                <Info aria-hidden="true" />
+              </PopoverTrigger>
+              <PopoverContent
+                className="gem-reference-info"
+                side="top"
+                collisionPadding={12}
+              >
+                <PopoverTitle>Selected passive attributes</PopoverTitle>
+                <PopoverDescription>
+                  Attribute nodes are small passives dedicated to flat
+                  attributes, including the author’s saved choices. Other
+                  passives includes flat bonuses on mixed nodes, notables, and
+                  ascendancies. Percentage increases are listed separately, not
+                  applied to the flat totals. These are base tree values:
+                  character starting attributes, gear, jewels, radius effects,
+                  and conditional bonuses are excluded.
+                  {(weaponSetLists[0].length > 0 ||
+                    weaponSetLists[1].length > 0) &&
+                    " Counts include allocations from both weapon sets, once per node; these are not simultaneous character totals."}
+                </PopoverDescription>
+              </PopoverContent>
+            </Popover>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Nodes</th>
+                <th>Other</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {attributes.rows.map((row) => (
+                <tr key={row.name}>
+                  <th scope="row">{row.name}</th>
+                  <td>
+                    <strong>+{row.dedicated}</strong>
+                    <small>
+                      {row.nodes} {row.nodes === 1 ? "node" : "nodes"}
+                    </small>
+                  </td>
+                  <td>+{row.other}</td>
+                  <td>
+                    <strong>+{row.dedicated + row.other}</strong>
+                    {row.increased !== 0 && (
+                      <small>
+                        {row.increased > 0 ? "+" : ""}
+                        {row.increased}% separately
+                      </small>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {attributes.unresolved > 0 && (
+            <p>
+              {attributes.unresolved} attribute{" "}
+              {attributes.unresolved === 1 ? "node has" : "nodes have"} no saved
+              choice and {attributes.unresolved === 1 ? "is" : "are"} excluded.
+            </p>
+          )}
+          {attributes.unmapped > 0 && (
+            <p>{attributes.unmapped} unmapped node IDs are excluded.</p>
+          )}
+        </section>
+      </aside>
       {unmapped.length > 0 && (
         <p className="build-muted">
           {unmapped.length} special or unknown node IDs cannot be placed on this
