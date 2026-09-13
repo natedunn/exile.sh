@@ -6,15 +6,18 @@ function Table({
   scrollLabel = "Scrollable table",
   ...props
 }: React.ComponentProps<"table"> & { scrollLabel?: string }) {
-  // The scroll region only joins the tab order while columns overflow, so
-  // keyboard users can arrow through wide tables without a stray focus stop
-  // when everything already fits.
+  // The scroll region only joins the tab order while it overflows in either
+  // direction (wide tables scroll sideways; capped ones scroll down), so
+  // keyboard users can scroll it without a stray focus stop when it fits.
   const container = React.useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = React.useState(false)
   React.useEffect(() => {
     const el = container.current
     if (!el) return
-    const measure = () => setOverflows(el.scrollWidth > el.clientWidth)
+    const measure = () =>
+      setOverflows(
+        el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight
+      )
     measure()
     const observer = new ResizeObserver(measure)
     observer.observe(el)

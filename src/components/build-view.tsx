@@ -174,7 +174,7 @@ export type BuildSelection = {
   items?: string
   weapons?: WeaponSet
   skills?: string
-  tree?: string
+  tree?: number
 }
 
 export function BuildView({
@@ -201,7 +201,7 @@ export function BuildView({
     items: build.activeItemSet,
     weapons: "primary",
     skills: build.activeSkillSet,
-    tree: String(build.activeSpec),
+    tree: build.activeSpec,
   }
   const select = <TKey extends keyof BuildSelection>(
     key: TKey,
@@ -215,8 +215,7 @@ export function BuildView({
   const weapons = selection.weapons ?? defaults.weapons
   const skillSet = selection.skills ?? defaults.skills
   const specIndex =
-    selection.tree !== undefined &&
-    build.treeSpecs.at(Number(selection.tree)) !== undefined
+    selection.tree !== undefined && build.treeSpecs.at(selection.tree)
       ? selection.tree
       : defaults.tree
   const [message, setMessage] = useState("")
@@ -264,7 +263,7 @@ export function BuildView({
       return build.treeSpecs
     }
   }, [build, code])
-  const spec = treeSpecs.at(Number(specIndex))
+  const spec = treeSpecs.at(specIndex)
   const portrait =
     classPortraits[build.ascendancy] ?? classPortraits[build.className]
   async function copy(kind: string, text: string) {
@@ -422,8 +421,8 @@ export function BuildView({
                   id: String(i),
                   title: s.title,
                 }))}
-                value={specIndex}
-                onChange={(v) => select("tree", v)}
+                value={String(specIndex)}
+                onChange={(v) => select("tree", Number(v))}
               />
             </div>
             <div className="build-section-body">

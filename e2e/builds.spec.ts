@@ -192,3 +192,44 @@ test("legacy /builds links redirect to the Build Bin", async ({ page }) => {
     page.getByRole("heading", { name: "Build not found." })
   ).toBeVisible()
 })
+
+test("a shared build keeps its selected sets in the URL", async ({ page }) => {
+  await page.goto(buildsURL)
+  await page.getByLabel("PoB export or pobb.in link").fill(code)
+  await expect(page.locator(".build-identity h1")).toContainText("Level 90")
+  // The unsaved preview keeps its selection to itself.
+  await page.getByRole("tab", { name: "Set II", exact: true }).click()
+  expect(new URL(page.url()).search).toBe("")
+  await page.getByRole("button", { name: "Share", exact: true }).click()
+  await page.getByRole("button", { name: "Create share link" }).click()
+  await expect(page).toHaveURL(/\/build-bin\/[0-9a-f-]{36}$/)
+  const shared = new URL(page.url()).pathname
+  await expect(page.locator(".build-identity h1")).toContainText("Level 90")
+  const setTwo = page.getByRole("tab", { name: "Set II", exact: true })
+  const tree = page.getByRole("combobox", {
+    name: "Tree specification",
+    exact: true,
+  })
+  await setTwo.click()
+  await expect(page).toHaveURL(/\?weapons=swap$/)
+  await tree.click()
+  await page.getByRole("option").nth(1).click()
+  await expect(page).toHaveURL(/weapons=swap/)
+  await expect(page).toHaveURL(/tree=1/)
+  const secondSpec = await tree.innerText()
+  await page.reload({ waitUntil: "networkidle" })
+  await expect(setTwo).toHaveAttribute("aria-selected", "true")
+  await expect(tree).toContainText(secondSpec)
+  // Selecting the build's own active set drops the parameter again.
+  await page.getByRole("tab", { name: "Set I", exact: true }).click()
+  await expect(page).not.toHaveURL(/weapons=/)
+  await expect(page).toHaveURL(/tree=1/)
+  // Unknown values fall back to the saved selection instead of a blank view.
+  await page.goto(`${shared}?tree=99&weapons=nonsense`)
+  await expect(
+    page.getByRole("tab", { name: "Set I", exact: true })
+  ).toHaveAttribute("aria-selected", "true")
+  await expect(
+    page.getByRole("img", { name: /mapped saved passive nodes/ }).first()
+  ).toBeVisible()
+})

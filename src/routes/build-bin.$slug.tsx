@@ -10,7 +10,7 @@ const selection = z.object({
   items: z.string().optional().catch(undefined),
   weapons: z.enum(["primary", "swap"]).optional().catch(undefined),
   skills: z.string().optional().catch(undefined),
-  tree: z.string().optional().catch(undefined),
+  tree: z.coerce.number().int().min(0).optional().catch(undefined),
 }) satisfies z.ZodType<BuildSelection>
 
 export const Route = createFileRoute("/build-bin/$slug")({
