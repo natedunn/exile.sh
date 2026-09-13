@@ -15,6 +15,23 @@ bun run dev
 
 Use `bun run convex:init` to initialize without starting the servers. A fresh backend receives a small synthetic economy dataset covering charts, movers, quote conversions, league switching, and empty states; it does not contain raw archives or start the collector. Set `EXILE_SEED=0` to opt out. `bun run seed:local` safely fills an empty running backend and no-ops when economy data already exists. `bun run dev:shared` remains available when you intentionally want the cloud development deployment configured in `.env.local`.
 
+### Worktree environment files
+
+`bun install` installs a lightweight Git `post-checkout` hook shared by this
+checkout's worktrees. New worktrees automatically copy missing, Git-ignored
+`.env`, `.env.*`, `.dev.vars`, and `.dev.vars.*` files from the main checkout
+(the original repository directory, regardless of its branch), including files
+in `convex/`. Existing files are never overwritten, and tracked examples are
+not copied. The hook only copies files; it does not install dependencies or
+start a backend. Node must be available when creating the worktree.
+
+For an existing worktree, run `bun run env:sync`; `bun install` also performs
+this sync. Copies are independent, so later changes in the main checkout do
+not replace worktree-specific values. Custom hook managers and existing
+`post-checkout` hooks are preserved; in that case, run `bun run env:sync` from
+your workspace setup command. This copies local files only, not server-side
+environment variables.
+
 ## What works
 
 - Public PoE2 economy browser with league/category filters, search, sorting, pagination, and a local watchlist.
