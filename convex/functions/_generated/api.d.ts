@@ -98,6 +98,13 @@ export declare const api: {
       } | null
     >;
   };
+  patchStore: {
+    latest: FunctionReference<"query", "public", {}, any>;
+    post: FunctionReference<"query", "public", { threadId: string }, any>;
+  };
+  xStore: {
+    latest: FunctionReference<"query", "public", {}, any>;
+  };
 };
 
 /**
@@ -149,6 +156,37 @@ export declare const internal: {
       "action",
       "internal",
       { hour?: number; remaining?: number },
+      any
+    >;
+  };
+  patchIngestion: {
+    poll: FunctionReference<"action", "internal", {}, any>;
+    post: FunctionReference<"action", "internal", { threadId: string }, any>;
+  };
+  patchStore: {
+    acquire: FunctionReference<
+      "mutation",
+      "internal",
+      { threadId: string; token: string },
+      any
+    >;
+    discover: FunctionReference<
+      "mutation",
+      "internal",
+      {
+        items: Array<{ publishedAt: number; threadId: string; title: string }>;
+      },
+      any
+    >;
+    finish: FunctionReference<
+      "mutation",
+      "internal",
+      {
+        error: string;
+        post?: { html: string; title: string };
+        threadId: string;
+        token: string;
+      },
       any
     >;
   };
@@ -233,6 +271,46 @@ export declare const internal: {
       },
       any
     >;
+  };
+  xIngestion: {
+    poll: FunctionReference<"action", "internal", {}, any>;
+  };
+  xStore: {
+    acquire: FunctionReference<"mutation", "internal", { token: string }, any>;
+    hide: FunctionReference<
+      "mutation",
+      "internal",
+      { hidden: boolean; postId: string },
+      any
+    >;
+    release: FunctionReference<
+      "mutation",
+      "internal",
+      { error: string; retryAt?: number; token: string },
+      any
+    >;
+    rememberAccount: FunctionReference<
+      "mutation",
+      "internal",
+      { accountId: string; token: string },
+      any
+    >;
+    savePage: FunctionReference<
+      "mutation",
+      "internal",
+      {
+        nextToken: string;
+        posts: Array<{
+          created_at: string;
+          edit_history_tweet_ids?: Array<string>;
+          id: string;
+          text: string;
+        }>;
+        token: string;
+      },
+      any
+    >;
+    state: FunctionReference<"query", "internal", {}, any>;
   };
 };
 

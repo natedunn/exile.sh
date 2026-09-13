@@ -482,6 +482,54 @@ export type DataModel = {
     searchIndexes: {};
     vectorIndexes: {};
   };
+  patchBodies: {
+    document: {
+      html: string;
+      threadId: string;
+      title: string;
+      _id: Id<"patchBodies">;
+      _creationTime: number;
+    };
+    fieldPaths: "_creationTime" | "_id" | "html" | "threadId" | "title";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      by_threadId: ["threadId", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
+  patchThreads: {
+    document: {
+      fetchedAt: number;
+      lastError: string;
+      leaseToken: string;
+      nextFetchAt: number;
+      publishedAt: number;
+      threadId: string;
+      title: string;
+      _id: Id<"patchThreads">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "fetchedAt"
+      | "lastError"
+      | "leaseToken"
+      | "nextFetchAt"
+      | "publishedAt"
+      | "threadId"
+      | "title";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      by_publishedAt: ["publishedAt", "_creationTime"];
+      by_threadId: ["threadId", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
   snapshots: {
     document: {
       hour: number;
@@ -505,6 +553,79 @@ export type DataModel = {
       by_creation_time: ["_creationTime"];
       hour: ["hour", "_creationTime"];
       league_hour: ["league", "hour", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
+  xPosts: {
+    document: {
+      accountId: string;
+      body: string;
+      editIds: any;
+      fetchedAt: number;
+      hidden: number;
+      originalUrl: string;
+      postId: string;
+      publishedAt: number;
+      _id: Id<"xPosts">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "accountId"
+      | "body"
+      | "editIds"
+      | "fetchedAt"
+      | "hidden"
+      | "originalUrl"
+      | "postId"
+      | "publishedAt";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      by_hidden_publishedAt: ["hidden", "publishedAt", "_creationTime"];
+      by_postId: ["postId", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
+  xSync: {
+    document: {
+      accountId: string;
+      activeUntil: number;
+      failures: number;
+      key: string;
+      lastError: string;
+      lastSuccessAt: number;
+      leaseToken: string;
+      leaseUntil: number;
+      newestId: string;
+      nextPollAt: number;
+      paginationToken: string;
+      pendingNewestId: string;
+      _id: Id<"xSync">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "accountId"
+      | "activeUntil"
+      | "failures"
+      | "key"
+      | "lastError"
+      | "lastSuccessAt"
+      | "leaseToken"
+      | "leaseUntil"
+      | "newestId"
+      | "nextPollAt"
+      | "paginationToken"
+      | "pendingNewestId";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      by_key: ["key", "_creationTime"];
     };
     searchIndexes: {};
     vectorIndexes: {};

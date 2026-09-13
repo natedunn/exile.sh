@@ -88,3 +88,81 @@ The public `economy:movers` query accepts `24h`, `48h`, `7d`, `30d`, or `90d` an
 ## Freshness banner
 
 The UI checks freshness once per minute. A source timestamp marks the start of a completed hour: the 20:00 digest covers 20:00–21:00, and its replacement is scheduled for 22:05. The banner stays hidden through 22:35, giving collection a 30-minute grace period after that next scheduled refresh. The same UTC calculation applies across midnight. A newer snapshot clears the warning automatically. The banner describes delayed data, not a diagnosed collector failure; an initial historical backfill can legitimately trigger it until caught up.
+
+## X sidebar storage and polling
+
+The sidebar reads the latest five visible posts from Convex's `xPosts` table.
+Page requests never call X. Posts remain in the database, including older posts
+that are no longer in the sidebar. Each record stores the original post ID, text,
+publication time, original URL, account ID, edit history IDs, and import time.
+
+Enable collection on **one Convex deployment** with these backend variables:
+
+- `X_BEARER_TOKEN`: the X app's bearer token (a Convex secret, not a `VITE_` variable).
+- `X_POLL_ENABLED=true`: explicit opt-in; unset or `false` pauses collection while
+  keeping saved posts readable. Avoid enabling the same collector in every worktree.
+
+For this worktree's local backend, set the token interactively and enable polling:
+
+```sh
+bunx convex env set X_BEARER_TOKEN --env-file .convex/anonymous.env
+bunx convex env set X_POLL_ENABLED true --env-file .convex/anonymous.env
+bunx convex run xIngestion:poll '{}' --env-file .convex/anonymous.env
+```
+
+Production needs these variables configured on its Convex deployment as well.
+The old Worker-side X token is no longer read by the sidebar. Local `.env.local`
+values are not automatically synchronized to Convex; update the backend secret
+when rotating the token.
+
+The cron checks every 15 minutes, but the saved `xSync.nextPollAt` controls whether
+it makes an X request. Normal polling is hourly. A post published within the last
+24 hours enables 15-minute polling until that activity window expires. The first
+import fetches at most 20 recent posts. Later imports use `since_id` and request
+only newer posts; the account ID is resolved once and persisted.
+
+Pagination checkpoints and post writes commit together. The newest-ID cursor is
+advanced only after all pages finish. A poll processes at most three pages of 100
+posts, then continues on a subsequent tick. A lease prevents overlapping polls;
+expired leases can be recovered. Failures preserve saved posts and use exponential
+backoff from 15 minutes up to 24 hours, respecting bounded upstream retry hints.
+Inspect `xStore:state` for the next poll, cursor, pagination checkpoint, and last
+error. No page visit can force a paid refresh.
+
+Newly imported edit revisions hide stored earlier revisions. To hide a removed
+post administratively (or restore it), use the internal `xStore:hide` mutation:
+
+```sh
+bunx convex run xStore:hide '{"postId":"POST_ID","hidden":true}' --env-file .convex/anonymous.env
+```
+
+This importer does not routinely reread the archive or automatically discover
+old deletions. Handle removal notices through the administrative path; add a
+separate reconciliation process if broader edit/deletion tracking is needed.
+
+### Patch note archive
+
+Patch note page requests read `patchThreads` (index metadata) and `patchBodies`
+(sanitized opening posts) from Convex. They never fetch the forum directly.
+Deploy the Convex functions together with the frontend. No additional secrets
+are required. Initialize a new deployment with `convex run patchIngestion:poll
+'{}'` (using the appropriate deployment options); the hourly cron handles
+subsequent discovery. The local worktree deployment has been initialized.
+
+The importer discovers up to 100 threads from the official forum's first page
+and schedules their imports two seconds apart. New posts are saved immediately;
+posts less than seven days old are refreshed every six hours for corrections,
+and older posts still on the forum index are refreshed weekly. Posts that leave
+the index remain stored. This is an archive starting with the current index,
+not a backfill of every historical forum page. The site displays the newest 100
+saved threads; saved detail URLs remain readable after falling off this list.
+
+Per-thread transactional leases prevent duplicate fetches. Failed imports retry
+on the next hourly discovery and retain any previously saved body. Inspect
+`patchThreads.lastError` and Convex action logs for failures. Forum index failures
+also leave the saved index intact. Source responses are bounded at 4 MB and
+sanitized bodies at 900 KB to stay below Convex's document size limit; oversized
+posts produce a recorded error rather than truncated notes. The parser supports
+both ordinary forum opening posts and GGG's featured `newsPost` layout (including
+thread 4000864), preserving formatted text and safe links while excluding replies,
+scripts, and inline styles.

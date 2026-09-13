@@ -412,6 +412,7 @@
     gap: 18px;
   }
   .build-shell .topbar {
+    flex-wrap: wrap;
     gap: 16px;
   }
   .build-intro {
