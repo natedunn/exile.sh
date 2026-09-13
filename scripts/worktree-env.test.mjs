@@ -126,3 +126,31 @@ test("tracked env files in either checkout are not copied", (t) => {
   node(syncScript, worktree)
   assert.equal(fs.existsSync(path.join(worktree, ".env.tracked")), false)
 })
+
+test("tracked symlink parents cannot redirect env copies outside a new worktree", (t) => {
+  const { main, worktree, directory, node, addWorktree, git } = fixture(t)
+  const outside = path.join(directory, "outside worktree")
+  const target = path.join(directory, "symlink worktree")
+  fs.mkdirSync(outside)
+  fs.mkdirSync(path.join(main, "convex"))
+  fs.writeFileSync(path.join(main, "convex/.env"), "VALUE=private-fixture\n")
+  fs.writeFileSync(path.join(main, ".env.local"), "VALUE=root-fixture\n")
+
+  // Commit the redirect in another branch before Git checks it out with the hook.
+  addWorktree()
+  fs.symlinkSync(outside, path.join(worktree, "convex"))
+  git("-C", worktree, "add", "convex")
+  git("-C", worktree, "commit", "-m", "track symlink fixture")
+  node(installScript)
+  git("worktree", "add", "--detach", target, "feature")
+
+  assert.equal(fs.lstatSync(path.join(target, "convex")).isSymbolicLink(), true)
+  assert.deepEqual(fs.readdirSync(outside), [])
+  // Prove the hook ran and still copies ordinary env files.
+  assert.equal(
+    fs.readFileSync(path.join(target, ".env.local"), "utf8"),
+    "VALUE=root-fixture\n"
+  )
+  node(syncScript, target)
+  assert.deepEqual(fs.readdirSync(outside), [])
+})
