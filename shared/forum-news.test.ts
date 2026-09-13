@@ -10,6 +10,22 @@ function row(id: string, title: string, date = "Sep 10, 2026, 7:39:22 PM") {
 }
 
 describe("patch forum", () => {
+  it("skips whitespace and comment nodes before title, date, and opening content", () => {
+    const spaced = (html: string) =>
+      html.replace(/></g, ">\n  <!-- spacing -->\n<")
+    const items = parsePatchForum(
+      spaced(`<table>${row("123", "0.5.5 Patch Notes")}</table>`)
+    )
+    expect(items[0]).toMatchObject({
+      title: "0.5.5 Patch Notes",
+      date: Date.UTC(2026, 8, 10),
+    })
+    const html = spaced(
+      '<a href="/forum/view-forum/2212">Patch Notes</a><h1>0.5.5 Patch Notes</h1><table><tr><td class="content-container"><div class="contentStart"></div><div class="content"><ul><li>Fixed a crash.</li></ul></div></td></tr></table>'
+    )
+    expect(parsePatchExcerpt(html)).toBe("Fixed a crash.")
+    expect(parsePatchPost(html, items[0].url).html).toContain("Fixed a crash.")
+  })
   it("uses original thread links and publication dates, ignores maintenance and deduplicates", () => {
     const html = `<table>${row("123", "0.5.5b Patch Notes")}${row("123", "0.5.5b Patch Notes")}${row("456", "0.5.5 Hotfix 10", "Sep 7, 2026, 8:03:36 PM")}${row("789", "Server Maintenance")}</table>`
     const result = parsePatchForum(html)
