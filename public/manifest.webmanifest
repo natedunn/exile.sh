@@ -42,9 +42,9 @@
       "url": "/economy"
     },
     {
-      "name": "Builds",
-      "short_name": "Builds",
-      "url": "/builds"
+      "name": "Build Bin",
+      "short_name": "Build Bin",
+      "url": "/build-bin"
     }
   ]
 }

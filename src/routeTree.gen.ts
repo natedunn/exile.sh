@@ -14,6 +14,8 @@ import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MoversRouteImport } from './routes/movers'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as BuildBinIndexRouteImport } from './routes/build-bin.index'
+import { Route as BuildBinSlugRouteImport } from './routes/build-bin.$slug'
 import { Route as BuildsIndexRouteImport } from './routes/builds.index'
 import { Route as BuildsSlugRouteImport } from './routes/builds.$slug'
 import { Route as EconomyIndexRouteImport } from './routes/economy.index'
@@ -45,6 +47,16 @@ const MoversRoute = MoversRouteImport.update({
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildBinIndexRoute = BuildBinIndexRouteImport.update({
+  id: '/build-bin/',
+  path: '/build-bin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildBinSlugRoute = BuildBinSlugRouteImport.update({
+  id: '/build-bin/$slug',
+  path: '/build-bin/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuildsIndexRoute = BuildsIndexRouteImport.update({
@@ -89,10 +101,12 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
   '/news': typeof NewsRoute
+  '/build-bin/$slug': typeof BuildBinSlugRoute
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
+  '/build-bin/': typeof BuildBinIndexRoute
   '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
@@ -102,10 +116,12 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
   '/news': typeof NewsRoute
+  '/build-bin/$slug': typeof BuildBinSlugRoute
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
+  '/build-bin': typeof BuildBinIndexRoute
   '/builds': typeof BuildsIndexRoute
   '/economy': typeof EconomyIndexRoute
   '/patch-notes': typeof PatchNotesIndexRoute
@@ -117,10 +133,12 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
   '/news': typeof NewsRoute
+  '/build-bin/$slug': typeof BuildBinSlugRoute
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
+  '/build-bin/': typeof BuildBinIndexRoute
   '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
@@ -133,10 +151,12 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/movers'
     | '/news'
+    | '/build-bin/$slug'
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
     | '/patch-notes/$threadId'
+    | '/build-bin/'
     | '/builds/'
     | '/economy/'
     | '/patch-notes/'
@@ -146,10 +166,12 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/movers'
     | '/news'
+    | '/build-bin/$slug'
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
     | '/patch-notes/$threadId'
+    | '/build-bin'
     | '/builds'
     | '/economy'
     | '/patch-notes'
@@ -160,10 +182,12 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/movers'
     | '/news'
+    | '/build-bin/$slug'
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
     | '/patch-notes/$threadId'
+    | '/build-bin/'
     | '/builds/'
     | '/economy/'
     | '/patch-notes/'
@@ -175,8 +199,10 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   MoversRoute: typeof MoversRoute
   NewsRoute: typeof NewsRoute
+  BuildBinSlugRoute: typeof BuildBinSlugRoute
   BuildsSlugRoute: typeof BuildsSlugRoute
   PatchNotesThreadIdRoute: typeof PatchNotesThreadIdRoute
+  BuildBinIndexRoute: typeof BuildBinIndexRoute
   BuildsIndexRoute: typeof BuildsIndexRoute
   PatchNotesIndexRoute: typeof PatchNotesIndexRoute
 }
@@ -216,6 +242,20 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/build-bin/': {
+      id: '/build-bin/'
+      path: '/build-bin'
+      fullPath: '/build-bin/'
+      preLoaderRoute: typeof BuildBinIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/build-bin/$slug': {
+      id: '/build-bin/$slug'
+      path: '/build-bin/$slug'
+      fullPath: '/build-bin/$slug'
+      preLoaderRoute: typeof BuildBinSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/builds/': {
@@ -291,8 +331,10 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   MoversRoute: MoversRoute,
   NewsRoute: NewsRoute,
+  BuildBinSlugRoute: BuildBinSlugRoute,
   BuildsSlugRoute: BuildsSlugRoute,
   PatchNotesThreadIdRoute: PatchNotesThreadIdRoute,
+  BuildBinIndexRoute: BuildBinIndexRoute,
   BuildsIndexRoute: BuildsIndexRoute,
   PatchNotesIndexRoute: PatchNotesIndexRoute,
 }

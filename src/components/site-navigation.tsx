@@ -71,7 +71,7 @@ export function SiteNavigation({
   // Both presentations use the same destinations as the site grows.
   const destinations = [
     { label: "Economy", to: "/economy", icon: Gem },
-    { label: "Builds", to: "/builds", icon: Swords },
+    { label: "Build Bin", to: "/build-bin", icon: Swords },
     { label: "Patch Notes", to: "/patch-notes", icon: Newspaper },
   ] as const
   return (

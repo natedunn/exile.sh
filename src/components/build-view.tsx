@@ -1,12 +1,26 @@
 import { GemReferenceInfo, SkillGems } from "./skill-gems"
 import { BuildStats } from "./build-stats"
-import { EquipmentDisplay } from "./equipment-display"
+import {
+  EquipmentDisplay,
+  WeaponSetSwitch,
+  equipmentHasSwap,
+} from "./equipment-display"
+import type { WeaponSet } from "./equipment-display"
 import { PassiveTree } from "./passive-tree"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type { ReactNode } from "react"
-import { Check, Copy, Download, Link2 } from "lucide-react"
+import {
+  Check,
+  Copy,
+  Download,
+  Gem,
+  Link2,
+  ScrollText,
+  Shield,
+  Swords,
+  Waypoints,
+} from "lucide-react"
 import { Button } from "./ui/button"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs"
 import {
   Select,
   SelectContent,
@@ -14,8 +28,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select"
-import { displayStat, parseBuild } from "../../shared/pob"
+import { parseBuild } from "../../shared/pob"
 import type { BuildSnapshot } from "../../shared/pob"
+import { classPortraits } from "../../shared/class-art"
+
+const sections = [
+  { id: "equipment", label: "Equipment", icon: Swords },
+  { id: "skills", label: "Skills", icon: Gem },
+  { id: "tree", label: "Trees", icon: Waypoints },
+  { id: "notes", label: "Notes", icon: ScrollText },
+] as const
+type SectionId = (typeof sections)[number]["id"]
 
 function SetPicker({
   label,
@@ -50,6 +73,100 @@ function SetPicker({
     </Select>
   )
 }
+
+/** Tracks which section currently sits under the sticky nav. */
+function useActiveSection() {
+  const [active, setActive] = useState<SectionId>(sections[0].id)
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const threshold = window.innerHeight * 0.3
+      let current: SectionId = sections[0].id
+      for (const { id } of sections) {
+        const el = document.getElementById(id)
+        if (el && el.getBoundingClientRect().top <= threshold) current = id
+      }
+      // Reaching the bottom of the page always selects the last section.
+      if (
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2
+      )
+        current = sections[sections.length - 1].id
+      setActive(current)
+    }
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    update()
+    addEventListener("scroll", schedule, { passive: true })
+    addEventListener("resize", schedule)
+    return () => {
+      removeEventListener("scroll", schedule)
+      removeEventListener("resize", schedule)
+      if (frame) cancelAnimationFrame(frame)
+    }
+  }, [])
+  return active
+}
+
+/** True once the page header has scrolled above the viewport. */
+function useHeaderPinned() {
+  const [pinned, setPinned] = useState(false)
+  useEffect(() => {
+    const heading = document.querySelector(".build-heading")
+    if (!heading) return
+    const observer = new IntersectionObserver(([entry]) =>
+      setPinned(!entry.isIntersecting && entry.boundingClientRect.top < 0)
+    )
+    observer.observe(heading)
+    return () => observer.disconnect()
+  }, [])
+  return pinned
+}
+
+function SectionNav({
+  build,
+  portrait,
+}: {
+  build: BuildSnapshot
+  portrait?: string
+}) {
+  const active = useActiveSection()
+  const pinned = useHeaderPinned()
+  return (
+    <nav
+      className="build-nav"
+      aria-label="Build sections"
+      data-pinned={pinned || undefined}
+    >
+      {/* Reserved height keeps the links from shifting when this appears. */}
+      <div className="build-nav-identity" aria-hidden={!pinned}>
+        {portrait && <img src={portrait} alt="" width={44} height={44} />}
+        <div>
+          <strong>{build.ascendancy || build.className}</strong>
+          <span>
+            Level {build.level} · {build.className}
+          </span>
+        </div>
+      </div>
+      <ul>
+        {sections.map((s) => (
+          <li key={s.id}>
+            <a
+              href={`#${s.id}`}
+              aria-current={active === s.id ? "location" : undefined}
+            >
+              <s.icon aria-hidden="true" />
+              {s.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
 export function BuildView({
   build,
   code,
@@ -62,14 +179,16 @@ export function BuildView({
   shared?: boolean
   shareAction?: ReactNode
 }) {
-  const [tab, setTab] = useState("equipment")
   const [itemSet, setItemSet] = useState(build.activeItemSet)
+  const [weapons, setWeapons] = useState<WeaponSet>("primary")
   const [skillSet, setSkillSet] = useState(build.activeSkillSet)
   const [specIndex, setSpecIndex] = useState(String(build.activeSpec))
   const [message, setMessage] = useState("")
   const [copied, setCopied] = useState("")
   const gear =
     build.itemSets.find((s) => s.id === itemSet) ?? build.itemSets.at(0)
+  const hasGear = gear?.slots.some((s) => s.itemId && s.itemId !== "0")
+  const swappable = !!gear && equipmentHasSwap(gear)
   const skillSets = useMemo(() => {
     if (
       build.skillSets.every((set) =>
@@ -110,6 +229,8 @@ export function BuildView({
     }
   }, [build, code])
   const spec = treeSpecs.at(Number(specIndex))
+  const portrait =
+    classPortraits[build.ascendancy] ?? classPortraits[build.className]
   async function copy(kind: string, text: string) {
     try {
       await navigator.clipboard.writeText(text)
@@ -130,6 +251,13 @@ export function BuildView({
   return (
     <article className="build-view">
       <header className="build-heading">
+        <div className="build-emblem">
+          {portrait ? (
+            <img src={portrait} alt="" width={84} height={84} />
+          ) : (
+            <Shield aria-hidden="true" />
+          )}
+        </div>
         <div className="build-identity">
           <h1>
             {build.ascendancy || build.className}
@@ -171,173 +299,123 @@ export function BuildView({
       <p className="build-copy-status" role="status">
         {message}
       </p>
-      <Tabs
-        value={tab}
-        onValueChange={(value) => setTab(String(value))}
-        className="build-tabs"
-      >
-        <TabsList variant="line">
-          {["equipment", "skills", "tree", "configuration", "notes"].map(
-            (t) => (
-              <TabsTrigger key={t} value={t}>
-                {t[0].toUpperCase() + t.slice(1)}
-              </TabsTrigger>
-            )
-          )}
-        </TabsList>
-        <TabsContent value="equipment">
-          <div className="build-equipment-overview">
-            <div className="build-equipment-column">
-              {gear?.slots.some((s) => s.itemId && s.itemId !== "0") ? (
-                <EquipmentDisplay
-                  key={gear.id}
+      <div className="build-layout">
+        <SectionNav build={build} portrait={portrait} />
+        <div className="build-sections">
+          <section id="equipment" className="build-section">
+            <div className="build-section-heading">
+              <h2>Equipment</h2>
+              <div className="equipment-controls">
+                <SetPicker
+                  label="Equipment set"
+                  sets={build.itemSets}
+                  value={itemSet}
+                  onChange={setItemSet}
+                />
+                {swappable && (
+                  <WeaponSetSwitch value={weapons} onChange={setWeapons} />
+                )}
+              </div>
+            </div>
+            <div className="build-section-body">
+              <div className="build-section-main">
+                {gear && hasGear ? (
+                  <EquipmentDisplay
+                    key={gear.id}
+                    build={build}
+                    gear={gear}
+                    weapons={swappable ? weapons : "primary"}
+                  />
+                ) : (
+                  <p className="build-empty">No equipment saved in this set.</p>
+                )}
+              </div>
+              <aside
+                className="build-section-aside"
+                aria-label="Character stats"
+              >
+                <BuildStats
                   build={build}
-                  gear={gear}
-                  setPicker={
-                    <SetPicker
-                      label="Equipment set"
-                      sets={build.itemSets}
-                      value={itemSet}
-                      onChange={setItemSet}
-                    />
+                  groups={["character", "defensive", "recovery"]}
+                  note="Saved PoB values. Missing stats are omitted; switching equipment sets does not recalculate them."
+                />
+              </aside>
+            </div>
+          </section>
+          <section id="skills" className="build-section">
+            <div className="build-section-heading">
+              <div className="build-skills-heading">
+                <h2>Skills & supports</h2>
+                <GemReferenceInfo />
+              </div>
+              <SetPicker
+                label="Skill set"
+                sets={build.skillSets}
+                value={skillSet}
+                onChange={setSkillSet}
+              />
+            </div>
+            <div className="build-section-body">
+              <div className="build-section-main">
+                <SkillGems
+                  skills={skills?.skills ?? []}
+                  mainSocketGroup={
+                    skillSet === build.activeSkillSet
+                      ? build.mainSocketGroup
+                      : 0
                   }
                 />
-              ) : (
-                <>
-                  <div className="build-section-heading">
-                    <h2>Equipment</h2>
-                    <SetPicker
-                      label="Equipment set"
-                      sets={build.itemSets}
-                      value={itemSet}
-                      onChange={setItemSet}
-                    />
-                  </div>
-                  <p className="build-empty">No equipment saved in this set.</p>
-                </>
-              )}
-            </div>
-            <BuildStats build={build} />
-          </div>
-        </TabsContent>
-        <TabsContent value="skills">
-          <div className="build-section-heading">
-            <div className="build-skills-heading">
-              <h2>Skills & supports</h2>
-              <GemReferenceInfo />
-            </div>
-            <SetPicker
-              label="Skill set"
-              sets={build.skillSets}
-              value={skillSet}
-              onChange={setSkillSet}
-            />
-          </div>
-          <SkillGems
-            skills={skills?.skills ?? []}
-            mainSocketGroup={
-              skillSet === build.activeSkillSet ? build.mainSocketGroup : 0
-            }
-          />
-        </TabsContent>
-        <TabsContent value="tree">
-          <div className="build-section-heading">
-            <h2>Passive tree</h2>
-            <SetPicker
-              label="Tree specification"
-              sets={build.treeSpecs.map((s, i) => ({
-                id: String(i),
-                title: s.title,
-              }))}
-              value={specIndex}
-              onChange={setSpecIndex}
-            />
-          </div>
-          {spec ? (
-            <>
-              <p className="build-muted">
-                {spec.nodes.length} saved node IDs · Tree version{" "}
-                {spec.version.replaceAll("_", ".")} · {spec.title}
-              </p>
-              <PassiveTree
-                ascendancy={build.ascendancy}
-                version={spec.version}
-                nodes={spec.nodes}
-                sockets={spec.sockets}
-                attributeOverrides={spec.attributeOverrides}
-                weaponSets={[spec.weaponSet1 ?? [], spec.weaponSet2 ?? []]}
-                items={build.items}
-              />
-              <p className="build-muted">
-                All saved tree specifications are preserved in the PoB code.
-              </p>
-            </>
-          ) : (
-            <p className="build-empty">No passive tree saved in this export.</p>
-          )}
-        </TabsContent>
-        <TabsContent value="configuration">
-          <div className="build-section-heading">
-            <h2>Snapshot configuration</h2>
-          </div>
-          <p className="build-muted">
-            These inputs came from the export. They may include custom modifiers
-            and optimistic conditions. Stats are not independently verified.
-          </p>
-          {build.configSets.map((set) => (
-            <section className="build-config" key={set.id}>
-              <h3>
-                {set.title}
-                {set.id === build.activeConfigSet ? " · Active in PoB" : ""}
-              </h3>
-              {set.inputs.length ? (
-                <dl>
-                  {set.inputs.map((input, i) => (
-                    <div key={i}>
-                      <dt>{input.name.replace(/([a-z])([A-Z])/g, "$1 $2")}</dt>
-                      <dd>{input.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              ) : (
-                <p>No explicit configuration inputs.</p>
-              )}
-            </section>
-          ))}
-          <div className="build-section-heading">
-            <h2>Exported stats</h2>
-          </div>
-          <dl className="build-all-stats">
-            {build.stats.map((s, i) => (
-              <div key={i}>
-                <dt>{s.name}</dt>
-                <dd>{displayStat(s.value)}</dd>
               </div>
-            ))}
-          </dl>
-          {build.minionStats.length > 0 && (
-            <>
-              <h3>Minion stats</h3>
-              <dl className="build-all-stats">
-                {build.minionStats.map((s, i) => (
-                  <div key={i}>
-                    <dt>{s.name}</dt>
-                    <dd>{displayStat(s.value)}</dd>
-                  </div>
-                ))}
-              </dl>
-            </>
-          )}
-        </TabsContent>
-        <TabsContent value="notes">
-          <div className="build-section-heading">
-            <h2>Build notes</h2>
-          </div>
-          <div className="build-notes">
-            {build.notes || "The author did not include notes in this export."}
-          </div>
-        </TabsContent>
-      </Tabs>
+              <aside
+                className="build-section-aside"
+                aria-label="Main skill stats"
+              >
+                <BuildStats build={build} groups={["main"]} />
+              </aside>
+            </div>
+          </section>
+          <section id="tree" className="build-section">
+            <div className="build-section-heading">
+              <h2>Trees</h2>
+              <SetPicker
+                label="Tree specification"
+                sets={build.treeSpecs.map((s, i) => ({
+                  id: String(i),
+                  title: s.title,
+                }))}
+                value={specIndex}
+                onChange={setSpecIndex}
+              />
+            </div>
+            <div className="build-section-body">
+              {spec ? (
+                <PassiveTree
+                  ascendancy={build.ascendancy}
+                  version={spec.version}
+                  nodes={spec.nodes}
+                  sockets={spec.sockets}
+                  attributeOverrides={spec.attributeOverrides}
+                  weaponSets={[spec.weaponSet1 ?? [], spec.weaponSet2 ?? []]}
+                  items={build.items}
+                />
+              ) : (
+                <p className="build-empty">
+                  No passive tree saved in this export.
+                </p>
+              )}
+            </div>
+          </section>
+          <section id="notes" className="build-section">
+            <div className="build-section-heading">
+              <h2>Notes</h2>
+            </div>
+            <div className="build-notes">
+              {build.notes ||
+                "The author did not include notes in this export."}
+            </div>
+          </section>
+        </div>
+      </div>
     </article>
   )
 }

@@ -1,6 +1,6 @@
 # PoE 2 build sharing
 
-`/builds` accepts a PoE2 export or a pobb.in link, renders a local preview, and publishes an immutable anonymous snapshot to `/builds/:uuid`. The original compressed export is retained for copy/download, including data that the current viewer does not interpret. No calculation engine or GGG API is involved. See [the spike](pob-sharing-spike.md) for the evidence and source inventory.
+`/build-bin` (the Build Bin) accepts a PoE2 export or a pobb.in link, renders a local preview, and publishes an immutable anonymous snapshot to `/build-bin/:uuid`. The original compressed export is retained for copy/download, including data that the current viewer does not interpret. No calculation engine or GGG API is involved. See [the spike](pob-sharing-spike.md) for the evidence and source inventory.
 
 ## Gem tooltip references
 

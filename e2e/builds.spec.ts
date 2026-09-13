@@ -4,9 +4,11 @@ const code = readFileSync(
   new URL("../shared/fixtures/pob/2k0EPn6QOhTx.txt", import.meta.url),
   "utf8"
 )
-const buildsURL = process.env.BUILD_TEST_URL || "/builds"
+const buildsURL = process.env.BUILD_TEST_URL || "/build-bin"
 for (const width of [390, 1440])
-  test(`build preview, tabs and tree at ${width}px`, async ({ page }) => {
+  test(`build preview, section nav and tree at ${width}px`, async ({
+    page,
+  }) => {
     await page.setViewportSize({ width, height: 1000 })
     await page.goto(buildsURL)
     await expect(
@@ -19,18 +21,33 @@ for (const width of [390, 1440])
     ).toBeVisible()
     await page.keyboard.press("Escape")
     await expect(page.locator(".build-identity h1")).toContainText("Level 90")
-    const panel = await page.getByRole("tabpanel").boundingBox()
-    expect(panel?.width).toBeGreaterThan(width * 0.8)
-    await page.getByRole("tab", { name: "Skills", exact: true }).click()
+    // Each section's content column outweighs its stats column on wide
+    // screens; on phones the two stack, so the content spans the section.
+    const section = (await page.locator("#equipment").boundingBox())!.width
+    const main = page.locator("#equipment .build-section-main")
+    expect((await main.boundingBox())!.width).toBeGreaterThan(section * 0.6)
+    const nav = page.getByRole("navigation", { name: "Build sections" })
+    await expect(nav.getByRole("link")).toHaveText([
+      "Equipment",
+      "Skills",
+      "Trees",
+      "Notes",
+    ])
+    await expect(nav.getByRole("link", { name: "Configuration" })).toHaveCount(
+      0
+    )
+    await expect(
+      page.getByRole("heading", { name: "Snapshot configuration" })
+    ).toHaveCount(0)
+    await nav.getByRole("link", { name: "Skills", exact: true }).click()
+    await expect(page).toHaveURL(/#skills$/)
     await expect(
       page.getByRole("heading", { name: "Skills & supports" })
-    ).toBeVisible()
-    await page.getByRole("tab", { name: "Skills", exact: true }).focus()
-    await page.keyboard.press("ArrowRight")
-    await page.keyboard.press("Enter")
+    ).toBeInViewport()
+    await nav.getByRole("link", { name: "Trees", exact: true }).click()
     await expect(
-      page.getByRole("tab", { name: "Tree", exact: true })
-    ).toHaveAttribute("aria-selected", "true")
+      nav.getByRole("link", { name: "Trees", exact: true })
+    ).toHaveAttribute("aria-current", "location")
     await expect(
       page.getByRole("img", { name: /mapped saved passive nodes/ }).first()
     ).toBeVisible()
@@ -39,12 +56,16 @@ for (const width of [390, 1440])
     const attributes = page.locator(".tree-attributes")
     await expect(jewels).toContainText("Prism of Belief")
     await expect(jewels.locator("img").first()).toBeVisible()
-    expect((await jewels.boundingBox())!.y).toBeLessThan(
-      (await keystones.boundingBox())!.y
-    )
-    expect((await attributes.boundingBox())!.y).toBeGreaterThan(
-      (await keystones.boundingBox())!.y
-    )
+    // Jewels stay with the maps; keystones and attributes form the section's
+    // right column on wide screens and stack below it on phones.
+    const jewelsBox = (await jewels.boundingBox())!
+    const keystonesBox = (await keystones.boundingBox())!
+    if (width >= 1000) {
+      expect(keystonesBox.x).toBeGreaterThan(jewelsBox.x + jewelsBox.width)
+    } else {
+      expect(jewelsBox.y).toBeLessThan(keystonesBox.y)
+    }
+    expect((await attributes.boundingBox())!.y).toBeGreaterThan(keystonesBox.y)
     const intelligence = attributes
       .getByRole("row")
       .filter({ hasText: "Intelligence" })
@@ -63,10 +84,10 @@ for (const width of [390, 1440])
       .first()
       .click()
     await page.keyboard.press("Escape")
-    await page.getByRole("tab", { name: "Configuration", exact: true }).click()
+    await nav.getByRole("link", { name: "Notes", exact: true }).click()
     await expect(
-      page.getByRole("heading", { name: "Snapshot configuration" })
-    ).toBeVisible()
+      page.getByRole("heading", { name: "Notes", exact: true })
+    ).toBeInViewport()
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth
@@ -155,4 +176,19 @@ test("auto-preview shows checking and loading feedback without resizing the butt
     expect(state!.spinner).toBe(true)
     expect(state!.width).toBe(originalWidth)
   }
+})
+
+test("legacy /builds links redirect to the Build Bin", async ({ page }) => {
+  await page.goto("/builds")
+  await expect(page).toHaveURL(/\/build-bin$/)
+  await expect(
+    page.getByRole("heading", { name: "A build worth sharing." })
+  ).toBeVisible()
+  const slug = "123e4567-e89b-12d3-a456-426614174000"
+  await page.goto(`/builds/${slug}`)
+  await expect(page).toHaveURL(new RegExp(`/build-bin/${slug}$`))
+  // The slug survives the redirect; an unknown one lands on the not-found page.
+  await expect(
+    page.getByRole("heading", { name: "Build not found." })
+  ).toBeVisible()
 })

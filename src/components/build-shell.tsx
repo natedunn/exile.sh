@@ -14,8 +14,8 @@ export function BuildShell({ children }: { children: ReactNode }) {
           <Link to="/economy" search={defaultFilters}>
             Economy
           </Link>
-          <Link to="/builds" activeProps={{ className: "nav-active" }}>
-            Builds
+          <Link to="/build-bin" activeProps={{ className: "nav-active" }}>
+            Build Bin
           </Link>
           <Link to="/patch-notes" activeProps={{ className: "nav-active" }}>
             Patch Notes
@@ -25,7 +25,7 @@ export function BuildShell({ children }: { children: ReactNode }) {
       </header>
       <main id="main">{children}</main>
       <footer>
-        <Link className="footer-brand" to="/builds">
+        <Link className="footer-brand" to="/build-bin">
           exile.sh
         </Link>
         <div className="footer-info">

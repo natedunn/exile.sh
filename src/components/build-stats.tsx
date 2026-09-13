@@ -3,9 +3,17 @@ import { buildSkill, displayStat, statValue } from "../../shared/pob"
 import type { BuildSnapshot } from "../../shared/pob"
 
 type StatRow = [label: string, key: string, suffix?: string, scale?: number]
+export type StatGroup = "character" | "defensive" | "recovery" | "main"
 
-const groups: { title: string; rows: StatRow[] }[] = [
-  {
+const groups: Record<StatGroup, { title: string; rows: StatRow[] }> = {
+  character: {
+    title: "Character",
+    rows: [
+      ["Movement speed", "EffectiveMovementSpeedMod", "%", 100],
+      ["Item rarity", "LootRarity", "%"],
+    ],
+  },
+  defensive: {
     title: "Defensive",
     rows: [
       ["Life", "Life"],
@@ -21,7 +29,7 @@ const groups: { title: string; rows: StatRow[] }[] = [
       ["Effective health pool", "TotalEHP"],
     ],
   },
-  {
+  recovery: {
     title: "Recovery",
     rows: [
       ["Life regen", "LifeRegenRecovery", "/s"],
@@ -31,7 +39,7 @@ const groups: { title: string; rows: StatRow[] }[] = [
       ["Recharge delay", "EnergyShieldRechargeDelay", "s"],
     ],
   },
-  {
+  main: {
     title: "Main skill",
     rows: [
       ["Combined DPS", "CombinedDPS"],
@@ -42,9 +50,18 @@ const groups: { title: string; rows: StatRow[] }[] = [
       ["Mana cost", "ManaCost"],
     ],
   },
-]
+}
 
-export function BuildStats({ build }: { build: BuildSnapshot }) {
+/** Saved PoB stats for the groups a section cares about. */
+export function BuildStats({
+  build,
+  groups: selected,
+  note,
+}: {
+  build: BuildSnapshot
+  groups: StatGroup[]
+  note?: string
+}) {
   function value(key: string, suffix = "", scale = 1) {
     const raw = statValue(build, key)
     const formatted = displayStat(
@@ -84,78 +101,63 @@ export function BuildStats({ build }: { build: BuildSnapshot }) {
     )
   }
   return (
-    <section className="build-stats-panel" aria-label="Build stats">
-      <div className="build-section-heading">
-        <h2>Stats</h2>
-      </div>
-      <div className="build-stats-body">
-        <section>
-          <h3>Character</h3>
+    <div className="build-stats-body">
+      {selected.map((group) => (
+        <section key={group}>
+          <h3>{groups[group].title}</h3>
+          {group === "main" && (
+            <p className="build-stats-skill">{buildSkill(build)}</p>
+          )}
           <dl>
-            {row(
-              "Attributes",
-              multiple([
-                ["Str", "Strength", "red"],
-                ["Dex", "Dexterity", "green"],
-                ["Int", "Intelligence", "blue"],
-              ])
-            )}
-            {rows([
-              ["Movement speed", "EffectiveMovementSpeedMod", "%", 100],
-              ["Item rarity", "LootRarity", "%"],
-            ])}
-            {row(
-              "Maximum charges",
-              multiple([
-                ["EnduranceChargesMax", "Endurance", "red"],
-                ["FrenzyChargesMax", "Frenzy", "green"],
-                ["PowerChargesMax", "Power", "blue"],
-              ])
+            {group === "character" &&
+              row(
+                "Attributes",
+                multiple([
+                  ["Str", "Strength", "red"],
+                  ["Dex", "Dexterity", "green"],
+                  ["Int", "Intelligence", "blue"],
+                ])
+              )}
+            {rows(groups[group].rows)}
+            {group === "character" &&
+              row(
+                "Maximum charges",
+                multiple([
+                  ["EnduranceChargesMax", "Endurance", "red"],
+                  ["FrenzyChargesMax", "Frenzy", "green"],
+                  ["PowerChargesMax", "Power", "blue"],
+                ])
+              )}
+            {group === "defensive" && (
+              <>
+                {row(
+                  "Resistances",
+                  multiple(
+                    [
+                      ["FireResist", "Fire", "red"],
+                      ["ColdResist", "Cold", "blue"],
+                      ["LightningResist", "Lightning", "yellow"],
+                      ["ChaosResist", "Chaos", "purple"],
+                    ],
+                    "%"
+                  )
+                )}
+                {row(
+                  "Max hit",
+                  multiple([
+                    ["PhysicalMaximumHitTaken", "Physical", "neutral"],
+                    ["FireMaximumHitTaken", "Fire", "red"],
+                    ["ColdMaximumHitTaken", "Cold", "blue"],
+                    ["LightningMaximumHitTaken", "Lightning", "yellow"],
+                    ["ChaosMaximumHitTaken", "Chaos", "purple"],
+                  ])
+                )}
+              </>
             )}
           </dl>
         </section>
-        {groups.map((group) => (
-          <section key={group.title}>
-            <h3>{group.title}</h3>
-            {group.title === "Main skill" && (
-              <p className="build-stats-skill">{buildSkill(build)}</p>
-            )}
-            <dl>
-              {rows(group.rows)}
-              {group.title === "Defensive" && (
-                <>
-                  {row(
-                    "Resistances",
-                    multiple(
-                      [
-                        ["FireResist", "Fire", "red"],
-                        ["ColdResist", "Cold", "blue"],
-                        ["LightningResist", "Lightning", "yellow"],
-                        ["ChaosResist", "Chaos", "purple"],
-                      ],
-                      "%"
-                    )
-                  )}
-                  {row(
-                    "Max hit",
-                    multiple([
-                      ["PhysicalMaximumHitTaken", "Physical", "neutral"],
-                      ["FireMaximumHitTaken", "Fire", "red"],
-                      ["ColdMaximumHitTaken", "Cold", "blue"],
-                      ["LightningMaximumHitTaken", "Lightning", "yellow"],
-                      ["ChaosMaximumHitTaken", "Chaos", "purple"],
-                    ])
-                  )}
-                </>
-              )}
-            </dl>
-          </section>
-        ))}
-        <p className="build-stats-note">
-          Saved PoB values. Missing stats are omitted; switching equipment sets
-          does not recalculate them.
-        </p>
-      </div>
-    </section>
+      ))}
+      {note && <p className="build-stats-note">{note}</p>}
+    </div>
   )
 }

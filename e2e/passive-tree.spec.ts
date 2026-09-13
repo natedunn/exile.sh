@@ -8,9 +8,12 @@ test("tree preserves geometry and supports inspection, zoom, pan and dismissal",
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1200 })
-  await page.goto(process.env.BUILD_TEST_URL || "/builds")
+  await page.goto(process.env.BUILD_TEST_URL || "/build-bin")
   await page.getByLabel("PoB export or pobb.in link").fill(code)
-  await page.getByRole("tab", { name: "Tree", exact: true }).click()
+  await page
+    .getByRole("navigation", { name: "Build sections" })
+    .getByRole("link", { name: "Trees", exact: true })
+    .click()
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
   const map = page.locator(".tree-fullscreen .tree-viewport svg")
   await expect(map).toBeVisible()
@@ -127,9 +130,12 @@ test("tree node tap works at mobile widths", async ({ browser }) => {
     hasTouch: true,
   })
   const page = await context.newPage()
-  await page.goto(process.env.BUILD_TEST_URL || "/builds")
+  await page.goto(process.env.BUILD_TEST_URL || "/build-bin")
   await page.getByLabel("PoB export or pobb.in link").fill(code)
-  await page.getByRole("tab", { name: "Tree", exact: true }).click()
+  await page
+    .getByRole("navigation", { name: "Build sections" })
+    .getByRole("link", { name: "Trees", exact: true })
+    .click()
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
   const map = page.locator(".tree-fullscreen .tree-viewport svg")
   await expect(map).toBeVisible()
@@ -150,9 +156,12 @@ test("From Nothing radius and socketed jewel details render from a real export",
     new URL("../shared/fixtures/pob/Mu3PxErdMKiE.txt", import.meta.url),
     "utf8"
   )
-  await page.goto(process.env.BUILD_TEST_URL || "/builds")
+  await page.goto(process.env.BUILD_TEST_URL || "/build-bin")
   await page.getByLabel("PoB export or pobb.in link").fill(fromNothing)
-  await page.getByRole("tab", { name: "Tree", exact: true }).click()
+  await page
+    .getByRole("navigation", { name: "Build sections" })
+    .getByRole("link", { name: "Trees", exact: true })
+    .click()
   await expect(page.locator('[data-jewel-radius="From Nothing"]')).toHaveCount(
     1
   )
@@ -195,7 +204,7 @@ test("compact tree overview and share dialog preserve page ergonomics", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
-  await page.goto("/builds")
+  await page.goto("/build-bin")
   await page.getByLabel("PoB export or pobb.in link").fill(code)
   await expect(page.locator(".build-identity h1")).toContainText("Level")
   await expect(
@@ -207,7 +216,10 @@ test("compact tree overview and share dialog preserve page ergonomics", async ({
   await expect(page.getByLabel("Build title")).toHaveValue(/Level/)
   await page.keyboard.press("Escape")
   await expect(share).toBeFocused()
-  await page.getByRole("tab", { name: "Tree", exact: true }).click()
+  await page
+    .getByRole("navigation", { name: "Build sections" })
+    .getByRole("link", { name: "Trees", exact: true })
+    .click()
   const preview = page.locator(".tree-preview svg")
   await expect(preview).toBeVisible()
   const box = (await preview.boundingBox())!
@@ -247,9 +259,12 @@ test("all palettes recolor shared and weapon nodes consistently and persist on m
     "utf8"
   )
   async function openBuild() {
-    await page.goto("/builds")
+    await page.goto("/build-bin")
     await page.getByLabel("PoB export or pobb.in link").fill(source)
-    await page.getByRole("tab", { name: "Tree", exact: true }).click()
+    await page
+      .getByRole("navigation", { name: "Build sections" })
+      .getByRole("link", { name: "Trees", exact: true })
+      .click()
     await page.getByRole("button", { name: "Open tree", exact: true }).click()
   }
   await openBuild()

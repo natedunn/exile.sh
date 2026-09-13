@@ -11,13 +11,14 @@ for (const width of [390, 1440])
       if (request.url().endsWith("/gems/v1/catalogue.json")) catalogueLoads++
       if (request.url().includes("/gems/effects-v1/")) effectLoads++
     })
-    await page.goto("/builds")
+    await page.goto("/build-bin")
     await page.getByLabel("PoB export or pobb.in link").fill(code)
     await expect(page.locator(".build-identity h1")).toContainText(
       "Stormweaver"
     )
-    expect(catalogueLoads).toBe(0)
-    await page.getByRole("tab", { name: "Skills", exact: true }).click()
+    await page
+      .getByRole("heading", { name: "Skills & supports" })
+      .scrollIntoViewIfNeeded()
     const info = page.getByRole("button", { name: "About gem data" })
     await info.focus()
     await page.keyboard.press("Enter")
@@ -143,8 +144,7 @@ for (const width of [390, 1440])
     await expect(loyaltyPopup).toContainText("30% less maximum Life")
     expect(effectLoads).toBe(loadedEffects)
     await page.keyboard.press("Escape")
-    await page.getByRole("tab", { name: "Equipment", exact: true }).click()
-    await page.getByRole("tab", { name: "Skills", exact: true }).click()
+    // The catalogue is fetched once for the page, not per set change.
     expect(catalogueLoads).toBe(1)
     expect(
       await page.evaluate(
