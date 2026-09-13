@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
 import { ArrowUpRight } from "lucide-react"
-import { BuildShell } from "../components/build-shell"
+import { PatchNotesHeading } from "../components/patch-notes-heading"
+import { day } from "../lib/format"
 import { getPatchPost } from "../lib/patch-notes-server"
 import "../news.css"
 
@@ -14,43 +15,59 @@ export const Route = createFileRoute("/patch-notes/$threadId")({
     meta: [{ title: `${loaderData?.post?.title ?? "Patch Notes"} · exile.sh` }],
   }),
   pendingComponent: () => (
-    <BuildShell>
-      <div className="news-page">
-        <p role="status">Loading patch notes…</p>
-      </div>
-    </BuildShell>
+    <div className="news-page patch-post-page">
+      <PatchNotesHeading title="Patch notes" meta={<BackLink />} wrap />
+      <p role="status">Loading patch notes…</p>
+    </div>
   ),
   component: PatchPostPage,
 })
 
+function BackLink() {
+  return (
+    <span>
+      <Link to="/patch-notes">← All patch notes</Link>
+    </span>
+  )
+}
+
 function PatchPostPage() {
   const { post, url } = Route.useLoaderData()
   return (
-    <BuildShell>
-      <div className="news-page patch-post-page">
-        <Link className="patch-back" to="/patch-notes">
-          ← All patch notes
-        </Link>
-        <header className="news-heading patch-post-heading">
-          <h1>{post?.title ?? "Patch notes unavailable"}</h1>
-          <a className="news-source-link" href={url}>
-            Read the original on pathofexile.com{" "}
-            <ArrowUpRight size={15} aria-hidden="true" />
-          </a>
-        </header>
-        {post ? (
-          <article
-            className="patch-post-body"
-            aria-label="Patch notes"
-            dangerouslySetInnerHTML={{ __html: post.html }}
-          />
-        ) : (
-          <p role="status">
-            This post couldn’t be loaded. You can read it on the official forum
-            using the link above.
-          </p>
-        )}
-      </div>
-    </BuildShell>
+    <div className="news-page patch-post-page">
+      <PatchNotesHeading
+        title={post?.title ?? "Patch notes unavailable"}
+        wrap
+        meta={
+          <>
+            <BackLink />
+            {post?.date && (
+              <span>
+                <time dateTime={new Date(post.date).toISOString().slice(0, 10)}>
+                  {day(post.date)}
+                </time>
+              </span>
+            )}
+            <span>
+              <a href={url}>
+                Original post <ArrowUpRight size={13} aria-hidden="true" />
+              </a>
+            </span>
+          </>
+        }
+      />
+      {post ? (
+        <article
+          className="patch-post-body"
+          aria-label="Patch notes"
+          dangerouslySetInnerHTML={{ __html: post.html }}
+        />
+      ) : (
+        <p role="status">
+          This post couldn’t be loaded. You can read it on the official forum
+          using the link above.
+        </p>
+      )}
+    </div>
   )
 }

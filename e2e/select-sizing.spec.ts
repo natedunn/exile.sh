@@ -11,10 +11,6 @@ for (const width of [320, 768]) {
     ]) {
       await page.goto(path)
       await page.locator(".currency-row, .mover-row").first().waitFor()
-      if (name === "League")
-        await page
-          .getByRole("button", { name: "Open main menu", exact: true })
-          .click()
       await page.getByRole("combobox", { name, exact: true }).click()
       await expect(page.getByRole("listbox")).toBeVisible()
       const sizing = await page

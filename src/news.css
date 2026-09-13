@@ -1,17 +1,42 @@
 .news-page {
-  padding-block: 48px 64px;
+  padding-bottom: 64px;
 }
-.news-heading {
-  margin-bottom: 36px;
-}
-.news-heading h1 {
-  font: 500 64px/1.05 var(--font-display);
-}
-.news-heading > p {
+.news-page > [role="status"] {
+  margin-top: 36px;
   color: var(--color-text-muted);
-  margin-top: 12px;
+}
+/* The masthead portrait, shown at twice its pixels and placed so the face
+   sits beside the title and the shoulders dissolve into the rule. */
+.hero-portrait {
+  right: 8px;
+  top: -6px;
+  width: 276px;
+  height: 254px;
+}
+.hero-portrait::before {
+  opacity: 0.07;
+}
+.hero-portrait img {
+  opacity: 0.9;
+}
+.patch-post-heading h1 {
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.1;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.patch-post-heading .market-heading-copy {
+  max-width: min(100% - 220px, 900px);
+}
+.market-meta a {
+  color: var(--color-brand);
+}
+.market-meta a svg {
+  display: inline;
+  vertical-align: -2px;
 }
 .news-layout {
+  margin-top: 36px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
   gap: 56px;
@@ -143,12 +168,26 @@
     gap: 24px;
   }
 }
+@media (max-width: 1000px) {
+  .hero-portrait {
+    right: -30px;
+  }
+  .hero-portrait img {
+    opacity: 0.6;
+  }
+}
 @media (max-width: 640px) {
   .news-page {
-    padding-block: 32px;
+    padding-bottom: 32px;
   }
-  .news-heading h1 {
-    font-size: 48px;
+  .hero-portrait {
+    right: -70px;
+  }
+  .hero-portrait img {
+    opacity: 0.45;
+  }
+  .patch-post-heading .market-heading-copy {
+    max-width: none;
   }
   .news-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -160,12 +199,6 @@
   }
   .news-item h2 {
     font-size: 18px;
-  }
-  .build-shell .topbar {
-    flex-wrap: wrap;
-  }
-  .build-navigation {
-    gap: 14px;
   }
 }
 
@@ -192,17 +225,8 @@
   font: 12px var(--font-mono);
   text-align: right;
 }
-.patch-back {
-  display: inline-block;
-  color: var(--color-text-muted);
-  margin-bottom: 28px;
-  font-size: 13px;
-}
-.patch-post-heading h1 {
-  font-size: clamp(36px, 5vw, 56px);
-  overflow-wrap: anywhere;
-}
 .patch-post-body {
+  margin-top: 36px;
   line-height: 1.8;
   overflow-wrap: anywhere;
 }

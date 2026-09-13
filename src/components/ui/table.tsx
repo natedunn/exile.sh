@@ -6,16 +6,36 @@ function Table({
   scrollLabel = "Scrollable table",
   ...props
 }: React.ComponentProps<"table"> & { scrollLabel?: string }) {
+  // The scroll region only joins the tab order while it overflows in either
+  // direction (wide tables scroll sideways; capped ones scroll down), so
+  // keyboard users can scroll it without a stray focus stop when it fits.
+  const container = React.useRef<HTMLDivElement>(null)
+  const [overflows, setOverflows] = React.useState(false)
+  React.useEffect(() => {
+    const el = container.current
+    if (!el) return
+    const measure = () =>
+      setOverflows(
+        el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight
+      )
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    // The table itself can grow after data arrives without the frame moving.
+    if (el.firstElementChild) observer.observe(el.firstElementChild)
+    return () => observer.disconnect()
+  }, [])
   return (
     <div className="table-frame">
       <p className="table-scroll-hint">
         Scroll horizontally to see all columns →
       </p>
       <div
+        ref={container}
         data-slot="table-container"
         role="region"
         aria-label={scrollLabel}
-        tabIndex={0}
+        tabIndex={overflows ? 0 : undefined}
         className="relative w-full overflow-x-auto"
       >
         <table

@@ -1,11 +1,20 @@
 import { createFileRoute, notFound } from "@tanstack/react-router"
 import { z } from "zod"
-import { BuildShell } from "../components/build-shell"
 import { BuildView } from "../components/build-view"
+import type { BuildSelection } from "../components/build-view"
 import { getSharedBuild } from "../lib/build-server"
 import { buildSkill, displayStat, statValue } from "../../shared/pob"
 
+// The selected sets live in the URL so a shared link opens on the same view.
+const selection = z.object({
+  items: z.string().optional().catch(undefined),
+  weapons: z.enum(["primary", "swap"]).optional().catch(undefined),
+  skills: z.string().optional().catch(undefined),
+  tree: z.coerce.number().int().min(0).optional().catch(undefined),
+}) satisfies z.ZodType<BuildSelection>
+
 export const Route = createFileRoute("/build-bin/$slug")({
+  validateSearch: (search) => selection.parse(search),
   loader: async ({ params }) => {
     if (!z.string().uuid().safeParse(params.slug).success) throw notFound()
     const build = await getSharedBuild({ data: { slug: params.slug } })
@@ -36,33 +45,38 @@ export const Route = createFileRoute("/build-bin/$slug")({
       ],
     }
   },
-  component: () => {
-    const build = Route.useLoaderData()
-    return (
-      <BuildShell>
-        <BuildView
-          title={build.title}
-          build={build.snapshot}
-          code={build.code}
-          shared
-        />
-      </BuildShell>
-    )
-  },
+  component: SharedBuild,
   pendingComponent: () => (
-    <BuildShell>
-      <p className="build-empty" role="status">
-        Loading build…
-      </p>
-    </BuildShell>
+    <p className="build-empty" role="status">
+      Loading build…
+    </p>
   ),
   notFoundComponent: () => (
-    <BuildShell>
-      <section className="build-empty">
-        <h1>Build not found.</h1>
-        <p>This link does not point to a shared build.</p>
-        <a href="/build-bin">Share a build</a>
-      </section>
-    </BuildShell>
+    <section className="build-empty">
+      <h1>Build not found.</h1>
+      <p>This link does not point to a shared build.</p>
+      <a href="/build-bin">Share a build</a>
+    </section>
   ),
 })
+
+function SharedBuild() {
+  const build = Route.useLoaderData()
+  const selected = Route.useSearch()
+  const navigate = Route.useNavigate()
+  return (
+    <BuildView
+      title={build.title}
+      build={build.snapshot}
+      code={build.code}
+      shared
+      selection={selected}
+      onSelect={(patch) => {
+        void navigate({
+          search: (prev) => ({ ...prev, ...patch }),
+          resetScroll: false,
+        })
+      }}
+    />
+  )
+}

@@ -24,8 +24,13 @@ export const latest = publicQuery.input(z.object({})).query(async ({ ctx }) => {
 export const post = publicQuery
   .input(z.object({ threadId }))
   .query(async ({ ctx, input }) => {
-    const row = await ctx.orm.query.patchBodies.findFirst({ where: input })
-    return row ? { title: row.title, html: row.html } : null
+    const [row, thread] = await Promise.all([
+      ctx.orm.query.patchBodies.findFirst({ where: input }),
+      ctx.orm.query.patchThreads.findFirst({ where: input }),
+    ])
+    return row
+      ? { title: row.title, html: row.html, date: thread?.publishedAt ?? null }
+      : null
   })
 export const discover = privateMutation
   .input(
@@ -48,15 +53,13 @@ export const discover = privateMutation
           .set({ title: item.title, publishedAt: item.publishedAt })
           .where(eq(patchThreads.id, row.id))
       else
-        await ctx.orm
-          .insert(patchThreads)
-          .values({
-            ...item,
-            nextFetchAt: 0,
-            leaseToken: "",
-            lastError: "",
-            fetchedAt: 0,
-          })
+        await ctx.orm.insert(patchThreads).values({
+          ...item,
+          nextFetchAt: 0,
+          leaseToken: "",
+          lastError: "",
+          fetchedAt: 0,
+        })
     }
   })
 export const acquire = privateMutation

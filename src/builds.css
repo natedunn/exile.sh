@@ -1,27 +1,10 @@
-.build-navigation {
-  display: flex;
-  gap: 28px;
-  align-items: center;
-  font-size: 14px;
-}
-.build-navigation a {
-  color: var(--color-text-muted);
-}
-.build-navigation .nav-active {
-  color: var(--color-brand);
-}
-.build-game {
-  margin-left: auto;
-  color: var(--color-text-muted);
-  font: 11px var(--font-mono);
-}
 .build-intro {
   display: flex;
   position: relative;
   align-items: center;
   justify-content: space-between;
   min-height: 310px;
-  border-bottom: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule-strong);
   overflow: hidden;
 }
 .build-intro h1 {
@@ -192,7 +175,7 @@
   padding: 0;
   font-size: 12px;
 }
-html:has(.build-shell) {
+html:has(.build-view) {
   scroll-behavior: smooth;
 }
 /* One page. A sticky list of section links sits in the left column; each
@@ -211,8 +194,8 @@ html:has(.build-shell) {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(200px + var(--space-xl));
-  border-left: var(--rule-thin) solid var(--color-rule);
+  left: calc(var(--shell-gutter) + 200px + var(--space-xl));
+  border-left: var(--rule-thin) solid var(--color-rule-strong);
   pointer-events: none;
 }
 .build-nav {
@@ -562,17 +545,8 @@ html:has(.build-shell) {
   }
 }
 @media (max-width: 640px) {
-  .build-game,
   .build-intro-art {
     display: none;
-  }
-  .build-navigation {
-    margin-left: auto;
-    gap: 18px;
-  }
-  .build-shell .topbar {
-    flex-wrap: wrap;
-    gap: 16px;
   }
   .build-intro {
     min-height: 260px;
@@ -640,16 +614,13 @@ html:has(.build-shell) {
   .build-skill-title .build-selected {
     margin-left: 0;
   }
-  .build-shell footer {
-    margin-top: 40px;
-  }
 }
-.build-shell .build-primary {
+.build-primary {
   background: var(--color-brand);
   color: var(--color-paper);
   padding-inline: 14px;
 }
-.build-shell .build-primary:hover {
+.build-primary:hover {
   background: var(--color-brand-ink);
 }
 .build-actions [data-slot="button"],

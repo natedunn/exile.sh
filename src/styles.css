@@ -105,9 +105,9 @@ option {
 .table-count,
 .pagination,
 .history-caption,
-.source-time,
 .table-scroll-hint,
 .chart-legend,
+.sidebar-status,
 th,
 .market-meta,
 .mover-card-title > span:last-child,
@@ -164,21 +164,35 @@ h1,
 .skip-link:focus {
   top: 10px;
 }
+/* One framed column for every page. Header, main, and footer carry the
+   horizontal padding so their rules run edge to edge inside the frame. */
 .site-shell {
+  --shell-gutter: var(--space-2xl);
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
   max-width: 1400px;
   margin: auto;
-  padding: 0 var(--space-2xl);
+  border-inline: var(--rule-thin) solid var(--color-rule-strong);
 }
 .site-shell > main {
   flex: 1;
   min-width: 0;
+  padding: 0 var(--shell-gutter);
 }
 .site-shell > header,
 .site-shell > footer {
   flex-shrink: 0;
+}
+/* Sections that draw a rule across the page bleed out to the frame and
+   take the gutter inside, so every hairline meets the frame edge to edge. */
+.market-heading,
+.workspace-header,
+.bottom-note,
+.build-intro,
+.build-layout {
+  margin-inline: calc(-1 * var(--shell-gutter));
+  padding-inline: var(--shell-gutter);
 }
 
 /* Masthead: a plain hairline rule. */
@@ -188,12 +202,14 @@ h1,
   align-items: center;
   gap: var(--space-3xl);
   height: 68px;
+  padding: 0 var(--shell-gutter);
   border-bottom: var(--rule-thin) solid var(--color-rule-strong);
 }
+/* "exile" and ".sh" are separate flex items, so the gap lives on the mark
+   rather than between them. */
 .wordmark {
   display: flex;
   align-items: center;
-  gap: 10px;
   font-family: var(--font-display);
   font-size: 30px;
   font-weight: 600;
@@ -204,6 +220,7 @@ h1,
 .wordmark img {
   width: 24px;
   height: 24px;
+  margin-right: 10px;
   image-rendering: pixelated;
 }
 .wordmark span {
@@ -236,17 +253,11 @@ h1,
   color: var(--color-ink);
   border-bottom-color: var(--color-brand);
 }
-.topbar-status {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  margin-left: auto;
-}
 /* Data-freshness warning: a bronze glyph with the message in its tooltip. */
 /* The tooltip trigger replaces the button's data-slot, so match by class. */
 .stale-indicator {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   color: var(--color-brand);
   border: var(--rule-thin) dotted var(--color-brand-deep);
   background: var(--color-notice);
@@ -259,6 +270,9 @@ h1,
 .stale-indicator svg {
   width: 17px;
   height: 17px;
+}
+.mobile-navigation {
+  margin-left: auto;
 }
 .mobile-navigation,
 .category-picker {
@@ -273,7 +287,7 @@ h1,
   justify-content: space-between;
   gap: var(--space-xl);
   min-height: 200px;
-  padding: var(--space-2xl) 0 var(--space-lg);
+  padding-block: var(--space-2xl) var(--space-lg);
   border-bottom: var(--rule-thin) solid var(--color-rule-strong);
   overflow: hidden;
 }
@@ -348,7 +362,7 @@ h1 > span {
 /* While an item is open the masthead steps back so the currency leads. */
 .market-heading.compact {
   min-height: 0;
-  padding: var(--space-xl) 0 var(--space-md);
+  padding-block: var(--space-xl) var(--space-md);
 }
 .market-heading.compact h1 {
   font-size: 30px;
@@ -395,7 +409,7 @@ h1 > span {
   gap: var(--space-lg);
   margin-top: var(--space-xl);
   padding-bottom: var(--space-lg);
-  border-bottom: var(--rule-thin) solid var(--color-rule);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
 }
 /* View tabs share the chart's segmented-switch form: a bordered group of
    mono buttons, the current one filled solid bronze. */
@@ -441,12 +455,23 @@ h1 > span {
   outline-offset: -3px;
   z-index: 1;
 }
-.quote-picker {
+/* League and display currency sit together, each under a mono label. */
+.workspace-controls {
   display: flex;
-  align-items: center;
-  gap: var(--space-md);
+  align-items: flex-end;
+  gap: var(--space-lg);
+}
+.workspace-controls .stale-indicator {
+  align-self: flex-end;
+}
+.control-field {
+  display: grid;
+  gap: var(--space-sm);
+}
+.control-field label {
   font-family: var(--font-mono);
   font-size: var(--text-label);
+  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -455,7 +480,6 @@ h1 > span {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  margin-top: var(--space-xl);
 }
 
 /* ---------------------------------------------------------------- controls */
@@ -513,9 +537,6 @@ h1 > span {
 [data-slot="button"] {
   border-radius: var(--radius-control);
 }
-.league-picker[data-slot="select-trigger"] {
-  flex-shrink: 0;
-}
 .search-input[data-slot="input-group"] {
   height: 40px;
   gap: var(--space-sm);
@@ -539,6 +560,28 @@ h1 > span {
 }
 .search-input [data-slot="input-group-addon"] {
   padding: 0;
+}
+/* Keyboard hint: a mono pill that steps aside once the field has focus. */
+.search-hotkey {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  white-space: nowrap;
+}
+.search-hotkey kbd {
+  font: inherit;
+  padding: 2px 6px;
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: var(--radius-control);
+  color: var(--color-text-muted);
+}
+.search-input:focus-within .search-hotkey {
+  display: none;
 }
 .favorites-filter {
   display: inline-flex;
@@ -638,33 +681,67 @@ h1 > span {
 }
 
 /* ---------------------------------------------------------------- market */
+/* The workbench runs frame to frame: the category column sits against the
+   left edge, a divider closes it, and the table panel pads its own content
+   so every rule meets another. */
 .market-layout {
+  --sidebar-width: calc(224px + var(--shell-gutter));
   display: grid;
-  grid-template-columns: 224px minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   align-items: start;
-  column-gap: var(--space-3xl);
+  margin-inline: calc(-1 * var(--shell-gutter));
   min-width: 0;
   position: relative;
 }
+/* The divider reaches across the bottom note's margin to meet its rule, and
+   paints above the column so a button landing on a half pixel (the frame
+   is centred, so odd viewport widths do this) cannot cover it. */
 .market-layout::before {
   content: "";
   position: absolute;
+  z-index: 1;
   top: 0;
-  bottom: 0;
-  left: calc(224px + var(--space-xl));
-  border-left: var(--rule-thin) solid var(--color-rule);
+  bottom: calc(-1 * var(--space-2xl));
+  left: var(--sidebar-width);
+  border-left: var(--rule-thin) solid var(--color-rule-strong);
   pointer-events: none;
 }
 .categories {
   min-width: 0;
   width: 100%;
   position: sticky;
-  top: var(--space-lg);
+  top: 0;
+}
+/* Freshness strip: as tall as the search strip beside it (its padding plus
+   the field) so the two rules meet at the divider. */
+.sidebar-status {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  min-height: calc(40px + 2 * var(--space-xl) + var(--rule-thin));
+  padding-inline: var(--shell-gutter);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+}
+.sidebar-status > span {
+  color: var(--color-text-faint);
+}
+/* While updates are delayed the time carries the same warning as the
+   indicator by the league switcher, underlined to invite the tooltip. */
+.sidebar-status-delayed {
+  justify-self: start;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--color-brand-ink);
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
 }
 .categories nav {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding-block: var(--space-md);
 }
 .categories nav button {
   position: relative;
@@ -675,7 +752,7 @@ h1 > span {
   width: 100%;
   min-height: 42px;
   height: auto;
-  padding: 4px var(--space-sm) 4px var(--space-md);
+  padding: 4px var(--space-md) 4px var(--shell-gutter);
   border: 0;
   border-radius: 0;
   font-size: var(--text-sm);
@@ -746,6 +823,25 @@ h1 > span {
   width: 100%;
   min-width: 0;
 }
+/* Beside the sidebar the panel has no padding of its own: the search sits
+   in a padded strip closed by a rule, and the table below runs from the
+   divider to the frame with only its cells keeping an inset. */
+@media (min-width: 901px) {
+  .market-table-panel .table-toolbar {
+    padding: var(--space-xl);
+    border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+  }
+  /* The toolbar's rule already closes the top of the table. */
+  .market-table-panel th {
+    border-top: 0;
+  }
+  .market-table-panel .star-column {
+    padding-left: var(--space-xl);
+  }
+  .market-table-panel .pagination {
+    padding-inline: var(--space-xl);
+  }
+}
 .table-toolbar {
   display: flex;
   align-items: center;
@@ -790,8 +886,9 @@ table {
 }
 th {
   padding: var(--space-md);
-  border-top: var(--rule-thin) solid var(--color-rule-strong);
+  border-top: var(--rule-thin) solid var(--color-rule);
   border-bottom: var(--rule-thin) solid var(--color-rule);
+  background: color-mix(in oklch, var(--color-surface) 60%, var(--color-paper));
   white-space: nowrap;
   text-align: left;
 }
@@ -1499,8 +1596,8 @@ tbody tr:last-child td {
   align-items: center;
   gap: var(--space-md);
   margin-top: var(--space-2xl);
-  padding: var(--space-lg) 0;
-  border-top: var(--rule-thin) solid var(--color-rule);
+  padding-block: var(--space-lg);
+  border-top: var(--rule-thin) solid var(--color-rule-strong);
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   line-height: 1.6;
@@ -1518,7 +1615,7 @@ footer {
   align-items: center;
   gap: var(--space-xl);
   margin-top: var(--space-xl);
-  padding: var(--space-xl) 0 var(--space-2xl);
+  padding: var(--space-xl) var(--shell-gutter) var(--space-2xl);
   border-top: var(--rule-thin) solid var(--color-rule-strong);
   font-family: var(--font-mono);
   font-size: var(--text-label);
@@ -1552,10 +1649,6 @@ footer > .footer-info {
 .footer-info p {
   margin: 0;
 }
-.source-time {
-  text-transform: none;
-  letter-spacing: 0.04em;
-}
 footer > div:last-child {
   margin-left: auto;
   display: flex;
@@ -1576,8 +1669,8 @@ footer a:hover {
 .prose-page {
   position: relative;
   max-width: 720px;
-  margin: var(--space-3xl) auto;
-  padding: 0 var(--space-xl);
+  margin: 0 auto;
+  padding: var(--space-3xl) var(--space-xl);
 }
 .prose-page::before {
   content: "";
@@ -1695,22 +1788,6 @@ footer a:hover {
   background: var(--color-surface);
   box-shadow: inset 3px 0 0 var(--color-brand);
 }
-.mobile-menu-league {
-  display: grid;
-  gap: var(--space-sm);
-  padding: var(--space-lg);
-  border-top: var(--rule-thin) solid var(--color-rule);
-}
-.mobile-menu-league > span {
-  font-family: var(--font-mono);
-  font-size: var(--text-label);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-.mobile-menu-league .league-picker {
-  width: 100%;
-}
 
 /* ---------------------------------------------------------------- container hints */
 @container table-frame (max-width: 1019px) {
@@ -1748,7 +1825,7 @@ footer a:hover {
 }
 @media (max-width: 1000px) {
   .site-shell {
-    padding: 0 var(--space-xl);
+    --shell-gutter: var(--space-xl);
   }
   h1 {
     font-size: 48px;
@@ -1765,12 +1842,8 @@ footer a:hover {
     gap: var(--space-lg);
   }
   .topbar .desktop-navigation,
-  .desktop-league-picker,
   .categories {
     display: none;
-  }
-  .topbar-status {
-    margin-left: auto;
   }
   .stale-indicator {
     width: 44px;
@@ -1778,7 +1851,6 @@ footer a:hover {
   }
   .mobile-navigation {
     display: block;
-    order: 3;
   }
   .mobile-navigation > button {
     width: 44px;
@@ -1800,16 +1872,24 @@ footer a:hover {
     text-transform: uppercase;
     color: var(--color-text-muted);
   }
+  .category-picker [data-slot="select-trigger"],
+  .workspace-controls [data-slot="select-trigger"] {
+    height: 44px;
+  }
   .category-picker [data-slot="select-trigger"] {
     width: 100%;
-    height: 44px;
   }
   .market-layout {
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
+    margin-inline: 0;
+    padding-top: var(--space-xl);
   }
   .market-layout::before {
+    display: none;
+  }
+  .search-hotkey {
     display: none;
   }
   .hero-orb {
@@ -1856,7 +1936,8 @@ footer a:hover {
 }
 @media (max-width: 600px) {
   .site-shell {
-    padding: 0 var(--space-md);
+    --shell-gutter: var(--space-md);
+    border-inline: 0;
   }
   .topbar {
     flex-wrap: wrap;
@@ -1870,7 +1951,7 @@ footer a:hover {
   }
   .market-heading {
     min-height: 0;
-    padding: var(--space-xl) 0 var(--space-md);
+    padding-block: var(--space-xl) var(--space-md);
   }
   h1 {
     font-size: 34px;
@@ -1903,9 +1984,14 @@ footer a:hover {
     padding: 0 var(--space-sm);
     gap: var(--space-xs);
   }
-  .quote-picker {
+  .workspace-controls {
     width: 100%;
-    justify-content: flex-end;
+  }
+  .workspace-controls .control-field {
+    flex: 1;
+  }
+  .workspace-controls [data-slot="select-trigger"] {
+    width: 100%;
   }
   .movers-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -1997,8 +2083,7 @@ footer a:hover {
     align-self: flex-start;
   }
   .prose-page {
-    margin: var(--space-xl) auto;
-    padding-inline: var(--space-lg);
+    padding: var(--space-xl) var(--space-sm);
   }
   .prose-page::before {
     display: none;

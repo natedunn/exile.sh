@@ -1,4 +1,3 @@
-import { SiteNavigation } from "./site-navigation"
 import { Button } from "../components/ui/button"
 import { isEconomyStale } from "../../shared/freshness"
 import {
@@ -36,7 +35,7 @@ import { Skeleton } from "../components/ui/skeleton"
 import { Toggle } from "../components/ui/toggle"
 import { Link } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
-import { lazy, Suspense, useEffect, useState } from "react"
+import { lazy, Suspense, useEffect, useRef, useState } from "react"
 import {
   ArrowDown,
   ArrowDownLeft,
@@ -53,12 +52,14 @@ import {
   SlidersHorizontal,
   ArrowLeftRight,
   Gem,
+  TriangleAlert,
 } from "lucide-react"
-import type { Filters } from "../lib/economy-filters"
+import type { ChartRange, Filters } from "../lib/economy-filters"
+import { CHART_RANGES, CHART_RANGE_DAYS } from "../lib/economy-filters"
 import { useCRPC } from "../lib/convex/crpc"
 import { CATEGORIES, itemInfo } from "../lib/catalog"
-import { compact, number, percent, utc } from "../lib/format"
-import { ANCHORS, QUOTES } from "../../shared/economy"
+import { ago, compact, number, percent, utc } from "../lib/format"
+import { ANCHORS, HOUR, LEAGUES, QUOTES } from "../../shared/economy"
 import type { ItemRow, Pair, Quote } from "../../shared/economy"
 
 import {
@@ -192,6 +193,27 @@ export function EconomyPage({
   const [favorites, setFavorites] = useState<string[]>([])
   const [storageError, setStorageError] = useState(false)
   const [now, setNow] = useState(0)
+  // "F" jumps to the currency search from anywhere on the page that is not
+  // already taking text input.
+  const search = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      if (
+        event.key.toLowerCase() !== "f" ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        !search.current ||
+        target?.closest("input, textarea, select, [contenteditable]")
+      )
+        return
+      event.preventDefault()
+      search.current.focus()
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [])
   useEffect(() => {
     try {
       const saved: unknown = JSON.parse(
@@ -315,6 +337,10 @@ export function EconomyPage({
     )
     .slice(0, 50)
   const stale = !!data && isEconomyStale(data.hour, now)
+  const delayNotice =
+    data && stale
+      ? `Updates are delayed. Latest available data: ${utc(data.hour)}.`
+      : undefined
   const sort = (key: Filters["sort"]) =>
     patch({
       sort: key,
@@ -322,79 +348,106 @@ export function EconomyPage({
     })
   const openItem = (id: string) => patch({ item: id })
   return (
-    <div className="site-shell">
-      <header className="topbar">
-        <Link className="wordmark" to="/economy" search={{ ...f, item: "" }}>
-          <img src="/favicon.svg" alt="" width="30" height="30" />
-          exile<span>.sh</span>
-        </Link>
-        <SiteNavigation
-          filters={f}
-          onLeagueChange={(league) => patch({ league, item: "" })}
-          notice={
-            stale
-              ? `Updates are delayed. Latest available data: ${utc(data.hour)}.`
-              : undefined
-          }
-        />
-      </header>
-      <main id="main">
-        <section className={`market-heading ${f.item ? "compact" : ""}`}>
-          <div className="hero-orb" aria-hidden="true">
-            <img
-              src="/art/divine-dither.png"
-              alt=""
-              width="176"
-              height="176"
-              decoding="async"
-              fetchPriority="high"
-            />
-          </div>
-          <div className="market-heading-copy">
-            <h1>{moversPage ? "Market movers" : "Exchange economy"}</h1>
-            <p className="market-meta">
-              <span>
-                <strong>{f.league}</strong>
-              </span>
-              <span>
-                {data
-                  ? `Updated ${utc(data.hour)}`
-                  : query.isPending
-                    ? "Reading the market"
-                    : "No completed hour yet"}
-              </span>
-            </p>
-          </div>
-        </section>
-        {storageError && (
-          <div className="notice">
-            Your browser could not save favorites. They will last only for this
-            session.
-          </div>
-        )}
-        <div className="economy-pages">
-          <div className="workspace-header">
-            <nav
-              className="view-tabs economy-page-nav"
-              aria-label="Economy views"
+    <>
+      <section className={`market-heading ${f.item ? "compact" : ""}`}>
+        <div className="hero-orb" aria-hidden="true">
+          <img
+            src="/art/divine-dither.png"
+            alt=""
+            width="176"
+            height="176"
+            decoding="async"
+            fetchPriority="high"
+          />
+        </div>
+        <div className="market-heading-copy">
+          <h1>{moversPage ? "Market movers" : "Exchange economy"}</h1>
+          <p className="market-meta">
+            <span>
+              <strong>{f.league}</strong>
+            </span>
+            <span>
+              {data
+                ? `Updated ${utc(data.hour)}`
+                : query.isPending
+                  ? "Reading the market"
+                  : "No completed hour yet"}
+            </span>
+          </p>
+        </div>
+      </section>
+      {storageError && (
+        <div className="notice">
+          Your browser could not save favorites. They will last only for this
+          session.
+        </div>
+      )}
+      <div className="economy-pages">
+        <div className="workspace-header">
+          <nav
+            className="view-tabs economy-page-nav"
+            aria-label="Economy views"
+          >
+            <Link
+              to="/economy/market"
+              search={{ ...f, item: "" }}
+              aria-current={!moversPage ? "page" : undefined}
             >
-              <Link
-                to="/economy/market"
-                search={{ ...f, item: "" }}
-                aria-current={!moversPage ? "page" : undefined}
+              <Gem size={15} /> Currency market
+            </Link>
+            <Link
+              to="/economy/movers"
+              search={{ ...f, item: "" }}
+              aria-current={moversPage ? "page" : undefined}
+            >
+              <ArrowUpRight size={15} /> Market movers
+            </Link>
+          </nav>
+          <div className="workspace-controls">
+            {delayNotice && (
+              <Tooltip>
+                <TooltipTrigger
+                  delay={0}
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="stale-indicator"
+                      aria-label={delayNotice}
+                    />
+                  }
+                >
+                  <TriangleAlert aria-hidden="true" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{delayNotice}</TooltipContent>
+              </Tooltip>
+            )}
+            <div className="control-field">
+              <label id="league-label">League</label>
+              <Select
+                value={f.league}
+                onValueChange={(league) => {
+                  if (league) patch({ league, item: "" })
+                }}
+                items={LEAGUES.map((league) => ({
+                  label: league,
+                  value: league,
+                }))}
               >
-                <Gem size={15} /> Currency market
-              </Link>
-              <Link
-                to="/economy/movers"
-                search={{ ...f, item: "" }}
-                aria-current={moversPage ? "page" : undefined}
-              >
-                <ArrowUpRight size={15} /> Market movers
-              </Link>
-            </nav>
-            <div className="quote-picker">
-              Display in
+                <SelectTrigger aria-labelledby="league-label" size="sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="min-w-max">
+                  {LEAGUES.map((league) => (
+                    <SelectItem key={league} value={league}>
+                      {league}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="control-field">
+              <label id="quote-label">Display in</label>
               <Select
                 value={f.quote}
                 onValueChange={(quote) => {
@@ -420,599 +473,602 @@ export function EconomyPage({
               </Select>
             </div>
           </div>
-          <div>
-            {query.isError ? (
-              <div className="empty-state">
-                <CircleHelp />
-                <h2>The market is temporarily unavailable.</h2>
-                <p>
-                  Your filters and favorites are safe. Try loading the data
-                  again.
-                </p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    void query.refetch()
+        </div>
+        <div>
+          {query.isError ? (
+            <div className="empty-state">
+              <CircleHelp />
+              <h2>The market is temporarily unavailable.</h2>
+              <p>
+                Your filters and favorites are safe. Try loading the data again.
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  void query.refetch()
+                }}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : query.isPending ? (
+            <div className="loading-market" role="status">
+              <span className="status-dot" /> Reading the market…
+              <Skeleton className="skeleton" />
+              <Skeleton className="skeleton" />
+              <Skeleton className="skeleton" />
+            </div>
+          ) : !data ? (
+            <div className="empty-state">
+              <Gem />
+              <h2>No exchange data yet.</h2>
+              <p>
+                No completed exchange hours have been imported for this league
+                yet.
+              </p>
+              <span>
+                Choose another league or return after collection begins.
+              </span>
+            </div>
+          ) : f.item ? (
+            <ItemDetail
+              id={f.item}
+              league={f.league}
+              quote={displayQuote(f.item)}
+              row={rows.find((r) => r.id === f.item)}
+              price={
+                rate(f.item)
+                  ? (rows.find((r) => r.id === f.item)?.price ?? 0) /
+                    rate(f.item)!
+                  : null
+              }
+              hour={data.hour}
+              pairs={data.pairs}
+              onBack={() => patch({ item: "" })}
+              onItem={openItem}
+              favorite={favorites.includes(f.item)}
+              onFavorite={() => toggleFavorite(f.item)}
+              range={f.range}
+              // The chart range is not a table filter; keep the table's page.
+              onRange={(range) => patch({ range, page: f.page })}
+            />
+          ) : moversPage ? (
+            <section className="movers-section">
+              <div className="section-title movers-controls">
+                <Select
+                  value={f.period}
+                  onValueChange={(period) => {
+                    if (period) patch({ period })
                   }}
+                  items={MOVER_PERIODS.map((period) => ({
+                    value: period,
+                    label: MOVER_PERIOD[period].label,
+                  }))}
                 >
-                  Retry
-                </Button>
-              </div>
-            ) : query.isPending ? (
-              <div className="loading-market" role="status">
-                <span className="status-dot" /> Reading the market…
-                <Skeleton className="skeleton" />
-                <Skeleton className="skeleton" />
-                <Skeleton className="skeleton" />
-              </div>
-            ) : !data ? (
-              <div className="empty-state">
-                <Gem />
-                <h2>No exchange data yet.</h2>
-                <p>
-                  No completed exchange hours have been imported for this league
-                  yet.
-                </p>
-                <span>
-                  Choose another league or return after collection begins.
+                  <SelectTrigger size="sm" aria-label="Movers period">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="min-w-max">
+                    {MOVER_PERIODS.map((period) => (
+                      <SelectItem key={period} value={period}>
+                        {MOVER_PERIOD[period].label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="period-label">
+                  Activity-filtered{" "}
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          className="help-trigger"
+                          aria-label="How market movers are ranked"
+                        />
+                      }
+                    >
+                      <CircleHelp size={13} />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Three-hour weighted windows separated by the selected
+                      period, at least 12 active hours in the latest day, and at
+                      least 1,000 Exalted traded in each comparison window.
+                      Sparklines show the last 48 hours.
+                    </TooltipContent>
+                  </Tooltip>
                 </span>
               </div>
-            ) : f.item ? (
-              <ItemDetail
-                id={f.item}
-                league={f.league}
-                quote={displayQuote(f.item)}
-                row={rows.find((r) => r.id === f.item)}
-                price={
-                  rate(f.item)
-                    ? (rows.find((r) => r.id === f.item)?.price ?? 0) /
-                      rate(f.item)!
-                    : null
-                }
-                hour={data.hour}
-                pairs={data.pairs}
-                onBack={() => patch({ item: "" })}
-                onItem={openItem}
-                favorite={favorites.includes(f.item)}
-                onFavorite={() => toggleFavorite(f.item)}
-              />
-            ) : moversPage ? (
-              <section className="movers-section">
-                <div className="section-title movers-controls">
-                  <Select
-                    value={f.period}
-                    onValueChange={(period) => {
-                      if (period) patch({ period })
+              {moverQuery.isError ? (
+                <div className="empty-state">
+                  <h2>Could not load this period.</h2>
+                  <Button
+                    onClick={() => {
+                      void moverQuery.refetch()
                     }}
-                    items={MOVER_PERIODS.map((period) => ({
-                      value: period,
-                      label: MOVER_PERIOD[period].label,
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : moverQuery.isPending ||
+                moverQuery.data?.hour !== data.hour ? (
+                <div className="loading-market" role="status">
+                  Loading rankings…
+                </div>
+              ) : (
+                <div className="movers-grid">
+                  {[
+                    { title: "Decliners", data: falling, up: false },
+                    { title: "Gainers", data: rising, up: true },
+                  ].map((group) => (
+                    <div
+                      className={`mover-card ${group.up ? "gainers" : "losers"}`}
+                      key={group.title}
+                    >
+                      <div className="mover-card-title">
+                        <span>
+                          {group.up ? (
+                            <ArrowUpRight size={17} />
+                          ) : (
+                            <ArrowDownLeft size={17} />
+                          )}
+                          {group.title}
+                        </span>
+                        <span>
+                          {group.data.length} · {f.period}
+                        </span>
+                      </div>
+                      {group.data.length ? (
+                        group.data.map((r, index) => (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="mover-row"
+                            key={r.id}
+                            onClick={() => openItem(r.id)}
+                          >
+                            <span className="mover-rank" aria-hidden="true">
+                              {String(index + 1).padStart(2, "0")}
+                            </span>
+                            <Icon id={r.id} />
+                            <span className="mover-name">
+                              {itemInfo(r.id).name}
+                              <small>
+                                {value(r) === null ? "—" : number(value(r)!)}{" "}
+                                {displayQuote(r.id).toLowerCase()}
+                              </small>
+                            </span>
+                            <Sparkline values={r.trends[quoteIndex(r.id)]} />
+                            <Delta value={moverChange(r)} />
+                          </Button>
+                        ))
+                      ) : (
+                        <div className="mover-empty">
+                          No qualifying {group.up ? "gainers" : "decliners"}{" "}
+                          yet.
+                          <small>
+                            {moverQuery.data?.hasComparison
+                              ? "No active markets meet the liquidity threshold for this period."
+                              : "Not enough recorded history for this period yet."}
+                          </small>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          ) : (
+            <div className="economy-workbench">
+              <section className="market-layout">
+                <div className="category-picker">
+                  <label id="category-label">Category</label>
+                  <Select
+                    value={f.favorites ? "Watchlist" : f.category}
+                    onValueChange={(category) => {
+                      if (category)
+                        patch({
+                          favorites: category === "Watchlist",
+                          category:
+                            category === "Watchlist"
+                              ? "All currencies"
+                              : category,
+                        })
+                    }}
+                    items={["Watchlist", ...CATEGORIES].map((category) => ({
+                      label: category,
+                      value: category,
                     }))}
                   >
-                    <SelectTrigger size="sm" aria-label="Movers period">
-                      <SelectValue />
+                    <SelectTrigger aria-labelledby="category-label">
+                      <SelectValue>
+                        {categoryLabel(f.favorites ? "Watchlist" : f.category)}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="min-w-max">
-                      {MOVER_PERIODS.map((period) => (
-                        <SelectItem key={period} value={period}>
-                          {MOVER_PERIOD[period].label}
+                      <SelectItem value="Watchlist">
+                        {categoryLabel("Watchlist")}
+                      </SelectItem>
+                      {categoryOptions.map(({ category }) => (
+                        <SelectItem key={category} value={category}>
+                          {categoryLabel(category)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <span className="period-label">
-                    Activity-filtered{" "}
-                    <Tooltip>
-                      <TooltipTrigger
-                        render={
+                </div>
+                <aside className="categories">
+                  <div className="sidebar-status">
+                    <span>Last fetched</span>
+                    {/* Relative to the end of the source hour, which is when
+                        its trades were complete. Before hydration there is
+                        no clock, so show the hour itself. */}
+                    {!now ? (
+                      utc(data.hour)
+                    ) : delayNotice ? (
+                      <Tooltip>
+                        <TooltipTrigger
+                          delay={0}
+                          render={
+                            <button
+                              type="button"
+                              className="sidebar-status-delayed"
+                            />
+                          }
+                        >
+                          {ago((data.hour + HOUR) * 1000, now)}
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          {delayNotice}
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      ago((data.hour + HOUR) * 1000, now)
+                    )}
+                  </div>
+                  <nav aria-label="Currency categories">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={f.favorites ? "active" : ""}
+                      aria-pressed={f.favorites}
+                      onClick={() =>
+                        patch({ favorites: true, category: "All currencies" })
+                      }
+                    >
+                      <span>
+                        <span className="item-icon">
+                          <Star size={18} />
+                        </span>
+                        Watchlist
+                      </span>
+                      <small>
+                        {
+                          rows.filter((row) => favorites.includes(row.id))
+                            .length
+                        }
+                      </small>
+                    </Button>
+                    {categoryOptions.map(
+                      ({ category: cat, count, mostTraded }) => {
+                        return (
                           <Button
                             variant="ghost"
+                            size="sm"
+                            key={cat}
+                            className={
+                              !f.favorites && f.category === cat ? "active" : ""
+                            }
+                            aria-pressed={!f.favorites && f.category === cat}
+                            onClick={() =>
+                              patch({ category: cat, favorites: false })
+                            }
+                          >
+                            <span>
+                              {mostTraded && (
+                                <Icon key={mostTraded.id} id={mostTraded.id} />
+                              )}
+                              {cat}
+                            </span>
+                            <small>{count}</small>
+                          </Button>
+                        )
+                      }
+                    )}
+                  </nav>
+                  <div className="sidebar-note">
+                    <span className="status-dot" />
+                    <strong>Source: GGG Currency Exchange</strong>
+                    <p>
+                      Completed trades from GGG's official Currency Exchange.
+                      Updated hourly when collection is running.
+                    </p>
+                    <Link to="/methodology" search={f}>
+                      How prices work <ArrowRight size={12} />
+                    </Link>
+                  </div>
+                </aside>
+                <div className="market-table-panel">
+                  <div className="table-toolbar">
+                    <InputGroup className="search-input">
+                      <InputGroupAddon>
+                        <Search size={16} />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        ref={search}
+                        value={f.q}
+                        onChange={(e) => patch({ q: e.target.value })}
+                        placeholder="Find a currency…"
+                        aria-label="Search currencies"
+                      />
+                      {!f.q && (
+                        <InputGroupAddon align="inline-end">
+                          <span className="search-hotkey" aria-hidden="true">
+                            Press <kbd>F</kbd>
+                          </span>
+                        </InputGroupAddon>
+                      )}
+                      {f.q && (
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupButton
+                            variant="ghost"
                             size="icon-xs"
-                            className="help-trigger"
-                            aria-label="How market movers are ranked"
-                          />
-                        }
-                      >
-                        <CircleHelp size={13} />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        Three-hour weighted windows separated by the selected
-                        period, at least 12 active hours in the latest day, and
-                        at least 1,000 Exalted traded in each comparison window.
-                        Sparklines show the last 48 hours.
-                      </TooltipContent>
-                    </Tooltip>
-                  </span>
-                </div>
-                {moverQuery.isError ? (
-                  <div className="empty-state">
-                    <h2>Could not load this period.</h2>
-                    <Button
-                      onClick={() => {
-                        void moverQuery.refetch()
-                      }}
+                            aria-label="Clear search"
+                            onClick={() => patch({ q: "" })}
+                          >
+                            <X size={13} />
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      )}
+                    </InputGroup>
+                  </div>
+                  <div className="table-scroll">
+                    <Table
+                      className="currency-table"
+                      scrollLabel="Currency market, scroll horizontally for more columns"
                     >
-                      Retry
-                    </Button>
-                  </div>
-                ) : moverQuery.isPending ||
-                  moverQuery.data?.hour !== data.hour ? (
-                  <div className="loading-market" role="status">
-                    Loading rankings…
-                  </div>
-                ) : (
-                  <div className="movers-grid">
-                    {[
-                      { title: "Decliners", data: falling, up: false },
-                      { title: "Gainers", data: rising, up: true },
-                    ].map((group) => (
-                      <div
-                        className={`mover-card ${group.up ? "gainers" : "losers"}`}
-                        key={group.title}
-                      >
-                        <div className="mover-card-title">
-                          <span>
-                            {group.up ? (
-                              <ArrowUpRight size={17} />
-                            ) : (
-                              <ArrowDownLeft size={17} />
-                            )}
-                            {group.title}
-                          </span>
-                          <span>
-                            {group.data.length} · {f.period}
-                          </span>
-                        </div>
-                        {group.data.length ? (
-                          group.data.map((r, index) => (
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead
+                            className="star-column"
+                            aria-label="Watchlist"
+                          />
+                          <TableHead
+                            aria-sort={
+                              f.sort === "name"
+                                ? f.dir === "asc"
+                                  ? "ascending"
+                                  : "descending"
+                                : "none"
+                            }
+                          >
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="mover-row"
-                              key={r.id}
-                              onClick={() => openItem(r.id)}
+                              onClick={() => sort("name")}
                             >
-                              <span className="mover-rank" aria-hidden="true">
-                                {String(index + 1).padStart(2, "0")}
-                              </span>
-                              <Icon id={r.id} />
-                              <span className="mover-name">
-                                {itemInfo(r.id).name}
-                                <small>
-                                  {value(r) === null ? "—" : number(value(r)!)}{" "}
-                                  {displayQuote(r.id).toLowerCase()}
-                                </small>
-                              </span>
-                              <Sparkline values={r.trends[quoteIndex(r.id)]} />
-                              <Delta value={moverChange(r)} />
+                              Currency
                             </Button>
-                          ))
-                        ) : (
-                          <div className="mover-empty">
-                            No qualifying {group.up ? "gainers" : "decliners"}{" "}
-                            yet.
-                            <small>
-                              {moverQuery.data?.hasComparison
-                                ? "No active markets meet the liquidity threshold for this period."
-                                : "Not enough recorded history for this period yet."}
-                            </small>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            ) : (
-              <div className="economy-workbench">
-                <section className="market-layout">
-                  <div className="category-picker">
-                    <label id="category-label">Category</label>
-                    <Select
-                      value={f.favorites ? "Watchlist" : f.category}
-                      onValueChange={(category) => {
-                        if (category)
-                          patch({
-                            favorites: category === "Watchlist",
-                            category:
-                              category === "Watchlist"
-                                ? "All currencies"
-                                : category,
-                          })
-                      }}
-                      items={["Watchlist", ...CATEGORIES].map((category) => ({
-                        label: category,
-                        value: category,
-                      }))}
-                    >
-                      <SelectTrigger aria-labelledby="category-label">
-                        <SelectValue>
-                          {categoryLabel(
-                            f.favorites ? "Watchlist" : f.category
-                          )}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="min-w-max">
-                        <SelectItem value="Watchlist">
-                          {categoryLabel("Watchlist")}
-                        </SelectItem>
-                        {categoryOptions.map(({ category }) => (
-                          <SelectItem key={category} value={category}>
-                            {categoryLabel(category)}
-                          </SelectItem>
+                          </TableHead>
+                          <TableHead
+                            aria-sort={
+                              f.sort === "price"
+                                ? f.dir === "asc"
+                                  ? "ascending"
+                                  : "descending"
+                                : "none"
+                            }
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => sort("price")}
+                            >
+                              Price{" "}
+                              {f.sort === "price" && <ArrowDown size={11} />}
+                            </Button>
+                          </TableHead>
+                          <TableHead
+                            className="hide-medium"
+                            aria-sort={
+                              f.sort === "volume"
+                                ? f.dir === "asc"
+                                  ? "ascending"
+                                  : "descending"
+                                : "none"
+                            }
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => sort("volume")}
+                              title="Sort by traded value in Exalted"
+                            >
+                              Volume <SlidersHorizontal size={11} />
+                            </Button>
+                          </TableHead>
+                          <TableHead
+                            aria-sort={
+                              f.sort === "change"
+                                ? f.dir === "asc"
+                                  ? "ascending"
+                                  : "descending"
+                                : "none"
+                            }
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => sort("change")}
+                            >
+                              24h change
+                            </Button>
+                          </TableHead>
+                          <TableHead className="hide-small">
+                            7d change
+                          </TableHead>
+                          <TableHead className="hide-small">
+                            Last 48 hours
+                          </TableHead>
+                          <TableHead />
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {displayed.map((r) => (
+                          <TableRow
+                            key={r.id}
+                            className="currency-row"
+                            onClick={(event) => {
+                              if (
+                                (event.target as HTMLElement).closest(
+                                  "button, a, input"
+                                )
+                              )
+                                return
+                              openItem(r.id)
+                            }}
+                          >
+                            <TableCell className="star-column">
+                              <Toggle
+                                size="sm"
+                                className={`star-button ${favorites.includes(r.id) ? "saved" : ""}`}
+                                aria-label={`${favorites.includes(r.id) ? "Remove" : "Add"} ${itemInfo(r.id).name} ${favorites.includes(r.id) ? "from" : "to"} watchlist`}
+                                pressed={favorites.includes(r.id)}
+                                onPressedChange={() => toggleFavorite(r.id)}
+                              >
+                                <Star
+                                  size={14}
+                                  fill={
+                                    favorites.includes(r.id)
+                                      ? "currentColor"
+                                      : "none"
+                                  }
+                                />
+                              </Toggle>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="currency-name"
+                                onClick={() => openItem(r.id)}
+                              >
+                                <Icon id={r.id} glow />
+                                <span>{itemInfo(r.id).name}</span>
+                              </Button>
+                            </TableCell>
+                            <TableCell className="price-cell">
+                              {value(r) === null ? "—" : number(value(r)!)}
+                              <img
+                                src={itemInfo(ANCHORS[displayQuote(r.id)]).icon}
+                                width="17"
+                                height="17"
+                                alt={displayQuote(r.id)}
+                              />
+                            </TableCell>
+                            <TableCell
+                              className="hide-medium volume-cell"
+                              title={`${number(r.volume, 0)} item units in the pricing market`}
+                            >
+                              {compact(r.volume)}
+                            </TableCell>
+                            <TableCell>
+                              <Delta value={r.changes[quoteIndex(r.id)]} />
+                            </TableCell>
+                            <TableCell className="hide-small">
+                              <Delta value={r.changes7[quoteIndex(r.id)]} />
+                            </TableCell>
+                            <TableCell className="hide-small">
+                              <Sparkline
+                                alignStart
+                                values={r.trends[quoteIndex(r.id)]}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="row-open"
+                                onClick={() => openItem(r.id)}
+                                aria-label={`View ${itemInfo(r.id).name} history`}
+                              >
+                                <ChevronRight size={15} />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </TableBody>
+                    </Table>
                   </div>
-                  <aside className="categories">
-                    <nav aria-label="Currency categories">
+                  {visible.length === 0 && (
+                    <div className="empty-state compact-empty">
+                      <Search size={24} />
+                      <h3>No currencies found.</h3>
+                      <p>Try a different search or category.</p>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className={f.favorites ? "active" : ""}
-                        aria-pressed={f.favorites}
                         onClick={() =>
-                          patch({ favorites: true, category: "All currencies" })
+                          patch({
+                            q: "",
+                            category: "All currencies",
+                            favorites: false,
+                          })
                         }
                       >
-                        <span>
-                          <span className="item-icon">
-                            <Star size={18} />
-                          </span>
-                          Watchlist
-                        </span>
-                        <small>
-                          {
-                            rows.filter((row) => favorites.includes(row.id))
-                              .length
-                          }
-                        </small>
+                        Clear filters
                       </Button>
-                      {categoryOptions.map(
-                        ({ category: cat, count, mostTraded }) => {
-                          return (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              key={cat}
-                              className={
-                                !f.favorites && f.category === cat
-                                  ? "active"
-                                  : ""
-                              }
-                              aria-pressed={!f.favorites && f.category === cat}
-                              onClick={() =>
-                                patch({ category: cat, favorites: false })
-                              }
-                            >
-                              <span>
-                                {mostTraded && (
-                                  <Icon
-                                    key={mostTraded.id}
-                                    id={mostTraded.id}
-                                  />
-                                )}
-                                {cat}
-                              </span>
-                              <small>{count}</small>
-                            </Button>
-                          )
-                        }
-                      )}
-                    </nav>
-                    <div className="sidebar-note">
-                      <span className="status-dot" />
-                      <strong>Source: GGG Currency Exchange</strong>
-                      <p>
-                        Completed trades from GGG's official Currency Exchange.
-                        Updated hourly when collection is running.
-                      </p>
-                      <Link to="/methodology" search={f}>
-                        How prices work <ArrowRight size={12} />
-                      </Link>
                     </div>
-                  </aside>
-                  <div className="market-table-panel">
-                    <div className="table-toolbar">
-                      <InputGroup className="search-input">
-                        <InputGroupAddon>
-                          <Search size={16} />
-                        </InputGroupAddon>
-                        <InputGroupInput
-                          value={f.q}
-                          onChange={(e) => patch({ q: e.target.value })}
-                          placeholder="Find a currency…"
-                          aria-label="Search currencies"
-                          autoFocus
-                        />
-                        {f.q && (
-                          <InputGroupAddon align="inline-end">
-                            <InputGroupButton
-                              variant="ghost"
-                              size="icon-xs"
-                              aria-label="Clear search"
-                              onClick={() => patch({ q: "" })}
-                            >
-                              <X size={13} />
-                            </InputGroupButton>
-                          </InputGroupAddon>
-                        )}
-                      </InputGroup>
-                    </div>
-                    <div className="table-scroll">
-                      <Table
-                        className="currency-table"
-                        scrollLabel="Currency market, scroll horizontally for more columns"
+                  )}
+                  <div className="pagination">
+                    <span>
+                      {visible.length
+                        ? `${(page - 1) * 25 + 1}–${Math.min(page * 25, visible.length)} of ${visible.length}`
+                        : "0 results"}
+                    </span>
+                    <span>
+                      Page {page} of {pages}
+                    </span>
+                    <div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={page <= 1}
+                        onClick={() => patch({ page: page - 1 })}
+                        aria-label="Previous page"
                       >
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead
-                              className="star-column"
-                              aria-label="Watchlist"
-                            />
-                            <TableHead
-                              aria-sort={
-                                f.sort === "name"
-                                  ? f.dir === "asc"
-                                    ? "ascending"
-                                    : "descending"
-                                  : "none"
-                              }
-                            >
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => sort("name")}
-                              >
-                                Currency
-                              </Button>
-                            </TableHead>
-                            <TableHead
-                              aria-sort={
-                                f.sort === "price"
-                                  ? f.dir === "asc"
-                                    ? "ascending"
-                                    : "descending"
-                                  : "none"
-                              }
-                            >
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => sort("price")}
-                              >
-                                Price{" "}
-                                {f.sort === "price" && <ArrowDown size={11} />}
-                              </Button>
-                            </TableHead>
-                            <TableHead
-                              className="hide-medium"
-                              aria-sort={
-                                f.sort === "volume"
-                                  ? f.dir === "asc"
-                                    ? "ascending"
-                                    : "descending"
-                                  : "none"
-                              }
-                            >
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => sort("volume")}
-                                title="Sort by traded value in Exalted"
-                              >
-                                Volume <SlidersHorizontal size={11} />
-                              </Button>
-                            </TableHead>
-                            <TableHead
-                              aria-sort={
-                                f.sort === "change"
-                                  ? f.dir === "asc"
-                                    ? "ascending"
-                                    : "descending"
-                                  : "none"
-                              }
-                            >
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => sort("change")}
-                              >
-                                24h change
-                              </Button>
-                            </TableHead>
-                            <TableHead className="hide-small">
-                              7d change
-                            </TableHead>
-                            <TableHead className="hide-small">
-                              Last 48 hours
-                            </TableHead>
-                            <TableHead />
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {displayed.map((r) => (
-                            <TableRow
-                              key={r.id}
-                              className="currency-row"
-                              onClick={(event) => {
-                                if (
-                                  (event.target as HTMLElement).closest(
-                                    "button, a, input"
-                                  )
-                                )
-                                  return
-                                openItem(r.id)
-                              }}
-                            >
-                              <TableCell className="star-column">
-                                <Toggle
-                                  size="sm"
-                                  className={`star-button ${favorites.includes(r.id) ? "saved" : ""}`}
-                                  aria-label={`${favorites.includes(r.id) ? "Remove" : "Add"} ${itemInfo(r.id).name} ${favorites.includes(r.id) ? "from" : "to"} watchlist`}
-                                  pressed={favorites.includes(r.id)}
-                                  onPressedChange={() => toggleFavorite(r.id)}
-                                >
-                                  <Star
-                                    size={14}
-                                    fill={
-                                      favorites.includes(r.id)
-                                        ? "currentColor"
-                                        : "none"
-                                    }
-                                  />
-                                </Toggle>
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="currency-name"
-                                  onClick={() => openItem(r.id)}
-                                >
-                                  <Icon id={r.id} glow />
-                                  <span>{itemInfo(r.id).name}</span>
-                                </Button>
-                              </TableCell>
-                              <TableCell className="price-cell">
-                                {value(r) === null ? "—" : number(value(r)!)}
-                                <img
-                                  src={
-                                    itemInfo(ANCHORS[displayQuote(r.id)]).icon
-                                  }
-                                  width="17"
-                                  height="17"
-                                  alt={displayQuote(r.id)}
-                                />
-                              </TableCell>
-                              <TableCell
-                                className="hide-medium volume-cell"
-                                title={`${number(r.volume, 0)} item units in the pricing market`}
-                              >
-                                {compact(r.volume)}
-                              </TableCell>
-                              <TableCell>
-                                <Delta value={r.changes[quoteIndex(r.id)]} />
-                              </TableCell>
-                              <TableCell className="hide-small">
-                                <Delta value={r.changes7[quoteIndex(r.id)]} />
-                              </TableCell>
-                              <TableCell className="hide-small">
-                                <Sparkline
-                                  alignStart
-                                  values={r.trends[quoteIndex(r.id)]}
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="row-open"
-                                  onClick={() => openItem(r.id)}
-                                  aria-label={`View ${itemInfo(r.id).name} history`}
-                                >
-                                  <ChevronRight size={15} />
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                    {visible.length === 0 && (
-                      <div className="empty-state compact-empty">
-                        <Search size={24} />
-                        <h3>No currencies found.</h3>
-                        <p>Try a different search or category.</p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            patch({
-                              q: "",
-                              category: "All currencies",
-                              favorites: false,
-                            })
-                          }
-                        >
-                          Clear filters
-                        </Button>
-                      </div>
-                    )}
-                    <div className="pagination">
-                      <span>
-                        {visible.length
-                          ? `${(page - 1) * 25 + 1}–${Math.min(page * 25, visible.length)} of ${visible.length}`
-                          : "0 results"}
-                      </span>
-                      <span>
-                        Page {page} of {pages}
-                      </span>
-                      <div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={page <= 1}
-                          onClick={() => patch({ page: page - 1 })}
-                          aria-label="Previous page"
-                        >
-                          <ChevronLeft size={15} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={page >= pages}
-                          onClick={() => patch({ page: page + 1 })}
-                          aria-label="Next page"
-                        >
-                          <ChevronRight size={15} />
-                        </Button>
-                      </div>
+                        <ChevronLeft size={15} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={page >= pages}
+                        onClick={() => patch({ page: page + 1 })}
+                        aria-label="Next page"
+                      >
+                        <ChevronRight size={15} />
+                      </Button>
                     </div>
                   </div>
-                </section>
-              </div>
-            )}
-          </div>
+                </div>
+              </section>
+            </div>
+          )}
         </div>
-        <section className="bottom-note">
-          <CircleHelp size={15} />
-          <p>
-            Prices reflect completed exchange trades, not live offers. Thin
-            markets can be volatile.{" "}
-            <Link to="/methodology" search={f}>
-              Read the methodology.
-            </Link>
-          </p>
-        </section>
-      </main>
-      <footer>
-        <Link
-          className="footer-brand"
-          to="/economy"
-          search={{ ...f, item: "" }}
-        >
-          exile.sh
-        </Link>
-        <div className="footer-info">
-          <p>Not affiliated with or endorsed by Grinding Gear Games.</p>
-          <span className="source-time">
-            {data
-              ? `Last completed hour · ${utc(data.hour)}`
-              : "Waiting for a completed exchange hour"}
-          </span>
-        </div>
-        <div>
+      </div>
+      <section className="bottom-note">
+        <CircleHelp size={15} />
+        <p>
+          Prices reflect completed exchange trades, not live offers. Thin
+          markets can be volatile.{" "}
           <Link to="/methodology" search={f}>
-            Data & attribution
+            Read the methodology.
           </Link>
-          <a href="https://github.com/natedunn/exile.sh">
-            GitHub <ExternalLink size={11} />
-          </a>
-        </div>
-      </footer>
-    </div>
+        </p>
+      </section>
+    </>
   )
 }
 
@@ -1028,6 +1084,8 @@ function ItemDetail({
   onItem,
   favorite,
   onFavorite,
+  range,
+  onRange,
 }: {
   id: string
   league: Filters["league"]
@@ -1040,8 +1098,10 @@ function ItemDetail({
   onItem: (id: string) => void
   favorite: boolean
   onFavorite: () => void
+  range: ChartRange
+  onRange: (range: ChartRange) => void
 }) {
-  const [days, setDays] = useState<1 | 7 | 30 | 90>(7)
+  const days = CHART_RANGE_DAYS[range]
   const crpc = useCRPC(),
     query = useQuery(
       crpc.economy.itemHistory.queryOptions({ league, item: id, quote, days })
@@ -1106,15 +1166,15 @@ function ItemDetail({
         <div className="chart-toolbar">
           <h3>Price history</h3>
           <div className="range-tabs">
-            {([1, 7, 30, 90] as const).map((d) => (
+            {CHART_RANGES.map((r) => (
               <Button
                 variant="ghost"
                 size="sm"
-                key={d}
-                className={days === d ? "active" : ""}
-                onClick={() => setDays(d)}
+                key={r}
+                className={range === r ? "active" : ""}
+                onClick={() => onRange(r)}
               >
-                {d === 1 ? "24H" : `${d}D`}
+                {r.toUpperCase()}
               </Button>
             ))}
           </div>

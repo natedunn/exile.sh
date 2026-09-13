@@ -16,7 +16,7 @@ export const Route = createFileRoute("/methodology")({
 function Methodology() {
   const search = Route.useSearch()
   return (
-    <main id="main" className="prose-page">
+    <div className="prose-page">
       <Link to="/economy" search={search}>
         ← Back to the economy
       </Link>
@@ -226,6 +226,6 @@ function Methodology() {
         <a href="https://github.com/natedunn/exile.sh/issues">Open an issue</a>{" "}
         or contact <a href="mailto:hello@natedunn.net">hello@natedunn.net</a>.
       </p>
-    </main>
+    </div>
   )
 }
