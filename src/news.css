@@ -35,185 +35,86 @@
   display: inline;
   vertical-align: -2px;
 }
-.news-layout {
-  margin-top: 36px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 56px;
-  align-items: start;
-}
-.news-filter {
-  flex-direction: column;
-}
-.news-tabs {
-  height: 40px;
-  max-width: 100%;
-  margin-bottom: 12px;
-}
-.news-tabs [data-slot="tabs-trigger"] {
-  padding: 8px 12px;
-}
-.news-tabs [data-slot="tabs-trigger"][data-active] {
-  color: var(--color-brand);
-  border-bottom-color: var(--color-brand);
-}
-.news-feed {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.news-item {
-  padding: 26px 0;
-  border-bottom: 1px solid var(--color-rule);
-}
-.news-item-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  font: 11px var(--font-mono);
-  color: var(--color-text-muted);
-  margin-bottom: 12px;
-}
-.news-kind {
-  padding: 4px 7px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-rule);
-}
-.news-kind-patch {
-  color: var(--color-brand);
-  border-color: var(--color-rule-strong);
-}
-.news-item h2 {
-  font: 500 21px/1.35 var(--font-body);
-  overflow-wrap: anywhere;
-}
-.news-item h2 a:hover {
-  color: var(--color-brand);
-}
-.news-item h2 svg {
-  display: inline;
-  margin-left: 8px;
-  color: var(--color-text-faint);
-}
-.news-item p {
-  max-width: 76ch;
-  color: var(--color-text-muted);
-  margin-top: 10px;
-  line-height: 1.7;
-  overflow-wrap: anywhere;
-}
-.news-source {
-  display: block;
-  margin-top: 13px;
-  color: var(--color-text-faint);
-  font-size: 12px;
-}
-.news-sidebar {
-  display: grid;
-  gap: 24px;
-}
-.news-source-card {
-  padding: 22px;
-  border: 1px solid var(--color-rule);
-  background: var(--color-surface);
-}
-.news-source-card h2 {
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 16px;
-}
-.news-source-card p {
-  color: var(--color-text-muted);
-  font-size: 13px;
-  line-height: 1.7;
-}
-.news-account,
-.news-source-link {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--color-brand);
-  font-size: 13px;
-}
-.news-account {
-  margin-bottom: 12px;
-  font-size: 15px;
-}
-.news-source-link {
-  margin-top: 16px;
-}
-.news-source-card .news-source-note {
-  margin-top: 18px;
-  color: var(--color-text-faint);
-  font-size: 12px;
-}
-.news-empty {
-  padding: 48px 0;
-  color: var(--color-text-muted);
-}
-.news-empty h2 {
-  color: var(--color-ink);
-  margin: 16px 0 8px;
-  font-size: 18px;
-}
-.news-empty a {
-  display: inline-block;
-  margin-top: 16px;
-  color: var(--color-brand);
-}
-@media (max-width: 900px) {
-  .news-layout {
-    grid-template-columns: minmax(0, 1fr) 240px;
-    gap: 24px;
-  }
-}
-@media (max-width: 1000px) {
-  .hero-portrait {
-    right: -30px;
-  }
-  .hero-portrait img {
-    opacity: 0.6;
-  }
-}
-@media (max-width: 640px) {
-  .news-page {
-    padding-bottom: 32px;
-  }
-  .hero-portrait {
-    right: -70px;
-  }
-  .hero-portrait img {
-    opacity: 0.45;
-  }
-  .patch-post-heading .market-heading-copy {
-    max-width: none;
-  }
-  .news-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-  }
-  .news-tabs [data-slot="tabs-trigger"] {
-    padding-inline: 7px;
-    font-size: 12px;
-  }
-  .news-item h2 {
-    font-size: 18px;
-  }
-}
 
+/* ---------------------------------------------------------------- index */
+/* Two columns frame to frame, as on the market workbench: the forum feed
+   against the left edge, the X feed against the right, and a divider
+   between them that reaches down to meet the bottom note's rule. */
+.patch-layout {
+  --patch-aside: calc(360px + var(--shell-gutter));
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--patch-aside);
+  align-items: stretch;
+  margin-inline: calc(-1 * var(--shell-gutter));
+  min-width: 0;
+}
+.patch-layout::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: calc(-1 * var(--space-2xl));
+  right: var(--patch-aside);
+  border-left: var(--rule-thin) solid var(--color-rule-strong);
+  pointer-events: none;
+}
+.patch-feed,
+.patch-sidebar {
+  min-width: 0;
+}
+/* Each column opens with a tinted strip, a mono label with a count or a
+   link beside it, closed by a rule that meets the divider. */
+.patch-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-height: 56px;
+  padding: var(--space-md) var(--shell-gutter);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+  background: color-mix(in oklch, var(--color-surface) 60%, var(--color-paper));
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.patch-strip h2 {
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--color-ink);
+}
+.patch-strip a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-brand);
+  white-space: nowrap;
+}
+.patch-strip a:hover {
+  color: var(--color-brand-ink);
+}
+.patch-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 .patch-index-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 24px;
-  padding: 18px 12px;
-  border-bottom: 1px solid var(--color-rule);
-  transition: background-color var(--dur-fast);
+  gap: var(--space-xl);
+  padding: var(--space-lg) var(--shell-gutter);
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+  transition:
+    background-color var(--dur-fast),
+    color var(--dur-fast);
 }
 .patch-index-row:hover {
-  background: var(--color-surface);
-  color: var(--color-brand);
+  background: var(--color-notice);
+  color: var(--color-brand-ink);
 }
 .patch-index-row > span {
   font-weight: 500;
@@ -222,11 +123,110 @@
 .patch-index-row time {
   flex-shrink: 0;
   color: var(--color-text-muted);
-  font: 12px var(--font-mono);
-  text-align: right;
+  font: 500 var(--text-label) / 1 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
+.patch-feed .empty-state a svg {
+  display: inline;
+  vertical-align: -2px;
+}
+/* X posts keep their line breaks and read in ink, with the date as a
+   mono caption that doubles as the link out. */
+.x-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.x-feed li {
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+}
+/* The whole post is the link, lit like a feed row on hover. */
+.x-post {
+  display: block;
+  padding: var(--space-lg) var(--shell-gutter);
+  transition: background-color var(--dur-fast);
+}
+.x-post:hover {
+  background: var(--color-notice);
+}
+.x-post p {
+  font-size: var(--text-sm);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.x-post-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  color: var(--color-text-muted);
+  font: 500 var(--text-label) / 1 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color var(--dur-fast);
+}
+.x-post:hover .x-post-meta {
+  color: var(--color-brand);
+}
+.x-feed-empty {
+  padding: var(--space-xl) var(--shell-gutter);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+.news-page .bottom-note a svg {
+  display: inline;
+  vertical-align: -2px;
+}
+/* Post page sidebar: a row per link out, then a note in the margin voice. */
+.patch-side-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.patch-side-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--shell-gutter);
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition:
+    background-color var(--dur-fast),
+    color var(--dur-fast);
+}
+.patch-side-links a svg {
+  color: var(--color-brand);
+}
+.patch-side-links a:hover {
+  background: var(--color-notice);
+  color: var(--color-brand-ink);
+}
+.patch-side-note {
+  padding: var(--space-lg) var(--shell-gutter);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: 1.7;
+}
+.patch-post-page .patch-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+}
+.patch-post-status {
+  padding: var(--space-xl) var(--shell-gutter);
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+/* ---------------------------------------------------------------- post */
 .patch-post-body {
-  margin-top: 36px;
+  max-width: 80ch;
+  padding: var(--space-md) var(--shell-gutter) var(--space-xl);
   line-height: 1.8;
   overflow-wrap: anywhere;
 }
@@ -290,36 +290,60 @@
   margin-block: 24px;
   border-color: var(--color-rule);
 }
-@media (max-width: 640px) {
-  .patch-index-row {
-    gap: 12px;
-    padding: 16px 0;
-    font-size: 13px;
-  }
-  .patch-index-row time {
-    font-size: 10px;
-  }
-}
 
-.x-sidebar-feed {
-  list-style: none;
-  margin: 20px 0 0;
-  padding: 0;
+/* ---------------------------------------------------------------- responsive */
+@media (max-width: 1100px) {
+  .patch-layout {
+    --patch-aside: calc(300px + var(--shell-gutter));
+  }
 }
-.x-sidebar-feed li + li {
-  border-top: 1px solid var(--color-rule);
-  margin-top: 20px;
-  padding-top: 20px;
+@media (max-width: 1000px) {
+  .hero-portrait {
+    right: -30px;
+  }
+  .hero-portrait img {
+    opacity: 0.6;
+  }
 }
-.x-sidebar-feed p {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+/* Below the workbench breakpoint the feeds stack, the X feed opening
+   under its own rule. */
+@media (max-width: 900px) {
+  .patch-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .patch-layout::before {
+    display: none;
+  }
+  .patch-sidebar {
+    margin-top: var(--space-2xl);
+    border-top: var(--rule-thin) solid var(--color-rule-strong);
+  }
+  .patch-post-page .patch-sidebar {
+    order: -1;
+    position: static;
+    margin-top: 0;
+    border-top: 0;
+  }
+  .patch-post-page .patch-feed {
+    margin-top: var(--space-2xl);
+    border-top: var(--rule-thin) solid var(--color-rule-strong);
+  }
 }
-.x-sidebar-feed a {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-  color: var(--color-brand);
-  font: 11px var(--font-mono);
+@media (max-width: 640px) {
+  .news-page {
+    padding-bottom: 32px;
+  }
+  .hero-portrait {
+    right: -70px;
+  }
+  .hero-portrait img {
+    opacity: 0.45;
+  }
+  .patch-post-heading .market-heading-copy {
+    max-width: none;
+  }
+  .patch-index-row {
+    gap: var(--space-md);
+    font-size: var(--text-xs);
+  }
 }

@@ -38,6 +38,12 @@ function Source() {
   )
 }
 
+const FORUM_URL = "https://www.pathofexile.com/forum/view-forum/2212"
+
+/* The page follows the exchange workbench: a masthead, then two columns
+   that run frame to frame with a divider between them. Each column opens
+   with a labelled strip closed by a rule, so the forum feed and the X feed
+   both read as their own ledger rather than a continuation of the title. */
 function PatchNotesPage() {
   const { items, unavailable, x } = Route.useLoaderData()
   const latest = items.at(0)
@@ -58,25 +64,34 @@ function PatchNotesPage() {
           </>
         }
       />
-      <div className="news-layout">
-        <section aria-label="Patch notes feed">
+      <div className="patch-layout">
+        <section className="patch-feed" aria-labelledby="patch-feed-title">
+          <header className="patch-strip">
+            <h2 id="patch-feed-title">Patch notes &amp; hotfixes</h2>
+            {items.length > 0 && (
+              <span>
+                {items.length} {items.length === 1 ? "post" : "posts"}
+              </span>
+            )}
+          </header>
           {!items.length ? (
-            <div className="news-empty" role="status">
+            <div className="empty-state" role="status">
               <Newspaper size={24} aria-hidden="true" />
-              <h2>
+              <h3>
                 {unavailable
                   ? "Patch notes are temporarily unavailable"
                   : "No recent patch notes"}
-              </h2>
+              </h3>
               <p>
                 Read the latest patch notes directly from Grinding Gear Games.
               </p>
-              <a href="https://www.pathofexile.com/forum/view-forum/2212">
-                Visit the patch notes forum ↗
+              <a href={FORUM_URL}>
+                Visit the patch notes forum{" "}
+                <ArrowUpRight size={13} aria-hidden="true" />
               </a>
             </div>
           ) : (
-            <ol className="news-feed">
+            <ol className="patch-index">
               {items.map((item) => (
                 <li key={item.id}>
                   <Link
@@ -96,56 +111,49 @@ function PatchNotesPage() {
             </ol>
           )}
         </section>
-        <aside className="news-sidebar" aria-label="Updates and sources">
-          <section className="news-source-card">
-            <h2>On X</h2>
-            <p>Official updates from Path of Exile.</p>
-            {x.posts.length ? (
-              <ol className="x-sidebar-feed">
-                {x.posts.map((post) => (
-                  <li key={post.id}>
-                    <article>
-                      <p>{post.text}</p>
-                      <a href={`https://x.com/pathofexile/status/${post.id}`}>
-                        <time dateTime={post.date}>
-                          {day(Date.parse(post.date))}
-                        </time>
-                        <ArrowUpRight size={13} aria-hidden="true" />
-                        <span className="sr-only">Read post on X</span>
-                      </a>
-                    </article>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="news-source-note" role="status">
-                {x.unavailable
-                  ? "X updates are temporarily unavailable. Read the latest posts on X."
-                  : "No recent posts."}
-              </p>
-            )}
-            <a className="news-source-link" href="https://x.com/pathofexile">
-              @pathofexile <ArrowUpRight size={15} aria-hidden="true" />
+        <aside className="patch-sidebar" aria-labelledby="patch-x-title">
+          <header className="patch-strip">
+            <h2 id="patch-x-title">On X</h2>
+            <a href="https://x.com/pathofexile">
+              @pathofexile <ArrowUpRight size={13} aria-hidden="true" />
             </a>
-          </section>
-          <section className="news-source-card">
-            <h2>From the source</h2>
-            <p>
-              Patch notes and hotfixes come directly from GGG’s official PoE2
-              forum. Open a post to read the full changes.
+          </header>
+          {x.posts.length ? (
+            <ol className="x-feed">
+              {x.posts.map((post) => (
+                <li key={post.id}>
+                  <a
+                    className="x-post"
+                    href={`https://x.com/pathofexile/status/${post.id}`}
+                  >
+                    <p>{post.text}</p>
+                    <span className="x-post-meta">
+                      <time dateTime={post.date}>
+                        {day(Date.parse(post.date))}
+                      </time>
+                      <ArrowUpRight size={12} aria-hidden="true" />
+                      <span className="sr-only">Read post on X</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="x-feed-empty" role="status">
+              {x.unavailable
+                ? "X updates are temporarily unavailable. Read the latest posts on X."
+                : "No recent posts."}
             </p>
-            <a
-              className="news-source-link"
-              href="https://www.pathofexile.com/forum/view-forum/2212"
-            >
-              All PoE2 patch notes <ArrowUpRight size={15} aria-hidden="true" />
-            </a>
-            <p className="news-source-note">
-              Checks for new patch notes hourly.
-            </p>
-          </section>
+          )}
         </aside>
       </div>
+      <section className="bottom-note">
+        <Newspaper size={15} aria-hidden="true" />
+        <p>
+          Patch notes and hotfixes come directly from GGG’s official PoE2 forum
+          and are checked hourly. <a href={FORUM_URL}>All PoE2 patch notes.</a>
+        </p>
+      </section>
     </div>
   )
 }
