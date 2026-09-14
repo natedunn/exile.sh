@@ -13,7 +13,7 @@ import type { ComponentProps, ReactNode, Ref } from "react"
 import { Pin, X } from "lucide-react"
 import type { TreeNode } from "../../shared/tree-render-model"
 import { Button } from "./ui/button"
-import { Popover, PopoverContent } from "./ui/popover"
+import { Popover, PopoverContent, PopoverClose } from "./ui/popover"
 
 export type TooltipPinOptions = {
   /** Allow tooltips to be explicitly pinned. Holding Alt still works when false. */
@@ -476,6 +476,7 @@ export function PinnablePopoverContent({
   children,
   pinningEnabled = true,
   showPin = false,
+  fallbackClose = false,
   freeze = false,
   pinId,
   pinLabel,
@@ -485,6 +486,8 @@ export function PinnablePopoverContent({
 }: ComponentProps<typeof PopoverContent> & {
   pinningEnabled?: boolean
   showPin?: boolean
+  /** Keep click/touch inspection dismissible when a pin control is unavailable. */
+  fallbackClose?: boolean
   freeze?: boolean
   pinId?: string
   pinLabel: string
@@ -520,7 +523,7 @@ export function PinnablePopoverContent({
           props.positionerAdornment
         )
       }
-      data-pin-control={canPin || undefined}
+      data-pin-control={canPin || fallbackClose || undefined}
       {...(freeze && anchor
         ? ({
             anchor,
@@ -533,6 +536,20 @@ export function PinnablePopoverContent({
         : {})}
     >
       {children}
+      {!canPin && fallbackClose && (
+        <PopoverClose
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="tooltip-pin-control"
+            />
+          }
+          aria-label={`Close ${pinLabel}`}
+        >
+          <X />
+        </PopoverClose>
+      )}
       {canPin && (
         <Button
           variant="ghost"

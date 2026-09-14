@@ -459,3 +459,97 @@ for (const width of [1440, 390]) {
     expect(states.restored).toBe("visible")
   })
 }
+
+test("changing Paths Not Taken clears pins from the previous tree data", async ({
+  page,
+}) => {
+  await page.goto("/trees/passive?section=Oracle")
+  const popup = await selectResult(page, "heavy ammunition")
+  await popup.locator(".tooltip-pin-control").click()
+  await expect(page.locator('[data-tooltip-pinned="true"]')).toHaveCount(1)
+  await page.getByRole("checkbox", { name: "Paths Not Taken" }).check()
+  await expect(page.locator('[data-tooltip-pinned="true"]')).toHaveCount(0)
+  await expect(page.locator(".tree-pins > button")).toHaveCount(0)
+})
+
+test("hovering a different node replaces a search callout", async ({
+  page,
+}) => {
+  await page.goto("/trees/passive")
+  await selectResult(page, "heavy ammunition")
+  const target = await page
+    .locator(".tree-viewport [data-node]")
+    .evaluateAll((elements) => {
+      const popup = document
+        .querySelector('[data-search-callout="true"]')!
+        .getBoundingClientRect()
+      for (const element of elements) {
+        const box = element.getBoundingClientRect()
+        const x = box.x + box.width / 2,
+          y = box.y + box.height / 2
+        if (
+          x > 300 &&
+          x < 800 &&
+          y > 300 &&
+          y < 650 &&
+          (x < popup.left ||
+            x > popup.right ||
+            y < popup.top ||
+            y > popup.bottom)
+        )
+          return { x, y }
+      }
+      return null
+    })
+  expect(target).toBeTruthy()
+  await page.mouse.move(target!.x, target!.y)
+  await expect(page.locator('[data-search-callout="true"]')).toHaveCount(0)
+  await expect(
+    page.locator('.tree-inspection:not([data-tooltip-pinned="true"])')
+  ).toBeVisible()
+  await expect(page.locator(".tree-inspection h2")).not.toHaveText(
+    "Heavy Ammunition"
+  )
+})
+
+test("an empty touch does not leave desktop hover in touch-inspection mode", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+    hasTouch: true,
+    ignoreHTTPSErrors: true,
+  })
+  const page = await context.newPage()
+  await page.goto("/trees/passive")
+  await selectResult(page, "heavy ammunition")
+  const positions = await page.locator(".tree-viewport svg").evaluate((svg) => {
+    const nodes = [...svg.querySelectorAll("[data-node]")]
+    const target = nodes
+      .map((node) => node.getBoundingClientRect())
+      .find((box) => box.x > 300 && box.x < 800 && box.y > 550 && box.y < 750)!
+    for (let y = 650; y < 780; y += 15) {
+      for (let x = 350; x < 800; x += 15) {
+        const element = document.elementFromPoint(x, y)
+        if (element && svg.contains(element) && !element.closest("[data-node]"))
+          return {
+            empty: { x, y },
+            target: {
+              x: target.x + target.width / 2,
+              y: target.y + target.height / 2,
+            },
+          }
+      }
+    }
+    return null
+  })
+  expect(positions).toBeTruthy()
+  await page.touchscreen.tap(positions!.empty.x, positions!.empty.y)
+  await page.mouse.move(positions!.target.x, positions!.target.y)
+  const popup = page.locator(
+    '.tree-inspection:not([data-tooltip-pinned="true"])'
+  )
+  await expect(popup).toBeVisible()
+  await expect(popup.locator(".tooltip-pin-control")).toHaveCount(0)
+  await context.close()
+})

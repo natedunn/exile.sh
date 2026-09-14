@@ -92,3 +92,27 @@ it("honors a custom limit, replaces the oldest, and clears pins when the view ch
     ).toHaveLength(0)
   )
 })
+
+it("keeps a working explicit close control when pinning is disabled", async () => {
+  render(
+    h(TooltipPinScope, {
+      pinningEnabled: false,
+      children: h(
+        Popover,
+        { defaultOpen: true },
+        h(PinnablePopoverContent, {
+          showPin: true,
+          fallbackClose: true,
+          pinLabel: "Item details",
+          onPin() {},
+          children: "Item content",
+        })
+      ),
+    })
+  )
+  expect(screen.queryByRole("button", { name: "Pin Item details" })).toBeNull()
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Close Item details" })
+  )
+  await waitFor(() => expect(screen.queryByText("Item content")).toBeNull())
+})

@@ -1265,11 +1265,15 @@ function TreeMapRenderer({
                 d.y = event.clientY
                 if (!held) setInspect(null)
               }
-            } else if (!attention && (!held || !inspect)) {
+            } else if (!held || !inspect) {
               const id = nodeAt(event.target)
+              if (attention && (!id || id === inspect)) return
+              if (id && id !== inspect) setAttention(null)
+              if (event.pointerType !== "touch") setTouchInspect(false)
               if (id && !pinnedIds.has(id)) {
                 setInspect(id)
-              } else hideHover()
+              } else if (id) setInspect(null)
+              else hideHover()
             }
           }}
           onPointerUp={(event) => {
@@ -1284,7 +1288,7 @@ function TreeMapRenderer({
                 document.elementFromPoint(event.clientX, event.clientY)
               )
               setInspect(id)
-              setTouchInspect(event.pointerType === "touch")
+              setTouchInspect(Boolean(id) && event.pointerType === "touch")
             }
             pointers.current.delete(event.pointerId)
             const remaining = pointers.current.values().next().value
@@ -2077,7 +2081,7 @@ export function TreeExplorer(
     <TooltipPinScope
       pinningEnabled={props.pinningEnabled}
       maxPinnedTooltips={props.maxPinnedTooltips ?? 5}
-      resetKey={`${props.version}:${props.type}:${props.section}`}
+      resetKey={`${props.version}:${props.type}:${props.section}:${props.showUnseen}:${props.defaultAscendancy}`}
     >
       <TreeExplorerContent {...props} />
     </TooltipPinScope>

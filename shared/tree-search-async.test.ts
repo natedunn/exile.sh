@@ -84,3 +84,18 @@ it("falls back to yielding batches if the worker cannot start", async () => {
   await waitFor(() => expect(result.current.searching).toBe(false))
   expect(result.current.results).toEqual([nodes[1]])
 })
+
+it("finishes an empty-node search when worker startup fails", async () => {
+  vi.stubGlobal(
+    "Worker",
+    class {
+      constructor() {
+        throw new Error("Workers unavailable")
+      }
+    }
+  )
+  const empty: TreeNode[] = []
+  const { result } = renderHook(() => useTreeSearch(empty, "life"))
+  await waitFor(() => expect(result.current.searching).toBe(false))
+  expect(result.current.results).toEqual([])
+})

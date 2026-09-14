@@ -274,6 +274,7 @@ function GearSlot({
             )}
           </PopoverTrigger>
           <PinnablePopoverContent
+            fallbackClose={!hoverOnly}
             showPin={held || !hoverOnly}
             freeze={held}
             pinId={`item:${item.id}`}

@@ -218,6 +218,7 @@ function GemRow({
           </span>
         </PopoverTrigger>
         <PinnablePopoverContent
+          fallbackClose={!hoverOnly}
           showPin={(held || !hoverOnly) && !effects.isLoading}
           freeze={held}
           pinLabel={`${gem.name} gem details`}
