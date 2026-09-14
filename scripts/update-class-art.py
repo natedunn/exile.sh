@@ -23,7 +23,7 @@ art = {}
 portraits = {}
 def version_key(version):
     return tuple(int(part) for part in version.split("_"))
-versions = sorted((p.stem for p in (ROOT / "public/pob-trees/v3").glob("*.json")), key=version_key, reverse=True)
+versions = sorted((p.stem for p in (ROOT / "public/pob-trees/v4").glob("*.json")), key=version_key, reverse=True)
 for version in versions:
     data = json.load(urllib.request.urlopen(SOURCE + version + "/tree.json"))
     for file, entries in data.get("ddsCoords", {}).items():

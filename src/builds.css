@@ -821,6 +821,8 @@ html:has(.build-view) {
   --color-weapon-2: var(--color-weapon-2-tritan);
 }
 .passive-tree[data-palette="achroma"] {
+  /* Preserve lightness separation from the darker weapon-set paths. */
+  --color-tree-unallocated-path: var(--color-tree-unallocated-path-achroma);
   --color-weapon-1: var(--color-weapon-1-achroma);
   --color-weapon-2: var(--color-weapon-2-achroma);
   --color-tree-allocated: var(--color-tree-allocated-achroma);
@@ -897,6 +899,7 @@ html:has(.build-view) {
   z-index: -2;
   pointer-events: none;
   color: oklch(70% 0.03 80 / 0.09);
+  transition: color 220ms var(--ease-out);
   background:
     linear-gradient(var(--color-brand-deep), var(--color-brand-deep)) left top /
       14px 1px no-repeat,
@@ -932,6 +935,14 @@ html:has(.build-view) {
   mask-position: center;
   mask-repeat: no-repeat;
   opacity: 0.09;
+  transition: opacity 220ms var(--ease-out);
+}
+/* Quiet the texture once artwork is visible; corner brackets keep their color. */
+.passive-tree[data-art-visible] .tree-viewport::before {
+  color: oklch(70% 0.03 80 / 0.025);
+}
+.passive-tree[data-art-visible] .tree-viewport::after {
+  opacity: 0.02;
 }
 .tree-viewport svg {
   display: block;
@@ -952,20 +963,22 @@ html:has(.build-view) {
 .tree-viewport [data-node] {
   cursor: pointer;
 }
-/* The inspection ring blooms out from the node it marks. */
+/* Move the stroke center outward by half its width to hold the inner edge still. */
 .tree-inspect-ring {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: tree-ring-bloom 220ms var(--ease-out) both;
+  filter: drop-shadow(
+      0 0 10px color-mix(in oklab, currentColor 60%, transparent)
+    )
+    drop-shadow(0 0 24px color-mix(in oklab, currentColor 30%, transparent));
+  animation: tree-ring-thicken 220ms var(--ease-out) both;
 }
-@keyframes tree-ring-bloom {
+@keyframes tree-ring-thicken {
   from {
-    opacity: 0;
-    transform: scale(0.55);
+    r: var(--tree-ring-inner-radius);
+    stroke-width: 0;
   }
   to {
-    opacity: 1;
-    transform: scale(1);
+    r: calc(var(--tree-ring-inner-radius) + 6px);
+    stroke-width: 12;
   }
 }
 .passive-tree[data-mode="preview"] svg,
@@ -1057,6 +1070,9 @@ html:has(.build-view) {
   color: var(--color-brand);
   opacity: 0.72;
 }
+.tree-unseen-label {
+  color: var(--color-tree-unseen);
+}
 /* Radius notes line their icon up with the benefit bullets above. */
 .tree-inspection .tree-note {
   position: relative;
@@ -1099,10 +1115,41 @@ html:has(.build-view) {
   width: 5px;
   height: 5px;
   transform: rotate(45deg);
-  background: var(--color-brand-deep);
+  background: currentColor;
+}
+.tree-lines > li:only-child {
+  padding-left: 0;
+}
+.tree-lines > li:only-child::before {
+  content: none;
 }
 .tree-inspection .tree-lines + p {
   margin-top: 10px;
+}
+.tree-inspection .tree-choice-intro p {
+  margin-top: 0;
+  color: var(--color-ink);
+}
+.tree-inspection .tree-choice-intro p + p {
+  margin-top: 3px;
+}
+.tree-choice-lines {
+  margin: 8px 0 0;
+  padding-left: 16px;
+  list-style: decimal;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.tree-choice-lines li {
+  padding-left: 4px;
+  white-space: pre-line;
+}
+.tree-choice-lines li + li {
+  margin-top: 6px;
+}
+.tree-lines li::before,
+.tree-choice-lines li::marker {
+  color: var(--color-brand);
 }
 /* Effects a jewel adds to this node sit indented under its radius note. */
 .tree-inspection .tree-note-lines {
@@ -1451,7 +1498,9 @@ html:has(.build-view) {
 }
 @media (prefers-reduced-motion: reduce) {
   .tree-open-button span,
-  .tree-open-button::before {
+  .tree-open-button::before,
+  .tree-viewport::before,
+  .tree-viewport::after {
     transition: none;
   }
   .tree-inspect-ring {
@@ -1797,4 +1846,12 @@ html:has(.build-view) {
 .skill-gem-effects ul + .skill-gem-effect-label,
 .skill-gem-effects ul + .skill-gem-effect-status {
   margin-top: 14px;
+}
+
+/* More contrast over ascendancy artwork and within the smaller Atlas tree.
+   Keep the main passive tree and monochrome allocation contrast unchanged. */
+.passive-tree:is([data-tree-type="ascendancy"], [data-tree-type="atlas"]):not(
+    [data-palette="achroma"]
+  ) {
+  --color-tree-unallocated-path: var(--color-tree-unallocated-path-detail);
 }

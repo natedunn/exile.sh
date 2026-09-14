@@ -7,6 +7,9 @@
 /pob-trees/v3/*
   Cache-Control: public, max-age=31536000, immutable
 
+/pob-trees/v4/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /gems/v1/*
   Cache-Control: public, max-age=31536000, immutable
 
@@ -24,4 +27,19 @@
   Cache-Control: public, max-age=0, must-revalidate
 
 /class-art/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/atlas-trees/v1/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/atlas-trees/v2/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/pob-trees/passives-v1/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/pob-trees/ascendancy-v1/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/pob-trees/ascendancies-v1/*
   Cache-Control: public, max-age=31536000, immutable

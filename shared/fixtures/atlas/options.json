@@ -1,0 +1,492 @@
+{
+  "source": {
+    "url": "https://poe2db.tw/us/Atlas_passive_skill",
+    "retrievedAt": "2026-09-13",
+    "atlasSha256": "7148fa1989e273adfba30fdb5d3fb878a647158d79b4dddfdf4d08ea40632ebd",
+    "note": "Game option text, grouped by choice. Internal hidden stats are omitted. Public patch mapping remains unverified. Game data belongs to Grinding Gear Games."
+  },
+  "nodes": {
+    "182": {
+      "name": "Strategic Advantage",
+      "sourceStats": {
+        "dummy_display_expedition_explosive_bonus_selector": 1
+      },
+      "options": [
+        "Explosives only wait for 50% of Monsters to be slain before continuing",
+        "Runic Monsters spawn with an additional 20% of Life missing"
+      ]
+    },
+    "379": {
+      "name": "Cultivate the Sea",
+      "sourceStats": {
+        "dummy_display_expedition_ocean_biome_selector": 1
+      },
+      "options": [
+        "Water",
+        "Mountain",
+        "Grass",
+        "Forest",
+        "Swamp",
+        "Desert"
+      ]
+    },
+    "965": {
+      "name": "Balance of Power",
+      "sourceStats": {
+        "dummy_display_abyss_faction_selector": 1
+      },
+      "options": [
+        "Amanamu",
+        "Kurgal",
+        "Ulaman",
+        "Any Faction"
+      ]
+    },
+    "1828": {
+      "name": "Legendary Duels",
+      "sourceStats": {
+        "dummy_display_rogue_exile_unique_selector": 100
+      },
+      "options": [
+        "Weapons",
+        "Armour",
+        "Jewellery"
+      ]
+    },
+    "4434": {
+      "name": "The Chosen Path",
+      "sourceStats": {
+        "dummy_display_content_chances_selector": 100
+      },
+      "options": [
+        "Essences",
+        "Rogue Exiles",
+        "Summoning Circles",
+        "Shrines",
+        "Strongboxes",
+        "Azmeri Spirits"
+      ]
+    },
+    "4728": {
+      "name": "Unseen Rivers",
+      "sourceStats": {
+        "dummy_display_azmeri_spirit_type_selector": 100
+      },
+      "options": [
+        "Primal Spirits",
+        "Wild Spirits",
+        "Vivid Spirits"
+      ]
+    },
+    "4871": {
+      "name": "Breeding Program",
+      "sourceStats": {
+        "dummy_display_fruit_selection": 100
+      },
+      "options": [
+        "Lavish Wombgifts",
+        "Ornate Wombgifts",
+        "Banded Wombgifts",
+        "Signet Wombgifts"
+      ]
+    },
+    "5085": {
+      "name": "History of the Faridun",
+      "sourceStats": {
+        "dummy_display_faridun_city_biome_selector": 1
+      },
+      "options": [
+        "Desert",
+        "Mountain"
+      ]
+    },
+    "6670": {
+      "name": "Overlord's Influence",
+      "sourceStats": {
+        "dummy_display_powerful_map_boss_added_content": 1
+      },
+      "options": [
+        "1 additional Strongboxes",
+        "1 additional Shrines",
+        "1 additional Azmeri Spirits"
+      ]
+    },
+    "7116": {
+      "name": "Divined Blessing",
+      "sourceStats": {
+        "dummy_display_shrine_type_selector": 100
+      },
+      "options": [
+        "Seeking Shrines",
+        "Enlightening Shrines",
+        "Gloom Shrines"
+      ]
+    },
+    "9648": {
+      "name": "Swamp Mastery",
+      "sourceStats": {
+        "dummy_display_swamp_mastery_choice": 1
+      },
+      "options": [
+        "25% chance Chaos Orbs drop as Exalted Orbs",
+        "10% chance Exalted Orbs drop as Chaos Orbs",
+        "6% increased Pack Size"
+      ]
+    },
+    "12090": {
+      "name": "Expanding Territory",
+      "sourceStats": {
+        "dummy_display_expedition_vs_remnants_bonus_selector": 1
+      },
+      "options": [
+        "10% chance for an additional Verisium Remnant Encounter",
+        "25% increased chance of Expedition Encounters"
+      ]
+    },
+    "12447": {
+      "name": "Water Mastery",
+      "sourceStats": {
+        "dummy_display_water_mastery_choice": 1
+      },
+      "options": [
+        "Chests contain 15% increased Currency",
+        "Chests contain 15% increased Jewellery",
+        "50% increased Gold found"
+      ]
+    },
+    "12759": {
+      "name": "Desert Mastery",
+      "sourceStats": {
+        "dummy_display_desert_mastery_choice": 1
+      },
+      "options": [
+        "15% chance base Regal Orbs drop as Alchemy Orbs",
+        "15% chance Alchemy Orbs drop as base Regal Orbs",
+        "15% increased Effectiveness of Monsters"
+      ]
+    },
+    "13881": {
+      "name": "Evolving Throngs",
+      "sourceStats": {
+        "dummy_display_magic_pack_difficulty_selector": 1
+      },
+      "options": [
+        "Magic Monster Packs have 15% chance to have an additional Modifier",
+        "10% increased Magic Pack Size"
+      ]
+    },
+    "14242": {
+      "name": "Corrupted Lattices",
+      "sourceStats": {
+        "dummy_display_essence_corruption_selector": 1
+      },
+      "options": [
+        "Corrupting Essence Monsters cannot immediately release them and will always change their Essences",
+        "Corrupted Essence Monsters have 25% chance to be Duplicated when released",
+        "Corrupting Essence Monsters Corrupts them an additional time",
+        "When Corrupting Rare Essence Monsters immediately releases them they are instead immediately killed"
+      ]
+    },
+    "15634": {
+      "name": "Craftsman's Creed",
+      "sourceStats": {
+        "dummy_display_strongbox_attribute_replacements": 1
+      },
+      "options": [
+        "Strength",
+        "Dexterity",
+        "Intelligence",
+        "No additional Prefix Modifiers"
+      ]
+    },
+    "20223": {
+      "name": "Invigorated Sacrifices",
+      "sourceStats": {
+        "dummy_display_ritual_difficulty_selector": 1
+      },
+      "options": [
+        "Revived monsters from Rituals have 5% reduced penalty to Tribute granted",
+        "Skills from Ritual Altars deal 50% increased Damage\nRitual Altars offer 10% increased number of Favours",
+        "Revived monsters from Rituals have 20% increased Toughness\nand 10% increased Damage for each time they have been Revived\nRevived monsters from Rituals have 50% reduced penalty to Tribute granted"
+      ]
+    },
+    "20680": {
+      "name": "On the Wind",
+      "sourceStats": {
+        "dummy_display_azmeri_spirit_speed_selector": 1
+      },
+      "options": [
+        "Azmeri Spirits have 50% increased Movement Speed",
+        "Azmeri Spirits no longer dematerialise when there are no players nearby"
+      ]
+    },
+    "21420": {
+      "name": "Recurring Nightmares",
+      "sourceStats": {
+        "dummy_display_delirium_adjust_fog_spread": 1
+      },
+      "options": [
+        "Maps within the Delirium Fog have +30% additional Deliriousness",
+        "Delirium Fog spreads to +4 additional Maps"
+      ]
+    },
+    "21939": {
+      "name": "Crystalline Patterns",
+      "sourceStats": {
+        "dummy_display_essence_selector": 100
+      },
+      "options": [
+        "Greater Essence of Battle and Perfect Essence of Battle",
+        "Greater Essence of Sorcery and Perfect Essence of Sorcery",
+        "Greater/Perfect Essence of Haste and Greater/Perfect Essence of Alacrity",
+        "Greater Essence of the Infinite and Perfect Essence of the Infinite",
+        "Greater Essence of Seeking and Perfect Essence of Seeking",
+        "Greater Essence of Opulence and Perfect Essence of Opulence",
+        "Greater Essence of Command and Perfect Essence of Command"
+      ]
+    },
+    "24620": {
+      "name": "Sole Purpose",
+      "sourceStats": {
+        "dummy_display_breach_skill_mastery": 1
+      },
+      "options": [
+        "100% increased damage of skills created",
+        "50% increased number of skills created"
+      ]
+    },
+    "25524": {
+      "name": "Vile Treasures",
+      "sourceStats": {
+        "dummy_display_abyss_eye_omen_lineage_drop_selector": 50
+      },
+      "options": [
+        "Abyssal Eyes",
+        "Omens",
+        "Lineage Supports"
+      ]
+    },
+    "26766": {
+      "name": "Nemesis Rising",
+      "sourceStats": {
+        "dummy_display_rare_monster_difficulty_selector": 1
+      },
+      "options": [
+        "15% increased Effectiveness of Rare Monsters in your Maps",
+        "Rare Monsters have 30% increased chance of Monster Modifiers",
+        "Rare Monster Packs in your Maps have a 50% increased chance to have an Additional Rare Monster",
+        "10% increased Rarity of Items Dropped by Rare Monsters"
+      ]
+    },
+    "26856": {
+      "name": "Grass Mastery",
+      "sourceStats": {
+        "dummy_display_grass_mastery_choice": 1
+      },
+      "options": [
+        "10% chance Basic Currencies are upgraded to Greater Currencies",
+        "5% chance Greater Currencies are upgraded to Perfect Currencies",
+        "15% increased Effectiveness of Monsters"
+      ]
+    },
+    "31008": {
+      "name": "Blood on the Stones",
+      "sourceStats": {
+        "dummy_display_stone_circle_difficulty_selector": 1
+      },
+      "options": [
+        "Summoning Circle Bosses are Powerful",
+        "Summoning Circle Runes are guarded by 2 Packs of Random Monsters"
+      ]
+    },
+    "35469": {
+      "name": "Lord of the Pit",
+      "sourceStats": {
+        "dummy_display_abyss_pit_adjustments": 1
+      },
+      "options": [
+        "Abyss Pits are scattered throughout Areas with Abysses",
+        "Abyssal Monsters have 10% increased Effectiveness for each closed Pit, up to 100%",
+        "Abysses have a 20% chance to contain an additional Abyss"
+      ]
+    },
+    "36463": {
+      "name": "Overlord's Domain",
+      "sourceStats": {
+        "dummy_display_powerful_map_boss_added_content": 1
+      },
+      "options": [
+        "1 additional Essences",
+        "A Summoning Circle",
+        "1 additional Rogue Exiles"
+      ]
+    },
+    "36733": {
+      "name": "Fabled Showdown",
+      "sourceStats": {
+        "dummy_display_shrine_boss_interaction": 1
+      },
+      "options": [
+        "25% chance Shrine Buffs are reapplied when entering the Boss arena",
+        "25% chance Shrine Buffs are instead applied to the Boss when activated, granting an additional reward"
+      ]
+    },
+    "38492": {
+      "name": "Essence Dowsing",
+      "sourceStats": {
+        "dummy_display_essence_selector": 100
+      },
+      "options": [
+        "Greater Essence of the Body and Perfect Essence of the Body",
+        "Greater Essence of the Mind and Perfect Essence of the Mind",
+        "Greater Essence of Enhancement and Perfect Essence of Enhancement",
+        "Greater Essence of Abrasion and Perfect Essence of Abrasion",
+        "Greater/Perfect Essence of Flames and Greater/Perfect Essence of Insulation",
+        "Greater/Perfect Essence of Ice and Greater/Perfect Essence of Thawing",
+        "Greater/Perfect Essence of Electricity and Greater/Perfect Essence of Grounding",
+        "Greater Essence of Ruin and Perfect Essence of Ruin"
+      ]
+    },
+    "38896": {
+      "name": "History of the Vaal",
+      "sourceStats": {
+        "dummy_display_vaal_city_biome_selector": 1
+      },
+      "options": [
+        "Forest",
+        "Water"
+      ]
+    },
+    "39561": {
+      "name": "Traveller's Woe",
+      "sourceStats": {
+        "dummy_ritual_rune_type_selector": 100
+      },
+      "options": [
+        "Contaminated",
+        "Infested",
+        "Tainted",
+        "Smothered",
+        "Sapping"
+      ]
+    },
+    "41868": {
+      "name": "Well-equipped Opponents",
+      "sourceStats": {
+        "dummy_display_rogue_exile_attribute_selector": 100
+      },
+      "options": [
+        "Strength",
+        "Dexterity",
+        "Intelligence"
+      ]
+    },
+    "42564": {
+      "name": "Mountain Mastery",
+      "sourceStats": {
+        "dummy_display_mountain_mastery_choice": 1
+      },
+      "options": [
+        "50% increased Quantity of Tablets found",
+        "50% increased Quantity of Runes found",
+        "6% increased Rarity of Items found"
+      ]
+    },
+    "42673": {
+      "name": "Double or Nothing",
+      "sourceStats": {
+        "dummy_display_expedition_remnant_modifier_selector": 1
+      },
+      "options": [
+        "25% chance to add an additional Runic Modifier",
+        "Will not add Runic Modifiers",
+        "Adds a single Runic Modifier (no change)"
+      ]
+    },
+    "46664": {
+      "name": "Sacred Sap",
+      "sourceStats": {
+        "dummy_display_azmeri_spirit_empowerment_selector": 1
+      },
+      "options": [
+        "25% increased chance for Azmeri Spirits in your Maps to be Sacred Spirits",
+        "When a Monster is Possessed by a Sacred Spirit it is also Possessed by another random Spirit",
+        "50% increased Azmeri Spirit empowerment when defeating Spirit-Influenced Monsters"
+      ]
+    },
+    "51877": {
+      "name": "Calculated Investment",
+      "sourceStats": {
+        "dummy_display_expedition_runic_modifier_bonus_selector": 1
+      },
+      "options": [
+        "25% chance Verisium Remnants count as affected by a Power Rune",
+        "5% increased Experience from Monsters per Runic Modifier",
+        "1% increased Quantity of Items dropped by Monsters per Runic Modifier"
+      ]
+    },
+    "52589": {
+      "name": "Forest Mastery",
+      "sourceStats": {
+        "dummy_display_forest_mastery_choice": 1
+      },
+      "options": [
+        "50% increased chance to find Uncut Gems",
+        "50% increased chance to find Lineage Supports",
+        "15% increased Rare Monsters"
+      ]
+    },
+    "52933": {
+      "name": "Steady Development",
+      "sourceStats": {
+        "dummy_display_expedition_encounter_bonus_selector": 1
+      },
+      "options": [
+        "Remnant",
+        "Explosive"
+      ]
+    },
+    "57514": {
+      "name": "Shape the Chains",
+      "sourceStats": {
+        "dummy_display_breach_monster_bonus_selector": 1
+      },
+      "options": [
+        "30% increased Effectiveness of Rare Breach Monsters",
+        "Breaches have 20% reduced Pack Size\n20% increased Effectiveness of Breach Monsters",
+        "Breaches have 15% increased Pack Size"
+      ]
+    },
+    "57779": {
+      "name": "History of the Ezomytes",
+      "sourceStats": {
+        "dummy_display_ezomyte_city_biome_selector": 1
+      },
+      "options": [
+        "Grass",
+        "Swamp"
+      ]
+    },
+    "60086": {
+      "name": "The Journey Ahead",
+      "sourceStats": {
+        "dummy_atlas_pack_size_selector": 1
+      },
+      "options": [
+        "6% increased Pack Size",
+        "15% increased Effectiveness of Monsters in your Maps",
+        "10% increased Rarity of Items found in Maps"
+      ]
+    },
+    "63846": {
+      "name": "Tear Open the Rift",
+      "sourceStats": {
+        "dummy_display_breach_reveal_selection": 1
+      },
+      "options": [
+        "Consume an additional Breachstone to add Modifiers to all revealed Maps",
+        "Add a Modifier to one revealed Map"
+      ]
+    }
+  }
+}

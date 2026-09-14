@@ -166,12 +166,16 @@ h1,
 }
 /* One framed column for every page. Header, main, and footer carry the
    horizontal padding so their rules run edge to edge inside the frame. */
-.site-shell {
+.site-shell,
+.viewer-shell {
+  --shell-max-width: 1400px;
   --shell-gutter: var(--space-2xl);
+}
+.site-shell {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  max-width: 1400px;
+  max-width: var(--shell-max-width);
   margin: auto;
   border-inline: var(--rule-thin) solid var(--color-rule-strong);
 }
@@ -198,12 +202,16 @@ h1,
 /* Masthead: a plain hairline rule. */
 .topbar {
   position: relative;
+  flex-shrink: 0;
+  height: 68px;
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+}
+.topbar-content {
   display: flex;
   align-items: center;
   gap: var(--space-3xl);
-  height: 68px;
+  height: 100%;
   padding: 0 var(--shell-gutter);
-  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
 }
 /* "exile" and ".sh" are separate flex items, so the gap lives on the mark
    rather than between them. */
@@ -227,7 +235,8 @@ h1,
   color: var(--color-brand);
   font-style: italic;
 }
-.topbar nav {
+:is(.topbar, .viewer-header) nav,
+.tree-type-navigation {
   display: flex;
   align-items: center;
   gap: var(--space-xl);
@@ -239,17 +248,20 @@ h1,
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
-.topbar nav a {
+:is(.topbar, .viewer-header) nav a,
+.tree-type-navigation a {
   display: flex;
   align-items: center;
   height: 100%;
   border-bottom: 2px solid var(--color-clear);
   margin-bottom: -1px;
 }
-.topbar nav a:hover {
+:is(.topbar, .viewer-header) nav a:hover,
+.tree-type-navigation a:hover {
   color: var(--color-ink);
 }
-.topbar nav a.nav-active {
+:is(.topbar, .viewer-header) nav a.nav-active,
+.tree-type-navigation a[aria-current="page"] {
   color: var(--color-ink);
   border-bottom-color: var(--color-brand);
 }
@@ -468,7 +480,8 @@ h1 > span {
   display: grid;
   gap: var(--space-sm);
 }
-.control-field label {
+.control-field label,
+.tree-setting-label {
   font-family: var(--font-mono);
   font-size: var(--text-label);
   font-weight: 500;
@@ -524,6 +537,31 @@ h1 > span {
   border: var(--rule-thin) solid var(--color-rule-strong);
   border-radius: var(--radius-control);
   animation: none;
+}
+/* Inset brackets stay fixed to the tooltip frame while its content scrolls. */
+.popup-corners::after,
+.recharts-default-tooltip::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  z-index: 60;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--color-brand), var(--color-brand)) left top / 10px 1px
+      no-repeat,
+    linear-gradient(var(--color-brand), var(--color-brand)) left top / 1px 10px
+      no-repeat,
+    linear-gradient(var(--color-brand), var(--color-brand)) right bottom / 10px
+      1px no-repeat,
+    linear-gradient(var(--color-brand), var(--color-brand)) right bottom / 1px
+      10px no-repeat;
+  opacity: 0.45;
+}
+.recharts-default-tooltip {
+  position: relative;
+}
+.popup-corners:has(> [data-closed])::after {
+  display: none;
 }
 [data-slot="skeleton"] {
   color: var(--color-rule-strong);
@@ -1609,7 +1647,7 @@ tbody tr:last-child td {
   color: var(--color-brand-ink);
   border-bottom: 1px dotted var(--color-brand-deep);
 }
-footer {
+.site-shell > footer {
   position: relative;
   display: flex;
   align-items: center;
@@ -1622,7 +1660,7 @@ footer {
   letter-spacing: 0.06em;
   color: var(--color-text-muted);
 }
-footer::before {
+.site-shell > footer::before {
   content: "";
   position: absolute;
   left: 0;
@@ -1640,7 +1678,7 @@ footer::before {
   font-size: 24px;
   color: var(--color-ink);
 }
-footer > .footer-info {
+.site-shell > footer > .footer-info {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
@@ -1649,12 +1687,12 @@ footer > .footer-info {
 .footer-info p {
   margin: 0;
 }
-footer > div:last-child {
+.site-shell > footer > div:last-child {
   margin-left: auto;
   display: flex;
   gap: var(--space-xl);
 }
-footer > div:last-child a {
+.site-shell > footer > div:last-child a {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1824,7 +1862,8 @@ footer a:hover {
   }
 }
 @media (max-width: 1000px) {
-  .site-shell {
+  .site-shell,
+  .viewer-shell {
     --shell-gutter: var(--space-xl);
   }
   h1 {
@@ -1838,10 +1877,10 @@ footer a:hover {
   }
 }
 @media (max-width: 900px) {
-  .topbar {
+  .topbar-content {
     gap: var(--space-lg);
   }
-  .topbar .desktop-navigation,
+  :is(.topbar, .viewer-header) .desktop-navigation,
   .categories {
     display: none;
   }
@@ -1935,14 +1974,20 @@ footer a:hover {
   }
 }
 @media (max-width: 600px) {
-  .site-shell {
+  .site-shell,
+  .viewer-shell {
     --shell-gutter: var(--space-md);
+  }
+  .site-shell {
     border-inline: 0;
   }
   .topbar {
-    flex-wrap: wrap;
     height: auto;
     min-height: 56px;
+  }
+  .topbar-content {
+    flex-wrap: wrap;
+    min-height: calc(56px - var(--rule-thin));
     gap: var(--space-sm);
     padding-block: var(--space-sm);
   }
@@ -2022,16 +2067,16 @@ footer a:hover {
   .pagination [data-slot="button"] {
     min-width: 30px;
   }
-  footer {
+  .site-shell > footer {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-md);
   }
-  footer p {
+  .site-shell > footer p {
     max-width: none;
     line-height: 1.6;
   }
-  footer > div:last-child {
+  .site-shell > footer > div:last-child {
     margin-left: 0;
     gap: var(--space-lg);
   }
@@ -2104,4 +2149,273 @@ footer a:hover {
   .mobile-menu-sheet:is([data-starting-style], [data-ending-style]) {
     transform: none;
   }
+}
+
+/* A viewport workspace: only the map camera moves, never the document. */
+html:has(.viewer-shell),
+body:has(.viewer-shell) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+.viewer-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+.viewer-header {
+  flex-shrink: 0;
+  width: 100%;
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+}
+.viewer-navigation {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3xl);
+  height: 67px;
+}
+.viewer-navigation,
+.tree-navigation-container {
+  width: 100%;
+  max-width: var(--shell-max-width);
+  padding-inline: var(--shell-gutter);
+  margin-inline: auto;
+  border-inline: var(--rule-thin) solid transparent;
+}
+.viewer-shell > main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+.viewer-footer {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  padding: 8px 12px;
+  border-top: var(--rule-thin) solid var(--color-rule-strong);
+  font: 10px/1.4 var(--font-mono);
+  color: var(--color-text-muted);
+}
+.viewer-shell .tree-explorer {
+  padding: 0;
+  gap: 0;
+}
+.viewer-shell .tree-controls {
+  padding-inline: 12px;
+}
+@media (max-width: 900px) {
+  .viewer-navigation {
+    gap: var(--space-lg);
+  }
+}
+@media (max-width: 600px) {
+  .viewer-navigation {
+    height: auto;
+    min-height: 55px;
+    gap: var(--space-sm);
+    padding-block: var(--space-sm);
+  }
+  .viewer-navigation,
+  .tree-navigation-container {
+    border-inline: 0;
+  }
+}
+.standalone-tree,
+.tree-explorer,
+.tree-explorer > .passive-tree {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.standalone-tree-heading {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-rule-strong);
+}
+.tree-navigation-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 67px;
+}
+.tree-explorer {
+  padding: 12px;
+  gap: 8px;
+  overflow: hidden;
+}
+.tree-explorer > [data-slot="select-trigger"] {
+  flex-shrink: 0;
+  width: min(100%, 240px);
+}
+.tree-explorer .tree-controls {
+  flex-shrink: 0;
+  margin: 0 0 8px;
+}
+.tree-explorer .tree-viewport {
+  flex: 1;
+  min-height: 0;
+}
+.tree-explorer .tree-viewport svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.standalone-tree-dialog > [data-slot="select-trigger"] {
+  flex-shrink: 0;
+  margin-top: 10px;
+}
+
+.tree-explorer-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  gap: 8px 16px;
+  padding: 10px 12px 8px;
+}
+.tree-explorer-options [data-slot="select-trigger"] {
+  width: 260px;
+  max-width: 100%;
+}
+.tree-unseen-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  font: 12px/1.4 var(--font-body);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.tree-unseen-toggle:has([data-disabled]) {
+  opacity: 0.5;
+  cursor: default;
+}
+[data-slot="checkbox"] {
+  border-radius: var(--radius-control);
+  border-color: var(--color-rule-strong);
+}
+[data-slot="checkbox"][data-checked] {
+  border-color: var(--color-brand);
+  background: var(--color-brand);
+  color: var(--color-paper);
+}
+
+/* The camera controls remain anchored inside the canvas while the SVG pans. */
+.passive-tree[data-overlay-controls] {
+  position: relative;
+}
+.passive-tree[data-overlay-controls] > .tree-controls {
+  position: absolute;
+  z-index: 2;
+  bottom: 14px;
+  right: 14px;
+  max-width: calc(100% - 28px);
+  margin: 0;
+  padding: 6px;
+  gap: 6px;
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  background: var(--color-paper);
+  box-shadow: 0 3px 12px #0005;
+}
+.tree-ascendancy-option[data-slot="select-item"] {
+  padding-left: 24px;
+}
+.tree-snapshot-version {
+  font: 11px/1.4 var(--font-mono);
+  color: var(--color-text-muted);
+}
+
+.tree-type-navigation {
+  margin-right: auto;
+}
+.tree-type-navigation a {
+  text-decoration: none;
+}
+.tree-explorer-options [aria-label="Tree version"] {
+  width: 86px;
+}
+@media (max-width: 600px) {
+  .tree-navigation-container {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+  .tree-navigation-container > [data-slot="button"] {
+    margin: 8px 0 0 auto;
+  }
+  .tree-type-navigation {
+    order: 2;
+    height: 48px;
+    width: 100%;
+    justify-content: space-between;
+    gap: 4px 8px;
+  }
+}
+
+.ascendancy-tree {
+  position: relative;
+  min-width: 0;
+}
+.tree-explorer > .ascendancy-tree,
+.tree-explorer > .ascendancy-tree > .passive-tree {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.ascendancy-tree > .build-empty {
+  padding-top: 72px;
+}
+
+/* Shared in-view controls: compact and independent of the camera transform. */
+.passive-tree:has(> .tree-settings-panel) {
+  position: relative;
+}
+.tree-settings-panel {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  width: max-content;
+  max-width: calc(100% - 28px);
+  padding: 12px;
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  background: var(--color-paper);
+  box-shadow: 0 3px 12px #0005;
+}
+.tree-settings-panel:empty {
+  display: none;
+}
+.tree-settings-panel [data-slot="select-trigger"] {
+  width: auto;
+  max-width: 100%;
+  height: 30px;
+  font-size: 12px;
+}
+.tree-settings-panel .tree-unseen-toggle {
+  min-height: 26px;
+}
+.tree-setting {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+.tree-setting [data-slot="select-trigger"] {
+  width: max-content;
+  max-width: 100%;
 }

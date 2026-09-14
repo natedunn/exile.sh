@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Gem, Menu, Swords, Newspaper } from "lucide-react"
+import { Gem, Menu, Swords, Newspaper, Network } from "lucide-react"
 import { Link } from "@tanstack/react-router"
 import { Button } from "./ui/button"
 import {
@@ -25,6 +25,7 @@ export function SiteNavigation({ filters }: { filters: Filters }) {
   const destinations = [
     { label: "Economy", to: "/economy", icon: Gem },
     { label: "Build Bin", to: "/build-bin", icon: Swords },
+    { label: "Trees", to: "/trees", icon: Network },
     { label: "Patch Notes", to: "/patch-notes", icon: Newspaper },
   ] as const
   return (

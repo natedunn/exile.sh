@@ -4,10 +4,12 @@ import {
   Outlet,
   Scripts,
   createRootRoute,
+  useLocation,
 } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { Providers } from "../components/providers"
 import { SiteLayout } from "../components/site-layout"
+import { ViewerLayout } from "../components/viewer-layout"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -40,11 +42,7 @@ export const Route = createRootRoute({
       },
     ],
   }),
-  component: () => (
-    <SiteLayout>
-      <Outlet />
-    </SiteLayout>
-  ),
+  component: RootLayout,
   // Missing pages render inside the layout's outlet; the error boundary
   // replaces the layout, so it brings its own.
   notFoundComponent: () => (
@@ -65,6 +63,19 @@ export const Route = createRootRoute({
   ),
   shellComponent: RootDocument,
 })
+function RootLayout() {
+  const isViewer = useLocation({
+    select: (location) =>
+      location.pathname === "/trees" || location.pathname.startsWith("/trees/"),
+  })
+  const Layout = isViewer ? ViewerLayout : SiteLayout
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  )
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!import.meta.env.PROD || !("serviceWorker" in navigator)) return

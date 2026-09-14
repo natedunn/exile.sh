@@ -2,7 +2,7 @@ import { Link, useSearch } from "@tanstack/react-router"
 import { ExternalLink } from "lucide-react"
 import type { ReactNode } from "react"
 import { filters } from "../lib/economy-filters"
-import { SiteNavigation } from "./site-navigation"
+import { SiteHeader } from "./site-header"
 
 /* One frame for every page: masthead, a bordered column of content, and
    the colophon. Economy filters ride along in links so switching sections
@@ -12,13 +12,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const f = { ...filters.parse(search), item: "" }
   return (
     <div className="site-shell">
-      <header className="topbar">
-        <Link className="wordmark" to="/economy" search={f}>
-          <img src="/favicon.svg" alt="" width="30" height="30" />
-          exile<span>.sh</span>
-        </Link>
-        <SiteNavigation filters={f} />
-      </header>
+      <SiteHeader />
       <main id="main">{children}</main>
       <footer>
         <Link className="footer-brand" to="/economy" search={f}>

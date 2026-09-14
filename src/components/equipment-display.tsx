@@ -1,3 +1,4 @@
+import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
 import { useEffect, useRef, useState } from "react"
 import {
   Gem,
@@ -266,17 +267,20 @@ function GearSlot({
                   .join(", ")}
               >
                 {details.socketContents.map((socket, i) => (
-                  <span key={i} title={socket.name}>
-                    {socket.image && (
-                      <img
-                        src={socket.image}
-                        alt={socket.name}
-                        width={64}
-                        height={64}
-                        loading="lazy"
-                      />
-                    )}
-                  </span>
+                  <Tooltip key={i}>
+                    <TooltipTrigger render={<span />} tabIndex={0}>
+                      {socket.image && (
+                        <img
+                          src={socket.image}
+                          alt={socket.name}
+                          width={64}
+                          height={64}
+                          loading="lazy"
+                        />
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent>{socket.name}</TooltipContent>
+                  </Tooltip>
                 ))}
               </span>
             )}

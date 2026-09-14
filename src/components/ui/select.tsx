@@ -31,9 +31,12 @@ function SelectTrigger({
   className,
   size = "default",
   children,
+  optionLabels,
   ...props
 }: SelectPrimitive.Trigger.Props & {
   size?: "sm" | "default"
+  /** Reserve the widest option's text width without measuring after selection. */
+  optionLabels?: readonly string[]
 }) {
   return (
     <SelectPrimitive.Trigger
@@ -45,7 +48,24 @@ function SelectTrigger({
       )}
       {...props}
     >
-      {children}
+      {optionLabels ? (
+        <span className="inline-grid min-w-0">
+          {optionLabels.map((label) => (
+            <span
+              key={label}
+              aria-hidden="true"
+              className="invisible col-start-1 row-start-1"
+            >
+              {label}
+            </span>
+          ))}
+          <span className="col-start-1 row-start-1 flex min-w-0 items-center gap-1.5">
+            {children}
+          </span>
+        </span>
+      ) : (
+        children
+      )}
       <SelectPrimitive.Icon
         render={
           <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />

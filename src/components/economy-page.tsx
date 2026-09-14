@@ -880,14 +880,17 @@ export function EconomyPage({
                                 : "none"
                             }
                           >
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => sort("volume")}
-                              title="Sort by traded value in Exalted"
-                            >
-                              Volume <SlidersHorizontal size={11} />
-                            </Button>
+                            <Tooltip>
+                              <TooltipTrigger
+                                render={<Button variant="ghost" size="sm" />}
+                                onClick={() => sort("volume")}
+                              >
+                                Volume <SlidersHorizontal size={11} />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                Sort by traded value in Exalted
+                              </TooltipContent>
+                            </Tooltip>
                           </TableHead>
                           <TableHead
                             aria-sort={
@@ -968,11 +971,16 @@ export function EconomyPage({
                                 alt={displayQuote(r.id)}
                               />
                             </TableCell>
-                            <TableCell
-                              className="hide-medium volume-cell"
-                              title={`${number(r.volume, 0)} item units in the pricing market`}
-                            >
-                              {compact(r.volume)}
+                            <TableCell className="hide-medium volume-cell">
+                              <Tooltip>
+                                <TooltipTrigger render={<span />} tabIndex={0}>
+                                  {compact(r.volume)}
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {number(r.volume, 0)} item units in the
+                                  pricing market
+                                </TooltipContent>
+                              </Tooltip>
                             </TableCell>
                             <TableCell>
                               <Delta value={r.changes[quoteIndex(r.id)]} />

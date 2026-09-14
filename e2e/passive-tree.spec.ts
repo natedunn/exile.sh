@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { readFileSync } from "node:fs"
+import { parseBuild } from "../shared/pob"
 const code = readFileSync(
   new URL("../shared/fixtures/pob/2k0EPn6QOhTx.txt", import.meta.url),
   "utf8"
@@ -26,7 +27,19 @@ test("tree preserves geometry and supports inspection, zoom, pan and dismissal",
   await page.keyboard.press("ArrowLeft")
   await expect(map).not.toHaveAttribute("viewBox", original!)
   await page.getByRole("button", { name: "Reset", exact: true }).click()
-  expect(await map.locator("path[d*='A']").count()).toBeGreaterThan(100)
+  const arcCount = await map
+    .locator("path[d]")
+    .evaluateAll((paths) =>
+      paths.reduce(
+        (count, path) =>
+          count + (path.getAttribute("d")?.match(/\bA\b/g)?.length ?? 0),
+        0
+      )
+    )
+  expect(arcCount).toBeGreaterThan(100)
+  expect(
+    await map.locator("path[data-connection-style]").count()
+  ).toBeLessThanOrEqual(11)
   const node = map.locator("[data-node]").nth(100)
   await node.hover()
   await expect(page.locator(".tree-inspection")).toBeVisible()
@@ -166,29 +179,18 @@ test("From Nothing radius and socketed jewel details render from a real export",
     1
   )
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
-  // Weapon set passives are marked, and the palette toggle applies to the map.
+  // Weapon set passives remain marked; the Build Bin hides the palette picker.
   await expect(
     page.locator('.tree-fullscreen [data-node][data-weapon-set="1"]')
   ).toHaveCount(24)
   await expect(
     page.locator('.tree-fullscreen [data-node][data-weapon-set="2"]')
   ).toHaveCount(22)
-  const palette = page.getByRole("combobox", { name: "Weapon set palette" })
+  const palette = page.getByRole("combobox", { name: "Color vision" })
   await expect(
     page.locator(".tree-fullscreen .passive-tree")
   ).not.toHaveAttribute("data-palette", /./)
-  await palette.click()
-  await page
-    .getByRole("option", { name: "Tritanopia (blue-weak)", exact: true })
-    .click()
-  await expect(page.locator(".tree-fullscreen .passive-tree")).toHaveAttribute(
-    "data-palette",
-    "tritan"
-  )
-  await palette.click()
-  await page
-    .getByRole("option", { name: "Standard colours", exact: true })
-    .click()
+  await expect(palette).toHaveCount(0)
   await page.locator('.tree-fullscreen [data-node="61419"]').hover()
   await expect(page.locator(".tree-inspection")).toContainText("From Nothing")
   await expect(page.locator(".tree-inspection")).toContainText(
@@ -237,7 +239,15 @@ test("compact tree overview and share dialog preserve page ergonomics", async ({
   await expect(
     page.locator('[data-mode="ascendancy"] .tree-passive-art').first()
   ).toBeVisible()
+  await expect(
+    page
+      .locator('[data-mode="ascendancy"] [data-ascendancy-background]')
+      .first()
+  ).toBeVisible()
   await page.setViewportSize({ width: 390, height: 844 })
+  await expect(
+    page.getByRole("combobox", { name: "Ascendancy", exact: true })
+  ).toHaveCount(0)
   const mobilePreview = (await preview.boundingBox())!
   const mobilePassives = (await page
     .locator(".tree-key-passives")
@@ -250,7 +260,7 @@ test("compact tree overview and share dialog preserve page ergonomics", async ({
   ).toBeLessThanOrEqual(390)
 })
 
-test("all palettes recolor shared and weapon nodes consistently and persist on mobile", async ({
+test("saved palettes recolor shared and weapon nodes with the Build Bin picker hidden", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
@@ -269,24 +279,25 @@ test("all palettes recolor shared and weapon nodes consistently and persist on m
   }
   await openBuild()
   const map = page.locator(".tree-fullscreen .passive-tree")
-  const picker = page.getByRole("combobox", { name: "Weapon set palette" })
+  const picker = page.getByRole("combobox", { name: "Color vision" })
   let standard = ""
-  for (const [value, label] of [
+  for (const [value] of [
     ["default", "Standard colours"],
     ["deutan", "Deuteranopia (green-weak)"],
     ["protan", "Protanopia (red-weak)"],
     ["tritan", "Tritanopia (blue-weak)"],
     ["achroma", "Achromatopsia (no colour)"],
   ]) {
-    await picker.click()
-    await page.getByRole("option", { name: label, exact: true }).click()
-    await expect(picker).toContainText(label)
+    await page.evaluate(
+      (palette) => localStorage.setItem("exile.tree.palette", palette),
+      value
+    )
+    await openBuild()
+    await expect(picker).toHaveCount(0)
     const colors = await map.evaluate((element) => {
-      const shared = element.querySelector(
-        '[data-node][fill="var(--color-tree-allocated)"]'
-      )!
-      const first = element.querySelector('[data-node][data-weapon-set="1"]')!
-      const second = element.querySelector('[data-node][data-weapon-set="2"]')!
+      const shared = element.querySelector('[data-node-fill="allocated"]')!
+      const first = element.querySelector('[data-node-fill="weapon-1"]')!
+      const second = element.querySelector('[data-node-fill="weapon-2"]')!
       return {
         nodes: [shared, first, second].map((n) => getComputedStyle(n).fill),
         legend: [...element.querySelectorAll(".tree-legend li")].map(
@@ -299,8 +310,6 @@ test("all palettes recolor shared and weapon nodes consistently and persist on m
     if (value === "default") standard = colors.nodes[0]
     else expect(colors.nodes[0]).not.toBe(standard)
     await expect(map.locator(".tree-legend")).toBeVisible()
-    const pickerSize = await picker.boundingBox()
-    expect(pickerSize!.x + pickerSize!.width).toBeLessThanOrEqual(390)
     await expect
       .poll(() =>
         page.evaluate(() => localStorage.getItem("exile.tree.palette"))
@@ -314,5 +323,59 @@ test("all palettes recolor shared and weapon nodes consistently and persist on m
   )
   await openBuild()
   await expect(map).toHaveAttribute("data-palette", "achroma")
-  await expect(picker).toContainText("Achromatopsia (no colour)")
+  await expect(picker).toHaveCount(0)
+})
+
+test("Build Bin embeds its fixed ascendancy and retains center allocations", async ({
+  page,
+}) => {
+  const build = parseBuild(code)
+  const spec = build.treeSpecs[build.activeSpec]
+  const ascendancy = JSON.parse(
+    readFileSync(
+      `public/pob-trees/ascendancies-v1/${spec.version}/shaman.json`,
+      "utf8"
+    )
+  ) as { nodes: { id: string; baseId?: string; start: boolean }[] }
+  const allocated = ascendancy.nodes.find(
+    (node) => !node.start && spec.nodes.includes(node.baseId ?? node.id)
+  )!
+  expect(allocated).toBeTruthy()
+  await page.addInitScript(() =>
+    localStorage.setItem("exile.tree.ascendancy", "Oracle")
+  )
+  await page.goto("/build-bin")
+  await page.getByLabel("PoB export or pobb.in link").fill(code)
+  await page
+    .getByRole("navigation", { name: "Build sections" })
+    .getByRole("link", { name: "Trees", exact: true })
+    .click()
+  await expect(
+    page.locator('.tree-preview [data-node^="center:"]').first()
+  ).toBeAttached()
+  await expect(page.getByRole("combobox", { name: /ascendancy/i })).toHaveCount(
+    0
+  )
+  await page.getByRole("button", { name: "Open tree", exact: true }).click()
+  const map = page.locator(".tree-fullscreen .tree-viewport svg")
+  await expect(map.locator('[data-node^="center:"]')).toHaveCount(
+    ascendancy.nodes.filter((node) => !node.start).length
+  )
+  await expect(page.getByRole("combobox", { name: /ascendancy/i })).toHaveCount(
+    0
+  )
+  const background = map.locator('image[href^="/pob-trees/ascendancy-v1/"]')
+  await expect(background).toHaveCount(0)
+  for (let i = 0; i < 3; i++)
+    await page.getByRole("button", { name: "Zoom in", exact: true }).click()
+  await expect(background).toHaveCount(1)
+  await map.locator(`[data-node="center:${allocated.id}"]`).hover()
+  await expect(page.locator(".tree-inspection .tree-status")).toHaveText(
+    "Allocated"
+  )
+  await page.getByRole("button", { name: "Reset", exact: true }).click()
+  await expect(background).toHaveCount(0)
+  expect(
+    await page.evaluate(() => localStorage.getItem("exile.tree.ascendancy"))
+  ).toBe("Oracle")
 })

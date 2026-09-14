@@ -1,3 +1,4 @@
+import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
 import type { ReactNode } from "react"
 import { buildSkill, displayStat, statValue } from "../../shared/pob"
 import type { BuildSnapshot } from "../../shared/pob"
@@ -88,14 +89,17 @@ export function BuildStats({
     return (
       <span className="build-stat-values">
         {entries.map(([key, label, tone]) => (
-          <span
-            key={key}
-            title={label}
-            aria-label={label + ": " + value(key, suffix)}
-            data-tone={tone}
-          >
-            {value(key, suffix)}
-          </span>
+          <Tooltip key={key}>
+            <TooltipTrigger
+              render={<span />}
+              tabIndex={0}
+              aria-label={label + ": " + value(key, suffix)}
+              data-tone={tone}
+            >
+              {value(key, suffix)}
+            </TooltipTrigger>
+            <TooltipContent>{label}</TooltipContent>
+          </Tooltip>
         ))}
       </span>
     )
