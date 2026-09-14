@@ -1,6 +1,9 @@
+import { PinnablePopoverContent, TooltipPinScope } from "./tooltip-pins"
+import type { TooltipPinOptions } from "./tooltip-pins"
+import type { ComponentProps } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
-import { Diamond, Droplet, Info, Star, X } from "lucide-react"
+import { Diamond, Droplet, Info, Star } from "lucide-react"
 import { findGem, gemEffectValues } from "../../shared/gems"
 import type { GemCatalogue, SavedGem, GemEffects } from "../../shared/gems"
 import type { BuildSnapshot } from "../../shared/pob"
@@ -11,7 +14,6 @@ import {
   PopoverContent,
   PopoverTitle,
   PopoverDescription,
-  PopoverClose,
 } from "./ui/popover"
 
 export function GemReferenceInfo() {
@@ -215,7 +217,14 @@ function GemRow({
             <strong>{gem.quality ? `${gem.quality}%` : "—"}</strong>
           </span>
         </PopoverTrigger>
-        <PopoverContent
+        <PinnablePopoverContent
+          showPin={(held || !hoverOnly) && !effects.isLoading}
+          freeze={held}
+          pinLabel={`${gem.name} gem details`}
+          onPin={() => {
+            setOpen(false)
+            setHeld(false)
+          }}
           className="skill-gem-tooltip"
           data-hover-only={hoverOnly && !held}
           positionerClassName={
@@ -243,12 +252,6 @@ function GemRow({
                 </p>
               )}
             </div>
-            <PopoverClose
-              className="skill-gem-close"
-              aria-label="Close gem details"
-            >
-              <X size={16} />
-            </PopoverClose>
           </div>
           {tagRow}
           <dl className="skill-gem-properties">
@@ -338,12 +341,24 @@ function GemRow({
           {!gem.enabled && (
             <p className="skill-gem-disabled">Disabled in this skill group.</p>
           )}
-        </PopoverContent>
+        </PinnablePopoverContent>
       </Popover>
     </li>
   )
 }
-export function SkillGems({
+export function SkillGems(
+  props: ComponentProps<typeof SkillGemsContent> & TooltipPinOptions
+) {
+  return (
+    <TooltipPinScope
+      pinningEnabled={props.pinningEnabled}
+      maxPinnedTooltips={props.maxPinnedTooltips ?? 1}
+    >
+      <SkillGemsContent {...props} />
+    </TooltipPinScope>
+  )
+}
+function SkillGemsContent({
   skills,
   mainSocketGroup,
 }: {

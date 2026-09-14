@@ -164,7 +164,7 @@ await ensurePortlessProxy(workspaceRoot, portlessPort)
 const routeName = portlessName("exile")
 const vite = start(
   process.execPath,
-  [portlessCli(workspaceRoot), routeName, "--force", "bun", "run", "dev:vite"],
+  [portlessCli(workspaceRoot), routeName, "bun", "run", "dev:vite"],
   { ...process.env, PORTLESS_PORT: String(portlessPort) }
 )
 
