@@ -364,12 +364,17 @@ test("Build Bin embeds its fixed ascendancy and retains center allocations", asy
   await expect(page.getByRole("combobox", { name: /ascendancy/i })).toHaveCount(
     0
   )
+  const background = map.locator('image[href^="/pob-trees/ascendancy-v1/"]')
+  await expect(background).toHaveCount(0)
   for (let i = 0; i < 3; i++)
     await page.getByRole("button", { name: "Zoom in", exact: true }).click()
+  await expect(background).toHaveCount(1)
   await map.locator(`[data-node="center:${allocated.id}"]`).hover()
   await expect(page.locator(".tree-inspection .tree-status")).toHaveText(
     "Allocated"
   )
+  await page.getByRole("button", { name: "Reset", exact: true }).click()
+  await expect(background).toHaveCount(0)
   expect(
     await page.evaluate(() => localStorage.getItem("exile.tree.ascendancy"))
   ).toBe("Oracle")

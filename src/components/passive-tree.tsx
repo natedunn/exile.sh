@@ -1110,7 +1110,7 @@ function TreeMapRenderer({
               pointerEvents="none"
             />
           )}
-          {centerBackground && (
+          {centerBackground && showArt && (
             <g pointerEvents="none">
               <image
                 href={centerBackground}
