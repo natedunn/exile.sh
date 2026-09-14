@@ -1,0 +1,27 @@
+[
+  {
+    "panDistance": 560,
+    "deviceScaleFactor": 2,
+    "cpuThrottle": 4,
+    "renderer": "svg",
+    "cacheBuilds": 0,
+    "zoom": 3.375,
+    "run": 0,
+    "elapsedMs": 13510,
+    "frameCount": 302,
+    "frameMaxMs": 1349.9,
+    "frameP99Ms": 1016.6,
+    "maxTileBuildMs": 0,
+    "frameP95Ms": 33.4,
+    "framesOver25Ms": 32,
+    "elements": 12747,
+    "images": 2122,
+    "timingMs": {
+      "FunctionCall": 8822,
+      "UpdateLayoutTree": 433,
+      "Layout": 235,
+      "PrePaint": 1146,
+      "Paint": 2764
+    }
+  }
+]

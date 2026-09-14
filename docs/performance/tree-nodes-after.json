@@ -1,0 +1,140 @@
+[
+  {
+    "panDistance": 560,
+    "deviceScaleFactor": 1,
+    "cpuThrottle": 1,
+    "renderer": "svg",
+    "zoom": 3.375,
+    "run": 0,
+    "elapsedMs": 2331,
+    "frameCount": 138,
+    "frameMaxMs": 66.7,
+    "frameP99Ms": 50,
+    "frameP95Ms": 16.8,
+    "framesOver25Ms": 2,
+    "elements": 6055,
+    "images": 2492,
+    "timingMs": {
+      "FunctionCall": 314,
+      "UpdateLayoutTree": 41,
+      "Layout": 29,
+      "PrePaint": 140,
+      "Paint": 210
+    }
+  },
+  {
+    "panDistance": 560,
+    "deviceScaleFactor": 1,
+    "cpuThrottle": 1,
+    "renderer": "svg",
+    "zoom": 3.375,
+    "run": 1,
+    "elapsedMs": 2330,
+    "frameCount": 138,
+    "frameMaxMs": 66.7,
+    "frameP99Ms": 50,
+    "frameP95Ms": 16.8,
+    "framesOver25Ms": 2,
+    "elements": 6055,
+    "images": 2492,
+    "timingMs": {
+      "FunctionCall": 305,
+      "UpdateLayoutTree": 43,
+      "Layout": 33,
+      "PrePaint": 147,
+      "Paint": 209
+    }
+  },
+  {
+    "panDistance": 560,
+    "deviceScaleFactor": 1,
+    "cpuThrottle": 1,
+    "renderer": "svg",
+    "zoom": 3.375,
+    "run": 2,
+    "elapsedMs": 2310,
+    "frameCount": 137,
+    "frameMaxMs": 50,
+    "frameP99Ms": 50,
+    "frameP95Ms": 16.8,
+    "framesOver25Ms": 2,
+    "elements": 6055,
+    "images": 2492,
+    "timingMs": {
+      "FunctionCall": 292,
+      "UpdateLayoutTree": 36,
+      "Layout": 34,
+      "PrePaint": 167,
+      "Paint": 217
+    }
+  },
+  {
+    "panDistance": 560,
+    "deviceScaleFactor": 1,
+    "cpuThrottle": 1,
+    "renderer": "svg",
+    "zoom": 7.59375,
+    "run": 0,
+    "elapsedMs": 2103,
+    "frameCount": 129,
+    "frameMaxMs": 16.8,
+    "frameP99Ms": 16.8,
+    "frameP95Ms": 16.8,
+    "framesOver25Ms": 0,
+    "elements": 1378,
+    "images": 556,
+    "timingMs": {
+      "FunctionCall": 120,
+      "UpdateLayoutTree": 14,
+      "Layout": 21,
+      "PrePaint": 63,
+      "Paint": 55
+    }
+  },
+  {
+    "panDistance": 560,
+    "deviceScaleFactor": 1,
+    "cpuThrottle": 1,
+    "renderer": "svg",
+    "zoom": 7.59375,
+    "run": 1,
+    "elapsedMs": 2107,
+    "frameCount": 128,
+    "frameMaxMs": 16.8,
+    "frameP99Ms": 16.8,
+    "frameP95Ms": 16.7,
+    "framesOver25Ms": 0,
+    "elements": 1378,
+    "images": 556,
+    "timingMs": {
+      "FunctionCall": 112,
+      "UpdateLayoutTree": 12,
+      "Layout": 22,
+      "PrePaint": 66,
+      "Paint": 58
+    }
+  },
+  {
+    "panDistance": 560,
+    "deviceScaleFactor": 1,
+    "cpuThrottle": 1,
+    "renderer": "svg",
+    "zoom": 7.59375,
+    "run": 2,
+    "elapsedMs": 2114,
+    "frameCount": 129,
+    "frameMaxMs": 16.8,
+    "frameP99Ms": 16.8,
+    "frameP95Ms": 16.8,
+    "framesOver25Ms": 0,
+    "elements": 1378,
+    "images": 556,
+    "timingMs": {
+      "FunctionCall": 118,
+      "UpdateLayoutTree": 14,
+      "Layout": 20,
+      "PrePaint": 59,
+      "Paint": 50
+    }
+  }
+]

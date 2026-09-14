@@ -1,11 +1,11 @@
 """Generate version-pinned geometry, retaining signed connection orbits.
 
 Connector rules reference PoB PassiveTree.lua (MIT; license shipped with assets).
-The v3 path preserves keystone classification and leaves earlier assets intact.
+The v4 path excludes image-only decorations and leaves earlier assets intact.
 """
 import json, math, pathlib, urllib.request
 REVISION = "ce566eac45ea8a86477f513c7ee65a1ebe60014e"
-root = pathlib.Path(__file__).resolve().parents[1] / "public/pob-trees/v3"
+root = pathlib.Path(__file__).resolve().parents[1] / "public/pob-trees/v4"
 root.mkdir(exist_ok=True)
 for version in ["0_1", "0_2", "0_3", "0_4", "0_5"]:
     target = root / (version + ".json")
@@ -20,7 +20,8 @@ for version in ["0_1", "0_2", "0_3", "0_4", "0_5"]:
     angles = {}
     for key, n in data["nodes"].items():
         g = by_node.get(key)
-        if not g:
+        # Decorative cluster images are not allocatable or inspectable passives.
+        if not g or n.get("isOnlyImage"):
             continue
         orbit = n.get("orbit", 0)
         angle_table = data["constants"].get("orbitAnglesByOrbit")

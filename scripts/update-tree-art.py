@@ -11,7 +11,7 @@ REVISION = "ce566eac45ea8a86477f513c7ee65a1ebe60014e"
 SOURCE = f"https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/{REVISION}/src/TreeData/"
 dest = ROOT / "public/pob-trees/art-v2"
 (dest / "icons").mkdir(parents=True, exist_ok=True)
-for tree_file in sorted((ROOT / "public/pob-trees/v2").glob("*.json")):
+for tree_file in sorted((ROOT / "public/pob-trees/v4").glob("*.json")):
     version = tree_file.stem
     if (dest / (version + ".json")).exists():
         continue

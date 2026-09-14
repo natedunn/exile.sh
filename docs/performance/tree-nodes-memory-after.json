@@ -1,0 +1,2441 @@
+[
+  {
+    "profile": {
+      "name": "mobile-2x",
+      "width": 360,
+      "height": 740,
+      "dpr": 2
+    },
+    "run": 0,
+    "renderer": "svg",
+    "variant": "regions",
+    "compareRegions": false,
+    "transformedModules": 0,
+    "browser": "153.0.8010.36",
+    "stages": [
+      {
+        "stage": "blank",
+        "privateBytes": 315645952,
+        "gpuPrivateBytes": 84199424,
+        "rendererPrivateBytes": 104852480,
+        "heap": {
+          "usedSize": 584240,
+          "totalSize": 1048576,
+          "embedderHeapUsedSize": 298288,
+          "backingStorageSize": 6
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 4,
+          "jsEventListeners": 0
+        },
+        "svg": {
+          "elements": 0,
+          "nodes": 0,
+          "images": 0,
+          "regions": 0,
+          "viewBox": null
+        },
+        "processes": [
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 84199424
+          },
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 22284288
+          },
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 19712000
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 26774528
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 48631808
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 29446144
+          },
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 19990528
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 64607232
+          }
+        ]
+      },
+      {
+        "stage": "overview",
+        "privateBytes": 519038976,
+        "gpuPrivateBytes": 71027712,
+        "rendererPrivateBytes": 269135872,
+        "heap": {
+          "usedSize": 54997396,
+          "totalSize": 55934976,
+          "embedderHeapUsedSize": 12314168,
+          "backingStorageSize": 32951241
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 4872,
+          "jsEventListeners": 192
+        },
+        "svg": {
+          "elements": 4628,
+          "nodes": 3933,
+          "images": 0,
+          "regions": 340,
+          "viewBox": "-12926.107 -17814.410405879018 25913.987 35917.880811758034"
+        },
+        "processes": [
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 65259520
+          },
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20219904
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 65901568
+          },
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 71027712
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 49467392
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 27462656
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 192205824
+          },
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 27494400
+          }
+        ]
+      },
+      {
+        "stage": "zoomed",
+        "privateBytes": 575629312,
+        "gpuPrivateBytes": 101747712,
+        "rendererPrivateBytes": 279883776,
+        "heap": {
+          "usedSize": 51543184,
+          "totalSize": 52805632,
+          "embedderHeapUsedSize": 14959032,
+          "backingStorageSize": 33134523
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 4451,
+          "jsEventListeners": 3638
+        },
+        "svg": {
+          "elements": 4193,
+          "nodes": 1723,
+          "images": 1723,
+          "regions": 139,
+          "viewBox": "-3808.2226851851856 -5176.637527667856 7678.21837037037 10642.335055335712"
+        },
+        "processes": [
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 101747712
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 49532928
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 202839040
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 75748352
+          },
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 69552128
+          },
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20170752
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 27511808
+          },
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 28526592
+          }
+        ]
+      },
+      {
+        "stage": "explored-once",
+        "privateBytes": 559638528,
+        "gpuPrivateBytes": 101485568,
+        "rendererPrivateBytes": 259928064,
+        "heap": {
+          "usedSize": 45502456,
+          "totalSize": 46563328,
+          "embedderHeapUsedSize": 5156136,
+          "backingStorageSize": 32963252
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 811,
+          "jsEventListeners": 649
+        },
+        "svg": {
+          "elements": 553,
+          "nodes": 222,
+          "images": 222,
+          "regions": 19,
+          "viewBox": "5849.408162962962 8880.03649446643 7678.21837037037 10642.335055335712"
+        },
+        "processes": [
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20187136
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 51810304
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 180671488
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 78812160
+          },
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 101485568
+          },
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 70027264
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 27446272
+          },
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 29198336
+          }
+        ]
+      },
+      {
+        "stage": "explored-twice",
+        "privateBytes": 549088256,
+        "gpuPrivateBytes": 92212224,
+        "rendererPrivateBytes": 258895872,
+        "heap": {
+          "usedSize": 45649740,
+          "totalSize": 46825472,
+          "embedderHeapUsedSize": 5348112,
+          "backingStorageSize": 32964630
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 811,
+          "jsEventListeners": 649
+        },
+        "svg": {
+          "elements": 553,
+          "nodes": 222,
+          "images": 222,
+          "regions": 19,
+          "viewBox": "5849.408162962962 8880.03649446643 7678.21837037037 10642.335055335712"
+        },
+        "processes": [
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 70354944
+          },
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20203520
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 185406464
+          },
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 92212224
+          },
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 29625344
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 77796352
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 47337472
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 26151936
+          }
+        ]
+      },
+      {
+        "stage": "explored-thrice",
+        "privateBytes": 564390912,
+        "gpuPrivateBytes": 97946624,
+        "rendererPrivateBytes": 267268096,
+        "heap": {
+          "usedSize": 45857196,
+          "totalSize": 46825472,
+          "embedderHeapUsedSize": 5418488,
+          "backingStorageSize": 32964643
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 811,
+          "jsEventListeners": 649
+        },
+        "svg": {
+          "elements": 553,
+          "nodes": 222,
+          "images": 222,
+          "regions": 19,
+          "viewBox": "5849.408162962962 8880.03649446643 7678.21837037037 10642.335055335712"
+        },
+        "processes": [
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 70436864
+          },
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 97946624
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 48058368
+          },
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 30215168
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 78304256
+          },
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20219904
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 26627072
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 192582656
+          }
+        ]
+      },
+      {
+        "stage": "high-zoomed",
+        "privateBytes": 575925248,
+        "gpuPrivateBytes": 96242688,
+        "rendererPrivateBytes": 280883200,
+        "heap": {
+          "usedSize": 45784260,
+          "totalSize": 47087616,
+          "embedderHeapUsedSize": 4496104,
+          "backingStorageSize": 32970346
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 494,
+          "jsEventListeners": 387
+        },
+        "svg": {
+          "elements": 236,
+          "nodes": 91,
+          "images": 91,
+          "regions": 8,
+          "viewBox": "6275.975850205761 9471.277330873969 3412.5414979423867 4729.926691260316"
+        },
+        "processes": [
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20219904
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 26627072
+          },
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 96242688
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 77108224
+          },
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 70436864
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 48058368
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 206197760
+          },
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31034368
+          }
+        ]
+      },
+      {
+        "stage": "high-explored-once",
+        "privateBytes": 587131904,
+        "gpuPrivateBytes": 106941440,
+        "rendererPrivateBytes": 278163456,
+        "heap": {
+          "usedSize": 45794104,
+          "totalSize": 46825472,
+          "embedderHeapUsedSize": 4697312,
+          "backingStorageSize": 32966298
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 510,
+          "jsEventListeners": 532
+        },
+        "svg": {
+          "elements": 236,
+          "nodes": 91,
+          "images": 91,
+          "regions": 8,
+          "viewBox": "6275.975850205761 9471.277330873969 3412.5414979423867 4729.926691260316"
+        },
+        "processes": [
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31083520
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 80172032
+          },
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 106941440
+          },
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 70551552
+          },
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20219904
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 48173056
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 26627072
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 203363328
+          }
+        ]
+      },
+      {
+        "stage": "high-explored-twice",
+        "privateBytes": 577367040,
+        "gpuPrivateBytes": 95554560,
+        "rendererPrivateBytes": 273395712,
+        "heap": {
+          "usedSize": 46087224,
+          "totalSize": 47087616,
+          "embedderHeapUsedSize": 4771256,
+          "backingStorageSize": 32966298
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 510,
+          "jsEventListeners": 532
+        },
+        "svg": {
+          "elements": 236,
+          "nodes": 91,
+          "images": 91,
+          "regions": 8,
+          "viewBox": "6275.975850205761 9471.277330873969 3412.5414979423867 4729.926691260316"
+        },
+        "processes": [
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31427584
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 85742592
+          },
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 95554560
+          },
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 71026688
+          },
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20219904
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 48386048
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 26971136
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 198038528
+          }
+        ]
+      },
+      {
+        "stage": "high-explored-thrice",
+        "privateBytes": 647097344,
+        "gpuPrivateBytes": 105647104,
+        "rendererPrivateBytes": 293662720,
+        "heap": {
+          "usedSize": 46304904,
+          "totalSize": 47611904,
+          "embedderHeapUsedSize": 4848272,
+          "backingStorageSize": 32966298
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 510,
+          "jsEventListeners": 532
+        },
+        "svg": {
+          "elements": 236,
+          "nodes": 91,
+          "images": 91,
+          "regions": 8,
+          "viewBox": "6275.975850205761 9471.277330873969 3412.5414979423867 4729.926691260316"
+        },
+        "processes": [
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 105647104
+          },
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 61803520
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 86725632
+          },
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 75188224
+          },
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 24070144
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 52875264
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 31099904
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 209687552
+          }
+        ]
+      },
+      {
+        "stage": "unmounted",
+        "privateBytes": 587738112,
+        "gpuPrivateBytes": 110660608,
+        "rendererPrivateBytes": 274755584,
+        "heap": {
+          "usedSize": 45998580,
+          "totalSize": 46874624,
+          "embedderHeapUsedSize": 4235432,
+          "backingStorageSize": 32972809
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 242,
+          "jsEventListeners": 383
+        },
+        "svg": {
+          "elements": 84,
+          "nodes": 19,
+          "images": 20,
+          "regions": 5,
+          "viewBox": "-4850.2751094136 -17442.63798438343 3240 4490.77688547486"
+        },
+        "processes": [
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 78828544
+          },
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 71616512
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 198349824
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 27167744
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 49238016
+          },
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31411200
+          },
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 110660608
+          },
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20465664
+          }
+        ]
+      },
+      {
+        "stage": "unmounted-settled",
+        "privateBytes": 609938432,
+        "gpuPrivateBytes": 115330048,
+        "rendererPrivateBytes": 293990400,
+        "heap": {
+          "usedSize": 45998644,
+          "totalSize": 46874624,
+          "embedderHeapUsedSize": 4236856,
+          "backingStorageSize": 32972809
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 242,
+          "jsEventListeners": 383
+        },
+        "svg": {
+          "elements": 84,
+          "nodes": 19,
+          "images": 20,
+          "regions": 5,
+          "viewBox": "-4850.2751094136 -17442.63798438343 3240 4490.77688547486"
+        },
+        "processes": [
+          {
+            "pid": 46080,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31296512
+          },
+          {
+            "pid": 46059,
+            "type": "browser",
+            "privateBytes": 77288448
+          },
+          {
+            "pid": 46073,
+            "type": "GPU",
+            "privateBytes": 115330048
+          },
+          {
+            "pid": 46074,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 71600128
+          },
+          {
+            "pid": 46075,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20432896
+          },
+          {
+            "pid": 46077,
+            "type": "renderer",
+            "privateBytes": 49238016
+          },
+          {
+            "pid": 46078,
+            "type": "renderer",
+            "privateBytes": 27167744
+          },
+          {
+            "pid": 46079,
+            "type": "renderer",
+            "privateBytes": 217584640
+          }
+        ]
+      }
+    ],
+    "pressureSimulation": {
+      "supported": false,
+      "error": "cdpSession.send: Protocol error (Memory.simulatePressure): 'Memory.simulatePressure' wasn't found"
+    },
+    "errors": []
+  },
+  {
+    "profile": {
+      "name": "mobile-3x",
+      "width": 390,
+      "height": 844,
+      "dpr": 3
+    },
+    "run": 0,
+    "renderer": "svg",
+    "variant": "regions",
+    "compareRegions": false,
+    "transformedModules": 0,
+    "browser": "153.0.8010.36",
+    "stages": [
+      {
+        "stage": "blank",
+        "privateBytes": 310617088,
+        "gpuPrivateBytes": 76483584,
+        "rendererPrivateBytes": 105868288,
+        "heap": {
+          "usedSize": 584240,
+          "totalSize": 1048576,
+          "embedderHeapUsedSize": 298288,
+          "backingStorageSize": 6
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 4,
+          "jsEventListeners": 0
+        },
+        "svg": {
+          "elements": 0,
+          "nodes": 0,
+          "images": 0,
+          "regions": 0,
+          "viewBox": null
+        },
+        "processes": [
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 22120448
+          },
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 76483584
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 49598464
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 19908608
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 66425856
+          },
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 26840064
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 29429760
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 19810304
+          }
+        ]
+      },
+      {
+        "stage": "overview",
+        "privateBytes": 536635392,
+        "gpuPrivateBytes": 72027136,
+        "rendererPrivateBytes": 275804160,
+        "heap": {
+          "usedSize": 58263048,
+          "totalSize": 60653568,
+          "embedderHeapUsedSize": 12506176,
+          "backingStorageSize": 32951241
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 4872,
+          "jsEventListeners": 192
+        },
+        "svg": {
+          "elements": 4628,
+          "nodes": 3933,
+          "images": 0,
+          "regions": 340,
+          "viewBox": "-12926.107 -19898.841106455384 25913.987 40086.742212910765"
+        },
+        "processes": [
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 50548736
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20449280
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 197710848
+          },
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 64784384
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 35424256
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 68146176
+          },
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 72027136
+          },
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 27544576
+          }
+        ]
+      },
+      {
+        "stage": "zoomed",
+        "privateBytes": 598566912,
+        "gpuPrivateBytes": 105483264,
+        "rendererPrivateBytes": 292859904,
+        "heap": {
+          "usedSize": 56443488,
+          "totalSize": 57524224,
+          "embedderHeapUsedSize": 16881680,
+          "backingStorageSize": 33241192
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 5111,
+          "jsEventListeners": 4200
+        },
+        "svg": {
+          "elements": 4853,
+          "nodes": 2004,
+          "images": 2004,
+          "regions": 159,
+          "viewBox": "-3808.2226851851856 -5794.2466241349275 7678.21837037037 11877.553248269855"
+        },
+        "processes": [
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 27560960
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 50843648
+          },
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 69896192
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20367360
+          },
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 105483264
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 214455296
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 28575744
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 81384448
+          }
+        ]
+      },
+      {
+        "stage": "explored-once",
+        "privateBytes": 576989184,
+        "gpuPrivateBytes": 114101248,
+        "rendererPrivateBytes": 262729728,
+        "heap": {
+          "usedSize": 45883368,
+          "totalSize": 46825472,
+          "embedderHeapUsedSize": 5688920,
+          "backingStorageSize": 32963623
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 986,
+          "jsEventListeners": 799
+        },
+        "svg": {
+          "elements": 728,
+          "nodes": 297,
+          "images": 297,
+          "regions": 24,
+          "viewBox": "5849.408162962962 8756.514675173015 7678.21837037037 11877.553248269855"
+        },
+        "processes": [
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 27495424
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 52989952
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20367360
+          },
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 114101248
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 28821504
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 80696320
+          },
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 70273024
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 182244352
+          }
+        ]
+      },
+      {
+        "stage": "explored-twice",
+        "privateBytes": 569126912,
+        "gpuPrivateBytes": 105532416,
+        "rendererPrivateBytes": 262860800,
+        "heap": {
+          "usedSize": 46113792,
+          "totalSize": 47087616,
+          "embedderHeapUsedSize": 5908616,
+          "backingStorageSize": 32966408
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 1002,
+          "jsEventListeners": 944
+        },
+        "svg": {
+          "elements": 728,
+          "nodes": 297,
+          "images": 297,
+          "regions": 24,
+          "viewBox": "5849.408162962962 8756.514675173015 7678.21837037037 11877.553248269855"
+        },
+        "processes": [
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 70666240
+          },
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 105532416
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20367360
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 46813184
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 29330432
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 80369664
+          },
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 26201088
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 189846528
+          }
+        ]
+      },
+      {
+        "stage": "explored-thrice",
+        "privateBytes": 592703488,
+        "gpuPrivateBytes": 114854912,
+        "rendererPrivateBytes": 272445440,
+        "heap": {
+          "usedSize": 46593320,
+          "totalSize": 47874048,
+          "embedderHeapUsedSize": 5975248,
+          "backingStorageSize": 32966426
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 1002,
+          "jsEventListeners": 944
+        },
+        "svg": {
+          "elements": 728,
+          "nodes": 297,
+          "images": 297,
+          "regions": 24,
+          "viewBox": "5849.408162962962 8756.514675173015 7678.21837037037 11877.553248269855"
+        },
+        "processes": [
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 198235136
+          },
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 70731776
+          },
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 114854912
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 84432896
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20367360
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 47534080
+          },
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 26676224
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 29871104
+          }
+        ]
+      },
+      {
+        "stage": "high-zoomed",
+        "privateBytes": 581562368,
+        "gpuPrivateBytes": 115788800,
+        "rendererPrivateBytes": 262975488,
+        "heap": {
+          "usedSize": 46259148,
+          "totalSize": 47349760,
+          "embedderHeapUsedSize": 4565576,
+          "backingStorageSize": 32972711
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 510,
+          "jsEventListeners": 532
+        },
+        "svg": {
+          "elements": 236,
+          "nodes": 91,
+          "images": 91,
+          "regions": 8,
+          "viewBox": "6275.975850205761 9416.37874452134 3412.5414979423867 5278.912554786602"
+        },
+        "processes": [
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 115788800
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 188765184
+          },
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 70731776
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20383744
+          },
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 26676224
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 30723072
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 80959488
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 47534080
+          }
+        ]
+      },
+      {
+        "stage": "high-explored-once",
+        "privateBytes": 574763008,
+        "gpuPrivateBytes": 99109888,
+        "rendererPrivateBytes": 268152832,
+        "heap": {
+          "usedSize": 45812636,
+          "totalSize": 46825472,
+          "embedderHeapUsedSize": 4671800,
+          "backingStorageSize": 32966482
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 508,
+          "jsEventListeners": 532
+        },
+        "svg": {
+          "elements": 236,
+          "nodes": 91,
+          "images": 91,
+          "regions": 8,
+          "viewBox": "6275.975850205761 9416.37874452134 3412.5414979423867 5278.912554786602"
+        },
+        "processes": [
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31525888
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 84514816
+          },
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 99109888
+          },
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 71075840
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20383744
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 47828992
+          },
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 26971136
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 193352704
+          }
+        ]
+      },
+      {
+        "stage": "high-explored-twice",
+        "privateBytes": 582643712,
+        "gpuPrivateBytes": 100371456,
+        "rendererPrivateBytes": 273903616,
+        "heap": {
+          "usedSize": 46105720,
+          "totalSize": 47087616,
+          "embedderHeapUsedSize": 4762480,
+          "backingStorageSize": 32966482
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 508,
+          "jsEventListeners": 532
+        },
+        "svg": {
+          "elements": 236,
+          "nodes": 91,
+          "images": 91,
+          "regions": 8,
+          "viewBox": "6275.975850205761 9416.37874452134 3412.5414979423867 5278.912554786602"
+        },
+        "processes": [
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20498432
+          },
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 100371456
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 47828992
+          },
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 26971136
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31706112
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 84858880
+          },
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 71305216
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 199103488
+          }
+        ]
+      },
+      {
+        "stage": "high-explored-thrice",
+        "privateBytes": 587214848,
+        "gpuPrivateBytes": 99929088,
+        "rendererPrivateBytes": 278884352,
+        "heap": {
+          "usedSize": 46186636,
+          "totalSize": 47087616,
+          "embedderHeapUsedSize": 4841136,
+          "backingStorageSize": 32966482
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 508,
+          "jsEventListeners": 532
+        },
+        "svg": {
+          "elements": 236,
+          "nodes": 91,
+          "images": 91,
+          "regions": 8,
+          "viewBox": "6275.975850205761 9416.37874452134 3412.5414979423867 5278.912554786602"
+        },
+        "processes": [
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 71305216
+          },
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 99929088
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 84629504
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20383744
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 47845376
+          },
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 27020288
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 204018688
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 32082944
+          }
+        ]
+      },
+      {
+        "stage": "unmounted",
+        "privateBytes": 616247296,
+        "gpuPrivateBytes": 121834496,
+        "rendererPrivateBytes": 289189888,
+        "heap": {
+          "usedSize": 45932588,
+          "totalSize": 46874624,
+          "embedderHeapUsedSize": 4153920,
+          "backingStorageSize": 32972993
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 242,
+          "jsEventListeners": 383
+        },
+        "svg": {
+          "elements": 84,
+          "nodes": 19,
+          "images": 20,
+          "regions": 5,
+          "viewBox": "-4850.2751094136 -17703.252280048062 3240 5012.005476804124"
+        },
+        "processes": [
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 80893952
+          },
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 27020288
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20383744
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 47992832
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 214176768
+          },
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 121834496
+          },
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 71600128
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 32345088
+          }
+        ]
+      },
+      {
+        "stage": "unmounted-settled",
+        "privateBytes": 607940608,
+        "gpuPrivateBytes": 112839680,
+        "rendererPrivateBytes": 290369536,
+        "heap": {
+          "usedSize": 45932652,
+          "totalSize": 46874624,
+          "embedderHeapUsedSize": 4155344,
+          "backingStorageSize": 32972993
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 242,
+          "jsEventListeners": 383
+        },
+        "svg": {
+          "elements": 84,
+          "nodes": 19,
+          "images": 20,
+          "regions": 5,
+          "viewBox": "-4850.2751094136 -17703.252280048062 3240 5012.005476804124"
+        },
+        "processes": [
+          {
+            "pid": 46607,
+            "type": "GPU",
+            "privateBytes": 112839680
+          },
+          {
+            "pid": 46701,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31624192
+          },
+          {
+            "pid": 46601,
+            "type": "browser",
+            "privateBytes": 81090560
+          },
+          {
+            "pid": 46608,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 71616512
+          },
+          {
+            "pid": 46609,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20400128
+          },
+          {
+            "pid": 46627,
+            "type": "renderer",
+            "privateBytes": 47992832
+          },
+          {
+            "pid": 46628,
+            "type": "renderer",
+            "privateBytes": 27020288
+          },
+          {
+            "pid": 46629,
+            "type": "renderer",
+            "privateBytes": 215356416
+          }
+        ]
+      }
+    ],
+    "pressureSimulation": {
+      "supported": false,
+      "error": "cdpSession.send: Protocol error (Memory.simulatePressure): 'Memory.simulatePressure' wasn't found"
+    },
+    "errors": []
+  },
+  {
+    "profile": {
+      "name": "desktop-2x",
+      "width": 1440,
+      "height": 900,
+      "dpr": 2
+    },
+    "run": 0,
+    "renderer": "svg",
+    "variant": "regions",
+    "compareRegions": false,
+    "transformedModules": 0,
+    "browser": "153.0.8010.36",
+    "stages": [
+      {
+        "stage": "blank",
+        "privateBytes": 317857792,
+        "gpuPrivateBytes": 86362112,
+        "rendererPrivateBytes": 105081856,
+        "heap": {
+          "usedSize": 584240,
+          "totalSize": 1048576,
+          "embedderHeapUsedSize": 298288,
+          "backingStorageSize": 6
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 4,
+          "jsEventListeners": 0
+        },
+        "svg": {
+          "elements": 0,
+          "nodes": 0,
+          "images": 0,
+          "regions": 0,
+          "viewBox": null
+        },
+        "processes": [
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 86362112
+          },
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 19843072
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 22153216
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 29511680
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 48844800
+          },
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 19695616
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 64721920
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 26725376
+          }
+        ]
+      },
+      {
+        "stage": "overview",
+        "privateBytes": 631842816,
+        "gpuPrivateBytes": 174836736,
+        "rendererPrivateBytes": 268660736,
+        "heap": {
+          "usedSize": 55239960,
+          "totalSize": 56459264,
+          "embedderHeapUsedSize": 12294760,
+          "backingStorageSize": 32951243
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 4872,
+          "jsEventListeners": 192
+        },
+        "svg": {
+          "elements": 4628,
+          "nodes": 3933,
+          "images": 0,
+          "regions": 340,
+          "viewBox": "-27161.278820320164 -12812.463500000002 54384.33064064033 25913.987"
+        },
+        "processes": [
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 65357824
+          },
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 174836736
+          },
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20449280
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 68228096
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 50319360
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 27610112
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 190731264
+          },
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 34310144
+          }
+        ]
+      },
+      {
+        "stage": "zoomed",
+        "privateBytes": 695609344,
+        "gpuPrivateBytes": 197020672,
+        "rendererPrivateBytes": 297775104,
+        "heap": {
+          "usedSize": 57214948,
+          "totalSize": 58310656,
+          "embedderHeapUsedSize": 19597656,
+          "backingStorageSize": 33130070
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 6178,
+          "jsEventListeners": 5046
+        },
+        "svg": {
+          "elements": 5920,
+          "nodes": 2427,
+          "images": 2427,
+          "regions": 206,
+          "viewBox": "-8026.051372687456 -3694.5791851851855 16113.875745374911 7678.21837037037"
+        },
+        "processes": [
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 51335168
+          },
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20367360
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 218862592
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 80434176
+          },
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 197020672
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 71387136
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 27577344
+          },
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 28624896
+          }
+        ]
+      },
+      {
+        "stage": "explored-once",
+        "privateBytes": 644327424,
+        "gpuPrivateBytes": 172395520,
+        "rendererPrivateBytes": 271495168,
+        "heap": {
+          "usedSize": 46534712,
+          "totalSize": 47611904,
+          "embedderHeapUsedSize": 6292936,
+          "backingStorageSize": 32963504
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 1158,
+          "jsEventListeners": 1072
+        },
+        "svg": {
+          "elements": 886,
+          "nodes": 361,
+          "images": 361,
+          "regions": 30,
+          "viewBox": "5005.842425462509 9176.448162962963 16113.875745374911 7678.21837037037"
+        },
+        "processes": [
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 29296640
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 79156224
+          },
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 172395520
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 71665664
+          },
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20318208
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 53481472
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 27462656
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 190551040
+          }
+        ]
+      },
+      {
+        "stage": "explored-twice",
+        "privateBytes": 638413824,
+        "gpuPrivateBytes": 167775232,
+        "rendererPrivateBytes": 267972608,
+        "heap": {
+          "usedSize": 46655648,
+          "totalSize": 48136192,
+          "embedderHeapUsedSize": 6324664,
+          "backingStorageSize": 32966065
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 1158,
+          "jsEventListeners": 1072
+        },
+        "svg": {
+          "elements": 886,
+          "nodes": 361,
+          "images": 361,
+          "regions": 30,
+          "viewBox": "5005.842425462509 9176.448162962963 16113.875745374911 7678.21837037037"
+        },
+        "processes": [
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 29871104
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 80434176
+          },
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 167775232
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 72026112
+          },
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20334592
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 48009216
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 26135552
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 193827840
+          }
+        ]
+      },
+      {
+        "stage": "explored-thrice",
+        "privateBytes": 647048192,
+        "gpuPrivateBytes": 170134528,
+        "rendererPrivateBytes": 274264064,
+        "heap": {
+          "usedSize": 46893992,
+          "totalSize": 48136192,
+          "embedderHeapUsedSize": 6393472,
+          "backingStorageSize": 32966065
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 1158,
+          "jsEventListeners": 1072
+        },
+        "svg": {
+          "elements": 886,
+          "nodes": 361,
+          "images": 361,
+          "regions": 30,
+          "viewBox": "5005.842425462509 9176.448162962963 16113.875745374911 7678.21837037037"
+        },
+        "processes": [
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 30231552
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 79991808
+          },
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 170134528
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 72091648
+          },
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20334592
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 48959488
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 26627072
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 198677504
+          }
+        ]
+      },
+      {
+        "stage": "high-zoomed",
+        "privateBytes": 641166336,
+        "gpuPrivateBytes": 170904576,
+        "rendererPrivateBytes": 265383936,
+        "heap": {
+          "usedSize": 46329696,
+          "totalSize": 47349760,
+          "embedderHeapUsedSize": 4581888,
+          "backingStorageSize": 32973959
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 508,
+          "jsEventListeners": 532
+        },
+        "svg": {
+          "elements": 236,
+          "nodes": 91,
+          "images": 91,
+          "regions": 8,
+          "viewBox": "7007.693744650005 8640.019850205761 7161.72255349996 3412.5414979423867"
+        },
+        "processes": [
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20334592
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 81171456
+          },
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 170904576
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 72091648
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 48959488
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 26627072
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 189797376
+          },
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31280128
+          }
+        ]
+      },
+      {
+        "stage": "high-explored-once",
+        "privateBytes": 635431936,
+        "gpuPrivateBytes": 165186560,
+        "rendererPrivateBytes": 266399744,
+        "heap": {
+          "usedSize": 46444500,
+          "totalSize": 47874048,
+          "embedderHeapUsedSize": 5029392,
+          "backingStorageSize": 32966034
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 664,
+          "jsEventListeners": 658
+        },
+        "svg": {
+          "elements": 392,
+          "nodes": 154,
+          "images": 154,
+          "regions": 14,
+          "viewBox": "8594.235744650003 6562.279850205761 7161.72255349996 3412.5414979423867"
+        },
+        "processes": [
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31296512
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 79942656
+          },
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 165186560
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 72271872
+          },
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20334592
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 48959488
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 26627072
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 190813184
+          }
+        ]
+      },
+      {
+        "stage": "high-explored-twice",
+        "privateBytes": 679472128,
+        "gpuPrivateBytes": 170576896,
+        "rendererPrivateBytes": 279015424,
+        "heap": {
+          "usedSize": 46556944,
+          "totalSize": 47874048,
+          "embedderHeapUsedSize": 5108192,
+          "backingStorageSize": 32966140
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 664,
+          "jsEventListeners": 658
+        },
+        "svg": {
+          "elements": 392,
+          "nodes": 154,
+          "images": 154,
+          "regions": 14,
+          "viewBox": "8594.235744650003 6562.279850205761 7161.72255349996 3412.5414979423867"
+        },
+        "processes": [
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 170576896
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 75237376
+          },
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 47647744
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 84235264
+          },
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 22759424
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 50597888
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 29412352
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 199005184
+          }
+        ]
+      },
+      {
+        "stage": "high-explored-thrice",
+        "privateBytes": 660892672,
+        "gpuPrivateBytes": 174492672,
+        "rendererPrivateBytes": 278016000,
+        "heap": {
+          "usedSize": 46634652,
+          "totalSize": 47874048,
+          "embedderHeapUsedSize": 5288152,
+          "backingStorageSize": 32966153
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 664,
+          "jsEventListeners": 658
+        },
+        "svg": {
+          "elements": 392,
+          "nodes": 154,
+          "images": 154,
+          "regions": 14,
+          "viewBox": "8594.235744650003 6562.279850205761 7161.72255349996 3412.5414979423867"
+        },
+        "processes": [
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20383744
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 49156096
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 201888768
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 26971136
+          },
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 32525312
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 82662400
+          },
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 174492672
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 72812544
+          }
+        ]
+      },
+      {
+        "stage": "unmounted",
+        "privateBytes": 681028608,
+        "gpuPrivateBytes": 194759680,
+        "rendererPrivateBytes": 283963392,
+        "heap": {
+          "usedSize": 45911164,
+          "totalSize": 46874624,
+          "embedderHeapUsedSize": 4249984,
+          "backingStorageSize": 32972435
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 242,
+          "jsEventListeners": 383
+        },
+        "svg": {
+          "elements": 84,
+          "nodes": 19,
+          "images": 20,
+          "regions": 5,
+          "viewBox": "-6630.084472513046 -16817.249541646 6799.618726198893 3240"
+        },
+        "processes": [
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 77173760
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 49303552
+          },
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31755264
+          },
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 194759680
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 73041920
+          },
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20334592
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 26971136
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 207688704
+          }
+        ]
+      },
+      {
+        "stage": "unmounted-settled",
+        "privateBytes": 659893248,
+        "gpuPrivateBytes": 173657088,
+        "rendererPrivateBytes": 282324992,
+        "heap": {
+          "usedSize": 45911228,
+          "totalSize": 46874624,
+          "embedderHeapUsedSize": 4251408,
+          "backingStorageSize": 32972435
+        },
+        "dom": {
+          "documents": 1,
+          "nodes": 242,
+          "jsEventListeners": 383
+        },
+        "svg": {
+          "elements": 84,
+          "nodes": 19,
+          "images": 20,
+          "regions": 5,
+          "viewBox": "-6630.084472513046 -16817.249541646 6799.618726198893 3240"
+        },
+        "processes": [
+          {
+            "pid": 47015,
+            "type": "tracing.mojom.TracingService",
+            "privateBytes": 31329280
+          },
+          {
+            "pid": 47002,
+            "type": "browser",
+            "privateBytes": 79188992
+          },
+          {
+            "pid": 47008,
+            "type": "GPU",
+            "privateBytes": 173657088
+          },
+          {
+            "pid": 47009,
+            "type": "network.mojom.NetworkService",
+            "privateBytes": 73058304
+          },
+          {
+            "pid": 47010,
+            "type": "storage.mojom.StorageService",
+            "privateBytes": 20334592
+          },
+          {
+            "pid": 47012,
+            "type": "renderer",
+            "privateBytes": 49303552
+          },
+          {
+            "pid": 47013,
+            "type": "renderer",
+            "privateBytes": 26971136
+          },
+          {
+            "pid": 47014,
+            "type": "renderer",
+            "privateBytes": 206050304
+          }
+        ]
+      }
+    ],
+    "pressureSimulation": {
+      "supported": false,
+      "error": "cdpSession.send: Protocol error (Memory.simulatePressure): 'Memory.simulatePressure' wasn't found"
+    },
+    "errors": []
+  }
+]

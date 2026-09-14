@@ -96,7 +96,13 @@ html:root {
   /* Passives shared by both sets: bronze by default, but under a
      colour-vision palette a low-chroma ivory (or mid grey for achromatopsia)
      so the neutral never reads as a third warm hue. */
+  /* Neutral paths brighten the tree without introducing another set colour. */
+  --color-tree-unallocated-path: oklch(47% 0 0);
+  --color-tree-unallocated-path-detail: oklch(57% 0 0);
+  --color-tree-unallocated-path-achroma: oklch(40% 0 0);
   --color-tree-allocated: var(--color-brand);
+  --color-tree-unseen: oklch(72% 0.12 230);
+  --color-tree-unseen-path: oklch(40% 0.045 230);
   --color-tree-allocated-ring: var(--color-brand-ink);
   --color-tree-allocated-neutral: oklch(87% 0.02 90);
   --color-tree-allocated-neutral-ring: oklch(96% 0.01 90);

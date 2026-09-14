@@ -1,4 +1,31 @@
 import {
+  batchTreeDiscs,
+  circleSubpath,
+  nodePaintStyle,
+  treePaintRuns,
+} from "../../shared/tree-node-batches"
+import type { NodePaintStyle } from "../../shared/tree-node-batches"
+import { artRadius, nodeRadius } from "../../shared/tree-render-model"
+import type { TreeData, TreeNode } from "../../shared/tree-render-model"
+import { batchTreeConnections } from "../../shared/tree-connections"
+import {
+  containsTreeView,
+  overlapsTreeRect,
+  treeEdgeBounds,
+  treeRenderRect,
+  treeNodeRegions,
+} from "../../shared/tree-visibility"
+import ascendancyTrees from "../../shared/generated/ascendancy-trees.json"
+import {
+  centerAscendancy,
+  CENTER_RADIUS,
+  CENTER_ART_RADIUS,
+} from "../../shared/tree-center-ascendancy"
+import ascendancyBackgrounds from "../../shared/generated/ascendancy-backgrounds.json"
+import unseenTreeNodes from "../../shared/generated/tree-unseen.json"
+import { Checkbox } from "./ui/checkbox"
+import { isTreeVersion } from "../../shared/tree-versions"
+import {
   displayLine,
   radiusBenefits,
   treeJewels,
@@ -9,6 +36,7 @@ import { treeAttributes } from "../../shared/tree-attributes"
 import type { AttributeOverrides } from "../../shared/tree-attributes"
 import { describeEquipment } from "../../shared/equipment"
 import { useQuery } from "@tanstack/react-query"
+import type { CSSProperties, ReactNode } from "react"
 import {
   Fragment,
   memo,
@@ -30,16 +58,7 @@ import {
 } from "./ui/popover"
 import { Button } from "./ui/button"
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog"
-import {
-  Diamond,
-  Eye,
-  Info,
-  Minus,
-  Plus,
-  Radius,
-  RotateCcw,
-  X,
-} from "lucide-react"
+import { Diamond, Info, Minus, Plus, Radius, RotateCcw, X } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -48,27 +67,6 @@ import {
   SelectValue,
 } from "./ui/select"
 
-type TreeNode = {
-  id: string
-  x: number
-  y: number
-  name: string
-  stats: string[]
-  notable: boolean
-  keystone: boolean
-  ascendancy: string
-  start: boolean
-  icon: string
-}
-type TreeData = {
-  nodes: TreeNode[]
-  edges: { from: string; to: string; path: string }[]
-}
-const supported = new Set(["0_1", "0_2", "0_3", "0_4", "0_5"])
-// Small, notable and keystone passives at roughly their in-game proportions.
-const nodeRadius = (n: TreeNode) => (n.keystone ? 58 : n.notable ? 38 : 23)
-const artRadius = (n: TreeNode, socketed = false) =>
-  socketed ? 60 : n.keystone ? 84 : n.notable ? 60 : 45
 // Which weapon set a passive belongs to, or 0 when it applies to both.
 type WeaponSet = 0 | 1 | 2
 type WeaponSets = Map<string, WeaponSet>
@@ -103,35 +101,53 @@ function Lines({
     </ul>
   )
 }
-const Geometry = memo(function Geometry({
-  data,
+const Connections = memo(function Connections({
+  edges,
   selected,
   weaponSets,
+  sourceNodes,
 }: {
-  data: TreeData
+  sourceNodes: TreeNode[]
+  edges: TreeData["edges"]
   selected: Set<string>
   weaponSets: WeaponSets
 }) {
-  const allocatedEdges = data.edges.filter(
-    (edge) => selected.has(edge.from) && selected.has(edge.to)
+  // Camera visibility changes do not alter the full-tree Unseen Paths lookup.
+  const unseenIds = useMemo(
+    () =>
+      new Set(
+        sourceNodes.filter((node) => node.unseenPaths).map((node) => node.id)
+      ),
+    [sourceNodes]
   )
-  const setOf = (id: string): WeaponSet => weaponSets.get(id) ?? 0
-  // A connection into a weapon set passive takes that set's colour.
-  const edgeColor = (edge: TreeData["edges"][number]) =>
-    weaponColor(setOf(edge.from) || setOf(edge.to))
+  const batches = useMemo(
+    () => batchTreeConnections(edges, selected, weaponSets, unseenIds),
+    [edges, selected, weaponSets, unseenIds]
+  )
+  const unallocated = batches.filter(
+    (batch) => batch.style === "unallocated" || batch.style === "unseen"
+  )
+  const allocated = batches.filter(
+    (batch) => batch.style !== "unallocated" && batch.style !== "unseen"
+  )
   return (
     <>
       <g fill="none" strokeLinecap="round" pointerEvents="none">
-        {data.edges
-          .filter((edge) => !(selected.has(edge.from) && selected.has(edge.to)))
-          .map((edge) => (
-            <path
-              key={edge.from + "-" + edge.to}
-              d={edge.path}
-              stroke="var(--color-rule-strong)"
-              strokeWidth={12}
-            />
-          ))}
+        {unallocated.map((batch) => (
+          <path
+            key={batch.style}
+            d={batch.path}
+            data-connection-style={batch.style}
+            data-connection-count={batch.count}
+            data-unseen-path={batch.style === "unseen" || undefined}
+            stroke={
+              batch.style === "unseen"
+                ? "var(--color-tree-unseen-path)"
+                : "var(--color-tree-unallocated-path)"
+            }
+            strokeWidth={12}
+          />
+        ))}
       </g>
       {/* Allocated paths: a subdued core over two soft glow passes so the
           edges fade out. Group opacity keeps overlaps at joints from stacking. */}
@@ -148,62 +164,220 @@ const Geometry = memo(function Geometry({
           opacity={layer.opacity}
           pointerEvents="none"
         >
-          {allocatedEdges.map((edge) => (
+          {allocated.map((batch) => (
             <path
-              key={edge.from + "-" + edge.to}
-              d={edge.path}
-              stroke={edgeColor(edge)}
+              key={batch.style}
+              d={batch.path}
+              data-connection-style={batch.style}
+              data-connection-count={batch.count}
+              stroke={weaponColor(
+                batch.style === "weapon-1"
+                  ? 1
+                  : batch.style === "weapon-2"
+                    ? 2
+                    : 0
+              )}
             />
           ))}
         </g>
       ))}
-      <g>
-        {data.nodes
-          .filter((n) => !n.start)
-          .map((n) => (
-            <g key={n.id}>
-              <circle
-                data-node={n.id}
-                data-weapon-set={setOf(n.id) || undefined}
-                cx={n.x}
-                cy={n.y}
-                r={nodeRadius(n)}
-                fill={
-                  selected.has(n.id)
-                    ? weaponColor(setOf(n.id))
-                    : "var(--color-brand-deep)"
-                }
-                fillOpacity={selected.has(n.id) ? 1 : 0.55}
-                stroke="transparent"
-                strokeWidth={100}
-              />
-              {selected.has(n.id) && (
-                <circle
-                  cx={n.x}
-                  cy={n.y}
-                  r={nodeRadius(n) + 9}
-                  fill="none"
-                  stroke={
-                    setOf(n.id)
-                      ? weaponColor(setOf(n.id))
-                      : "var(--color-tree-allocated-ring)"
-                  }
-                  strokeOpacity={0.85}
-                  strokeWidth={1.25}
-                  strokeDasharray="1 2.5"
-                  vectorEffect="non-scaling-stroke"
-                  pointerEvents="none"
-                />
-              )}
-            </g>
-          ))}
-      </g>
     </>
+  )
+})
+
+const paintColor = (style: NodePaintStyle) =>
+  style === "unallocated"
+    ? "var(--color-brand-deep)"
+    : style === "unseen"
+      ? "var(--color-tree-unseen)"
+      : weaponColor(style === "weapon-1" ? 1 : style === "weapon-2" ? 2 : 0)
+const isAllocatedPaint = (style: NodePaintStyle) =>
+  style !== "unallocated" && style !== "unseen"
+
+// Fixed region arrays let React retain every region that remains visible.
+const NodeRegion = memo(function NodeRegion({
+  id,
+  nodes,
+  selected,
+  weaponSets,
+  strokeScale,
+}: {
+  id: string
+  nodes: TreeNode[]
+  selected: Set<string>
+  weaponSets: WeaponSets
+  strokeScale: number
+}) {
+  const visible = nodes.filter((n) => !n.start)
+  const runs = treePaintRuns(visible, (n) => ({
+    x: n.x,
+    y: n.y,
+    r: nodeRadius(n) + (selected.has(n.id) ? 9 + 0.625 * strokeScale : 0),
+  }))
+  return (
+    <g data-tree-region={id}>
+      {runs.map((run, index) => {
+        const fills = batchTreeDiscs(
+          run.map((n) => ({
+            x: n.x,
+            y: n.y,
+            r: nodeRadius(n),
+            style: nodePaintStyle(n, selected, weaponSets),
+          }))
+        )
+        const rings = batchTreeDiscs(
+          run
+            .filter((n) => selected.has(n.id))
+            .map((n) => ({
+              x: n.x,
+              y: n.y,
+              r: nodeRadius(n) + 9,
+              style: nodePaintStyle(n, selected, weaponSets),
+            }))
+        )
+        return (
+          <Fragment key={index}>
+            {fills.map((batch) => (
+              <path
+                key={"fill-" + batch.style}
+                data-node-fill={batch.style}
+                data-disc-count={batch.count}
+                d={batch.path}
+                fill={paintColor(batch.style)}
+                fillOpacity={isAllocatedPaint(batch.style) ? 1 : 0.55}
+                pointerEvents="none"
+              />
+            ))}
+            {rings.map((batch) => (
+              <path
+                key={"ring-" + batch.style}
+                data-node-ring={batch.style}
+                data-disc-count={batch.count}
+                d={batch.path}
+                fill="none"
+                stroke={
+                  batch.style === "allocated"
+                    ? "var(--color-tree-allocated-ring)"
+                    : paintColor(batch.style)
+                }
+                strokeOpacity={0.85}
+                strokeWidth={1.25}
+                strokeDasharray="1 2.5"
+                vectorEffect="non-scaling-stroke"
+                pointerEvents="none"
+              />
+            ))}
+          </Fragment>
+        )
+      })}
+      {visible.map((n) => (
+        <circle
+          key={n.id}
+          data-node={n.id}
+          data-unseen-path={n.unseenPaths || undefined}
+          data-weapon-set={weaponSets.get(n.id) || undefined}
+          cx={n.x}
+          cy={n.y}
+          r={nodeRadius(n)}
+          fill="transparent"
+          stroke="transparent"
+          strokeWidth={100}
+        />
+      ))}
+    </g>
+  )
+})
+
+// Hover and tooltip state must not reconcile the visible artwork layer.
+const Artwork = memo(function Artwork({
+  id,
+  nodes,
+  artwork,
+  socketed,
+  allocated,
+  weaponSets,
+  clipId,
+  strokeScale,
+}: {
+  id: string
+  nodes: TreeNode[]
+  artwork: Record<string, string>
+  socketed: Map<string, TreeJewel>
+  allocated: Set<string>
+  weaponSets: WeaponSets
+  clipId: string
+  strokeScale: number
+}) {
+  const discs = nodes
+    .filter((n) => !n.start && (artwork[n.icon] || socketed.has(n.id)))
+    .map((n) => {
+      const jewel = socketed.get(n.id)
+      return {
+        node: n,
+        x: n.x,
+        y: n.y,
+        r: artRadius(n, !!jewel),
+        style: nodePaintStyle(n, allocated, weaponSets),
+        image: jewel
+          ? describeEquipment(jewel.item).artwork?.image || artwork[n.icon]
+          : artwork[n.icon],
+      }
+    })
+  const runs = treePaintRuns(discs, (disc) => ({
+    ...disc,
+    r: disc.r + (allocated.has(disc.node.id) ? 1 : 0.5) * strokeScale,
+  }))
+  return (
+    <g data-tree-art-region={id} pointerEvents="none">
+      {runs.map((run, index) => (
+        <Fragment key={index}>
+          <path
+            data-art-background=""
+            data-disc-count={run.length}
+            d={run.map(circleSubpath).join(" ")}
+            fill="var(--color-paper)"
+          />
+          {run.map(
+            ({ node, x, y, r, image }) =>
+              image && (
+                <image
+                  key={node.id}
+                  href={image}
+                  className="tree-passive-art"
+                  data-allocated={allocated.has(node.id)}
+                  opacity={allocated.has(node.id) ? 1 : 0.6}
+                  clipPath={"url(#" + clipId + ")"}
+                  x={x - r}
+                  y={y - r}
+                  width={r * 2}
+                  height={r * 2}
+                />
+              )
+          )}
+          {batchTreeDiscs(run).map((batch) => (
+            <path
+              key={batch.style}
+              data-art-border={batch.style}
+              data-disc-count={batch.count}
+              d={batch.path}
+              fill="none"
+              stroke={paintColor(batch.style)}
+              strokeOpacity={batch.style === "unallocated" ? 0.4 : 1}
+              strokeWidth={isAllocatedPaint(batch.style) ? 2 : 1}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+        </Fragment>
+      ))}
+    </g>
   )
 })
 
 function TreeMap({
   data,
+  frameNodes = data.nodes,
+  artworkUrl,
+  overlayControls = false,
   nodes,
   label,
   version,
@@ -211,9 +385,20 @@ function TreeMap({
   weaponSets,
   palette,
   onPaletteChange,
+  panel,
+  showPaletteSelector = true,
+  centerCircle = false,
+  centerBackground,
+  extraArtwork,
   mode = "interactive",
+  treeType = "passive",
 }: {
+  treeType?: TreeType
   mode?: "interactive" | "preview" | "ascendancy"
+  /** Stable full geometry for camera bounds, independent of visibility filters. */
+  frameNodes?: TreeNode[]
+  artworkUrl?: string
+  overlayControls?: boolean
   jewels: TreeJewel[]
   data: TreeData
   nodes: string[]
@@ -222,21 +407,58 @@ function TreeMap({
   weaponSets: WeaponSets
   palette: Palette
   onPaletteChange?: (value: Palette) => void
+  panel?: ReactNode
+  showPaletteSelector?: boolean
+  centerCircle?: boolean
+  centerBackground?: string
+  extraArtwork?: Record<string, string>
 }) {
   const selected = useMemo(() => new Set(nodes), [nodes])
   const weaponSetOf = (id: string): WeaponSet => weaponSets.get(id) ?? 0
   const hasWeaponSets = [...weaponSets.keys()].some((id) => selected.has(id))
-  const allocatedArtwork = new Set([
-    ...nodes,
-    ...jewels.flatMap((jewel) => jewel.grants),
-  ])
+  const allocatedArtwork = useMemo(
+    () => new Set([...nodes, ...jewels.flatMap((jewel) => jewel.grants)]),
+    [nodes, jewels]
+  )
   const all = useMemo(() => new Map(data.nodes.map((n) => [n.id, n])), [data])
+  const [aspect, setAspect] = useState(1)
+  const isAscendancyTree = useMemo(
+    () =>
+      data.nodes.length > 0 &&
+      data.nodes.every((node) => Boolean(node.ascendancy)),
+    [data.nodes]
+  )
+  const ascendancyBackground =
+    isAscendancyTree && isTreeVersion(version)
+      ? (
+          ascendancyBackgrounds.versions[version] as Record<
+            string,
+            {
+              image: string
+              x: number
+              y: number
+              width: number
+              height: number
+            }
+          >
+        )[data.nodes[0].ascendancy]
+      : undefined
   const bounds = useMemo(() => {
-    const allocated = data.nodes.filter((n) => selected.has(n.id))
+    const allocated = frameNodes.filter((n) => selected.has(n.id))
     const fitted =
-      mode === "preview" && allocated.length ? allocated : data.nodes
+      mode === "preview" && allocated.length ? allocated : frameNodes
     const xs = fitted.map((n) => n.x),
       ys = fitted.map((n) => n.y)
+    if (ascendancyBackground) {
+      xs.push(
+        ascendancyBackground.x - ascendancyBackground.width / 2,
+        ascendancyBackground.x + ascendancyBackground.width / 2
+      )
+      ys.push(
+        ascendancyBackground.y - ascendancyBackground.height / 2,
+        ascendancyBackground.y + ascendancyBackground.height / 2
+      )
+    }
     const minX = Math.min(...xs),
       maxX = Math.max(...xs),
       minY = Math.min(...ys),
@@ -244,30 +466,89 @@ function TreeMap({
     return {
       x: (minX + maxX) / 2,
       y: (minY + maxY) / 2,
-      size: Math.max(maxX - minX, maxY - minY) + 700,
+      // Small ascendancy trees fit the actual viewport, with room for icon edges.
+      size: isAscendancyTree
+        ? Math.max(
+            (maxX - minX + 240) / Math.max(1, aspect),
+            (maxY - minY + 240) / Math.max(1, 1 / aspect)
+          )
+        : Math.max(maxX - minX, maxY - minY) + 700,
     }
-  }, [data, mode, selected])
-  const [aspect, setAspect] = useState(1)
+  }, [
+    frameNodes,
+    mode,
+    selected,
+    isAscendancyTree,
+    aspect,
+    ascendancyBackground,
+  ])
   const [pixelWidth, setPixelWidth] = useState(0)
   const [camera, setCameraState] = useState({ ...bounds, zoom: 1 })
+  const cameraRef = useRef(camera)
+  const constraintNodes = useMemo(
+    () => frameNodes.filter((node) => !node.start),
+    [frameNodes]
+  )
   const setCamera = useCallback(
     (next: TreeCamera | ((current: TreeCamera) => TreeCamera)) => {
-      setCameraState((current) =>
-        constrainTreeCamera(
-          typeof next === "function" ? next(current) : next,
-          bounds,
-          aspect,
-          data.nodes.filter((node) => !node.start)
-        )
+      const value = constrainTreeCamera(
+        typeof next === "function" ? next(cameraRef.current) : next,
+        bounds,
+        aspect,
+        constraintNodes
       )
+      cameraRef.current = value
+      setCameraState(value)
     },
-    [bounds, aspect, data.nodes]
+    [bounds, aspect, constraintNodes]
+  )
+  const renderView = treeViewport(bounds.size / camera.zoom, aspect)
+  const renderRect = useMemo(
+    () =>
+      treeRenderRect(camera.x, camera.y, renderView.width, renderView.height),
+    [camera.x, camera.y, renderView.width, renderView.height]
+  )
+  const renderRectRef = useRef(renderRect)
+  renderRectRef.current = renderRect
+  const edgeBounds = useMemo(
+    () => data.edges.map((edge) => treeEdgeBounds(edge.path)),
+    [data.edges]
   )
   const [inspect, setInspect] = useState<string | null>(null)
   const [pinned, setPinned] = useState(false)
+  // Build regions only when the source data changes; camera changes select
+  // existing arrays so retained node/artwork components can skip reconciliation.
+  const regions = useMemo(() => treeNodeRegions(data.nodes), [data.nodes])
+  const cull = mode === "interactive" && camera.zoom > 1
+  const visibleRegions = useMemo(
+    () =>
+      cull
+        ? regions.filter((region) =>
+            overlapsTreeRect(region.bounds, renderRect)
+          )
+        : regions,
+    [regions, cull, renderRect]
+  )
+  // Connections remain whole subpaths in global style batches. Their own
+  // bounds include arcs crossing the viewport with both endpoints offscreen.
+  const visibleEdges = useMemo(
+    () =>
+      cull
+        ? data.edges.filter((_, index) =>
+            overlapsTreeRect(edgeBounds[index], renderRect)
+          )
+        : data.edges,
+    [data.edges, cull, renderRect, edgeBounds]
+  )
+  const visibleNodes = useMemo(
+    () => visibleRegions.flatMap((region) => region.nodes),
+    [visibleRegions]
+  )
   const clipId = useId()
   const screenId = useId()
+  const ascendancyShadeId = useId()
   const svg = useRef<SVGSVGElement>(null)
+  const inspectionAnchor = useRef<SVGCircleElement>(null)
   useEffect(() => {
     const element = svg.current
     if (!element) return
@@ -314,20 +595,81 @@ function TreeMap({
       window.removeEventListener("blur", blur)
     }
   }, [])
+  const artworkZoomThreshold = treeType === "atlas" ? 1.2 : 3
   const artwork = useQuery({
-    queryKey: ["tree-art-v2", version],
-    enabled: mode === "ascendancy" || camera.zoom >= 3 || inspect !== null,
+    queryKey: artworkUrl ? ["tree-art", artworkUrl] : ["tree-art-v2", version],
+    enabled:
+      isAscendancyTree ||
+      mode === "ascendancy" ||
+      camera.zoom >= artworkZoomThreshold ||
+      inspect !== null,
     staleTime: Infinity,
     gcTime: Infinity,
     queryFn: async () => {
-      const response = await fetch("/pob-trees/art-v2/" + version + ".json")
+      const response = await fetch(
+        artworkUrl ?? "/pob-trees/art-v2/" + version + ".json"
+      )
       if (!response.ok) throw new Error("Tree artwork unavailable")
       return (await response.json()) as Record<string, string>
     },
   })
+  const combinedArtwork = useMemo(
+    () => (artwork.data ? { ...artwork.data, ...extraArtwork } : undefined),
+    [artwork.data, extraArtwork]
+  )
   const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null)
-  const cameraRef = useRef(camera)
-  cameraRef.current = camera
+  const panFrame = useRef<number | null>(null)
+  const panDelta = useRef({ x: 0, y: 0 })
+  const dragRect = useRef({ width: 1, height: 1 })
+  const flushPan = () => {
+    if (panFrame.current !== null) cancelAnimationFrame(panFrame.current)
+    panFrame.current = null
+    const delta = panDelta.current
+    panDelta.current = { x: 0, y: 0 }
+    if (!delta.x && !delta.y) return
+    const current = cameraRef.current
+    const extent = treeViewport(bounds.size / current.zoom, aspect)
+    const next = constrainTreeCamera(
+      {
+        ...current,
+        x: current.x - (delta.x * extent.width) / dragRect.current.width,
+        y: current.y - (delta.y * extent.height) / dragRect.current.height,
+      },
+      bounds,
+      aspect,
+      constraintNodes
+    )
+    cameraRef.current = next
+    svg.current?.setAttribute(
+      "viewBox",
+      [
+        next.x - extent.width / 2,
+        next.y - extent.height / 2,
+        extent.width,
+        extent.height,
+      ].join(" ")
+    )
+    if (
+      !containsTreeView(
+        renderRectRef.current,
+        next.x,
+        next.y,
+        extent.width,
+        extent.height
+      )
+    )
+      setCameraState(next)
+  }
+  const finishPan = () => {
+    flushPan()
+    setCameraState(cameraRef.current)
+  }
+  useEffect(
+    () => () => {
+      if (panFrame.current !== null) cancelAnimationFrame(panFrame.current)
+    },
+    []
+  )
   const changeZoom = (factor: number) =>
     setCamera((c) => ({
       ...c,
@@ -368,13 +710,23 @@ function TreeMap({
   const jewelArt = socketJewel
     ? describeEquipment(socketJewel.item).artwork?.image
     : undefined
-  const active = data.nodes.filter((n) => selected.has(n.id))
+  const active = useMemo(
+    () => data.nodes.filter((n) => selected.has(n.id)),
+    [data.nodes, selected]
+  )
   const size = bounds.size / camera.zoom
   const view = treeViewport(size, aspect)
   // Halftone cell of 6 screen pixels, expressed in tree units for this zoom.
   const screen = pixelWidth ? (view.width / pixelWidth) * 6 : 1
-  const socketed = new Map(jewels.map((jewel) => [jewel.origin.id, jewel]))
-  const showArt = (mode === "ascendancy" || camera.zoom >= 3) && artwork.data
+  const socketed = useMemo(
+    () => new Map(jewels.map((jewel) => [jewel.origin.id, jewel])),
+    [jewels]
+  )
+  const showArt =
+    (isAscendancyTree ||
+      mode === "ascendancy" ||
+      camera.zoom >= artworkZoomThreshold) &&
+    combinedArtwork
   // Rings drawn around a node sit flush against whichever disc is on screen:
   // the plain dot, or the larger art disc once icons are showing. Their 12 unit
   // stroke is centred on the path, so +6 puts the inner edge on the disc.
@@ -393,8 +745,44 @@ function TreeMap({
     <div
       className="passive-tree"
       data-mode={mode}
+      data-tree-type={isAscendancyTree ? "ascendancy" : treeType}
+      data-overlay-controls={overlayControls || undefined}
+      data-art-visible={showArt ? true : undefined}
       data-palette={palette === "default" ? undefined : palette}
     >
+      {mode === "interactive" &&
+        (panel ||
+          (showPaletteSelector && nodes.length > 0 && onPaletteChange)) && (
+          <div className="tree-settings-panel">
+            {panel}
+            {showPaletteSelector && nodes.length > 0 && onPaletteChange && (
+              <div className="tree-setting">
+                <span className="tree-setting-label">Color vision</span>
+                <Select
+                  value={palette}
+                  items={PALETTES}
+                  onValueChange={(value) => {
+                    if (isPalette(value)) onPaletteChange(value)
+                  }}
+                >
+                  <SelectTrigger
+                    aria-label="Color vision"
+                    optionLabels={PALETTES.map((p) => p.label)}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PALETTES.map((p) => (
+                      <SelectItem key={p.value} value={p.value}>
+                        {p.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+        )}
       {mode === "interactive" && (
         <div className="tree-controls">
           <Button
@@ -434,37 +822,13 @@ function TreeMap({
                 <li data-weapon-set="1">Weapon set 1</li>
                 <li data-weapon-set="2">Weapon set 2</li>
               </ul>
-              <Select
-                value={palette}
-                onValueChange={(value) => {
-                  if (isPalette(value)) onPaletteChange?.(value)
-                }}
-                items={PALETTES.map((p) => ({
-                  value: p.value,
-                  label: p.label,
-                }))}
-              >
-                <SelectTrigger
-                  aria-label="Weapon set palette"
-                  className="tree-palette"
-                  data-palette={palette === "default" ? undefined : palette}
-                >
-                  <Eye aria-hidden="true" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="tree-palette-menu">
-                  {PALETTES.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>
-                      {p.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </>
           )}
-          <span className="tree-hint">
-            Drag to pan · Scroll to zoom · Hover or tap to inspect
-          </span>
+          {!overlayControls && (
+            <span className="tree-hint">
+              Drag to pan · Scroll to zoom · Hover or tap to inspect
+            </span>
+          )}
         </div>
       )}
       <div className="tree-viewport">
@@ -473,13 +837,14 @@ function TreeMap({
           role="img"
           tabIndex={mode === "preview" ? -1 : 0}
           aria-label={
-            active.length +
-            " mapped saved passive nodes. " +
+            (nodes.length
+              ? active.length + " mapped saved passive nodes. "
+              : "") +
             label +
             (mode === "interactive"
-              ? ". Arrow keys pan, plus and minus zoom, Enter inspects a saved node, Escape dismisses."
+              ? ". Arrow keys pan, plus and minus zoom, Enter inspects a node, Escape dismisses."
               : mode === "ascendancy"
-                ? ". Hover or tap to inspect. Enter inspects a saved node, Escape dismisses."
+                ? ". Hover or tap to inspect. Enter inspects a node, Escape dismisses."
                 : ". Open the full tree to explore and inspect nodes.")
           }
           viewBox={[
@@ -518,7 +883,12 @@ function TreeMap({
               setPinned(false)
             }
             if (event.key === "Enter") {
-              setInspect(active.find((n) => !n.start)?.id || null)
+              setInspect(
+                (
+                  visibleNodes.find((n) => !n.start && selected.has(n.id)) ??
+                  visibleNodes.find((n) => !n.start)
+                )?.id || null
+              )
             }
             if (event.key.startsWith("Arrow"))
               setCamera((c) => ({
@@ -543,6 +913,7 @@ function TreeMap({
             if (mode !== "interactive") return
             if (event.button !== 0) return
             event.preventDefault()
+            dragRect.current = event.currentTarget.getBoundingClientRect()
             drag.current = { x: event.clientX, y: event.clientY, moved: false }
             event.currentTarget.setPointerCapture(event.pointerId)
           }}
@@ -554,15 +925,10 @@ function TreeMap({
                 dy = event.clientY - d.y
               if (Math.abs(dx) + Math.abs(dy) > 2 || d.moved) {
                 d.moved = true
-                const rect = event.currentTarget.getBoundingClientRect()
-                setCamera((c) => {
-                  const extent = treeViewport(bounds.size / c.zoom, aspect)
-                  return {
-                    ...c,
-                    x: c.x - (dx * extent.width) / rect.width,
-                    y: c.y - (dy * extent.height) / rect.height,
-                  }
-                })
+                panDelta.current.x += dx
+                panDelta.current.y += dy
+                if (panFrame.current === null)
+                  panFrame.current = requestAnimationFrame(flushPan)
                 d.x = event.clientX
                 d.y = event.clientY
                 if (!pinned) setInspect(null)
@@ -576,6 +942,7 @@ function TreeMap({
           }}
           onPointerUp={(event) => {
             if (mode === "preview") return
+            if (drag.current?.moved) finishPan()
             if (
               (mode === "ascendancy" ||
                 (drag.current && !drag.current.moved)) &&
@@ -591,6 +958,7 @@ function TreeMap({
               event.currentTarget.releasePointerCapture(event.pointerId)
           }}
           onPointerCancel={() => {
+            if (drag.current?.moved) finishPan()
             drag.current = null
           }}
           onPointerLeave={(event) => {
@@ -598,6 +966,13 @@ function TreeMap({
           }}
         >
           <defs>
+            {(ascendancyBackground || centerBackground) && (
+              <radialGradient id={ascendancyShadeId} cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="black" stopOpacity={0.65} />
+                <stop offset="45%" stopColor="black" stopOpacity={0.4} />
+                <stop offset="100%" stopColor="black" stopOpacity={0} />
+              </radialGradient>
+            )}
             <clipPath id={clipId} clipPathUnits="objectBoundingBox">
               <circle cx=".5" cy=".5" r=".5" />
             </clipPath>
@@ -624,6 +999,57 @@ function TreeMap({
               />
             </pattern>
           </defs>
+          {centerCircle && (
+            <circle
+              data-tree-center=""
+              cx="0"
+              cy="0"
+              r={CENTER_RADIUS}
+              fill="color-mix(in oklch, var(--color-surface) 85%, var(--color-paper))"
+              stroke="var(--color-rule-strong)"
+              strokeWidth="6"
+              pointerEvents="none"
+            />
+          )}
+          {centerBackground && (
+            <g pointerEvents="none">
+              <image
+                href={centerBackground}
+                x={-CENTER_ART_RADIUS}
+                y={-CENTER_ART_RADIUS}
+                width={CENTER_ART_RADIUS * 2}
+                height={CENTER_ART_RADIUS * 2}
+                clipPath={"url(#" + clipId + ")"}
+              />
+              <circle
+                cx="0"
+                cy="0"
+                r={CENTER_ART_RADIUS}
+                fill={"url(#" + ascendancyShadeId + ")"}
+              />
+            </g>
+          )}
+          {ascendancyBackground && (
+            <g pointerEvents="none">
+              <image
+                className="tree-ascendancy-background"
+                data-ascendancy-background={data.nodes[0].ascendancy}
+                href={ascendancyBackground.image}
+                x={ascendancyBackground.x - ascendancyBackground.width / 2}
+                y={ascendancyBackground.y - ascendancyBackground.height / 2}
+                width={ascendancyBackground.width}
+                height={ascendancyBackground.height}
+                clipPath={"url(#" + clipId + ")"}
+              />
+              <ellipse
+                cx={ascendancyBackground.x}
+                cy={ascendancyBackground.y}
+                rx={ascendancyBackground.width / 2}
+                ry={ascendancyBackground.height / 2}
+                fill={"url(#" + ascendancyShadeId + ")"}
+              />
+            </g>
+          )}
           <g pointerEvents="none">
             {jewels.flatMap((jewel) =>
               jewel.areas.map((area, index) => {
@@ -647,7 +1073,22 @@ function TreeMap({
               })
             )}
           </g>
-          <Geometry data={data} selected={selected} weaponSets={weaponSets} />
+          <Connections
+            edges={visibleEdges}
+            sourceNodes={data.nodes}
+            selected={selected}
+            weaponSets={weaponSets}
+          />
+          {visibleRegions.map((region) => (
+            <NodeRegion
+              key={region.id}
+              id={region.id}
+              nodes={region.nodes}
+              strokeScale={view.width / Math.max(pixelWidth, 1)}
+              selected={selected}
+              weaponSets={weaponSets}
+            />
+          ))}
           <g pointerEvents="none">
             {jewels.flatMap((jewel) =>
               jewel.grants.map((id) => {
@@ -690,76 +1131,52 @@ function TreeMap({
               ))}
             </g>
           )}
-          {showArt && (
-            <g pointerEvents="none">
-              {data.nodes
-                .filter(
-                  (n) =>
-                    !n.start &&
-                    Math.abs(n.x - camera.x) < view.width / 2 + 80 &&
-                    Math.abs(n.y - camera.y) < view.height / 2 + 80 &&
-                    (artwork.data[n.icon] || socketed.has(n.id))
-                )
-                .map((n) => {
-                  // A socketed jewel shows its item art in place of the socket.
-                  const jewel = socketed.get(n.id)
-                  const image = jewel
-                    ? describeEquipment(jewel.item).artwork?.image ||
-                      artwork.data[n.icon]
-                    : artwork.data[n.icon]
-                  const r = artRadius(n, !!jewel)
-                  return (
-                    <g key={n.id} data-allocated={allocatedArtwork.has(n.id)}>
-                      <circle
-                        cx={n.x}
-                        cy={n.y}
-                        r={r}
-                        fill="var(--color-paper)"
-                      />
-                      {image && (
-                        <image
-                          href={image}
-                          className="tree-passive-art"
-                          opacity={allocatedArtwork.has(n.id) ? 1 : 0.6}
-                          clipPath={"url(#" + clipId + ")"}
-                          x={n.x - r}
-                          y={n.y - r}
-                          width={r * 2}
-                          height={r * 2}
-                        />
-                      )}
-                      <circle
-                        cx={n.x}
-                        cy={n.y}
-                        r={r}
-                        fill="none"
-                        stroke={
-                          allocatedArtwork.has(n.id)
-                            ? weaponColor(weaponSetOf(n.id))
-                            : "var(--color-brand-deep)"
-                        }
-                        strokeOpacity={allocatedArtwork.has(n.id) ? 1 : 0.4}
-                        strokeWidth={allocatedArtwork.has(n.id) ? 2 : 1}
-                        vectorEffect="non-scaling-stroke"
-                      />
-                    </g>
-                  )
-                })}
-            </g>
-          )}
+          {showArt &&
+            visibleRegions.map((region) => (
+              <Artwork
+                key={region.id}
+                id={region.id}
+                nodes={region.nodes}
+                artwork={showArt}
+                socketed={socketed}
+                allocated={allocatedArtwork}
+                weaponSets={weaponSets}
+                clipId={clipId}
+                strokeScale={view.width / Math.max(pixelWidth, 1)}
+              />
+            ))}
+          {/* Keep the tooltip anchor independent of culled geometry so a held
+              inspection survives panning beyond the visibility buffer. */}
+          <circle
+            ref={inspectionAnchor}
+            data-inspection-anchor=""
+            cx={node?.x ?? 0}
+            cy={node?.y ?? 0}
+            r={node ? nodeRadius(node) : 0}
+            fill="none"
+            pointerEvents="none"
+          />
           {node && (
             <circle
               key={node.id + (showArt ? "-art" : "")}
               className="tree-inspect-ring"
+              style={
+                {
+                  "--tree-ring-inner-radius": `${ringRadius(node)}px`,
+                } as CSSProperties
+              }
               cx={node.x}
               cy={node.y}
               r={ringRadius(node) + 6}
               fill="none"
-              stroke={
+              color={
                 selected.has(node.id) && weaponSetOf(node.id)
                   ? weaponColor(weaponSetOf(node.id))
-                  : "var(--color-tree-allocated-ring)"
+                  : node.unseenPaths
+                    ? "var(--color-tree-unseen)"
+                    : "var(--color-tree-allocated-ring)"
               }
+              stroke="currentColor"
               strokeOpacity={0.75}
               strokeWidth={12}
               pointerEvents="none"
@@ -790,22 +1207,19 @@ function TreeMap({
               }
               aria-label="Passive node details"
               side="top"
-              sideOffset={20}
+              sideOffset={28}
               collisionPadding={12}
               collisionAvoidance={{ side: "flip", align: "shift" }}
               positionMethod="fixed"
-              anchor={
-                svg.current?.querySelector('[data-node="' + node.id + '"]') ||
-                null
-              }
+              anchor={() => inspectionAnchor.current}
               initialFocus={false}
               finalFocus={false}
               onPointerLeave={hideHover}
             >
               <div>
-                {(jewelArt || artwork.data?.[node.icon]) && (
+                {(jewelArt || combinedArtwork?.[node.icon]) && (
                   <img
-                    src={jewelArt || artwork.data?.[node.icon]}
+                    src={jewelArt || combinedArtwork?.[node.icon]}
                     alt=""
                     width={48}
                     height={48}
@@ -821,6 +1235,14 @@ function TreeMap({
                     data-allocated={selected.has(node.id)}
                   >
                     {selected.has(node.id) ? "Allocated" : "Unallocated"}
+                    {node.unseenPaths && (
+                      <>
+                        {" · "}
+                        <span className="tree-unseen-label">
+                          Paths Not Taken
+                        </span>
+                      </>
+                    )}
                     {weaponSetOf(node.id)
                       ? " · Weapon set " + weaponSetOf(node.id)
                       : ""}
@@ -843,9 +1265,30 @@ function TreeMap({
               {affectedJewels.some((jewel) => jewel.timeless) && (
                 <p>Base passive — conquered effects are not calculated.</p>
               )}
-              <Lines
-                items={socketJewel ? socketJewel.lines.slice(3) : node.stats}
-              />
+              {!socketJewel && node.options?.length ? (
+                <section className="tree-choice-intro">
+                  {node.stats.map((line, index) => (
+                    <p key={index}>
+                      {displayLine(line)}
+                      {index === node.stats.length - 1 && " (choose one):"}
+                    </p>
+                  ))}
+                </section>
+              ) : (
+                <Lines
+                  items={socketJewel ? socketJewel.lines.slice(3) : node.stats}
+                />
+              )}
+              {!socketJewel && !!node.options?.length && (
+                <ol
+                  className="tree-choice-lines"
+                  aria-label="Available options"
+                >
+                  {node.options.map((option) => (
+                    <li key={option}>{displayLine(option)}</li>
+                  ))}
+                </ol>
+              )}
               {socketJewel?.warning && <p>{socketJewel.warning}</p>}
               {grantingJewels.map((jewel) => (
                 <p key={jewel.item.id}>Granted by {jewel.item.name}</p>
@@ -879,7 +1322,9 @@ export function PassiveTree({
   items = [],
   weaponSets: weaponSetLists = [[], []],
   ascendancy,
+  showPaletteSelector = false,
 }: {
+  showPaletteSelector?: boolean
   ascendancy?: string
   version: string
   nodes: string[]
@@ -919,11 +1364,11 @@ export function PassiveTree({
     }
   }
   const tree = useQuery({
-    queryKey: ["passive-tree-v3", version],
-    enabled: supported.has(version),
+    queryKey: ["passive-tree-v4", version],
+    enabled: isTreeVersion(version),
     staleTime: Infinity,
     queryFn: async () => {
-      const response = await fetch("/pob-trees/v3/" + version + ".json")
+      const response = await fetch("/pob-trees/v4/" + version + ".json")
       if (!response.ok) throw new Error("Tree data unavailable")
       return (await response.json()) as TreeData
     },
@@ -939,12 +1384,17 @@ export function PassiveTree({
       ...new Set(
         tree.data.nodes
           .filter((n) => selected.has(n.id) && n.ascendancy)
-          .map((n) => n.ascendancy)
+          .map((n) =>
+            ascendancy === "Abyssal Lich" && n.ascendancy === "Lich"
+              ? ascendancy
+              : n.ascendancy
+          )
       ),
     ]
     if (
       ascendancy &&
-      tree.data.nodes.some((n) => n.ascendancy === ascendancy) &&
+      isTreeVersion(version) &&
+      ascendancyTrees[version].some((choice) => choice.value === ascendancy) &&
       !ascendancies.includes(ascendancy)
     )
       ascendancies.push(ascendancy)
@@ -962,8 +1412,15 @@ export function PassiveTree({
           },
         }
       })
-      .filter((map) => map.data.nodes.length)
-  }, [tree.data, nodes, ascendancy])
+      .filter(
+        (map) =>
+          map.data.nodes.length ||
+          (isTreeVersion(version) &&
+            ascendancyTrees[version].some(
+              (choice) => choice.value === map.name
+            ))
+      )
+  }, [tree.data, nodes, ascendancy, version])
   const artwork = useQuery({
     queryKey: ["tree-art-v2", version],
     enabled: !!tree.data,
@@ -975,7 +1432,7 @@ export function PassiveTree({
       return (await response.json()) as Record<string, string>
     },
   })
-  if (!supported.has(version))
+  if (!isTreeVersion(version))
     return (
       <p className="build-section-main build-empty">
         The map for this tree version is not available yet. Its {nodes.length}{" "}
@@ -1009,15 +1466,13 @@ export function PassiveTree({
             {map.name ? (
               <>
                 <h3>{map.name} ascendancy</h3>
-                <TreeMap
-                  data={map.data}
+                <AscendancyTree
+                  section={map.name}
                   nodes={nodes}
-                  label={map.name}
                   version={version}
-                  jewels={[]}
                   weaponSets={weaponSets}
                   palette={palette}
-                  mode="ascendancy"
+                  showSelector={false}
                 />
               </>
             ) : (
@@ -1050,6 +1505,8 @@ export function PassiveTree({
                     weaponSets={weaponSets}
                     palette={palette}
                     onPaletteChange={changePalette}
+                    showPaletteSelector={showPaletteSelector}
+                    overlayControls
                   />
                 </DialogContent>
               </Dialog>
@@ -1204,5 +1661,438 @@ export function PassiveTree({
         </section>
       </aside>
     </>
+  )
+}
+
+/** Unallocated explorer, sharing the build renderer and its cached snapshots. */
+export type TreeType = "passive" | "ascendancy" | "atlas"
+
+export type TreePanelOptions = {
+  showPanel?: boolean
+  showVersionSelector?: boolean
+  showAscendancySelector?: boolean
+  showPaletteSelector?: boolean
+  /** Locks the displayed ascendancy and hides its selector. Use "None" for none. */
+  defaultAscendancy?: string
+  allocatedNodes?: string[]
+}
+
+export function TreeExplorer({
+  version,
+  type,
+  options,
+  section,
+  onSectionChange,
+  showUnseen,
+  onShowUnseenChange,
+  ...panelOptions
+}: TreePanelOptions & {
+  type: TreeType
+  options: ReactNode
+  version: string
+  section: string
+  onSectionChange: (section: string) => void
+  showUnseen: boolean
+  onShowUnseenChange: (checked: boolean) => void
+}) {
+  if (type === "ascendancy")
+    return (
+      <div className="tree-explorer">
+        <AscendancyTree
+          options={
+            panelOptions.showPanel !== false &&
+            panelOptions.showVersionSelector !== false
+              ? options
+              : undefined
+          }
+          version={version}
+          section={panelOptions.defaultAscendancy ?? section}
+          onSectionChange={onSectionChange}
+          showSelector={
+            panelOptions.showPanel !== false &&
+            panelOptions.showAscendancySelector !== false &&
+            panelOptions.defaultAscendancy === undefined
+          }
+        />
+      </div>
+    )
+  return (
+    <PassiveAtlasExplorer
+      type={type}
+      options={options}
+      version={version}
+      showUnseen={showUnseen}
+      onShowUnseenChange={onShowUnseenChange}
+      section={section}
+      onSectionChange={onSectionChange}
+      {...panelOptions}
+    />
+  )
+}
+
+function PassiveAtlasExplorer({
+  version,
+  type,
+  options,
+  showUnseen,
+  onShowUnseenChange,
+  section,
+  onSectionChange,
+  showPanel = true,
+  showVersionSelector = true,
+  showAscendancySelector = true,
+  showPaletteSelector = true,
+  defaultAscendancy,
+  allocatedNodes = [],
+}: TreePanelOptions & {
+  type: TreeType
+  options: ReactNode
+  version: string
+  showUnseen: boolean
+  onShowUnseenChange: (checked: boolean) => void
+  section: string
+  onSectionChange: (section: string) => void
+}) {
+  const choices = isTreeVersion(version) ? ascendancyTrees[version] : []
+  const selectedAscendancy = choices.find(
+    (choice) =>
+      choice.value ===
+      (defaultAscendancy ??
+        (showPanel && showAscendancySelector ? section : "None"))
+  )
+  const center = useQuery({
+    queryKey: ["ascendancy-tree-v1", selectedAscendancy?.data],
+    enabled: type === "passive" && Boolean(selectedAscendancy),
+    staleTime: Infinity,
+    queryFn: async () => {
+      const response = await fetch(selectedAscendancy!.data)
+      if (!response.ok) throw new Error("Ascendancy data unavailable")
+      return (await response.json()) as TreeData
+    },
+  })
+  const centerArt = useQuery({
+    queryKey: ["tree-art", selectedAscendancy?.art],
+    enabled: type === "passive" && Boolean(selectedAscendancy),
+    staleTime: Infinity,
+    queryFn: async () => {
+      const response = await fetch(selectedAscendancy!.art)
+      if (!response.ok) throw new Error("Ascendancy artwork unavailable")
+      return (await response.json()) as Record<string, string>
+    },
+  })
+  const [palette, setPalette] = useState<Palette>("default")
+  useEffect(() => {
+    try {
+      const value = localStorage.getItem(PALETTE_KEY)
+      if (isPalette(value)) setPalette(value)
+    } catch {
+      /* storage unavailable */
+    }
+  }, [])
+  const centeredTree = useMemo(() => {
+    if (!center.data || !selectedAscendancy || type !== "passive")
+      return undefined
+    const backgrounds = isTreeVersion(version)
+      ? ascendancyBackgrounds.versions[version]
+      : {}
+    return centerAscendancy(
+      center.data,
+      (
+        backgrounds as Record<
+          string,
+          { image: string; x: number; y: number; width: number; height: number }
+        >
+      )[selectedAscendancy.value]
+    )
+  }, [center.data, selectedAscendancy, version, type])
+  const unseenEnabled = selectedAscendancy?.value === "Oracle" && showUnseen
+  const unseen = useMemo(
+    () =>
+      new Set<string>(
+        isTreeVersion(version) ? unseenTreeNodes.versions[version] : []
+      ),
+    [version]
+  )
+  const tree = useQuery({
+    queryKey: ["passive-explorer-v1", version],
+    enabled: type !== "atlas",
+    staleTime: Infinity,
+    queryFn: async () => {
+      const response = await fetch(
+        "/pob-trees/passives-v1/" + version + ".json"
+      )
+      if (!response.ok) throw new Error("Tree data unavailable")
+      return (await response.json()) as TreeData
+    },
+  })
+  const selectedSection = ""
+  const isAtlas = type === "atlas"
+  const atlas = useQuery({
+    queryKey: ["atlas-tree-v2"],
+    enabled: isAtlas,
+    staleTime: Infinity,
+    queryFn: async () => {
+      const response = await fetch("/atlas-trees/v2/tree.json")
+      if (!response.ok) throw new Error("Atlas data unavailable")
+      return (await response.json()) as TreeData
+    },
+  })
+  // Stable full geometry keeps visibility toggles from moving the camera.
+  const frameNodes = useMemo(
+    () =>
+      isAtlas
+        ? (atlas.data?.nodes ?? [])
+        : (tree.data?.nodes.filter(
+            (node) => node.ascendancy === selectedSection
+          ) ?? []),
+    [isAtlas, atlas.data, tree.data, selectedSection]
+  )
+  const data = useMemo(() => {
+    if (isAtlas) return atlas.data
+    if (!tree.data) return undefined
+    const nodes = frameNodes
+      .filter((node) => unseenEnabled || !unseen.has(node.id))
+      .map((node) =>
+        unseen.has(node.id) ? { ...node, unseenPaths: true } : node
+      )
+    const ids = new Set(nodes.map((node) => node.id))
+    return {
+      nodes: [...nodes, ...(centeredTree?.nodes ?? [])],
+      edges: [
+        ...tree.data.edges.filter(
+          (edge) => ids.has(edge.from) && ids.has(edge.to)
+        ),
+        ...(centeredTree?.edges ?? []),
+      ],
+    }
+  }, [
+    isAtlas,
+    atlas.data,
+    tree.data,
+    frameNodes,
+    unseenEnabled,
+    unseen,
+    centeredTree,
+  ])
+  const activeQuery = isAtlas ? atlas : tree
+  return (
+    <div className="tree-explorer">
+      {activeQuery.isError ? (
+        <div className="build-empty" role="alert">
+          {isAtlas ? "Atlas" : "Tree"} data could not be loaded.{" "}
+          <Button onClick={() => void activeQuery.refetch()}>Retry</Button>
+        </div>
+      ) : !data ? (
+        <p className="build-empty" role="status">
+          Loading {isAtlas ? "Atlas" : "passive"} tree…
+        </p>
+      ) : (
+        <TreeMap
+          key={isAtlas ? "atlas-v1" : version + selectedSection}
+          data={data}
+          treeType={isAtlas ? "atlas" : "passive"}
+          frameNodes={frameNodes}
+          panel={
+            !isAtlas && showPanel ? (
+              <>
+                {showVersionSelector && options}
+                {showAscendancySelector && defaultAscendancy === undefined && (
+                  <div className="tree-setting">
+                    <span className="tree-setting-label">Show ascendancy</span>
+                    <Select
+                      value={selectedAscendancy?.value ?? "None"}
+                      items={[{ value: "None", label: "None" }, ...choices]}
+                      onValueChange={(value) => {
+                        if (value !== null) onSectionChange(value)
+                      }}
+                    >
+                      <SelectTrigger
+                        aria-label="Show ascendancy"
+                        optionLabels={[
+                          "None",
+                          ...choices.map((choice) => choice.label),
+                        ]}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="None">None</SelectItem>
+                        {choices.map((choice) => (
+                          <SelectItem key={choice.value} value={choice.value}>
+                            {choice.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {selectedAscendancy?.value === "Oracle" && (
+                  <label className="tree-unseen-toggle">
+                    <Checkbox
+                      checked={unseenEnabled && unseen.size > 0}
+                      onCheckedChange={onShowUnseenChange}
+                      disabled={!unseen.size}
+                    />
+                    Paths Not Taken
+                  </label>
+                )}
+                {center.isError && selectedAscendancy && (
+                  <Button onClick={() => void center.refetch()}>
+                    Retry ascendancy
+                  </Button>
+                )}
+              </>
+            ) : undefined
+          }
+          centerCircle={!isAtlas}
+          centerBackground={
+            selectedAscendancy && centeredTree && isTreeVersion(version)
+              ? (
+                  ascendancyBackgrounds.versions[version] as Record<
+                    string,
+                    { image: string } | undefined
+                  >
+                )[selectedAscendancy.value]?.image
+              : undefined
+          }
+          extraArtwork={centerArt.data}
+          showPaletteSelector={showPanel && showPaletteSelector}
+          onPaletteChange={(value) => {
+            setPalette(value)
+            try {
+              localStorage.setItem(PALETTE_KEY, value)
+            } catch {
+              /* storage unavailable */
+            }
+          }}
+          nodes={allocatedNodes}
+          label={isAtlas ? "Atlas Passive Tree" : "Passive tree"}
+          version={version}
+          jewels={[]}
+          weaponSets={new Map()}
+          palette={palette}
+          artworkUrl={isAtlas ? "/atlas-trees/v2/art.json" : undefined}
+          overlayControls
+        />
+      )}
+    </div>
+  )
+}
+
+export function AscendancyTree({
+  options,
+  version,
+  section,
+  onSectionChange,
+  showSelector = true,
+  nodes = [],
+  weaponSets = new Map(),
+  palette = "default",
+}: {
+  options?: ReactNode
+  version: string
+  section: string
+  onSectionChange?: (section: string) => void
+  showSelector?: boolean
+  nodes?: string[]
+  weaponSets?: WeaponSets
+  palette?: Palette
+}) {
+  const choices = isTreeVersion(version) ? ascendancyTrees[version] : []
+  const current =
+    choices.find((choice) => choice.value === section) ?? choices.at(0)
+  const [localSection, setLocalSection] = useState(section)
+  const selected = onSectionChange
+    ? current
+    : (choices.find((choice) => choice.value === localSection) ?? current)
+  const tree = useQuery({
+    queryKey: ["ascendancy-tree-v1", selected?.data],
+    enabled: Boolean(selected),
+    staleTime: Infinity,
+    queryFn: async () => {
+      if (!selected) throw new Error("Ascendancy tree unavailable")
+      const response = await fetch(selected.data)
+      if (!response.ok) throw new Error("Ascendancy tree unavailable")
+      return (await response.json()) as TreeData
+    },
+  })
+  useQuery({
+    queryKey: ["tree-art", selected?.art],
+    enabled: Boolean(selected),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    queryFn: async () => {
+      if (!selected) throw new Error("Tree artwork unavailable")
+      const response = await fetch(selected.art)
+      if (!response.ok) throw new Error("Tree artwork unavailable")
+      return (await response.json()) as Record<string, string>
+    },
+  })
+  return (
+    <div className="ascendancy-tree">
+      {(options || showSelector) && (
+        <div className="tree-settings-panel">
+          {options}
+          {showSelector && (
+            <div className="tree-setting">
+              <span className="tree-setting-label">Ascendancy</span>
+              <Select
+                value={selected?.value ?? ""}
+                items={choices}
+                onValueChange={(value) => {
+                  if (value !== null) {
+                    setLocalSection(value)
+                    onSectionChange?.(value)
+                  }
+                }}
+              >
+                <SelectTrigger
+                  aria-label="Ascendancy"
+                  optionLabels={choices.map((choice) => choice.label)}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {choices.map((choice) => (
+                    <SelectItem key={choice.value} value={choice.value}>
+                      {choice.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      )}
+      {tree.isError ? (
+        <div className="build-empty" role="alert">
+          Ascendancy tree could not be loaded.{" "}
+          <Button onClick={() => void tree.refetch()}>Retry</Button>
+        </div>
+      ) : !tree.data || !selected ? (
+        <p className="build-empty" role="status">
+          Loading ascendancy tree…
+        </p>
+      ) : (
+        <TreeMap
+          key={selected.data}
+          data={tree.data}
+          nodes={tree.data.nodes
+            .filter(
+              (node) =>
+                nodes.includes(node.id) ||
+                (node.baseId !== undefined && nodes.includes(node.baseId))
+            )
+            .map((node) => node.id)}
+          label={selected.label}
+          version={version}
+          jewels={[]}
+          weaponSets={weaponSets}
+          palette={palette}
+          mode="ascendancy"
+          artworkUrl={selected.art}
+        />
+      )}
+    </div>
   )
 }

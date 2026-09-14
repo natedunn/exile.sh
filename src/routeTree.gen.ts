@@ -14,6 +14,8 @@ import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MoversRouteImport } from './routes/movers'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as PassiveTreeRouteImport } from './routes/passive-tree'
+import { Route as TreesRouteImport } from './routes/trees'
 import { Route as BuildBinIndexRouteImport } from './routes/build-bin.index'
 import { Route as BuildBinSlugRouteImport } from './routes/build-bin.$slug'
 import { Route as BuildsIndexRouteImport } from './routes/builds.index'
@@ -23,6 +25,10 @@ import { Route as EconomyMarketRouteImport } from './routes/economy.market'
 import { Route as EconomyMoversRouteImport } from './routes/economy.movers'
 import { Route as PatchNotesIndexRouteImport } from './routes/patch-notes.index'
 import { Route as PatchNotesThreadIdRouteImport } from './routes/patch-notes.$threadId'
+import { Route as TreesIndexRouteImport } from './routes/trees.index'
+import { Route as TreesAscendanciesRouteImport } from './routes/trees.ascendancies'
+import { Route as TreesAtlasRouteImport } from './routes/trees.atlas'
+import { Route as TreesPassiveRouteImport } from './routes/trees.passive'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,6 +53,16 @@ const MoversRoute = MoversRouteImport.update({
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PassiveTreeRoute = PassiveTreeRouteImport.update({
+  id: '/passive-tree',
+  path: '/passive-tree',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TreesRoute = TreesRouteImport.update({
+  id: '/trees',
+  path: '/trees',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuildBinIndexRoute = BuildBinIndexRouteImport.update({
@@ -94,6 +110,26 @@ const PatchNotesThreadIdRoute = PatchNotesThreadIdRouteImport.update({
   path: '/patch-notes/$threadId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TreesIndexRoute = TreesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TreesRoute,
+} as any)
+const TreesAscendanciesRoute = TreesAscendanciesRouteImport.update({
+  id: '/ascendancies',
+  path: '/ascendancies',
+  getParentRoute: () => TreesRoute,
+} as any)
+const TreesAtlasRoute = TreesAtlasRouteImport.update({
+  id: '/atlas',
+  path: '/atlas',
+  getParentRoute: () => TreesRoute,
+} as any)
+const TreesPassiveRoute = TreesPassiveRouteImport.update({
+  id: '/passive',
+  path: '/passive',
+  getParentRoute: () => TreesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -101,30 +137,41 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
   '/news': typeof NewsRoute
+  '/passive-tree': typeof PassiveTreeRoute
+  '/trees': typeof TreesRouteWithChildren
   '/build-bin/$slug': typeof BuildBinSlugRoute
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
+  '/trees/ascendancies': typeof TreesAscendanciesRoute
+  '/trees/atlas': typeof TreesAtlasRoute
+  '/trees/passive': typeof TreesPassiveRoute
   '/build-bin/': typeof BuildBinIndexRoute
   '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
+  '/trees/': typeof TreesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
   '/news': typeof NewsRoute
+  '/passive-tree': typeof PassiveTreeRoute
   '/build-bin/$slug': typeof BuildBinSlugRoute
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
+  '/trees/ascendancies': typeof TreesAscendanciesRoute
+  '/trees/atlas': typeof TreesAtlasRoute
+  '/trees/passive': typeof TreesPassiveRoute
   '/build-bin': typeof BuildBinIndexRoute
   '/builds': typeof BuildsIndexRoute
   '/economy': typeof EconomyIndexRoute
   '/patch-notes': typeof PatchNotesIndexRoute
+  '/trees': typeof TreesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -133,15 +180,21 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
   '/news': typeof NewsRoute
+  '/passive-tree': typeof PassiveTreeRoute
+  '/trees': typeof TreesRouteWithChildren
   '/build-bin/$slug': typeof BuildBinSlugRoute
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
+  '/trees/ascendancies': typeof TreesAscendanciesRoute
+  '/trees/atlas': typeof TreesAtlasRoute
+  '/trees/passive': typeof TreesPassiveRoute
   '/build-bin/': typeof BuildBinIndexRoute
   '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
+  '/trees/': typeof TreesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,30 +204,41 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/movers'
     | '/news'
+    | '/passive-tree'
+    | '/trees'
     | '/build-bin/$slug'
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
     | '/patch-notes/$threadId'
+    | '/trees/ascendancies'
+    | '/trees/atlas'
+    | '/trees/passive'
     | '/build-bin/'
     | '/builds/'
     | '/economy/'
     | '/patch-notes/'
+    | '/trees/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/methodology'
     | '/movers'
     | '/news'
+    | '/passive-tree'
     | '/build-bin/$slug'
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
     | '/patch-notes/$threadId'
+    | '/trees/ascendancies'
+    | '/trees/atlas'
+    | '/trees/passive'
     | '/build-bin'
     | '/builds'
     | '/economy'
     | '/patch-notes'
+    | '/trees'
   id:
     | '__root__'
     | '/'
@@ -182,15 +246,21 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/movers'
     | '/news'
+    | '/passive-tree'
+    | '/trees'
     | '/build-bin/$slug'
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
     | '/patch-notes/$threadId'
+    | '/trees/ascendancies'
+    | '/trees/atlas'
+    | '/trees/passive'
     | '/build-bin/'
     | '/builds/'
     | '/economy/'
     | '/patch-notes/'
+    | '/trees/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -199,6 +269,8 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   MoversRoute: typeof MoversRoute
   NewsRoute: typeof NewsRoute
+  PassiveTreeRoute: typeof PassiveTreeRoute
+  TreesRoute: typeof TreesRouteWithChildren
   BuildBinSlugRoute: typeof BuildBinSlugRoute
   BuildsSlugRoute: typeof BuildsSlugRoute
   PatchNotesThreadIdRoute: typeof PatchNotesThreadIdRoute
@@ -242,6 +314,20 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/passive-tree': {
+      id: '/passive-tree'
+      path: '/passive-tree'
+      fullPath: '/passive-tree'
+      preLoaderRoute: typeof PassiveTreeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trees': {
+      id: '/trees'
+      path: '/trees'
+      fullPath: '/trees'
+      preLoaderRoute: typeof TreesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/build-bin/': {
@@ -307,6 +393,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PatchNotesThreadIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trees/': {
+      id: '/trees/'
+      path: '/'
+      fullPath: '/trees/'
+      preLoaderRoute: typeof TreesIndexRouteImport
+      parentRoute: typeof TreesRoute
+    }
+    '/trees/ascendancies': {
+      id: '/trees/ascendancies'
+      path: '/ascendancies'
+      fullPath: '/trees/ascendancies'
+      preLoaderRoute: typeof TreesAscendanciesRouteImport
+      parentRoute: typeof TreesRoute
+    }
+    '/trees/atlas': {
+      id: '/trees/atlas'
+      path: '/atlas'
+      fullPath: '/trees/atlas'
+      preLoaderRoute: typeof TreesAtlasRouteImport
+      parentRoute: typeof TreesRoute
+    }
+    '/trees/passive': {
+      id: '/trees/passive'
+      path: '/passive'
+      fullPath: '/trees/passive'
+      preLoaderRoute: typeof TreesPassiveRouteImport
+      parentRoute: typeof TreesRoute
+    }
   }
 }
 
@@ -325,12 +439,30 @@ const EconomyRouteChildren: EconomyRouteChildren = {
 const EconomyRouteWithChildren =
   EconomyRoute._addFileChildren(EconomyRouteChildren)
 
+interface TreesRouteChildren {
+  TreesAscendanciesRoute: typeof TreesAscendanciesRoute
+  TreesAtlasRoute: typeof TreesAtlasRoute
+  TreesPassiveRoute: typeof TreesPassiveRoute
+  TreesIndexRoute: typeof TreesIndexRoute
+}
+
+const TreesRouteChildren: TreesRouteChildren = {
+  TreesAscendanciesRoute: TreesAscendanciesRoute,
+  TreesAtlasRoute: TreesAtlasRoute,
+  TreesPassiveRoute: TreesPassiveRoute,
+  TreesIndexRoute: TreesIndexRoute,
+}
+
+const TreesRouteWithChildren = TreesRoute._addFileChildren(TreesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EconomyRoute: EconomyRouteWithChildren,
   MethodologyRoute: MethodologyRoute,
   MoversRoute: MoversRoute,
   NewsRoute: NewsRoute,
+  PassiveTreeRoute: PassiveTreeRoute,
+  TreesRoute: TreesRouteWithChildren,
   BuildBinSlugRoute: BuildBinSlugRoute,
   BuildsSlugRoute: BuildsSlugRoute,
   PatchNotesThreadIdRoute: PatchNotesThreadIdRoute,

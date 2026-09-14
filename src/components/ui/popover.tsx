@@ -48,7 +48,7 @@ function PopoverContent({
         collisionPadding={collisionPadding}
         anchor={anchor}
         positionMethod={positionMethod}
-        className={cn("isolate z-50", positionerClassName)}
+        className={cn("popup-corners isolate z-50", positionerClassName)}
       >
         <PopoverPrimitive.Popup
           data-slot="popover-content"

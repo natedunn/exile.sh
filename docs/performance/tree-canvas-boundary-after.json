@@ -1,0 +1,27 @@
+[
+  {
+    "panDistance": 560,
+    "deviceScaleFactor": 2,
+    "cpuThrottle": 4,
+    "renderer": "canvas",
+    "cacheBuilds": 4,
+    "zoom": 3.375,
+    "run": 0,
+    "elapsedMs": 2233,
+    "frameCount": 136,
+    "frameMaxMs": 50.1,
+    "frameP99Ms": 50,
+    "maxTileBuildMs": 2,
+    "frameP95Ms": 16.8,
+    "framesOver25Ms": 2,
+    "elements": 3942,
+    "images": 0,
+    "timingMs": {
+      "FunctionCall": 296,
+      "UpdateLayoutTree": 88,
+      "Layout": 63,
+      "PrePaint": 289,
+      "Paint": 464
+    }
+  }
+]
