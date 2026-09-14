@@ -1,3 +1,5 @@
+import { TooltipPinScope } from "./tooltip-pins"
+import type { TooltipPinOptions } from "./tooltip-pins"
 import { GemReferenceInfo, SkillGems } from "./skill-gems"
 import { BuildStats } from "./build-stats"
 import {
@@ -184,7 +186,9 @@ export function BuildView({
   shareAction,
   selection: controlled,
   onSelect,
-}: {
+  pinningEnabled = true,
+  maxPinnedTooltips = 1,
+}: TooltipPinOptions & {
   build: BuildSnapshot
   title: string
   code: string
@@ -284,176 +288,185 @@ export function BuildView({
     URL.revokeObjectURL(url)
   }
   return (
-    <article className="build-view">
-      <header className="build-heading">
-        <div className="build-emblem">
-          {portrait ? (
-            <img src={portrait} alt="" width={84} height={84} />
-          ) : (
-            <Shield aria-hidden="true" />
-          )}
-        </div>
-        <div className="build-identity">
-          <h1>
-            {build.ascendancy || build.className}
-            {` · Level ${build.level}`}
-          </h1>
-          <p>
-            <span>{build.className}</span>
-            {spec && <span>Tree {spec.version.replaceAll("_", ".")}</span>}
-          </p>
-        </div>
-        <div className="build-actions">
-          {shareAction}
-          {shared && (
+    <TooltipPinScope
+      key={code}
+      pinningEnabled={pinningEnabled}
+      maxPinnedTooltips={maxPinnedTooltips}
+      resetKey={`${itemSet}:${weapons}:${skillSet}:${specIndex}`}
+    >
+      <article className="build-view">
+        <header className="build-heading">
+          <div className="build-emblem">
+            {portrait ? (
+              <img src={portrait} alt="" width={84} height={84} />
+            ) : (
+              <Shield aria-hidden="true" />
+            )}
+          </div>
+          <div className="build-identity">
+            <h1>
+              {build.ascendancy || build.className}
+              {` · Level ${build.level}`}
+            </h1>
+            <p>
+              <span>{build.className}</span>
+              {spec && <span>Tree {spec.version.replaceAll("_", ".")}</span>}
+            </p>
+          </div>
+          <div className="build-actions">
+            {shareAction}
+            {shared && (
+              <Button
+                onClick={() => copy("Link", window.location.href)}
+                variant="outline"
+              >
+                <Link2 />
+                {copied === "Link" ? "Copied" : "Share link"}
+              </Button>
+            )}
             <Button
-              onClick={() => copy("Link", window.location.href)}
-              variant="outline"
+              className="build-primary"
+              onClick={() => copy("PoB code", code)}
             >
-              <Link2 />
-              {copied === "Link" ? "Copied" : "Share link"}
+              {copied === "PoB code" ? <Check /> : <Copy />}
+              Copy PoB code
             </Button>
-          )}
-          <Button
-            className="build-primary"
-            onClick={() => copy("PoB code", code)}
-          >
-            {copied === "PoB code" ? <Check /> : <Copy />}
-            Copy PoB code
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Download PoB export code"
-            onClick={download}
-          >
-            <Download />
-          </Button>
-        </div>
-      </header>
-      <p className="build-copy-status" role="status">
-        {message}
-      </p>
-      <div className="build-layout">
-        <SectionNav build={build} portrait={portrait} />
-        <div className="build-sections">
-          <section id="equipment" className="build-section">
-            <div className="build-section-heading">
-              <h2>Equipment</h2>
-              <div className="equipment-controls">
-                <SetPicker
-                  label="Equipment set"
-                  sets={build.itemSets}
-                  value={itemSet}
-                  onChange={(v) => select("items", v)}
-                />
-                {swappable && (
-                  <WeaponSetSwitch
-                    value={weapons}
-                    onChange={(v) => select("weapons", v)}
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Download PoB export code"
+              onClick={download}
+            >
+              <Download />
+            </Button>
+          </div>
+        </header>
+        <p className="build-copy-status" role="status">
+          {message}
+        </p>
+        <div className="build-layout">
+          <SectionNav build={build} portrait={portrait} />
+          <div className="build-sections">
+            <section id="equipment" className="build-section">
+              <div className="build-section-heading">
+                <h2>Equipment</h2>
+                <div className="equipment-controls">
+                  <SetPicker
+                    label="Equipment set"
+                    sets={build.itemSets}
+                    value={itemSet}
+                    onChange={(v) => select("items", v)}
                   />
-                )}
+                  {swappable && (
+                    <WeaponSetSwitch
+                      value={weapons}
+                      onChange={(v) => select("weapons", v)}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="build-section-body">
-              <div className="build-section-main">
-                {gear && hasGear ? (
-                  <EquipmentDisplay
-                    key={gear.id}
+              <div className="build-section-body">
+                <div className="build-section-main">
+                  {gear && hasGear ? (
+                    <EquipmentDisplay
+                      key={gear.id}
+                      build={build}
+                      gear={gear}
+                      weapons={swappable ? weapons : "primary"}
+                    />
+                  ) : (
+                    <p className="build-empty">
+                      No equipment saved in this set.
+                    </p>
+                  )}
+                </div>
+                <aside
+                  className="build-section-aside"
+                  aria-label="Character stats"
+                >
+                  <BuildStats
                     build={build}
-                    gear={gear}
-                    weapons={swappable ? weapons : "primary"}
+                    groups={["character", "defensive", "recovery"]}
+                    note="Saved PoB values. Missing stats are omitted; switching equipment sets does not recalculate them."
+                  />
+                </aside>
+              </div>
+            </section>
+            <section id="skills" className="build-section">
+              <div className="build-section-heading">
+                <div className="build-skills-heading">
+                  <h2>Skills & supports</h2>
+                  <GemReferenceInfo />
+                </div>
+                <SetPicker
+                  label="Skill set"
+                  sets={build.skillSets}
+                  value={skillSet}
+                  onChange={(v) => select("skills", v)}
+                />
+              </div>
+              <div className="build-section-body">
+                <div className="build-section-main">
+                  <SkillGems
+                    skills={skills?.skills ?? []}
+                    mainSocketGroup={
+                      skillSet === build.activeSkillSet
+                        ? build.mainSocketGroup
+                        : 0
+                    }
+                  />
+                </div>
+                <aside
+                  className="build-section-aside"
+                  aria-label="Main skill stats"
+                >
+                  <BuildStats build={build} groups={["main"]} />
+                </aside>
+              </div>
+            </section>
+            <section id="tree" className="build-section">
+              <div className="build-section-heading">
+                <h2>Trees</h2>
+                <SetPicker
+                  label="Tree specification"
+                  sets={build.treeSpecs.map((s, i) => ({
+                    id: String(i),
+                    title: s.title,
+                  }))}
+                  value={String(specIndex)}
+                  onChange={(v) => select("tree", Number(v))}
+                />
+              </div>
+              <div className="build-section-body">
+                {spec ? (
+                  <PassiveTree
+                    ascendancy={build.ascendancy}
+                    version={spec.version}
+                    nodes={spec.nodes}
+                    sockets={spec.sockets}
+                    attributeOverrides={spec.attributeOverrides}
+                    weaponSets={[spec.weaponSet1 ?? [], spec.weaponSet2 ?? []]}
+                    items={build.items}
                   />
                 ) : (
-                  <p className="build-empty">No equipment saved in this set.</p>
+                  <p className="build-empty">
+                    No passive tree saved in this export.
+                  </p>
                 )}
               </div>
-              <aside
-                className="build-section-aside"
-                aria-label="Character stats"
-              >
-                <BuildStats
-                  build={build}
-                  groups={["character", "defensive", "recovery"]}
-                  note="Saved PoB values. Missing stats are omitted; switching equipment sets does not recalculate them."
-                />
-              </aside>
-            </div>
-          </section>
-          <section id="skills" className="build-section">
-            <div className="build-section-heading">
-              <div className="build-skills-heading">
-                <h2>Skills & supports</h2>
-                <GemReferenceInfo />
+            </section>
+            <section id="notes" className="build-section">
+              <div className="build-section-heading">
+                <h2>Notes</h2>
               </div>
-              <SetPicker
-                label="Skill set"
-                sets={build.skillSets}
-                value={skillSet}
-                onChange={(v) => select("skills", v)}
-              />
-            </div>
-            <div className="build-section-body">
-              <div className="build-section-main">
-                <SkillGems
-                  skills={skills?.skills ?? []}
-                  mainSocketGroup={
-                    skillSet === build.activeSkillSet
-                      ? build.mainSocketGroup
-                      : 0
-                  }
-                />
+              <div className="build-notes">
+                {build.notes ||
+                  "The author did not include notes in this export."}
               </div>
-              <aside
-                className="build-section-aside"
-                aria-label="Main skill stats"
-              >
-                <BuildStats build={build} groups={["main"]} />
-              </aside>
-            </div>
-          </section>
-          <section id="tree" className="build-section">
-            <div className="build-section-heading">
-              <h2>Trees</h2>
-              <SetPicker
-                label="Tree specification"
-                sets={build.treeSpecs.map((s, i) => ({
-                  id: String(i),
-                  title: s.title,
-                }))}
-                value={String(specIndex)}
-                onChange={(v) => select("tree", Number(v))}
-              />
-            </div>
-            <div className="build-section-body">
-              {spec ? (
-                <PassiveTree
-                  ascendancy={build.ascendancy}
-                  version={spec.version}
-                  nodes={spec.nodes}
-                  sockets={spec.sockets}
-                  attributeOverrides={spec.attributeOverrides}
-                  weaponSets={[spec.weaponSet1 ?? [], spec.weaponSet2 ?? []]}
-                  items={build.items}
-                />
-              ) : (
-                <p className="build-empty">
-                  No passive tree saved in this export.
-                </p>
-              )}
-            </div>
-          </section>
-          <section id="notes" className="build-section">
-            <div className="build-section-heading">
-              <h2>Notes</h2>
-            </div>
-            <div className="build-notes">
-              {build.notes ||
-                "The author did not include notes in this export."}
-            </div>
-          </section>
+            </section>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+    </TooltipPinScope>
   )
 }

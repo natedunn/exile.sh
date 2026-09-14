@@ -1,3 +1,13 @@
+import { TreePins } from "./tree-pins"
+import {
+  PinnablePopoverContent,
+  TooltipPinScope,
+  usePinnedTreeNodes,
+} from "./tooltip-pins"
+import type { TooltipPinOptions } from "./tooltip-pins"
+import { TreeSettings } from "./tree-settings"
+import { TreeNodeSearch } from "./tree-node-search"
+import type { TreeSearchOptions } from "./tree-search"
 import {
   batchTreeDiscs,
   circleSubpath,
@@ -58,7 +68,7 @@ import {
 } from "./ui/popover"
 import { Button } from "./ui/button"
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog"
-import { Diamond, Info, Minus, Plus, Radius, RotateCcw, X } from "lucide-react"
+import { Diamond, Info, Minus, Plus, Radius, RotateCcw } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -373,16 +383,80 @@ const Artwork = memo(function Artwork({
   )
 })
 
+const SearchHighlights = memo(function SearchHighlights({
+  nodes,
+  matches,
+  showArt,
+  socketed,
+}: {
+  nodes: TreeNode[]
+  matches: Set<string>
+  showArt: boolean
+  socketed: Map<string, TreeJewel>
+}) {
+  const found = nodes.filter((node) => matches.has(node.id))
+  if (!found.length) return null
+  const path = found
+    .map((node) =>
+      circleSubpath({
+        x: node.x,
+        y: node.y,
+        r:
+          (showArt
+            ? artRadius(node, socketed.has(node.id))
+            : socketed.has(node.id)
+              ? 55
+              : nodeRadius(node)) + 12,
+      })
+    )
+    .join(" ")
+  return (
+    <g
+      pointerEvents="none"
+      fill="none"
+      className="tree-search-highlights"
+      data-search-match-count={found.length}
+      stroke="color-mix(in oklch, var(--color-brand) 18%, white)"
+      aria-hidden="true"
+    >
+      {[
+        { width: 14, opacity: 0.12 },
+        { width: 8, opacity: 0.3 },
+        { width: 2, opacity: 1 },
+      ].map((layer) => (
+        <path
+          key={layer.width}
+          d={path}
+          strokeWidth={layer.width}
+          strokeOpacity={layer.opacity}
+          vectorEffect="non-scaling-stroke"
+        />
+      ))}
+    </g>
+  )
+})
+
 type TreeMapProps = ComponentProps<typeof TreeMapRenderer> & {
   /** Embed this ascendancy without exposing a selector or using device preferences. */
   defaultAscendancy?: string
 }
 
 function TreeMap({ defaultAscendancy, ...props }: TreeMapProps) {
-  return defaultAscendancy ? (
-    <TreeMapWithAscendancy {...props} defaultAscendancy={defaultAscendancy} />
-  ) : (
-    <TreeMapRenderer {...props} />
+  return (
+    <TooltipPinScope
+      pinningEnabled={props.pinningEnabled}
+      maxPinnedTooltips={props.maxPinnedTooltips ?? 5}
+      resetKey={`${props.version}:${props.label}`}
+    >
+      {defaultAscendancy ? (
+        <TreeMapWithAscendancy
+          {...props}
+          defaultAscendancy={defaultAscendancy}
+        />
+      ) : (
+        <TreeMapRenderer {...props} />
+      )}
+    </TooltipPinScope>
   )
 }
 
@@ -491,27 +565,37 @@ function TreeMapRenderer({
   extraArtwork,
   mode = "interactive",
   treeType = "passive",
-}: {
-  treeType?: TreeType
-  mode?: "interactive" | "preview" | "ascendancy"
-  /** Stable full geometry for camera bounds, independent of visibility filters. */
-  frameNodes?: TreeNode[]
-  artworkUrl?: string
-  overlayControls?: boolean
-  jewels: TreeJewel[]
-  data: TreeData
-  nodes: string[]
-  label: string
-  version: string
-  weaponSets: WeaponSets
-  palette: Palette
-  onPaletteChange?: (value: Palette) => void
-  panel?: ReactNode
-  showPaletteSelector?: boolean
-  centerCircle?: boolean
-  centerBackground?: string
-  extraArtwork?: Record<string, string>
-}) {
+  searchable = true,
+  searchHotkey = true,
+  showSearchResults = true,
+  pinningEnabled = true,
+}: TreeSearchOptions &
+  TooltipPinOptions & {
+    treeType?: TreeType
+    mode?: "interactive" | "preview" | "ascendancy"
+    /** Stable full geometry for camera bounds, independent of visibility filters. */
+    frameNodes?: TreeNode[]
+    artworkUrl?: string
+    overlayControls?: boolean
+    jewels: TreeJewel[]
+    data: TreeData
+    nodes: string[]
+    label: string
+    version: string
+    weaponSets: WeaponSets
+    palette: Palette
+    onPaletteChange?: (value: Palette) => void
+    panel?: ReactNode
+    showPaletteSelector?: boolean
+    centerCircle?: boolean
+    centerBackground?: string
+    extraArtwork?: Record<string, string>
+  }) {
+  const [searchResults, setSearchResults] = useState<TreeNode[]>([])
+  const searchIds = useMemo(
+    () => new Set(searchable ? searchResults.map((node) => node.id) : []),
+    [searchResults, searchable]
+  )
   const selected = useMemo(() => new Set(nodes), [nodes])
   const weaponSetOf = (id: string): WeaponSet => weaponSets.get(id) ?? 0
   const hasWeaponSets = [...weaponSets.keys()].some((id) => selected.has(id))
@@ -613,8 +697,62 @@ function TreeMapRenderer({
     () => data.edges.map((edge) => treeEdgeBounds(edge.path)),
     [data.edges]
   )
+  const pinnedNodes = usePinnedTreeNodes()
+  const pinnedIds = useMemo(
+    () => new Set(pinnedNodes.map((item) => item.id)),
+    [pinnedNodes]
+  )
   const [inspect, setInspect] = useState<string | null>(null)
-  const [pinned, setPinned] = useState(false)
+  const [held, setHeld] = useState(false)
+  const [touchInspect, setTouchInspect] = useState(false)
+  const [attention, setAttention] = useState<{
+    token: number
+    glowing: boolean
+  } | null>(null)
+  const attentionSequence = useRef(0)
+  const attentionToken = attention?.token
+  useEffect(() => {
+    if (attentionToken === undefined) return
+    const timer = window.setTimeout(
+      () =>
+        setAttention((current) =>
+          current?.token === attentionToken
+            ? { ...current, glowing: false }
+            : current
+        ),
+      3000
+    )
+    const dismiss = (event: Event) => {
+      if (event instanceof KeyboardEvent && event.key === "Alt") return
+      if (
+        event.target instanceof Element &&
+        event.target.closest('[data-search-callout="true"]')
+      )
+        return
+      setAttention(null)
+      setInspect(null)
+      setHeld(false)
+    }
+    for (const type of [
+      "pointerdown",
+      "wheel",
+      "keydown",
+      "touchmove",
+      "scroll",
+    ])
+      document.addEventListener(type, dismiss, true)
+    return () => {
+      clearTimeout(timer)
+      for (const type of [
+        "pointerdown",
+        "wheel",
+        "keydown",
+        "touchmove",
+        "scroll",
+      ])
+        document.removeEventListener(type, dismiss, true)
+    }
+  }, [attentionToken])
   // Build regions only when the source data changes; camera changes select
   // existing arrays so retained node/artwork components can skip reconciliation.
   const regions = useMemo(() => treeNodeRegions(data.nodes), [data.nodes])
@@ -665,23 +803,30 @@ function TreeMapRenderer({
     setCamera((current) => current)
   }, [setCamera])
   const hideHover = () => {
-    if (!pinned) setInspect(null)
+    if (!held && !attention) setInspect(null)
   }
   useEffect(() => {
     const hold = (event: KeyboardEvent) => {
-      if (event.key === "Alt") {
+      if (
+        event.key === "Alt" &&
+        !(
+          event.target instanceof Element &&
+          event.target.closest('input, textarea, [contenteditable="true"]')
+        )
+      ) {
         event.preventDefault()
-        setPinned(true)
+        setHeld(true)
       }
     }
     const release = (event: KeyboardEvent) => {
       if (event.key === "Alt") {
-        setPinned(false)
-        setInspect(null)
+        setHeld(false)
+        if (!attention) setInspect(null)
       }
     }
     const blur = () => {
-      setPinned(false)
+      setHeld(false)
+      setAttention(null)
       setInspect(null)
       drag.current = null
       pointers.current.clear()
@@ -694,7 +839,7 @@ function TreeMapRenderer({
       window.removeEventListener("keyup", release)
       window.removeEventListener("blur", blur)
     }
-  }, [])
+  }, [attention])
   const artworkZoomThreshold = treeType === "atlas" ? 1.2 : 3
   const artwork = useQuery({
     queryKey: artworkUrl ? ["tree-art", artworkUrl] : ["tree-art-v2", version],
@@ -702,7 +847,8 @@ function TreeMapRenderer({
       isAscendancyTree ||
       mode === "ascendancy" ||
       camera.zoom >= artworkZoomThreshold ||
-      inspect !== null,
+      inspect !== null ||
+      (searchable && showSearchResults && searchResults.length > 0),
     staleTime: Infinity,
     gcTime: Infinity,
     queryFn: async () => {
@@ -800,7 +946,22 @@ function TreeMapRenderer({
     element.addEventListener("wheel", wheel, { passive: false })
     return () => element.removeEventListener("wheel", wheel)
   }, [bounds.size, setCamera, mode, aspect])
-  const node = inspect ? all.get(inspect) : undefined
+  const selectTreeNode = (match: TreeNode, showCallout = true) => {
+    showCallout = showCallout && !pinnedIds.has(match.id)
+    setCamera((current) => ({
+      ...current,
+      x: match.x,
+      y: match.y,
+      zoom: mode === "ascendancy" ? current.zoom : Math.max(current.zoom, 4),
+    }))
+    setInspect(showCallout ? match.id : null)
+    setTouchInspect(false)
+    setAttention(
+      showCallout ? { token: ++attentionSequence.current, glowing: true } : null
+    )
+    setHeld(false)
+  }
+  const node = inspect && !pinnedIds.has(inspect) ? all.get(inspect) : undefined
   const socketJewel = jewels.find((jewel) => jewel.origin.id === inspect)
   const affectedJewels = jewels.filter((jewel) =>
     jewel.areas.some((area) => area.affected.includes(inspect || ""))
@@ -854,7 +1015,7 @@ function TreeMapRenderer({
       {mode === "interactive" &&
         (panel ||
           (showPaletteSelector && nodes.length > 0 && onPaletteChange)) && (
-          <div className="tree-settings-panel">
+          <TreeSettings>
             {panel}
             {showPaletteSelector && nodes.length > 0 && onPaletteChange && (
               <div className="tree-setting">
@@ -882,7 +1043,7 @@ function TreeMapRenderer({
                 </Select>
               </div>
             )}
-          </div>
+          </TreeSettings>
         )}
       {mode === "interactive" && (
         <div className="tree-controls">
@@ -909,7 +1070,7 @@ function TreeMapRenderer({
             onClick={() => {
               setCamera({ ...bounds, zoom: 1 })
               setInspect(null)
-              setPinned(false)
+              setHeld(false)
             }}
           >
             <RotateCcw />
@@ -931,6 +1092,22 @@ function TreeMapRenderer({
             </span>
           )}
         </div>
+      )}
+      {searchable && mode !== "preview" && (
+        <TreeNodeSearch
+          nodes={data.nodes}
+          onResultsChange={setSearchResults}
+          artwork={combinedArtwork}
+          searchHotkey={searchHotkey}
+          showSearchResults={showSearchResults}
+          onSelect={selectTreeNode}
+        />
+      )}
+      {mode !== "preview" && (
+        <TreePins
+          artwork={combinedArtwork}
+          onSelect={(match) => selectTreeNode(match, false)}
+        />
       )}
       <div className="tree-viewport">
         <svg
@@ -981,7 +1158,7 @@ function TreeMapRenderer({
             if (event.key === "-") changeZoom(1 / 1.5)
             if (event.key === "Escape") {
               setInspect(null)
-              setPinned(false)
+              setHeld(false)
             }
             if (event.key === "Enter") {
               setInspect(
@@ -1070,7 +1247,7 @@ function TreeMapRenderer({
                     y: c.y + extent.height * (from.y / c.zoom - to.y / zoom),
                   })
                 }
-                if (!pinned) setInspect(null)
+                if (!held) setInspect(null)
                 return
               }
             }
@@ -1086,13 +1263,17 @@ function TreeMapRenderer({
                   panFrame.current = requestAnimationFrame(flushPan)
                 d.x = event.clientX
                 d.y = event.clientY
-                if (!pinned) setInspect(null)
+                if (!held) setInspect(null)
               }
-            } else if (!pinned || !inspect) {
+            } else if (!held || !inspect) {
               const id = nodeAt(event.target)
-              if (id) {
+              if (attention && (!id || id === inspect)) return
+              if (id && id !== inspect) setAttention(null)
+              if (event.pointerType !== "touch") setTouchInspect(false)
+              if (id && !pinnedIds.has(id)) {
                 setInspect(id)
-              } else hideHover()
+              } else if (id) setInspect(null)
+              else hideHover()
             }
           }}
           onPointerUp={(event) => {
@@ -1101,12 +1282,13 @@ function TreeMapRenderer({
             if (
               (mode === "ascendancy" ||
                 (drag.current && !drag.current.moved)) &&
-              !pinned
+              !held
             ) {
               const id = nodeAt(
                 document.elementFromPoint(event.clientX, event.clientY)
               )
               setInspect(id)
+              setTouchInspect(Boolean(id) && event.pointerType === "touch")
             }
             pointers.current.delete(event.pointerId)
             const remaining = pointers.current.values().next().value
@@ -1341,10 +1523,17 @@ function TreeMapRenderer({
               pointerEvents="none"
             />
           )}
+          <SearchHighlights
+            nodes={visibleNodes}
+            matches={searchIds}
+            showArt={Boolean(showArt)}
+            socketed={socketed}
+          />
         </svg>
         <Popover
           open={!!node}
           onOpenChange={(open, details) => {
+            if (attention) return
             if (
               !open &&
               details.event.target instanceof Node &&
@@ -1353,16 +1542,54 @@ function TreeMapRenderer({
               return
             if (!open) {
               setInspect(null)
-              setPinned(false)
+              setHeld(false)
             }
           }}
         >
           {node && (
-            <PopoverContent
+            <PinnablePopoverContent
+              pinningEnabled={pinningEnabled}
+              showPin={held || touchInspect || Boolean(attention)}
+              freeze={held}
+              pinId={`${version}:${treeType}:${node.id}`}
+              pinLabel={`${node.name} details`}
+              treeTarget={{
+                node,
+                source: () => svg.current,
+                anchor: () => {
+                  const element = svg.current
+                  const matrix = element?.getScreenCTM()
+                  if (!element || !matrix) return null
+                  const point = new DOMPoint(node.x, node.y).matrixTransform(
+                    matrix
+                  )
+                  const viewportBounds = element.getBoundingClientRect()
+                  if (
+                    point.x < Math.max(0, viewportBounds.left) ||
+                    point.x > Math.min(innerWidth, viewportBounds.right) ||
+                    point.y < Math.max(0, viewportBounds.top) ||
+                    point.y > Math.min(innerHeight, viewportBounds.bottom)
+                  )
+                    return null
+                  const radius = nodeRadius(node)
+                  const rx = radius * Math.hypot(matrix.a, matrix.c)
+                  const ry = radius * Math.hypot(matrix.b, matrix.d)
+                  return new DOMRect(point.x - rx, point.y - ry, rx * 2, ry * 2)
+                },
+              }}
+              onPin={() => {
+                setInspect(null)
+                setHeld(false)
+                setAttention(null)
+              }}
+              data-search-callout={Boolean(attention) || undefined}
+              data-attention={attention?.glowing || undefined}
               className="tree-inspection"
-              data-held={pinned}
+              data-held={held || Boolean(attention) || touchInspect}
               positionerClassName={
-                pinned ? "tree-node-positioner is-held" : "tree-node-positioner"
+                held || attention || touchInspect
+                  ? "tree-node-positioner is-held"
+                  : "tree-node-positioner"
               }
               aria-label="Passive node details"
               side="top"
@@ -1407,19 +1634,6 @@ function TreeMapRenderer({
                       : ""}
                   </p>
                 </div>
-                {pinned && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Close node details"
-                    onClick={() => {
-                      setInspect(null)
-                      setPinned(false)
-                    }}
-                  >
-                    <X />
-                  </Button>
-                )}
               </div>
               {affectedJewels.some((jewel) => jewel.timeless) && (
                 <p>Base passive — conquered effects are not calculated.</p>
@@ -1465,7 +1679,7 @@ function TreeMapRenderer({
                   />
                 </Fragment>
               ))}
-            </PopoverContent>
+            </PinnablePopoverContent>
           )}
         </Popover>
       </div>
@@ -1473,7 +1687,19 @@ function TreeMapRenderer({
   )
 }
 
-export function PassiveTree({
+export function PassiveTree(props: ComponentProps<typeof PassiveTreeContent>) {
+  return (
+    <TooltipPinScope
+      pinningEnabled={props.pinningEnabled}
+      maxPinnedTooltips={props.maxPinnedTooltips ?? 1}
+      resetKey={props.version}
+    >
+      <PassiveTreeContent {...props} />
+    </TooltipPinScope>
+  )
+}
+
+function PassiveTreeContent({
   version,
   nodes,
   sockets = [],
@@ -1482,17 +1708,19 @@ export function PassiveTree({
   weaponSets: weaponSetLists = [[], []],
   ascendancy,
   showPaletteSelector = false,
-}: {
-  showPaletteSelector?: boolean
-  ascendancy?: string
-  version: string
-  nodes: string[]
-  sockets?: { nodeId: string; itemId: string }[]
-  attributeOverrides?: AttributeOverrides
-  items?: BuildSnapshot["items"]
-  /** Node IDs allocated only with weapon set 1, then only with set 2. */
-  weaponSets?: [string[], string[]]
-}) {
+  ...searchOptions
+}: TreeSearchOptions &
+  TooltipPinOptions & {
+    showPaletteSelector?: boolean
+    ascendancy?: string
+    version: string
+    nodes: string[]
+    sockets?: { nodeId: string; itemId: string }[]
+    attributeOverrides?: AttributeOverrides
+    items?: BuildSnapshot["items"]
+    /** Node IDs allocated only with weapon set 1, then only with set 2. */
+    weaponSets?: [string[], string[]]
+  }) {
   const weaponSets = useMemo<WeaponSets>(
     () =>
       new Map<string, WeaponSet>([
@@ -1626,6 +1854,7 @@ export function PassiveTree({
               <>
                 <h3>{map.name} ascendancy</h3>
                 <AscendancyTree
+                  {...searchOptions}
                   section={map.name}
                   nodes={nodes}
                   version={version}
@@ -1638,6 +1867,7 @@ export function PassiveTree({
               <Dialog>
                 <div className="tree-preview">
                   <TreeMap
+                    {...searchOptions}
                     data={map.data}
                     defaultAscendancy={
                       ascendancy || maps.find((entry) => entry.name)?.name
@@ -1659,6 +1889,7 @@ export function PassiveTree({
                 <DialogContent className="tree-fullscreen">
                   <DialogTitle>Passive tree</DialogTitle>
                   <TreeMap
+                    {...searchOptions}
                     data={map.data}
                     defaultAscendancy={
                       ascendancy || maps.find((entry) => entry.name)?.name
@@ -1832,17 +2063,32 @@ export function PassiveTree({
 /** Unallocated explorer, sharing the build renderer and its cached snapshots. */
 export type TreeType = "passive" | "ascendancy" | "atlas"
 
-export type TreePanelOptions = {
-  showPanel?: boolean
-  showVersionSelector?: boolean
-  showAscendancySelector?: boolean
-  showPaletteSelector?: boolean
-  /** Locks the displayed ascendancy and hides its selector. Use "None" for none. */
-  defaultAscendancy?: string
-  allocatedNodes?: string[]
+export type TreePanelOptions = TreeSearchOptions &
+  TooltipPinOptions & {
+    showPanel?: boolean
+    showVersionSelector?: boolean
+    showAscendancySelector?: boolean
+    showPaletteSelector?: boolean
+    /** Locks the displayed ascendancy and hides its selector. Use "None" for none. */
+    defaultAscendancy?: string
+    allocatedNodes?: string[]
+  }
+
+export function TreeExplorer(
+  props: ComponentProps<typeof TreeExplorerContent>
+) {
+  return (
+    <TooltipPinScope
+      pinningEnabled={props.pinningEnabled}
+      maxPinnedTooltips={props.maxPinnedTooltips ?? 5}
+      resetKey={`${props.version}:${props.type}:${props.section}:${props.showUnseen}:${props.defaultAscendancy}`}
+    >
+      <TreeExplorerContent {...props} />
+    </TooltipPinScope>
+  )
 }
 
-export function TreeExplorer({
+function TreeExplorerContent({
   version,
   type,
   options,
@@ -1864,6 +2110,11 @@ export function TreeExplorer({
     return (
       <div className="tree-explorer">
         <AscendancyTree
+          pinningEnabled={panelOptions.pinningEnabled}
+          maxPinnedTooltips={panelOptions.maxPinnedTooltips}
+          searchable={panelOptions.searchable}
+          searchHotkey={panelOptions.searchHotkey}
+          showSearchResults={panelOptions.showSearchResults}
           options={
             panelOptions.showPanel !== false &&
             panelOptions.showVersionSelector !== false
@@ -1909,6 +2160,7 @@ function PassiveAtlasExplorer({
   showPaletteSelector = true,
   defaultAscendancy,
   allocatedNodes = [],
+  ...searchOptions
 }: TreePanelOptions & {
   type: TreeType
   options: ReactNode
@@ -2053,6 +2305,7 @@ function PassiveAtlasExplorer({
         </p>
       ) : (
         <TreeMap
+          {...searchOptions}
           key={isAtlas ? "atlas-v1" : version + selectedSection}
           data={data}
           treeType={isAtlas ? "atlas" : "passive"}
@@ -2144,7 +2397,21 @@ function PassiveAtlasExplorer({
   )
 }
 
-export function AscendancyTree({
+export function AscendancyTree(
+  props: ComponentProps<typeof AscendancyTreeContent>
+) {
+  return (
+    <TooltipPinScope
+      pinningEnabled={props.pinningEnabled}
+      maxPinnedTooltips={props.maxPinnedTooltips ?? 5}
+      resetKey={`${props.version}:${props.section}`}
+    >
+      <AscendancyTreeContent {...props} />
+    </TooltipPinScope>
+  )
+}
+
+function AscendancyTreeContent({
   options,
   version,
   section,
@@ -2153,16 +2420,18 @@ export function AscendancyTree({
   nodes = [],
   weaponSets = new Map(),
   palette = "default",
-}: {
-  options?: ReactNode
-  version: string
-  section: string
-  onSectionChange?: (section: string) => void
-  showSelector?: boolean
-  nodes?: string[]
-  weaponSets?: WeaponSets
-  palette?: Palette
-}) {
+  ...searchOptions
+}: TreeSearchOptions &
+  TooltipPinOptions & {
+    options?: ReactNode
+    version: string
+    section: string
+    onSectionChange?: (section: string) => void
+    showSelector?: boolean
+    nodes?: string[]
+    weaponSets?: WeaponSets
+    palette?: Palette
+  }) {
   const choices = isTreeVersion(version) ? ascendancyTrees[version] : []
   const current =
     choices.find((choice) => choice.value === section) ?? choices.at(0)
@@ -2205,7 +2474,7 @@ export function AscendancyTree({
   return (
     <div className="ascendancy-tree">
       {(options || showSelector) && (
-        <div className="tree-settings-panel">
+        <TreeSettings>
           {options}
           {showSelector && (
             <div className="tree-setting">
@@ -2236,7 +2505,7 @@ export function AscendancyTree({
               </Select>
             </div>
           )}
-        </div>
+        </TreeSettings>
       )}
       {tree.isError ? (
         <div className="build-empty" role="alert">
@@ -2249,6 +2518,7 @@ export function AscendancyTree({
         </p>
       ) : (
         <TreeMap
+          {...searchOptions}
           key={selected.data}
           data={tree.data}
           nodes={tree.data.nodes

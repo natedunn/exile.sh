@@ -96,7 +96,10 @@ test("touch inspection stays within a mobile viewport and can be dismissed", asy
   expect(bounds!.y).toBeGreaterThanOrEqual(0)
   expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(845)
   await page.screenshot({ path: "/tmp/exile-equipment-mobile.png" })
-  await dialog.getByRole("button", { name: "Close item details" }).tap()
+  await dialog.getByRole("button", { name: /^Pin .* item details$/ }).tap()
+  await page
+    .getByRole("button", { name: /^Close pinned .* item details$/ })
+    .tap()
   await expect(dialog).toHaveCount(0)
   expect(
     await page

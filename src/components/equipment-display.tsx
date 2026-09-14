@@ -1,10 +1,12 @@
+import { PinnablePopoverContent, TooltipPinScope } from "./tooltip-pins"
+import type { TooltipPinOptions } from "./tooltip-pins"
+import type { ComponentProps } from "react"
 import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
 import { useEffect, useRef, useState } from "react"
 import {
   Gem,
   Shield,
   Swords,
-  X,
   FlaskConical,
   Crown,
   Hand,
@@ -17,10 +19,8 @@ import { Button } from "./ui/button"
 import {
   Popover,
   PopoverTrigger,
-  PopoverContent,
   PopoverTitle,
   PopoverDescription,
-  PopoverClose,
 } from "./ui/popover"
 import {
   Collapsible,
@@ -90,18 +90,6 @@ function ItemCard({
       <header className="equipment-card-header">
         <PopoverTitle>{details.name}</PopoverTitle>
         {details.base && details.base !== details.name && <p>{details.base}</p>}
-        <PopoverClose
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className="equipment-card-close"
-              aria-label="Close item details"
-            />
-          }
-        >
-          <X />
-        </PopoverClose>
       </header>
       <div className="equipment-card-scroll">
         <PopoverDescription className="equipment-card-type">
@@ -285,7 +273,16 @@ function GearSlot({
               </span>
             )}
           </PopoverTrigger>
-          <PopoverContent
+          <PinnablePopoverContent
+            fallbackClose={!hoverOnly}
+            showPin={held || !hoverOnly}
+            freeze={held}
+            pinId={`item:${item.id}`}
+            pinLabel={`${details.name} item details`}
+            onPin={() => {
+              setOpen(false)
+              setHeld(false)
+            }}
             className="equipment-card"
             data-hover-only={hoverOnly && !held}
             positionerClassName={
@@ -299,7 +296,7 @@ function GearSlot({
             align="center"
           >
             <ItemCard item={item} details={details} slot={label} />
-          </PopoverContent>
+          </PinnablePopoverContent>
         </Popover>
       ) : (
         <div
@@ -341,7 +338,20 @@ export function WeaponSetSwitch({
     </Tabs>
   )
 }
-export function EquipmentDisplay({
+export function EquipmentDisplay(
+  props: ComponentProps<typeof EquipmentDisplayContent> & TooltipPinOptions
+) {
+  return (
+    <TooltipPinScope
+      pinningEnabled={props.pinningEnabled}
+      maxPinnedTooltips={props.maxPinnedTooltips ?? 1}
+      resetKey={`${props.gear.id}:${props.weapons}`}
+    >
+      <EquipmentDisplayContent {...props} />
+    </TooltipPinScope>
+  )
+}
+function EquipmentDisplayContent({
   build,
   gear,
   weapons = "primary",
