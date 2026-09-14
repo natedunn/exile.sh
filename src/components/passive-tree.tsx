@@ -2133,6 +2133,15 @@ export function AscendancyTree({
       return (await response.json()) as Record<string, string>
     },
   })
+  const remappedWeaponSets = useMemo<WeaponSets>(() => {
+    const mapped = new Map<string, WeaponSet>()
+    for (const node of tree.data?.nodes ?? []) {
+      const set =
+        weaponSets.get(node.id) ?? weaponSets.get(node.baseId ?? node.id)
+      if (set) mapped.set(node.id, set)
+    }
+    return mapped
+  }, [tree.data, weaponSets])
   return (
     <div className="ascendancy-tree">
       {(options || showSelector) && (
@@ -2192,7 +2201,7 @@ export function AscendancyTree({
           label={selected.label}
           version={version}
           jewels={[]}
-          weaponSets={weaponSets}
+          weaponSets={remappedWeaponSets}
           palette={palette}
           mode="ascendancy"
           artworkUrl={selected.art}

@@ -48,7 +48,7 @@ The Canvas experiment has been removed following the memory comparison below. Th
 
 Connections and artwork use reusable 512 CSS-pixel tiles at native device-pixel ratio. Repeated nodes share pre-clipped sprites, including borders. Least-recently-used tiles are evicted, capping retained tile backing stores at 32 million pixels (~128 MB), in addition to the visible canvas, decoded images and sprites. Image loading invalidates only affected tiles; zoom, data and palettes invalidate their caches. Pending callbacks and resources are released on unmount. Raster placement snaps to device pixels to prevent tile seams, differing from SVG anchor positions by at most half a device pixel.
 
-Stable, memoized SVG hit targets retain inspection, keyboard handling and hover rings. Canvas panning updates both cameras directly without React commits until the gesture ends. Both renderers share tree data, radii, camera constraints, artwork loading, connection grouping and palette tokens. This remains a hybrid prototype.
+In the historical hybrid prototype, stable, memoized SVG hit targets retained inspection, keyboard handling and hover rings. Canvas panning updated both cameras directly without React commits until the gesture ended. Both renderers shared tree data, radii, camera constraints, artwork loading, connection grouping and palette tokens. That Canvas implementation has since been removed.
 
 An early full-buffer experiment exposed long-drag pauses. Tiling limits raster work to newly exposed regions; tracing also identified development React work refreshing thousands of hit targets. Keeping those targets stable removed that burst.
 
@@ -101,7 +101,7 @@ All five Canvas browser scenarios passed: native-DPR artwork and camera alignmen
 
 The combined 25-scenario browser run had 24 passes and one failure in the existing mobile version-picker keyboard test; that unchanged test passed on an isolated rerun. TypeScript, targeted ESLint, and all five connection/visibility unit tests passed.
 
-SVG stays the default for comparison on actual target browsers and displays. Production profiling and full support for jewel, Ascendancy and Atlas layers remain work for a broader migration.
+SVG is the sole current renderer; no broader renderer migration is part of this change. Production profiling on actual target browsers and displays remains useful. The results above document the removed Canvas prototype, not the current implementation.
 
 Reproduce with a running local server:
 

@@ -2,7 +2,7 @@
 
 > Historical SVG/Canvas comparison. The Canvas experiment has since been removed; the memory harness now measures SVG only. Raw comparison results are preserved.
 
-The current Canvas prototype has a meaningful memory cost compared with SVG. Keep it opt-in while reducing allocation churn and the retained raster budget; these measurements do not establish low-RAM device safety. No application or renderer code changed for this audit, and the full test suite was not rerun.
+The tested Canvas prototype had a meaningful memory cost compared with SVG. These measurements informed the decision to remove Canvas and retain SVG as the sole renderer; they do not establish low-RAM device safety. No application or renderer code changed for this audit, and the full test suite was not rerun.
 
 ## Method
 
@@ -36,7 +36,7 @@ Canvas had a higher sampled high-water footprint in all six matched comparisons.
 | 390 × 844, DPR 3  |                     13 |               117 |                           129.2 |                   0 |
 | 1440 × 900, DPR 2 |                     30 |               120 |                           139.6 |                   0 |
 
-The 32-million-pixel tile limit is approximately 122 MiB (128 decimal MB). Whole-tile rounding gives 120 MiB at DPR 2 and 117 MiB at DPR 3 when full. The smaller DPR-2 traversal retained 22 tiles rather than reaching its 30-tile limit; the DPR-3 phone profile and desktop profile reached their limits. The limit currently does not scale down for small screens.
+The 32-million-pixel tile limit is approximately 122 MiB (128 decimal MB). Whole-tile rounding gives 120 MiB at DPR 2 and 117 MiB at DPR 3 when full. The smaller DPR-2 traversal retained 22 tiles rather than reaching its 30-tile limit; the DPR-3 phone profile and desktop profile reached their limits. The prototype did not scale the limit down for small screens.
 
 The explicit tile/sprite storage stabilized in repeated traversals, but native/GPU process footprints still fluctuated and sometimes rose despite stable tile counts. A bounded JavaScript cache is not a total-memory cap. All tracked canvas objects/backing data were gone after unmount in every Canvas run. The surrounding application, query caches and browser-native pools remain; this is not a claim that total memory returns to the blank-browser baseline or a proof against every possible leak.
 
@@ -50,11 +50,13 @@ The explicit tile/sprite storage stabilized in repeated traversals, but native/G
 
 No page crashes or uncaught page errors occurred on this host. That does not demonstrate safety on a device with less available RAM.
 
-## Next changes to evaluate
+## Decision after the comparison
 
-1. Reuse tile backing surfaces as icons load and tiles are evicted, instead of repeatedly creating replacement canvases. The current image-load invalidation path deletes affected tiles and `prepare` allocates new surfaces; this is a candidate source of native/GPU allocation churn, not a proven explanation for every footprint increase.
-2. Use a conservative viewport-based raster budget, with smaller tiles where necessary to fit a high-density phone viewport within that budget. Keep SVG available when the budget cannot support Canvas; do not rely solely on a device-RAM API or assume a small screen means plentiful memory.
-3. Repeat this targeted memory comparison after those changes, then validate on actual low-RAM hardware and a production build before making Canvas the default.
+Canvas was removed rather than pursuing tile-cache reuse or raster-budget changes.
+Subsequent work optimized SVG region rendering and node batching; see the
+[region memory audit](tree-regions-memory.md) and [node paint comparison](tree-node-batching.md).
+Validation on physical low-RAM devices and production builds remains useful for
+SVG, but a Canvas migration is not planned by this change.
 
 ## Reproduce
 
