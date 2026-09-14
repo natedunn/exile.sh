@@ -944,6 +944,10 @@ html:has(.build-view) {
 .passive-tree[data-art-visible] .tree-viewport::after {
   opacity: 0.02;
 }
+/* Declare gesture ownership on the HTML surface as well as the SVG. */
+.passive-tree[data-mode="interactive"] .tree-viewport {
+  touch-action: none;
+}
 .tree-viewport svg {
   display: block;
   width: 100%;

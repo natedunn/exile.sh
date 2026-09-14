@@ -684,6 +684,7 @@ function TreeMapRenderer({
       setPinned(false)
       setInspect(null)
       drag.current = null
+      pointers.current.clear()
     }
     window.addEventListener("keydown", hold)
     window.addEventListener("keyup", release)
@@ -717,6 +718,7 @@ function TreeMapRenderer({
     [artwork.data, extraArtwork]
   )
   const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null)
+  const pointers = useRef(new Map<number, { x: number; y: number }>())
   const panFrame = useRef<number | null>(null)
   const panDelta = useRef({ x: 0, y: 0 })
   const dragRect = useRef({ width: 1, height: 1 })
@@ -1013,11 +1015,65 @@ function TreeMapRenderer({
             if (event.button !== 0) return
             event.preventDefault()
             dragRect.current = event.currentTarget.getBoundingClientRect()
-            drag.current = { x: event.clientX, y: event.clientY, moved: false }
+            pointers.current.set(event.pointerId, {
+              x: event.clientX,
+              y: event.clientY,
+            })
+            if (pointers.current.size > 1) finishPan()
+            drag.current = {
+              x: event.clientX,
+              y: event.clientY,
+              moved: pointers.current.size > 1,
+            }
             event.currentTarget.setPointerCapture(event.pointerId)
           }}
           onPointerMove={(event) => {
             if (mode === "preview") return
+            if (pointers.current.has(event.pointerId)) {
+              const before = [...pointers.current.values()]
+              pointers.current.set(event.pointerId, {
+                x: event.clientX,
+                y: event.clientY,
+              })
+              const after = [...pointers.current.values()]
+              if (before.length >= 2) {
+                const distance = (points: typeof before) =>
+                  Math.hypot(
+                    points[1].x - points[0].x,
+                    points[1].y - points[0].y
+                  )
+                const previousDistance = distance(before)
+                if (previousDistance > 0) {
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const c = cameraRef.current
+                  const zoom = Math.max(
+                    1,
+                    Math.min(12, (c.zoom * distance(after)) / previousDistance)
+                  )
+                  const extent = treeViewport(bounds.size, aspect)
+                  const midpoint = (points: typeof before) => ({
+                    x:
+                      ((points[0].x + points[1].x) / 2 - rect.left) /
+                        rect.width -
+                      0.5,
+                    y:
+                      ((points[0].y + points[1].y) / 2 - rect.top) /
+                        rect.height -
+                      0.5,
+                  })
+                  const from = midpoint(before),
+                    to = midpoint(after)
+                  setCamera({
+                    ...c,
+                    zoom,
+                    x: c.x + extent.width * (from.x / c.zoom - to.x / zoom),
+                    y: c.y + extent.height * (from.y / c.zoom - to.y / zoom),
+                  })
+                }
+                if (!pinned) setInspect(null)
+                return
+              }
+            }
             const d = drag.current
             if (d) {
               const dx = event.clientX - d.x,
@@ -1052,13 +1108,17 @@ function TreeMapRenderer({
               )
               setInspect(id)
             }
-            drag.current = null
+            pointers.current.delete(event.pointerId)
+            const remaining = pointers.current.values().next().value
+            drag.current = remaining ? { ...remaining, moved: true } : null
             if (event.currentTarget.hasPointerCapture(event.pointerId))
               event.currentTarget.releasePointerCapture(event.pointerId)
           }}
-          onPointerCancel={() => {
+          onPointerCancel={(event) => {
             if (drag.current?.moved) finishPan()
-            drag.current = null
+            pointers.current.delete(event.pointerId)
+            const remaining = pointers.current.values().next().value
+            drag.current = remaining ? { ...remaining, moved: true } : null
           }}
           onPointerLeave={(event) => {
             if (event.pointerType !== "touch" && !drag.current) hideHover()
