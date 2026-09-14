@@ -29,3 +29,10 @@ paths even if the URL retains `unseen=true`. Palette settings use the existing
 `exile.tree.palette` preference. Build Bin's `PassiveTree` hides its picker by
 default; `showPaletteSelector` can enable it inside the shared panel. Existing
 saved palettes still apply to builds, including previews and weapon-set legends.
+
+Build Bin embeds the build's ascendancy in both the passive preview and expanded
+map by passing `defaultAscendancy` to the shared renderer. This mode has no
+ascendancy selector and does not read or write the device preference. Centered
+node IDs retain their original allocation IDs (including alternate ascendancy
+base IDs), so allocation highlights and weapon-set colors are preserved. The
+standalone ascendancy section remains available alongside the combined map.

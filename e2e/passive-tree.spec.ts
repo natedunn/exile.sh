@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { readFileSync } from "node:fs"
+import { parseBuild } from "../shared/pob"
 const code = readFileSync(
   new URL("../shared/fixtures/pob/2k0EPn6QOhTx.txt", import.meta.url),
   "utf8"
@@ -323,4 +324,53 @@ test("saved palettes recolor shared and weapon nodes with the Build Bin picker h
   await openBuild()
   await expect(map).toHaveAttribute("data-palette", "achroma")
   await expect(picker).toHaveCount(0)
+})
+
+test("Build Bin embeds its fixed ascendancy and retains center allocations", async ({
+  page,
+}) => {
+  const build = parseBuild(code)
+  const spec = build.treeSpecs[build.activeSpec]
+  const ascendancy = JSON.parse(
+    readFileSync(
+      `public/pob-trees/ascendancies-v1/${spec.version}/shaman.json`,
+      "utf8"
+    )
+  ) as { nodes: { id: string; baseId?: string; start: boolean }[] }
+  const allocated = ascendancy.nodes.find(
+    (node) => !node.start && spec.nodes.includes(node.baseId ?? node.id)
+  )!
+  expect(allocated).toBeTruthy()
+  await page.addInitScript(() =>
+    localStorage.setItem("exile.tree.ascendancy", "Oracle")
+  )
+  await page.goto("/build-bin")
+  await page.getByLabel("PoB export or pobb.in link").fill(code)
+  await page
+    .getByRole("navigation", { name: "Build sections" })
+    .getByRole("link", { name: "Trees", exact: true })
+    .click()
+  await expect(
+    page.locator('.tree-preview [data-node^="center:"]').first()
+  ).toBeAttached()
+  await expect(page.getByRole("combobox", { name: /ascendancy/i })).toHaveCount(
+    0
+  )
+  await page.getByRole("button", { name: "Open tree", exact: true }).click()
+  const map = page.locator(".tree-fullscreen .tree-viewport svg")
+  await expect(map.locator('[data-node^="center:"]')).toHaveCount(
+    ascendancy.nodes.filter((node) => !node.start).length
+  )
+  await expect(page.getByRole("combobox", { name: /ascendancy/i })).toHaveCount(
+    0
+  )
+  for (let i = 0; i < 3; i++)
+    await page.getByRole("button", { name: "Zoom in", exact: true }).click()
+  await map.locator(`[data-node="center:${allocated.id}"]`).hover()
+  await expect(page.locator(".tree-inspection .tree-status")).toHaveText(
+    "Allocated"
+  )
+  expect(
+    await page.evaluate(() => localStorage.getItem("exile.tree.ascendancy"))
+  ).toBe("Oracle")
 })

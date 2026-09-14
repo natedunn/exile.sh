@@ -36,7 +36,7 @@ import { treeAttributes } from "../../shared/tree-attributes"
 import type { AttributeOverrides } from "../../shared/tree-attributes"
 import { describeEquipment } from "../../shared/equipment"
 import { useQuery } from "@tanstack/react-query"
-import type { CSSProperties, ReactNode } from "react"
+import type { ComponentProps, CSSProperties, ReactNode } from "react"
 import {
   Fragment,
   memo,
@@ -373,7 +373,106 @@ const Artwork = memo(function Artwork({
   )
 })
 
-function TreeMap({
+type TreeMapProps = ComponentProps<typeof TreeMapRenderer> & {
+  /** Embed this ascendancy without exposing a selector or using device preferences. */
+  defaultAscendancy?: string
+}
+
+function TreeMap({ defaultAscendancy, ...props }: TreeMapProps) {
+  return defaultAscendancy ? (
+    <TreeMapWithAscendancy {...props} defaultAscendancy={defaultAscendancy} />
+  ) : (
+    <TreeMapRenderer {...props} />
+  )
+}
+
+function TreeMapWithAscendancy({ defaultAscendancy, ...props }: TreeMapProps) {
+  const choices = isTreeVersion(props.version)
+    ? ascendancyTrees[props.version]
+    : []
+  const choice = choices.find((entry) => entry.value === defaultAscendancy)
+  const tree = useQuery({
+    queryKey: ["ascendancy-tree-v1", choice?.data],
+    enabled: Boolean(choice),
+    staleTime: Infinity,
+    queryFn: async () => {
+      const response = await fetch(choice!.data)
+      if (!response.ok) throw new Error("Ascendancy data unavailable")
+      return (await response.json()) as TreeData
+    },
+  })
+  const art = useQuery({
+    queryKey: ["tree-art", choice?.art],
+    enabled: Boolean(choice),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    queryFn: async () => {
+      const response = await fetch(choice!.art)
+      if (!response.ok) throw new Error("Ascendancy artwork unavailable")
+      return (await response.json()) as Record<string, string>
+    },
+  })
+  const background =
+    isTreeVersion(props.version) && choice
+      ? (
+          ascendancyBackgrounds.versions[props.version] as Record<
+            string,
+            | {
+                image: string
+                x: number
+                y: number
+                width: number
+                height: number
+              }
+            | undefined
+          >
+        )[choice.value]
+      : undefined
+  const centered = useMemo(
+    () => (tree.data ? centerAscendancy(tree.data, background) : undefined),
+    [tree.data, background]
+  )
+  const data = useMemo(
+    () =>
+      centered
+        ? {
+            nodes: [...props.data.nodes, ...centered.nodes],
+            edges: [...props.data.edges, ...centered.edges],
+          }
+        : props.data,
+    [props.data, centered]
+  )
+  const allocations = useMemo(() => {
+    const selected = new Set(props.nodes)
+    return [
+      ...props.nodes,
+      ...(centered?.nodes
+        .filter((node) => node.baseId && selected.has(node.baseId))
+        .map((node) => node.id) ?? []),
+    ]
+  }, [props.nodes, centered])
+  const weaponSets = useMemo(() => {
+    const sets = new Map(props.weaponSets)
+    for (const node of centered?.nodes ?? []) {
+      const set = node.baseId ? props.weaponSets.get(node.baseId) : undefined
+      if (set) sets.set(node.id, set)
+    }
+    return sets
+  }, [props.weaponSets, centered])
+  return (
+    <TreeMapRenderer
+      {...props}
+      data={data}
+      nodes={allocations}
+      weaponSets={weaponSets}
+      centerCircle={Boolean(choice)}
+      centerBackground={centered ? background?.image : undefined}
+      extraArtwork={art.data}
+    />
+  )
+}
+
+function TreeMapRenderer({
   data,
   frameNodes = data.nodes,
   artworkUrl,
@@ -1480,6 +1579,9 @@ export function PassiveTree({
                 <div className="tree-preview">
                   <TreeMap
                     data={map.data}
+                    defaultAscendancy={
+                      ascendancy || maps.find((entry) => entry.name)?.name
+                    }
                     nodes={nodes}
                     label="Passive tree preview"
                     version={version}
@@ -1498,6 +1600,9 @@ export function PassiveTree({
                   <DialogTitle>Passive tree</DialogTitle>
                   <TreeMap
                     data={map.data}
+                    defaultAscendancy={
+                      ascendancy || maps.find((entry) => entry.name)?.name
+                    }
                     nodes={nodes}
                     label="Passive tree"
                     version={version}

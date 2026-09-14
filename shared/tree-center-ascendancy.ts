@@ -34,6 +34,7 @@ export function centerAscendancy(
     nodes: tree.nodes.map((node) => ({
       ...node,
       id: "center:" + node.id,
+      baseId: node.baseId ?? node.id,
       renderScale: scale,
       x: (node.x - x) * scale,
       y: (node.y - y) * scale,
