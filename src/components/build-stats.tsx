@@ -1,3 +1,5 @@
+import { equipmentRarity } from "../../shared/equipment-rarity"
+import { BuildExpandedStats } from "./build-expanded-stats"
 import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
 import type { ReactNode } from "react"
 import { buildSkill, displayStat, statValue } from "../../shared/pob"
@@ -9,10 +11,7 @@ export type StatGroup = "character" | "defensive" | "recovery" | "main"
 const groups: Record<StatGroup, { title: string; rows: StatRow[] }> = {
   character: {
     title: "Character",
-    rows: [
-      ["Movement speed", "EffectiveMovementSpeedMod", "%", 100],
-      ["Item rarity", "LootRarity", "%"],
-    ],
+    rows: [["Movement speed", "EffectiveMovementSpeedMod", "%", 100]],
   },
   defensive: {
     title: "Defensive",
@@ -58,11 +57,16 @@ export function BuildStats({
   build,
   groups: selected,
   note,
+  gear,
+  weapons = "primary",
 }: {
   build: BuildSnapshot
   groups: StatGroup[]
   note?: string
+  gear?: BuildSnapshot["itemSets"][number]
+  weapons?: "primary" | "swap"
 }) {
+  const rarity = equipmentRarity(build, gear, weapons)
   function value(key: string, suffix = "", scale = 1) {
     const raw = statValue(build, key)
     const formatted = displayStat(
@@ -109,10 +113,21 @@ export function BuildStats({
       {selected.map((group) => (
         <section key={group}>
           <h3>{groups[group].title}</h3>
+          {group === "character" && <BuildExpandedStats build={build} />}
           {group === "main" && (
             <p className="build-stats-skill">{buildSkill(build)}</p>
           )}
           <dl>
+            {group === "character" && (
+              <div className="build-rarity-stat">
+                <dt>Item rarity</dt>
+                <dd>
+                  {rarity === undefined
+                    ? "—"
+                    : `${displayStat(String(rarity))}%`}
+                </dd>
+              </div>
+            )}
             {group === "character" &&
               row(
                 "Attributes",

@@ -505,6 +505,8 @@ export function BuildView({
                   <BuildStats
                     build={build}
                     groups={["character", "defensive", "recovery"]}
+                    gear={gear}
+                    weapons={swappable ? weapons : "primary"}
                   />
                 </aside>
               </div>

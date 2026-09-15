@@ -2466,3 +2466,52 @@ body:has(.tree-pins[data-open="true"])
 .build-skill[data-support-only="true"] .skill-gem-entry + .skill-gem-entry {
   border-top-color: var(--color-rule);
 }
+
+.build-expanded-trigger {
+  width: 100%;
+  margin: var(--space-xs) 0 var(--space-sm);
+}
+.build-stats-body .build-rarity-stat {
+  padding: var(--space-sm) 0;
+  border-bottom-color: var(--color-rule-strong);
+  font-weight: 600;
+}
+.build-stats-body .build-rarity-stat dt {
+  color: var(--color-ink);
+}
+.build-expanded-dialog[data-slot="dialog-content"] {
+  width: min(860px, calc(100vw - 2rem));
+  max-width: min(860px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  grid-template-rows: auto minmax(0, 1fr);
+  padding: var(--space-xl);
+}
+.build-expanded-dialog [data-slot="dialog-header"] {
+  padding-right: var(--space-xl);
+}
+.build-expanded-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.build-expanded-grid.build-stats-body {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-xl);
+}
+.build-expanded-grid h3 {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.build-expanded-grid.build-stats-body dt {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.build-expanded-grid dd {
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .build-expanded-grid.build-stats-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
