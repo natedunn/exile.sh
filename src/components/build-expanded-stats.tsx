@@ -21,6 +21,7 @@ import {
   statCategory,
   statLabel,
 } from "../../shared/build-stat-format"
+import { displayStat } from "../../shared/pob"
 import type { BuildSnapshot } from "../../shared/pob"
 
 export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
@@ -31,12 +32,27 @@ export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
     "Recovery",
     "Offence & skills",
   ]
-  const sections = categories.map((title) => ({
-    title,
-    stats: build.stats.filter((stat) => statCategory(stat.name) === title),
-  }))
+  const sections = categories.map((title) => {
+    const stats = build.stats.filter(
+      (stat) => statCategory(stat.name) === title
+    )
+    return {
+      title,
+      stats:
+        title === "Offence & skills"
+          ? [
+              ...stats.filter((stat) => stat.name === "FullDPS"),
+              ...stats.filter((stat) => stat.name !== "FullDPS"),
+            ]
+          : stats,
+    }
+  })
   sections.push({ title: "Minion stats", stats: build.minionStats })
-  const available = sections.filter((section) => section.stats.length)
+  const available = sections.filter(
+    (section) =>
+      section.stats.length ||
+      (section.title === "Offence & skills" && build.fullDps.length)
+  )
   const active =
     available.find((section) => section.title === category)?.title ??
     available.at(0)?.title ??
@@ -128,6 +144,19 @@ export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
                       ))}
                     </dl>
                   </section>
+                  {title === "Offence & skills" && build.fullDps.length > 0 && (
+                    <section>
+                      <h3>Full DPS breakdown</h3>
+                      <dl>
+                        {build.fullDps.map((skill, index) => (
+                          <div key={`${skill.name}-${index}`}>
+                            <dt>{skill.name}</dt>
+                            <dd>{displayStat(skill.value)}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </section>
+                  )}
                 </div>
               </TabsContent>
             ))}

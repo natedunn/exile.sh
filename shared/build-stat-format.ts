@@ -10,6 +10,7 @@ const labels: Record<string, string> = {
   TotalEHP: "Effective health pool",
   CombinedDPS: "Combined DPS",
   FullDPS: "Full DPS",
+  FullDotDPS: "Full damage over time DPS",
   TotalDot: "Damage over time DPS",
   TotalDotDPS: "Total damage over time DPS",
   ESCost: "Energy shield cost",

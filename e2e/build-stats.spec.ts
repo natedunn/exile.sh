@@ -121,3 +121,48 @@ for (const width of [390, 640, 1440]) {
     await expect(trigger).toBeFocused()
   })
 }
+
+for (const width of [390, 1440]) {
+  test(`Full DPS and saved skill breakdown at ${width}px`, async ({ page }) => {
+    const code = readFileSync(
+      new URL("../shared/fixtures/pob/R09ZhxGeretC.txt", import.meta.url),
+      "utf8"
+    )
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto("/build-bin")
+    await page.getByLabel("PoB export or pobb.in link").fill(code)
+    await page.getByRole("button", { name: "Share", exact: true }).click()
+    await expect(
+      page.getByRole("heading", { name: "Ready to share?" })
+    ).toBeVisible()
+    await page.keyboard.press("Escape")
+    await page.getByRole("button", { name: "View all stats" }).click()
+    const dialog = page.getByRole("dialog", { name: "Expanded stats" })
+    if (width === 390) {
+      await dialog.getByRole("combobox", { name: "Stat category" }).click()
+      await page
+        .getByRole("option", { name: "Offence & skills", exact: true })
+        .click()
+    } else {
+      await dialog.getByRole("tab", { name: "Skills", exact: true }).click()
+    }
+    const panel = dialog.getByRole("tabpanel")
+    await expect(panel.locator("dt").first()).toHaveText("Full DPS")
+    await expect(panel.locator("dd").first()).toHaveText("887,964.2")
+    const breakdown = panel
+      .locator("section")
+      .filter({
+        has: page.getByRole("heading", { name: "Full DPS breakdown" }),
+      })
+    await expect(breakdown.locator("dt")).toHaveText([
+      "Ice Shot",
+      "Ice Shot",
+      "Best Ignite DPS",
+    ])
+    await expect(breakdown.locator("dd")).toHaveText([
+      "659,545.2",
+      "211,617.8",
+      "16,801.2",
+    ])
+  })
+}
