@@ -3,6 +3,7 @@ import { useMemo } from "react"
 import { ItemArtwork } from "./equipment-display"
 import { ItemTooltipContent } from "./item-tooltip-content"
 import { describeEquipment } from "../../shared/equipment"
+import { ReferenceLine } from "./reference-tooltip"
 import {
   aggregateJewelStats,
   SINISTER_SOCKET,
@@ -151,6 +152,13 @@ function StatLine({ stat }: { stat: JewelStat }) {
   // Interleave the summed numbers with the template text so the figures
   // read in the ledger's mono voice.
   const parts = stat.template.split("#")
+  if (!stat.values.length)
+    return (
+      <li>
+        <ReferenceLine text={stat.template} />
+        {stat.count > 1 && <small>×{stat.count}</small>}
+      </li>
+    )
   return (
     <li>
       <span>

@@ -1,14 +1,6 @@
-import {
-  allocatedNodeName,
-  useItemNodeReference,
-  ItemReferenceTooltip,
-  GrantedSkillDetails,
-  AnointedNodeDetails,
-} from "./item-reference-tooltip"
+import { hasReference, ReferenceLine } from "./reference-tooltip"
 import { useCopyItem } from "../lib/use-copy-item"
-import { useGemCatalogue } from "../lib/use-gem-catalogue"
-import { findNamedGem } from "../../shared/gems"
-import { grantedSkillName, groupItemAugments } from "../../shared/item-tooltip"
+import { groupItemAugments } from "../../shared/item-tooltip"
 import type { Augment } from "../../shared/item-tooltip"
 import type {
   ItemLine,
@@ -39,15 +31,6 @@ export function ItemTooltipContent({
   const affixLayout = useAffixLayout()
   const bonded = useBondedModifiers()
   const clipboard = useCopyItem(item.text)
-  const catalogue = useGemCatalogue(
-    details.modifiers.some((line) => Boolean(grantedSkillName(line.text)))
-  )
-  const nodeReference = useItemNodeReference(
-    details.modifiers.flatMap((line) => {
-      const name = allocatedNodeName(line.text)
-      return name ? [name] : []
-    })
-  )
   const augments = groupItemAugments(details)
   const visible = (lines: ItemLine[]) =>
     lines.filter(
@@ -90,49 +73,17 @@ export function ItemTooltipContent({
         role="list"
         data-explicit={explicit || undefined}
       >
-        {shown.map((line, i) => {
-          const skill = grantedSkillName(line.text)
-          const skillReference = skill
-            ? findNamedGem(catalogue.data, skill)
-            : undefined
-          const allocated = allocatedNodeName(line.text)
-          const node = allocated ? nodeReference(allocated) : undefined
-          const image = skillReference?.image ?? node?.data?.image
-          return (
-            <li
-              key={i}
-              data-kind={line.kind}
-              data-granted-skill={Boolean(skill || allocated) || undefined}
-              data-augment={sources.length > 0 || undefined}
-            >
-              {sources.length > 0 && augmentIcons(sources)}
-              {skill || allocated ? (
-                <ItemReferenceTooltip
-                  label={line.text}
-                  name={skill || allocated!}
-                  image={image}
-                  artworkLabel={
-                    skill ? `${skill} skill` : `${allocated} passive`
-                  }
-                  passive={Boolean(allocated)}
-                >
-                  {skill ? (
-                    <GrantedSkillDetails
-                      name={skill}
-                      line={line.text}
-                      reference={skillReference}
-                      catalogue={catalogue.data}
-                    />
-                  ) : (
-                    <AnointedNodeDetails name={allocated!} reference={node} />
-                  )}
-                </ItemReferenceTooltip>
-              ) : (
-                <span>{line.text}</span>
-              )}
-            </li>
-          )
-        })}
+        {shown.map((line, i) => (
+          <li
+            key={i}
+            data-kind={line.kind}
+            data-granted-skill={hasReference(line.text) || undefined}
+            data-augment={sources.length > 0 || undefined}
+          >
+            {sources.length > 0 && augmentIcons(sources)}
+            <ReferenceLine text={line.text} />
+          </li>
+        ))}
       </ul>
     )
   }

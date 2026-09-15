@@ -34,6 +34,7 @@ import {
 import { parseBuild } from "../../shared/pob"
 import type { BuildSnapshot } from "../../shared/pob"
 import { classPortraits } from "../../shared/class-art"
+import { ItemTreeVersionProvider } from "./item-reference-tooltip"
 
 const sections = [
   { id: "equipment", label: "Equipment", icon: Swords },
@@ -578,14 +579,19 @@ export function BuildView({
                   <span className="build-strip-note">{spec.title}</span>
                 )}
               </header>
-              <div className="build-section-body">
-                <div className="build-section-main">
-                  <BuildJewels build={build} spec={spec} gear={gear} />
+              <ItemTreeVersionProvider value={spec?.version}>
+                <div className="build-section-body">
+                  <div className="build-section-main">
+                    <BuildJewels build={build} spec={spec} gear={gear} />
+                  </div>
+                  <aside
+                    className="build-section-aside"
+                    aria-label="Jewel stats"
+                  >
+                    <JewelStats build={build} spec={spec} gear={gear} />
+                  </aside>
                 </div>
-                <aside className="build-section-aside" aria-label="Jewel stats">
-                  <JewelStats build={build} spec={spec} gear={gear} />
-                </aside>
-              </div>
+              </ItemTreeVersionProvider>
             </section>
             <section id="notes" className="build-section">
               <header className="build-section-strip">

@@ -771,7 +771,7 @@
   color: inherit;
   font: inherit;
   text-align: inherit;
-  cursor: help;
+  cursor: pointer;
 }
 .equipment-reference-trigger {
   text-decoration: underline dotted;

@@ -1,11 +1,8 @@
 import { createContext, useContext } from "react"
-import type { ReactNode } from "react"
 import { useQueries } from "@tanstack/react-query"
 import type { GemCatalogue, GemReference } from "../../shared/gems"
 import { DEFAULT_TREE_VERSION, isTreeVersion } from "../../shared/tree-versions"
-import { Popover, PopoverTrigger, PopoverTitle } from "./ui/popover"
-import { InspectionTooltipContent } from "./tooltip-pins"
-import { useInspectionTooltip } from "./use-inspection-tooltip"
+import { PopoverTitle } from "./ui/popover"
 import { GemTooltipContent } from "./skill-gems"
 import { PassiveNodeEffects } from "./passive-node-effects"
 import { PassiveNodeImage } from "./passive-node-image"
@@ -57,74 +54,6 @@ export function useItemNodeReference(names: string[]) {
     })),
   })
   return (name: string) => queries[unique.indexOf(name.toLowerCase())]
-}
-
-export function ItemReferenceTooltip({
-  label,
-  name,
-  image,
-  artworkLabel,
-  children,
-  passive = false,
-}: {
-  label: string
-  name: string
-  image?: string
-  artworkLabel: string
-  children: ReactNode
-  passive?: boolean
-}) {
-  const inspection = useInspectionTooltip({ nested: true })
-  return (
-    <Popover {...inspection.popoverProps}>
-      {passive ? (
-        <PassiveNodeImage
-          className="equipment-granted-skill-art"
-          src={image}
-          alt={artworkLabel}
-          width={24}
-          height={24}
-        />
-      ) : (
-        image && (
-          <img
-            className="equipment-granted-skill-art"
-            src={image}
-            alt={artworkLabel}
-            width={24}
-            height={24}
-          />
-        )
-      )}
-      <span className="equipment-reference-text">
-        {label.slice(0, label.lastIndexOf(name))}
-        <PopoverTrigger
-          {...inspection.triggerProps}
-          render={<span />}
-          nativeButton={false}
-          className="equipment-reference-trigger"
-          aria-label={`${name}. Show ${passive ? "passive" : "skill"} details`}
-        >
-          {name}
-        </PopoverTrigger>
-        {label.slice(label.lastIndexOf(name) + name.length)}
-      </span>
-      <InspectionTooltipContent
-        {...inspection.contentProps}
-        pinningEnabled={false}
-        fallbackClose
-        pinLabel={name}
-        className={passive ? "tree-inspection" : "skill-gem-tooltip"}
-        side="right"
-        align="start"
-        sideOffset={14}
-        collisionPadding={12}
-        collisionAvoidance={{ side: "flip", align: "shift" }}
-      >
-        {children}
-      </InspectionTooltipContent>
-    </Popover>
-  )
 }
 
 export function GrantedSkillDetails({
