@@ -75,3 +75,12 @@ test("granted skill names support saved levels and unresolved PoB ranges", () =>
   ).toBe("Sigil of Power")
   expect(grantedSkillName("+1 to Level of all Spell Skills")).toBeUndefined()
 })
+
+test("granted skill names do not require an exported level", () => {
+  for (const name of ["Pinnacle of Power", "Sigil of Power", "Future Skill"]) {
+    expect(grantedSkillName(`Grants Skill: ${name}`)).toBe(name)
+    expect(grantedSkillName(`{crafted}Grants Skill: ${name}  `)).toBe(name)
+  }
+  expect(grantedSkillName("Grants Skill: ")).toBeUndefined()
+  expect(grantedSkillName("Does not grant a skill")).toBeUndefined()
+})

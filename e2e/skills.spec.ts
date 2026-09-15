@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { strToU8, zlibSync } from "fflate"
-const xml = `<PathOfBuilding2><Build className="Sorceress" ascendClassName="Stormweaver" level="90" mainSocketGroup="2"/><Skills><Skill label="Other setup"><Gem nameSpec="Other skill" skillId="OtherSkill" level="1" quality="0"/></Skill><Skill label="Spark setup"><Gem nameSpec="Spark" gemId="Metadata/Items/Gems/SkillGemSpark" skillId="SparkPlayer" level="20" quality="23" corrupted="true" corruptLevel="1"/><Gem nameSpec="Elemental Armament II" gemId="Metadata/Items/Gems/SupportGemPrimalArmamentTwo" skillId="SupportElementalArmamentPlayerTwo" level="1" quality="0" enabled="false"/><Gem nameSpec="Loyalty" skillId="SupportLoyaltyPlayer" level="1" quality="0"/><Gem nameSpec="Unknown future support" skillId="SupportFuture" level="1" quality="0"/></Skill></Skills></PathOfBuilding2>`
+const xml = `<PathOfBuilding2><Build className="Sorceress" ascendClassName="Stormweaver" level="90" mainSocketGroup="2"/><Skills><Skill label="Other setup"><Gem nameSpec="Other skill" skillId="OtherSkill" level="1" quality="0"/></Skill><Skill label="Spark setup"><Gem nameSpec="Spark" gemId="Metadata/Items/Gems/SkillGemSpark" skillId="SparkPlayer" statSetIndex="nil" level="20" quality="23" corrupted="true" corruptLevel="1"/><Gem nameSpec="Elemental Armament II" gemId="Metadata/Items/Gems/SupportGemPrimalArmamentTwo" skillId="SupportElementalArmamentPlayerTwo" level="1" quality="0" enabled="false"/><Gem nameSpec="Loyalty" skillId="SupportLoyaltyPlayer" statSetIndex="nil" level="1" quality="0"/><Gem nameSpec="Unknown future support" skillId="SupportFuture" level="1" quality="0"/></Skill></Skills></PathOfBuilding2>`
 const code = Buffer.from(zlibSync(strToU8(xml))).toString("base64url")
 for (const width of [390, 1440])
   test(`vertical gems, art and inspection at ${width}px`, async ({ page }) => {
@@ -172,10 +172,44 @@ for (const width of [390, 1440]) {
       .fill(Buffer.from(zlibSync(strToU8(source))).toString("base64url"))
     const groups = page.locator(".build-skill")
     await expect(groups).toHaveCount(3)
-    await expect(groups.first()).toContainText(
-      "Granted by Palm of the Dreamer, Shrine Sceptre"
+    await expect(groups.first()).not.toContainText("Granted by")
+    const sourceInfo = groups.first().getByRole("button", {
+      name: "Impurity. Show skill source",
+    })
+    await sourceInfo.scrollIntoViewIfNeeded()
+    const sourceBounds = (await sourceInfo.boundingBox())!
+    expect(sourceBounds.width).toBe(32)
+    expect(sourceBounds.height).toBe(32)
+    await expect(sourceInfo).toHaveCSS("top", "8px")
+    await expect(sourceInfo).toHaveCSS("right", "8px")
+    const rowBounds = (await groups
+      .first()
+      .locator(".skill-gem-row")
+      .first()
+      .boundingBox())!
+    expect(sourceBounds.x).toBeGreaterThan(rowBounds.x + rowBounds.width / 2)
+    expect(sourceBounds.x + sourceBounds.width).toBeLessThanOrEqual(
+      rowBounds.x + rowBounds.width
     )
-    await expect(groups.first()).toContainText("Weapon set I")
+    if (width > 600) await sourceInfo.hover()
+    else await sourceInfo.click()
+    const sourcePopup = page
+      .getByRole("tooltip")
+      .filter({ hasText: "Skill source" })
+    await expect(sourcePopup).toContainText(
+      "Granted by Palm of the Dreamer, Shrine Sceptre in Weapon set I"
+    )
+    await expect(sourcePopup).toContainText("Weapon set I")
+    await expect(
+      sourcePopup.getByRole("heading", { name: "Skill source" })
+    ).toHaveCSS("font-size", "20px")
+    await expect(sourceInfo).not.toHaveCSS(
+      "background-color",
+      "rgba(0, 0, 0, 0)"
+    )
+    await expect(page.locator(".skill-gem-tooltip")).toBeHidden()
+    await page.keyboard.press("Escape")
+    await page.mouse.move(0, 0)
     await expect(
       groups.first().getByRole("img", { name: "Main skill group in PoB" })
     ).toHaveCount(1)
@@ -191,12 +225,19 @@ for (const width of [390, 1440]) {
         exact: true,
       })
     ).toHaveCount(0)
-    await expect(
-      groups.filter({ hasText: "Granted by Morbid Chant, Chiming Staff" })
-    ).toContainText("Weapon set II")
+    const staffInfo = page.getByRole("button", {
+      name: "Sigil of Power. Show skill source",
+    })
+    await staffInfo.focus()
+    await staffInfo.press("Enter")
+    await expect(sourcePopup).toContainText(
+      "Granted by Morbid Chant, Chiming Staff"
+    )
+    await expect(sourcePopup).toContainText("Weapon set II")
+    await page.keyboard.press("Escape")
     const supports = page.locator('.build-skill[data-support-only="true"]')
     await expect(supports).toContainText(
-      "No active skill in this group — only support gems are saved."
+      "There is no active skill in this group."
     )
     await expect(
       supports.getByRole("button", {

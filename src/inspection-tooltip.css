@@ -37,6 +37,15 @@
 [data-inspection-tooltip] > * {
   position: relative;
 }
+[data-inspection-tooltip] li::marker {
+  color: color-mix(in srgb, currentColor 50%, transparent);
+}
+[data-inspection-tooltip] .tree-choice-lines li::marker {
+  color: color-mix(in srgb, var(--color-brand) 50%, transparent);
+}
+[data-inspection-tooltip] .tree-lines li::before {
+  opacity: 0.5;
+}
 [data-inspection-tooltip] [data-slot="popover-title"] {
   font: 500 24px/1.1 var(--font-display);
   color: var(--inspection-accent, var(--color-brand));

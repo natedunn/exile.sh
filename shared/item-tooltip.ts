@@ -65,5 +65,6 @@ export function groupItemAugments(details: EquipmentDetails) {
 export function grantedSkillName(text: string) {
   return text
     .replace(/\{[^}]*\}/g, "")
-    .match(/^Grants Skill:\s*Level\s+(?:\d+|\([\d-]+\))\s+(.+)$/i)?.[1]
+    .trim()
+    .match(/^Grants Skill:\s*(?:Level\s+(?:\d+|\([\d-]+\))\s+)?(\S.*)$/i)?.[1]
 }

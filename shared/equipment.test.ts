@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs"
 import { expect, test } from "vitest"
-import { describeEquipment } from "./equipment"
+import { describeEquipment, equipmentJewelSlots } from "./equipment"
 import { parseBuild } from "./pob"
 import art from "./equipment-art.json"
 
@@ -9,6 +9,41 @@ const item = (rarity: string, body: string) => ({
   name: body.split("\n")[0],
   rarity,
   text: `Rarity: ${rarity}\n${body}`,
+})
+test("jewel slots are classified separately from extra equipment", () => {
+  const items = [
+    { ...item("RARE", "Blue Jewel\nSapphire\n+10 to Intelligence"), id: "1" },
+    { ...item("RARE", "Future Jewel\nUnknown Base"), id: "2" },
+    { ...item("RARE", "Saved Jewel\nUnknown Base"), id: "3" },
+    { ...item("RARE", "Extra Ring\nGold Ring"), id: "4" },
+  ]
+  const gear = {
+    id: "1",
+    title: "Test",
+    slots: [
+      { name: "Other", itemId: "1" },
+      { name: "Gloves Jewel Socket 1", itemId: "2" },
+      { name: "Tree socket", itemId: "3" },
+      { name: "Extra ring", itemId: "4" },
+      { name: "Helmet Jewel Socket 1", itemId: "0" },
+    ],
+  }
+  expect(
+    equipmentJewelSlots(
+      {
+        items,
+        treeSpecs: [
+          {
+            title: "Test tree",
+            version: "0.5",
+            nodes: [],
+            sockets: [{ nodeId: "11184", itemId: "3" }],
+          },
+        ],
+      },
+      gear
+    ).map((slot) => slot.itemId)
+  ).toEqual(["1", "2", "3"])
 })
 test("anointment enchantments are distinct from corruption enchantments", () => {
   const details = describeEquipment(

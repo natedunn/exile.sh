@@ -1,5 +1,6 @@
 import type { BuildSnapshot } from "./pob"
 import { jewelLines } from "./tree-jewels"
+import { equipmentJewelSlots } from "./equipment"
 
 type Item = BuildSnapshot["items"][number]
 type Spec = BuildSnapshot["treeSpecs"][number]
@@ -11,6 +12,7 @@ export type SocketAllocation =
   | { kind: "tree" }
   | { kind: "weapon-set"; set: 1 | 2 }
   | { kind: "item"; node: string; item: string }
+  | { kind: "equipment"; slot: string }
   | { kind: "none" }
 
 export type SocketedJewel = {
@@ -38,14 +40,45 @@ export function grantedAllocations(items: Item[]) {
   return granted
 }
 
-/** The jewels a tree specification has socketed, in socket order. Pass the
+/** Jewels socketed in equipment and the selected tree specification. Pass the
  * equipped items and the tree's node names to recognise sockets that items
  * allocate; without them only pathed and weapon-set sockets count. */
 export function socketedJewels(
   items: Item[],
   spec?: Spec,
-  options: { equipped?: Item[]; nodeNames?: ReadonlyMap<string, string> } = {}
+  options: {
+    equipped?: Item[]
+    nodeNames?: ReadonlyMap<string, string>
+    gear?: BuildSnapshot["itemSets"][number]
+  } = {}
 ): SocketedJewel[] {
+  const equipmentSockets: SocketedJewel[] = options.gear
+    ? equipmentJewelSlots(
+        { items, treeSpecs: spec ? [spec] : [] },
+        options.gear
+      )
+        .filter(
+          (slot, index, slots) =>
+            slots.findIndex((entry) => entry.itemId === slot.itemId) ===
+              index &&
+            (/\bJewel Socket\s+\d+$/i.test(slot.name) ||
+              !spec?.sockets?.some((socket) => socket.itemId === slot.itemId))
+        )
+        .flatMap((slot) => {
+          const item = items.find((entry) => entry.id === slot.itemId)
+          return item
+            ? [
+                {
+                  item,
+                  nodeId: slot.name,
+                  active: true,
+                  allocation: { kind: "equipment" as const, slot: slot.name },
+                },
+              ]
+            : []
+        })
+    : []
+  const equipmentIds = new Set(equipmentSockets.map(({ item }) => item.id))
   const pathed = new Set(spec?.nodes ?? [])
   const weaponSets: [Set<string>, Set<string>] = [
     new Set(spec?.weaponSet1 ?? []),
@@ -53,7 +86,9 @@ export function socketedJewels(
   ]
   const sockets = (spec?.sockets ?? []).flatMap((socket) => {
     const item = items.find((entry) => entry.id === socket.itemId)
-    return item ? [{ item, nodeId: socket.nodeId }] : []
+    return item && !equipmentIds.has(item.id)
+      ? [{ item, nodeId: socket.nodeId }]
+      : []
   })
   // Grants come from equipped items first, then from jewels that are
   // themselves active, so a socketed Megalomaniac can light a socket too.
@@ -92,14 +127,20 @@ export function socketedJewels(
     return { count: 0, item: "" }
   }
   const fromGear = grantedAllocations(options.equipped ?? [])
-  const first = resolve(fromGear, sinisterFrom(options.equipped ?? []))
+  const first = [
+    ...equipmentSockets,
+    ...resolve(fromGear, sinisterFrom(options.equipped ?? [])),
+  ]
   const activeItems = first
     .filter((jewel) => jewel.active)
     .map((jewel) => jewel.item)
   const fromJewels = grantedAllocations(activeItems)
   const sinister = sinisterFrom(activeItems)
   if (!fromJewels.size && !sinister.count) return first
-  return resolve(new Map([...fromJewels, ...fromGear]), sinister)
+  return [
+    ...equipmentSockets,
+    ...resolve(new Map([...fromJewels, ...fromGear]), sinister),
+  ]
 }
 
 const metadata =

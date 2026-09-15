@@ -14,7 +14,7 @@ import { isTreeVersion } from "../../shared/tree-versions"
 type Spec = BuildSnapshot["treeSpecs"][number]
 type Gear = BuildSnapshot["itemSets"][number]
 
-/** Socketed jewels for the selected tree and item set. The tree's node
+/** Socketed jewels from both the selected tree and item set. The tree's node
  * names let item-granted sockets, such as Zarokh's Gift, count as allocated;
  * the query shares its key with the tree section so the data loads once. */
 function useSocketedJewels(build: BuildSnapshot, spec?: Spec, gear?: Gear) {
@@ -37,7 +37,7 @@ function useSocketedJewels(build: BuildSnapshot, spec?: Spec, gear?: Gear) {
     const nodeNames = tree.data
       ? new Map(tree.data.nodes.map((node) => [node.id, node.name]))
       : undefined
-    return socketedJewels(build.items, spec, { equipped, nodeNames })
+    return socketedJewels(build.items, spec, { equipped, nodeNames, gear })
   }, [build.items, spec, gear, tree.data])
   const message =
     !jewels.length || tree.data
@@ -52,6 +52,8 @@ function useSocketedJewels(build: BuildSnapshot, spec?: Spec, gear?: Gear) {
 
 function allocationNote(jewel: SocketedJewel) {
   switch (jewel.allocation.kind) {
+    case "equipment":
+      return jewel.allocation.slot
     case "item":
       // Named sockets read by their name; the unnamed sinister sockets read
       // by the jewel that lights them, such as Voices.
@@ -69,7 +71,7 @@ function allocationNote(jewel: SocketedJewel) {
   }
 }
 
-/** The jewels socketed in the selected tree, as slots like the equipment
+/** The jewels socketed in the selected setup, as slots like the equipment
  * extras, each opening the same item card. */
 export function BuildJewels({
   build,
@@ -88,7 +90,7 @@ export function BuildJewels({
       </p>
     )
   if (!jewels.length)
-    return <p className="build-empty">No jewels socketed in this tree.</p>
+    return <p className="build-empty">No jewels socketed in this setup.</p>
   return (
     <div className="build-jewel-grid">
       {jewels.map((jewel) => {

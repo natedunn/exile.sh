@@ -9,6 +9,7 @@ import {
 } from "./gems"
 import type { GemCatalogue, GemEffects } from "./gems"
 import { parseBuildXml } from "./pob"
+import { grantedSkillName } from "./item-tooltip"
 
 const xml = `<PathOfBuilding2><Build level="90" className="Sorceress"/><Skills><Skill><Gem nameSpec="Spark" gemId="Metadata/Items/Gems/SkillGemSpark" skillId="SparkPlayer" variantId="Spark" level="20" quality="23" corrupted="true" corruptLevel="1"/><Gem nameSpec="Elemental Armament II" gemId="Metadata/Items/Gems/SupportGemPrimalArmamentTwo" skillId="SupportElementalArmamentPlayerTwo" level="1" quality="0" enabled="false"/></Skill></Skills></PathOfBuilding2>`
 test("keeps gem identity and corruption without modifying saved level or quality", () => {
@@ -68,6 +69,11 @@ test("effects select saved level, corruption and stat set, with quality separate
     ref.sets["2"].levels["21"]
   )
   expect(gemEffectValues(ref, { ...gem, level: "999" }).base).toBeUndefined()
+  for (const statSetIndex of [undefined, "", "nil", "1"]) {
+    expect(gemEffectValues(ref, { ...gem, statSetIndex }).base).toEqual(
+      ref.sets["1"].levels["21"]
+    )
+  }
   expect(
     gemEffectValues(ref, { ...gem, statSetIndex: "999" }).base
   ).toBeUndefined()
@@ -138,6 +144,26 @@ test("item skill names resolve through source-declared IDs to gem artwork", () =
   ).toBeUndefined()
 })
 
+test("item grants without levels resolve to bundled skill artwork", () => {
+  const catalogue: GemCatalogue = JSON.parse(
+    readFileSync(
+      new URL("../public/gems/v1/catalogue.json", import.meta.url),
+      "utf8"
+    )
+  )
+  for (const name of ["Pinnacle of Power", "Sigil of Power", "Consecrate"]) {
+    const parsed = grantedSkillName(`Grants Skill: ${name}`)
+    expect(parsed).toBe(name)
+    const ref = findNamedGem(catalogue, parsed!)
+    expect(ref?.description).toBeTruthy()
+    expect(ref?.image).toMatch(/^\/gems\/v1\/icons\/.+\.webp$/)
+    const bytes = readFileSync(
+      new URL(`../public${ref!.image}`, import.meta.url)
+    )
+    expect(bytes.toString("ascii", 0, 4)).toBe("RIFF")
+  }
+})
+
 test("preserves group source, removal and explicit weapon-set flags", () => {
   const build =
     parseBuildXml(`<PathOfBuilding2><Build className="Sorceress" level="90" mainSocketGroup="2"/><Skills>
@@ -160,12 +186,10 @@ test("preserves group source, removal and explicit weapon-set flags", () => {
   expect(build.mainSocketGroup).toBe(2)
   expect(groups[1].gems[0].name).toBe("Punch")
   expect(skillGroupLabels(groups[0])).toEqual([
-    "Granted by Palm of the Dreamer, Shrine Sceptre",
-    "Weapon set I",
+    "Granted by Palm of the Dreamer, Shrine Sceptre in Weapon set I",
   ])
   expect(skillGroupLabels(groups[1])).toEqual([
-    "Default attack",
-    "Weapon set II",
+    "Default attack in Weapon set II",
   ])
   expect(skillGroupLabels(groups[2])).toEqual([])
   expect(skillGroupLabels({ ...groups[2], slot: "Weapon 1" })).toEqual([])
@@ -254,7 +278,7 @@ test.each([
     Object.assign(setup, { set1, set2 })
     source.slot = slot
     expect(skillGroupLabels(setup)).toContain(label)
-    expect(skillGroupLabels(source)).toContain(label)
+    expect(skillGroupLabels(source).join(" ")).toContain(`in ${label}`)
     const groups = displaySkillGroups([setup, source], 2)
     expect(groups).toHaveLength(1)
     expect(groups[0].grants).toEqual([source])
@@ -271,6 +295,6 @@ test("keeps conflicting or unestablished weapon availability separate", () => {
   expect(displaySkillGroups([setup, source], 1)).toHaveLength(2)
   source.slot = "Weapon 2"
   Object.assign(source, { set1: false, set2: true })
-  expect(skillGroupLabels(source)).toContain("Weapon set II")
+  expect(skillGroupLabels(source).join(" ")).toContain("in Weapon set II")
   expect(displaySkillGroups([setup, source], 1)).toHaveLength(2)
 })

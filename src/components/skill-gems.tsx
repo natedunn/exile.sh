@@ -5,7 +5,7 @@ import type { TooltipPinOptions } from "./tooltip-pins"
 import type { ComponentProps } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
-import { Diamond, Droplet, Info, Star } from "lucide-react"
+import { Diamond, Droplet, Info, Star, TriangleAlert } from "lucide-react"
 import {
   findGem,
   gemEffectValues,
@@ -20,6 +20,7 @@ import type {
 } from "../../shared/gems"
 import type { BuildSnapshot } from "../../shared/pob"
 import { Button } from "./ui/button"
+import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
 import {
   Popover,
   PopoverTrigger,
@@ -54,6 +55,32 @@ export function GemReferenceInfo() {
   )
 }
 
+function SkillSourceInfo({ name, labels }: { name: string; labels: string[] }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <Tooltip open={open} onOpenChange={setOpen}>
+      <TooltipTrigger
+        render={<Button variant="ghost" size="icon-lg" />}
+        className="skill-source-trigger"
+        aria-label={`${name}. Show skill source`}
+        delay={0}
+        closeOnClick={false}
+        onClick={() => setOpen(true)}
+      >
+        <Info aria-hidden="true" />
+      </TooltipTrigger>
+      <TooltipContent className="skill-source-tooltip" side="top" align="end">
+        <h3>Skill source</h3>
+        <div>
+          {labels.map((label, index) => (
+            <p key={index}>{label}</p>
+          ))}
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
 function GemArt({ image, support }: { image?: string; support: boolean }) {
   const [failed, setFailed] = useState(false)
   return (
@@ -79,18 +106,24 @@ function GemRow({
   catalogue,
   main = false,
   side = "right",
+  context = [],
 }: {
   gem: SavedGem
   catalogue?: GemCatalogue
   /** Which way the card opens, away from the neighbouring column. */
   side?: "left" | "right"
   main?: boolean
+  context?: string[]
 }) {
   const ref = findGem(catalogue, gem)
   const tagRow = <GemTags reference={ref} support={gem.support} />
   const inspection = useInspectionTooltip()
   return (
-    <li className="skill-gem-entry" data-support={gem.support}>
+    <li
+      className="skill-gem-entry"
+      data-support={gem.support}
+      data-context={context.length > 0 || undefined}
+    >
       <Popover {...inspection.popoverProps}>
         <PopoverTrigger
           {...inspection.triggerProps}
@@ -139,6 +172,9 @@ function GemRow({
           <GemTooltipContent gem={gem} catalogue={catalogue} main={main} />
         </InspectionTooltipContent>
       </Popover>
+      {context.length > 0 && (
+        <SkillSourceInfo name={gem.name} labels={context} />
+      )}
     </li>
   )
 }
@@ -192,17 +228,12 @@ function SkillGemsContent({
               data-disabled={!skill.enabled}
               data-support-only={supportOnly || undefined}
             >
-              {(labels.length > 0 || supportOnly) && (
+              {supportOnly && (
                 <div className="build-skill-context">
-                  {labels.map((label, index) => (
-                    <p key={index}>{label}</p>
-                  ))}
-                  {supportOnly && (
-                    <p className="build-skill-warning">
-                      No active skill in this group — only support gems are
-                      saved.
-                    </p>
-                  )}
+                  <p className="build-skill-warning">
+                    <TriangleAlert size={16} aria-hidden="true" />
+                    <span>There is no active skill in this group.</span>
+                  </p>
                 </div>
               )}
               <ul className="skill-gem-list">
@@ -211,6 +242,7 @@ function SkillGemsContent({
                     key={`${j}-${gem.name}`}
                     gem={gem}
                     catalogue={catalogue.data}
+                    context={j === 0 ? labels : undefined}
                     main={
                       main &&
                       j === skill.gems.findIndex((g) => !g.support && g.enabled)

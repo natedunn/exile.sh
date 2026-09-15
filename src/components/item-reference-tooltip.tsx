@@ -8,6 +8,7 @@ import { InspectionTooltipContent } from "./tooltip-pins"
 import { useInspectionTooltip } from "./use-inspection-tooltip"
 import { GemTooltipContent } from "./skill-gems"
 import { PassiveNodeEffects } from "./passive-node-effects"
+import { PassiveNodeImage } from "./passive-node-image"
 
 const TreeVersion = createContext<string | undefined>(undefined)
 export const ItemTreeVersionProvider = TreeVersion.Provider
@@ -47,7 +48,8 @@ export function useItemNodeReference(names: string[]) {
           .join("")
           .slice(0, 24)
         const response = await fetch(
-          `/pob-trees/node-reference-v1/${version}/${key}.json`
+          `/pob-trees/node-reference-v1/${version}/${key}.json`,
+          { signal: AbortSignal.timeout(10_000) }
         )
         if (!response.ok) throw new Error("Node reference unavailable")
         return response.json()
@@ -75,24 +77,38 @@ export function ItemReferenceTooltip({
   const inspection = useInspectionTooltip({ nested: true })
   return (
     <Popover {...inspection.popoverProps}>
-      {image && (
-        <img
+      {passive ? (
+        <PassiveNodeImage
           className="equipment-granted-skill-art"
           src={image}
           alt={artworkLabel}
-          width={26}
-          height={26}
+          width={24}
+          height={24}
         />
+      ) : (
+        image && (
+          <img
+            className="equipment-granted-skill-art"
+            src={image}
+            alt={artworkLabel}
+            width={24}
+            height={24}
+          />
+        )
       )}
-      <span>{label.slice(0, label.lastIndexOf(name))}</span>
-      <PopoverTrigger
-        {...inspection.triggerProps}
-        className="equipment-reference-trigger"
-        aria-label={`${name}. Show ${passive ? "passive" : "skill"} details`}
-      >
-        {name}
-      </PopoverTrigger>
-      <span>{label.slice(label.lastIndexOf(name) + name.length)}</span>
+      <span className="equipment-reference-text">
+        {label.slice(0, label.lastIndexOf(name))}
+        <PopoverTrigger
+          {...inspection.triggerProps}
+          render={<span />}
+          nativeButton={false}
+          className="equipment-reference-trigger"
+          aria-label={`${name}. Show ${passive ? "passive" : "skill"} details`}
+        >
+          {name}
+        </PopoverTrigger>
+        {label.slice(label.lastIndexOf(name) + name.length)}
+      </span>
       <InspectionTooltipContent
         {...inspection.contentProps}
         pinningEnabled={false}
@@ -153,7 +169,7 @@ export function AnointedNodeDetails({
   return (
     <>
       <div>
-        {image && <img src={image} alt="" width={48} height={48} />}
+        <PassiveNodeImage src={image} width={48} height={48} />
         <div className="tree-inspect-heading">
           <PopoverTitle>{name}</PopoverTitle>
           <p className="tree-status" data-allocated="true">

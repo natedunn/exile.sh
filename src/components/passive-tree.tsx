@@ -1,3 +1,4 @@
+import { PassiveNodeImage } from "./passive-node-image"
 import {
   PassiveLines as Lines,
   PassiveNodeEffects,
@@ -1592,15 +1593,12 @@ function TreeMapRenderer({
               }}
             >
               <div>
-                {(jewelArt || combinedArtwork?.[node.icon]) && (
-                  <img
-                    src={jewelArt || combinedArtwork?.[node.icon]}
-                    alt=""
-                    width={48}
-                    height={48}
-                    loading="lazy"
-                  />
-                )}
+                <PassiveNodeImage
+                  src={jewelArt || combinedArtwork?.[node.icon]}
+                  width={48}
+                  height={48}
+                  loading="lazy"
+                />
                 <div className="tree-inspect-heading">
                   <PopoverTitle>
                     {socketJewel?.item.name || node.name}
@@ -1885,10 +1883,6 @@ function PassiveTreeContent({
             this map: {unmapped.join(", ")}
           </p>
         )}
-        <p className="build-muted tree-snapshot-note">
-          {nodes.length} saved node IDs. Every saved tree specification is
-          preserved in the PoB code.
-        </p>
       </div>
       <aside className="build-section-aside tree-overview-right">
         <div className="tree-key-passives">
@@ -1897,15 +1891,12 @@ function PassiveTreeContent({
             .filter((n) => nodes.includes(n.id) && n.keystone)
             .map((n) => (
               <section key={n.id}>
-                {artwork.data?.[n.icon] && (
-                  <img
-                    src={artwork.data[n.icon]}
-                    alt=""
-                    width={48}
-                    height={48}
-                    loading="lazy"
-                  />
-                )}
+                <PassiveNodeImage
+                  src={artwork.data?.[n.icon]}
+                  width={48}
+                  height={48}
+                  loading="lazy"
+                />
                 <div>
                   <h4>{n.name}</h4>
                   <Lines items={n.stats} />

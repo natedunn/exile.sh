@@ -476,6 +476,7 @@ function PinnedWindow({
 /** The held popup offers Pin; persistent snapshots offer only Close. */
 export function InspectionTooltipContent({
   children,
+  onElementChange,
   pinningEnabled = true,
   showPin = false,
   fallbackClose = false,
@@ -487,6 +488,7 @@ export function InspectionTooltipContent({
   "data-hover-only": hoverOnly = false,
   ...props
 }: ComponentProps<typeof PopoverContent> & {
+  onElementChange?: (element: HTMLDivElement | null) => void
   pinningEnabled?: boolean
   showPin?: boolean
   /** Keep click/touch inspection dismissible when a pin control is unavailable. */
@@ -500,6 +502,13 @@ export function InspectionTooltipContent({
 }) {
   const context = useContext(Context)
   const element = useRef<HTMLDivElement>(null)
+  const setElement = useCallback(
+    (node: HTMLDivElement | null) => {
+      element.current = node
+      onElementChange?.(node)
+    },
+    [onElementChange]
+  )
   const id = useId()
   const [point, setPoint] = useState<Point | null>(null)
   useEffect(() => {
@@ -519,7 +528,7 @@ export function InspectionTooltipContent({
   return (
     <PopoverContent
       {...props}
-      ref={element}
+      ref={setElement}
       data-inspection-tooltip="true"
       data-hover-only={hoverOnly}
       positionerClassName={cn(

@@ -1,4 +1,4 @@
-import { AlignCenter, List, Settings } from "lucide-react"
+import { Settings } from "lucide-react"
 import {
   setAffixLayout,
   useAffixLayout,
@@ -46,10 +46,10 @@ export function EquipmentSettings() {
             }}
           >
             <DropdownMenuRadioItem value="centered">
-              <AlignCenter aria-hidden="true" /> Centered
+              Centered
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="bullets">
-              <List aria-hidden="true" /> Left aligned with bullets
+              Left aligned with bullets
             </DropdownMenuRadioItem>
           </DropdownMenuRadioGroup>
           <DropdownMenuSeparator />
@@ -58,7 +58,7 @@ export function EquipmentSettings() {
             disabled={bonded.automatic}
             onCheckedChange={setShowBondedModifiers}
           >
-            Bonded modifiers
+            Show Bonded modifiers
           </DropdownMenuCheckboxItem>
           {bonded.automatic && (
             <p className="equipment-settings-note">

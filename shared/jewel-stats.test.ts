@@ -26,6 +26,39 @@ test("socketed jewels follow the tree specification's sockets", () => {
   expect(socketedJewels(build.items, undefined)).toEqual([])
 })
 
+test("equipment-socketed jewels join tree jewels and count once", () => {
+  const build = fixture("zarokhs-gift")
+  const spec = build.treeSpecs[build.activeSpec]
+  const gear = build.itemSets.find((set) => set.id === build.activeItemSet)!
+  const item = build.items.find((candidate) => candidate.name === "Behemoth Wound")!
+  const withSocket = {
+    ...gear,
+    slots: [
+      ...gear.slots,
+      { name: "Gloves Jewel Socket 1", itemId: item.id },
+      { name: "Gloves Jewel Socket 2", itemId: item.id },
+    ],
+  }
+  const jewels = socketedJewels(build.items, spec, { gear: withSocket })
+  const matches = jewels.filter((jewel) => jewel.item.id === item.id)
+  expect(matches).toHaveLength(1)
+  expect(matches[0]).toMatchObject({
+    active: true,
+    allocation: { kind: "equipment", slot: "Gloves Jewel Socket 1" },
+  })
+  expect(aggregateJewelStats(matches.map((jewel) => jewel.item))).toEqual(
+    aggregateJewelStats([item])
+  )
+  expect(
+    socketedJewels(build.items, undefined, { gear: withSocket })
+  ).toHaveLength(1)
+  expect(
+    socketedJewels(build.items, spec, { gear }).find(
+      (jewel) => jewel.item.id === item.id
+    )?.allocation.kind
+  ).toBe("none")
+})
+
 test("jewel modifiers drop metadata and markup", () => {
   const build = fixture("2k0EPn6QOhTx")
   const prism = build.items.find((item) => item.name === "Prism of Belief")!

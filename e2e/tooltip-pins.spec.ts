@@ -109,7 +109,7 @@ test("Build Bin pins one item or gem and keeps it fixed while scrolling", async 
     name: "Main hand: Beast Cry. Show item details",
   })
   await item.scrollIntoViewIfNeeded()
-  await item.hover()
+  await item.hover({ position: { x: 4, y: 4 } })
   await page.keyboard.down("Alt")
   await page.locator(".equipment-card .tooltip-pin-control").click()
   await page.keyboard.up("Alt")

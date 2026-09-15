@@ -28,6 +28,8 @@ Audit of all five snapshots at source commit `ce566eac45ea8a86477f513c7ee65a1ebe
 
 All other node data and connections are unchanged. Missing artwork is not a removal criterion: 0.5 node `11184`, “Zarokh's Gift,” has no icon but is explicitly an `isJewelSocket` with the stat “Sinister Jewel Socket” and is retained. It is the only remaining non-class-start node without artwork across these snapshots.
 
+`scripts/build-item-node-references.py` generates individual item-allocation references under `node-reference-v1/`. These include named jewel sockets as well as notables. Missing artwork does not exclude a reference. The generator adds missing URLs and refuses to overwrite changed published records; full-tree and artwork indexes are not needed when inspecting an item allocation.
+
 `shared/fixtures/pob/image-only-nodes.json` records the IDs independently extracted from the pinned upstream `src/TreeData/<version>/tree.json` files where `isOnlyImage` is true. Regression tests compare `v4/` to `v3/` using this fixture to ensure only those entries and their incident connections are removed. Earlier asset revisions stay immutable; both viewers now request `v4/` with a new query cache key.
 
 ## Paths Not Taken

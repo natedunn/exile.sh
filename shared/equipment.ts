@@ -14,6 +14,23 @@ const bases: Record<string, Artwork | undefined> = art.bases
 const uniques: Record<string, Artwork | undefined> = art.uniques
 const baseNames = Object.keys(bases).sort((a, b) => b.length - a.length)
 export type EquipmentItem = BuildSnapshot["items"][number]
+export function equipmentJewelSlots(
+  build: Pick<BuildSnapshot, "items" | "treeSpecs">,
+  gear: BuildSnapshot["itemSets"][number]
+) {
+  const treeJewels = new Set(
+    build.treeSpecs.flatMap((spec) => (spec.sockets ?? []).map((s) => s.itemId))
+  )
+  return gear.slots.filter((slot) => {
+    if (!slot.itemId || slot.itemId === "0") return false
+    const item = build.items.find((entry) => entry.id === slot.itemId)
+    return (
+      /\bJewel Socket\s+\d+$/i.test(slot.name) ||
+      treeJewels.has(slot.itemId) ||
+      (item && describeEquipment(item).artwork?.itemClass === "Jewel")
+    )
+  })
+}
 export type ItemLine = {
   text: string
   kind:
