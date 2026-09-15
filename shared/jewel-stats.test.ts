@@ -30,7 +30,9 @@ test("equipment-socketed jewels join tree jewels and count once", () => {
   const build = fixture("zarokhs-gift")
   const spec = build.treeSpecs[build.activeSpec]
   const gear = build.itemSets.find((set) => set.id === build.activeItemSet)!
-  const item = build.items.find((candidate) => candidate.name === "Behemoth Wound")!
+  const item = build.items.find(
+    (candidate) => candidate.name === "Behemoth Wound"
+  )!
   const withSocket = {
     ...gear,
     slots: [
@@ -224,4 +226,24 @@ test("only selected variants grant named and sinister sockets", () => {
     }
   )
   expect(jewels.map((jewel) => jewel.active)).toEqual([true, true, true])
+})
+
+test("a modifier wrapped over two export lines counts as one", () => {
+  const item = {
+    id: "wrapped",
+    name: "Eldritch Battery Jewel",
+    rarity: "RARE",
+    text: [
+      "Rarity: RARE",
+      "Eldritch Battery Jewel",
+      "Diamond",
+      "Passives in Radius of Eldritch Battery can be Allocated",
+      "without being connected to your tree",
+      "10% increased Spell Damage",
+    ].join("\n"),
+  }
+  expect(jewelModifiers(item as never)).toEqual([
+    "Passives in Radius of Eldritch Battery can be Allocated without being connected to your tree",
+    "10% increased Spell Damage",
+  ])
 })

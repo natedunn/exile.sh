@@ -26,11 +26,15 @@ export function ItemTooltipContent({
   details,
   slot,
   copyStatus = "",
+  inline = false,
 }: {
   item: EquipmentItem
   details: EquipmentDetails
   slot: string
   copyStatus?: string
+  /** Rendered in the page rather than a popover: plain headings and no
+   * inspection footer. */
+  inline?: boolean
 }) {
   const affixLayout = useAffixLayout()
   const bonded = useBondedModifiers()
@@ -136,14 +140,27 @@ export function ItemTooltipContent({
     <>
       <header className="equipment-card-header" data-layout={affixLayout}>
         <div className="equipment-card-identity">
-          <PopoverTitle>{details.name}</PopoverTitle>
+          {inline ? (
+            <h4 data-slot="popover-title" className="font-medium">
+              {details.name}
+            </h4>
+          ) : (
+            <PopoverTitle>{details.name}</PopoverTitle>
+          )}
           {details.base && details.base !== details.name && (
             <p className="equipment-card-base">{details.base}</p>
           )}
-          <PopoverDescription className="equipment-card-type">
-            {details.artwork?.itemClass || slot} ·{" "}
-            {details.rarity.toLowerCase()}
-          </PopoverDescription>
+          {inline ? (
+            <p className="equipment-card-type">
+              {details.artwork?.itemClass || slot} ·{" "}
+              {details.rarity.toLowerCase()}
+            </p>
+          ) : (
+            <PopoverDescription className="equipment-card-type">
+              {details.artwork?.itemClass || slot} ·{" "}
+              {details.rarity.toLowerCase()}
+            </PopoverDescription>
+          )}
         </div>
       </header>
       <div className="equipment-card-scroll" data-layout={affixLayout}>
@@ -243,22 +260,26 @@ export function ItemTooltipContent({
             the export in PoB to inspect the selected rolls.
           </p>
         )}
-        <footer className="equipment-inspection-footer">
-          <span className="equipment-inspection-hint">
-            Hold <kbd>Alt</kbd> to inspect • <kbd>P</kbd> to keep open
-            <span aria-hidden="true"> • </span>
-          </span>
-          <Button
-            className="equipment-copy"
-            variant="ghost"
-            onClick={clipboard.copy}
-            aria-label={clipboard.status || copyStatus || "Click item to copy"}
-          >
-            <span role="status">
-              {clipboard.status || copyStatus || "Click item to copy"}
+        {!inline && (
+          <footer className="equipment-inspection-footer">
+            <span className="equipment-inspection-hint">
+              Hold <kbd>Alt</kbd> to inspect • <kbd>P</kbd> to keep open
+              <span aria-hidden="true"> • </span>
             </span>
-          </Button>
-        </footer>
+            <Button
+              className="equipment-copy"
+              variant="ghost"
+              onClick={clipboard.copy}
+              aria-label={
+                clipboard.status || copyStatus || "Click item to copy"
+              }
+            >
+              <span role="status">
+                {clipboard.status || copyStatus || "Click item to copy"}
+              </span>
+            </Button>
+          </footer>
+        )}
       </div>
     </>
   )

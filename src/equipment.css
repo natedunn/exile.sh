@@ -48,31 +48,34 @@
   background: var(--color-brand-deep);
   color: var(--color-ink);
 }
-/* The frame fills its cell with the dot screen and closes with a rule; the
-   board inside is capped, so a narrower viewport gives up the frame's
-   padding before it shrinks the items. */
+/* The frame is the cell: paper, padded, closed by a rule. The board sits
+   inside a boxed viewport that matches the tree's, with the same double
+   rule, bracketed dot-screen field and bronze glow. The board inside is
+   capped, so a narrower viewport gives up padding before it shrinks items. */
 .equipment-board-frame {
   position: relative;
-  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: var(--space-2xl);
   border-bottom: var(--rule-thin) solid var(--color-rule-strong);
-  background:
-    radial-gradient(
-      ellipse at 50% 50%,
-      oklch(33% 0.024 78 / 0.36),
-      transparent 70%
-    ),
-    var(--color-surface);
 }
-.equipment-board-frame::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  background-image: var(--dot-screen);
-  background-size: 5px 5px;
-  color: oklch(70% 0.03 80 / 0.08);
+/* The box fills the cell inside its padding, like the tree's, and centres
+   the capped board within it. */
+.equipment-board-viewport {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  padding: var(--space-2xl);
+}
+.equipment-board-viewport > .equipment-board {
+  width: 100%;
+}
+.equipment-board-viewport > .equipment-weapon-switch {
+  width: 100%;
 }
 .equipment-board {
   position: relative;
@@ -83,8 +86,12 @@
   grid-template-rows: repeat(8, minmax(0, 1fr));
   gap: 1.503759%;
   width: 100%;
-  max-width: 600px;
+  max-width: 680px;
   margin: 0 auto;
+  /* The square must never yield to its content: without this, an
+     aspect-ratio box takes its content's min height and the slots stretch
+     on narrow screens. */
+  min-height: 0;
 }
 .gear-cell {
   min-width: 0;
@@ -397,13 +404,15 @@
   font: 24px var(--font-display);
   margin-bottom: 16px;
 }
+/* Loose slots sit on fixed tracks and keep a fixed shape: the box and its
+   art must never stretch or squash with the column width. */
 .equipment-extras > div {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fill, 128px);
   gap: 16px;
 }
 .gear-extra {
-  height: 140px;
+  aspect-ratio: 1;
 }
 .equipment-footer {
   text-align: center;
@@ -788,5 +797,14 @@
 @media (pointer: coarse) {
   .equipment-inspection-hint {
     display: none;
+  }
+}
+/* Give the phone board its width back: tighter box and cell padding. */
+@media (max-width: 640px) {
+  .equipment-board-frame {
+    padding: var(--space-lg) var(--space-md);
+  }
+  .equipment-board-viewport {
+    padding: var(--space-lg);
   }
 }
