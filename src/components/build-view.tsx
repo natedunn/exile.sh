@@ -34,6 +34,7 @@ import {
 import { parseBuild } from "../../shared/pob"
 import type { BuildSnapshot } from "../../shared/pob"
 import { classPortraits } from "../../shared/class-art"
+import { ItemTreeVersionProvider } from "./item-reference-tooltip"
 
 const sections = [
   { id: "equipment", label: "Equipment", icon: Swords },
@@ -78,18 +79,13 @@ function SetPicker({
   )
 }
 
-/** Scrolls a section into view over a fixed, short duration. The browser's
- * smooth scroll is not tunable and takes a beat too long on a tall page. */
+/** Scrolls the window to a position over a fixed, short duration. The
+ * browser's smooth scroll is not tunable and takes a beat too long on a
+ * tall page. */
 let scrollFrame = 0
-function scrollToSection(id: string, pushHistory = true) {
-  const el = document.getElementById(id)
-  if (!el) return
+function animateScroll(to: number) {
   cancelAnimationFrame(scrollFrame)
-  const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0
   const from = window.scrollY
-  const limit = document.documentElement.scrollHeight - window.innerHeight
-  const to = Math.min(el.getBoundingClientRect().top + from - margin, limit)
-  if (pushHistory) history.pushState(null, "", `#${id}`)
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
     window.scrollTo(0, to)
     return
@@ -103,6 +99,28 @@ function scrollToSection(id: string, pushHistory = true) {
     if (t < 1) scrollFrame = requestAnimationFrame(step)
   }
   scrollFrame = requestAnimationFrame(step)
+}
+function scrollToSection(id: string, pushHistory = true) {
+  const el = document.getElementById(id)
+  if (!el) return
+  const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0
+  const limit = document.documentElement.scrollHeight - window.innerHeight
+  const to = Math.min(
+    el.getBoundingClientRect().top + window.scrollY - margin,
+    limit
+  )
+  if (pushHistory) history.pushState(null, "", `#${id}`)
+  animateScroll(to)
+}
+/** Returns to the masthead and drops the section hash from the URL. */
+function scrollToTop() {
+  if (window.location.hash)
+    history.pushState(
+      null,
+      "",
+      window.location.pathname + window.location.search
+    )
+  animateScroll(0)
 }
 
 /** Tracks which section currently sits under the sticky nav. */
@@ -141,7 +159,8 @@ function useActiveSection() {
   return active
 }
 
-/** True once the page header has scrolled above the viewport. */
+/** True once the masthead has scrolled above the viewport, so the strip
+ * can cast a shadow only while it is stuck. */
 function useHeaderPinned() {
   const [pinned, setPinned] = useState(false)
   useEffect(() => {
@@ -194,49 +213,68 @@ function SectionNav({
       aria-label="Build sections"
       data-pinned={pinned || undefined}
     >
-      {/* The strip is as tall as the first section's strip beside it, so
-          their rules meet at the divider. It labels the list until the
-          masthead scrolls away, then carries the build's identity. */}
-      <div className="build-nav-strip">
-        <span className="build-nav-label" aria-hidden={pinned}>
-          Sections
-        </span>
-        <div className="build-nav-identity" aria-hidden={!pinned}>
-          {portrait && <img src={portrait} alt="" width={36} height={36} />}
-          <div>
+      {/* The build's identity leads the strip and returns the reader to the
+          masthead; the section list follows the main navigation's styling. */}
+      <div className="build-nav-inner">
+        <a
+          href="#"
+          className="build-nav-identity"
+          title="Back to top"
+          onClick={(event) => {
+            if (
+              event.defaultPrevented ||
+              event.button !== 0 ||
+              event.metaKey ||
+              event.ctrlKey ||
+              event.shiftKey ||
+              event.altKey
+            )
+              return
+            event.preventDefault()
+            scrollToTop()
+          }}
+        >
+          {portrait ? (
+            <img src={portrait} alt="" width={36} height={36} />
+          ) : (
+            <span className="build-nav-emblem" aria-hidden="true">
+              <Shield />
+            </span>
+          )}
+          <span className="build-nav-identity-copy">
             <strong>{build.ascendancy || build.className}</strong>
             <span>
               Level {build.level} · {build.className}
             </span>
-          </div>
-        </div>
+          </span>
+        </a>
+        <ul>
+          {sections.map((s) => (
+            <li key={s.id}>
+              <a
+                href={`#${s.id}`}
+                aria-current={active === s.id ? "location" : undefined}
+                onClick={(event) => {
+                  if (
+                    event.defaultPrevented ||
+                    event.button !== 0 ||
+                    event.metaKey ||
+                    event.ctrlKey ||
+                    event.shiftKey ||
+                    event.altKey
+                  )
+                    return
+                  event.preventDefault()
+                  scrollToSection(s.id)
+                }}
+              >
+                <s.icon aria-hidden="true" />
+                {s.label}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
-      <ul>
-        {sections.map((s) => (
-          <li key={s.id}>
-            <a
-              href={`#${s.id}`}
-              aria-current={active === s.id ? "location" : undefined}
-              onClick={(event) => {
-                if (
-                  event.defaultPrevented ||
-                  event.button !== 0 ||
-                  event.metaKey ||
-                  event.ctrlKey ||
-                  event.shiftKey ||
-                  event.altKey
-                )
-                  return
-                event.preventDefault()
-                scrollToSection(s.id)
-              }}
-            >
-              <s.icon aria-hidden="true" />
-              {s.label}
-            </a>
-          </li>
-        ))}
-      </ul>
     </nav>
   )
 }
@@ -541,14 +579,19 @@ export function BuildView({
                   <span className="build-strip-note">{spec.title}</span>
                 )}
               </header>
-              <div className="build-section-body">
-                <div className="build-section-main">
-                  <BuildJewels build={build} spec={spec} gear={gear} />
+              <ItemTreeVersionProvider value={spec?.version}>
+                <div className="build-section-body">
+                  <div className="build-section-main">
+                    <BuildJewels build={build} spec={spec} gear={gear} />
+                  </div>
+                  <aside
+                    className="build-section-aside"
+                    aria-label="Jewel stats"
+                  >
+                    <JewelStats build={build} spec={spec} gear={gear} />
+                  </aside>
                 </div>
-                <aside className="build-section-aside" aria-label="Jewel stats">
-                  <JewelStats build={build} spec={spec} gear={gear} />
-                </aside>
-              </div>
+              </ItemTreeVersionProvider>
             </section>
             <section id="notes" className="build-section">
               <header className="build-section-strip">

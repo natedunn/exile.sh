@@ -42,11 +42,25 @@ export type ItemLine = {
     | "mutated"
     | "corrupted"
 }
+/** PoB wraps a long modifier over two lines in the item text, the second
+ * starting lowercase; fold those continuations back onto their line. */
+export function joinWrappedLines(lines: string[]) {
+  const joined: string[] = []
+  for (const line of lines) {
+    const previous = joined.at(-1)
+    if (previous !== undefined && /^[a-z]/.test(line))
+      joined[joined.length - 1] = previous + " " + line
+    else joined.push(line)
+  }
+  return joined
+}
 export function describeEquipment(item: EquipmentItem) {
-  const lines = item.text
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
+  const lines = joinWrappedLines(
+    item.text
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+  )
   const rarity = item.rarity.toUpperCase()
   const name = lines.at(1) || item.name
   // Rare/unique names are generated or named identities; ordinary/magic items

@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
-import { GearSlot } from "./equipment-display"
+import { ItemArtwork } from "./equipment-display"
+import { ItemTooltipContent } from "./item-tooltip-content"
+import { describeEquipment } from "../../shared/equipment"
+import { ReferenceLine } from "./reference-tooltip"
 import {
   aggregateJewelStats,
   SINISTER_SOCKET,
@@ -76,8 +79,8 @@ function allocationNote(jewel: SocketedJewel) {
   }
 }
 
-/** The jewels socketed in the selected setup, as slots like the equipment
- * extras, each opening the same item card. */
+/** The jewels socketed in the selected setup, each laid out as its item
+ * card with the art beside the modifiers. */
 export function BuildJewels({
   build,
   spec,
@@ -103,28 +106,36 @@ export function BuildJewels({
           {message}
         </p>
       )}
-      <div className="build-jewel-grid">
+      <div className="build-jewel-cards">
         {jewels.map((jewel) => {
           const note = allocationNote(jewel)
+          const details = describeEquipment(jewel.item)
           return (
-            <div
+            <article
               key={`${jewel.nodeId}:${jewel.item.id}`}
-              className="build-jewel"
+              className="build-jewel-card equipment-card"
+              data-rarity={details.rarity}
               data-active={jewel.active}
             >
-              <GearSlot
-                item={jewel.item}
-                name="Jewel"
-                label="Jewel"
-                area="extra"
-              />
-              <span className="build-jewel-name">{jewel.item.name}</span>
+              <div className="build-jewel-card-art" aria-hidden="true">
+                <div className="gear-slot" data-rarity={details.rarity}>
+                  <ItemArtwork details={details} slot="Jewel" />
+                </div>
+              </div>
+              <div className="build-jewel-card-body">
+                <ItemTooltipContent
+                  item={jewel.item}
+                  details={details}
+                  slot="Jewel"
+                  inline
+                />
+              </div>
               {note && (
-                <span className="build-jewel-note" title={note}>
-                  {note}
-                </span>
+                <footer className="build-jewel-card-footer">
+                  <span className="build-jewel-note">{note}</span>
+                </footer>
               )}
-            </div>
+            </article>
           )
         })}
       </div>
@@ -141,6 +152,15 @@ function StatLine({ stat }: { stat: JewelStat }) {
   // Interleave the summed numbers with the template text so the figures
   // read in the ledger's mono voice.
   const parts = stat.template.split("#")
+  if (!stat.values.length)
+    return (
+      <li>
+        <span className="build-jewel-stat-reference">
+          <ReferenceLine text={stat.template} />
+        </span>
+        {stat.count > 1 && <small>×{stat.count}</small>}
+      </li>
+    )
   return (
     <li>
       <span>

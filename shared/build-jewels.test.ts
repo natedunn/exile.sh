@@ -8,7 +8,10 @@ import { BuildJewels, JewelStats } from "../src/components/build-jewels"
 import { parseBuild } from "./pob"
 
 vi.mock("../src/components/equipment-display", () => ({
-  GearSlot: () => null,
+  ItemArtwork: () => null,
+}))
+vi.mock("../src/components/item-tooltip-content", () => ({
+  ItemTooltipContent: () => null,
 }))
 afterEach(() => {
   cleanup()

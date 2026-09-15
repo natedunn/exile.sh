@@ -1,6 +1,6 @@
 import type { BuildSnapshot } from "./pob"
 import { jewelLines } from "./tree-jewels"
-import { equipmentJewelSlots } from "./equipment"
+import { equipmentJewelSlots, joinWrappedLines } from "./equipment"
 
 type Item = BuildSnapshot["items"][number]
 type Spec = BuildSnapshot["treeSpecs"][number]
@@ -153,10 +153,12 @@ const number = /\d+(?:\.\d+)?/g
 export function jewelModifiers(item: Item) {
   const lines = jewelLines(item)
   const rarity = item.rarity.toUpperCase()
-  return lines
-    .slice(rarity === "RARE" || rarity === "UNIQUE" ? 3 : 2)
-    .map((line) => line.replace(markup, "").trim())
-    .filter((line) => line && !metadata.test(line))
+  return joinWrappedLines(
+    lines
+      .slice(rarity === "RARE" || rarity === "UNIQUE" ? 3 : 2)
+      .map((line) => line.replace(markup, "").trim())
+      .filter((line) => line && !metadata.test(line))
+  )
 }
 
 export type JewelStat = {
