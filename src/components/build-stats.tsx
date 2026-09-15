@@ -1,3 +1,5 @@
+import { equipmentRarity } from "../../shared/equipment-rarity"
+import { BuildExpandedStats } from "./build-expanded-stats"
 import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
 import type { ReactNode } from "react"
 import { buildSkill, displayStat, statValue } from "../../shared/pob"
@@ -9,10 +11,7 @@ export type StatGroup = "character" | "defensive" | "recovery" | "main"
 const groups: Record<StatGroup, { title: string; rows: StatRow[] }> = {
   character: {
     title: "Character",
-    rows: [
-      ["Movement speed", "EffectiveMovementSpeedMod", "%", 100],
-      ["Item rarity", "LootRarity", "%"],
-    ],
+    rows: [["Movement speed", "EffectiveMovementSpeedMod", "%", 100]],
   },
   defensive: {
     title: "Defensive",
@@ -45,7 +44,7 @@ const groups: Record<StatGroup, { title: string; rows: StatRow[] }> = {
     rows: [
       ["Combined DPS", "CombinedDPS"],
       ["Average hit", "AverageHit"],
-      ["Critical chance", "CritChance", "%"],
+      ["Effective critical chance", "CritChance", "%"],
       ["Critical multiplier", "CritMultiplier", "×"],
       ["Hit chance", "HitChance", "%"],
       ["Mana cost", "ManaCost"],
@@ -58,11 +57,16 @@ export function BuildStats({
   build,
   groups: selected,
   note,
+  gear,
+  weapons = "primary",
 }: {
   build: BuildSnapshot
   groups: StatGroup[]
   note?: string
+  gear?: BuildSnapshot["itemSets"][number]
+  weapons?: "primary" | "swap"
 }) {
+  const rarity = equipmentRarity(build, gear, weapons)
   function value(key: string, suffix = "", scale = 1) {
     const raw = statValue(build, key)
     const formatted = displayStat(
@@ -132,6 +136,11 @@ export function BuildStats({
                   ["PowerChargesMax", "Power", "blue"],
                 ])
               )}
+            {group === "character" &&
+              row(
+                "Item rarity",
+                rarity === undefined ? "—" : `${displayStat(String(rarity))}%`
+              )}
             {group === "defensive" && (
               <>
                 {row(
@@ -162,6 +171,7 @@ export function BuildStats({
         </section>
       ))}
       {note && <p className="build-stats-note">{note}</p>}
+      {selected.includes("character") && <BuildExpandedStats build={build} />}
     </div>
   )
 }
