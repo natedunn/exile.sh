@@ -88,6 +88,42 @@ for (const width of [390, 640, 1440]) {
       ).toBeVisible()
       await dialog.getByRole("tab", { name: "Minions", exact: true }).click()
     }
+    if (width <= 640) {
+      await categorySelect.click()
+      await page
+        .getByRole("option", { name: "Offence & skills", exact: true })
+        .click()
+    } else {
+      await dialog.getByRole("tab", { name: "Skills", exact: true }).click()
+    }
+    const warning = dialog.getByRole("button", {
+      name: "Why is Full DPS zero?",
+    })
+    await expect(warning).toBeVisible()
+    if (width <= 640) await warning.click()
+    else {
+      await warning.focus()
+      await page.keyboard.press("Enter")
+    }
+    await expect(
+      page.getByRole("dialog", { name: "About zero Full DPS" })
+    ).toContainText("no skills were selected")
+    await expect(
+      dialog
+        .getByRole("tabpanel")
+        .locator("dt")
+        .filter({ hasText: /^Hit DPS$/ })
+    ).toBeVisible()
+    await page.keyboard.press("Escape")
+    await expect(dialog).toBeVisible()
+    if (width <= 640) {
+      await categorySelect.click()
+      await page
+        .getByRole("option", { name: "Minion stats", exact: true })
+        .click()
+    } else {
+      await dialog.getByRole("tab", { name: "Minions", exact: true }).click()
+    }
     await expect(
       dialog.getByRole("heading", { name: "Minion stats" })
     ).toBeVisible()
@@ -149,11 +185,12 @@ for (const width of [390, 1440]) {
     const panel = dialog.getByRole("tabpanel")
     await expect(panel.locator("dt").first()).toHaveText("Full DPS")
     await expect(panel.locator("dd").first()).toHaveText("887,964.2")
-    const breakdown = panel
-      .locator("section")
-      .filter({
-        has: page.getByRole("heading", { name: "Full DPS breakdown" }),
-      })
+    await expect(
+      dialog.getByRole("button", { name: "Why is Full DPS zero?" })
+    ).toHaveCount(0)
+    const breakdown = panel.locator("section").filter({
+      has: page.getByRole("heading", { name: "Full DPS breakdown" }),
+    })
     await expect(breakdown.locator("dt")).toHaveText([
       "Ice Shot",
       "Ice Shot",

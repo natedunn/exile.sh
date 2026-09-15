@@ -8,6 +8,15 @@ const labels: Record<string, string> = {
   Speed: "Attack / cast rate",
   HitSpeed: "Hit rate",
   TotalEHP: "Effective health pool",
+  TotalDPS: "Hit DPS",
+  WithBleedDPS: "Total DPS including bleed",
+  WithIgniteDPS: "Total DPS including ignite",
+  WithPoisonDPS: "Total DPS including poison",
+  WithDotDPS: "Total DPS including damage over time",
+  PreEffectiveCritChance: "Critical chance",
+  CritChance: "Effective critical chance",
+  CritMultiplier: "Critical multiplier",
+  AverageHit: "Average hit",
   CombinedDPS: "Combined DPS",
   FullDPS: "Full DPS",
   FullDotDPS: "Full damage over time DPS",
@@ -80,7 +89,7 @@ export function statCategory(name: string) {
   if (/Regen|Leech|Recharge|Recovery/.test(name)) return "Recovery"
   if (name === "PhysicalDamageReduction") return "Defences & resources"
   if (
-    /DPS|Damage|Dot|Crit|Speed$|HitChance|Accuracy|Cooldown|Seal|Channel|Cost|AreaOfEffect|Culling/.test(
+    /DPS|Damage|AverageHit|Dot|Crit|Speed$|HitChance|Accuracy|Cooldown|Seal|Channel|Cost|AreaOfEffect|Culling/.test(
       name
     )
   )

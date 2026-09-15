@@ -2620,3 +2620,35 @@ body:has(.tree-pins[data-open="true"])
     padding-left: var(--space-lg);
   }
 }
+.build-stat-value {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.build-stat-alert {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--color-brand);
+  border-radius: var(--radius-control);
+}
+.build-stat-alert:hover {
+  background: var(--color-notice);
+  color: var(--color-brand-ink);
+}
+.build-stat-alert svg {
+  width: 15px;
+  height: 15px;
+}
+.build-stat-alert-content[data-slot="popover-content"] {
+  width: 300px;
+  max-width: calc(100vw - 2rem);
+  padding: var(--space-md);
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: var(--text-xs)/1.6 var(--font-body);
+}

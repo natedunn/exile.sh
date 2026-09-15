@@ -1,3 +1,5 @@
+import { TriangleAlert } from "lucide-react"
+import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover"
 import { useState } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs"
 import {
@@ -23,6 +25,36 @@ import {
 } from "../../shared/build-stat-format"
 import { displayStat } from "../../shared/pob"
 import type { BuildSnapshot } from "../../shared/pob"
+
+function FullDpsNotice() {
+  return (
+    <Popover>
+      <PopoverTrigger
+        openOnHover
+        delay={0}
+        render={
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className="build-stat-alert"
+            aria-label="Why is Full DPS zero?"
+          />
+        }
+      >
+        <TriangleAlert aria-hidden="true" />
+      </PopoverTrigger>
+      <PopoverContent
+        side="left"
+        className="build-stat-alert-content"
+        aria-label="About zero Full DPS"
+      >
+        Full DPS may be 0 because no skills were selected for “Include in Full
+        DPS” in PoB. Check that option in PoB’s Skills tab and export the build
+        again. This does not necessarily mean the build deals no damage.
+      </PopoverContent>
+    </Popover>
+  )
+}
 
 export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
   const [category, setCategory] = useState("Character & utility")
@@ -139,7 +171,14 @@ export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
                       {stats.map((stat, index) => (
                         <div key={`${stat.name}-${index}`}>
                           <dt>{statLabel(stat.name)}</dt>
-                          <dd>{formattedStat(stat.name, stat.value)}</dd>
+                          <dd>
+                            <span className="build-stat-value">
+                              {stat.name === "FullDPS" &&
+                                stat.value.trim() !== "" &&
+                                Number(stat.value) === 0 && <FullDpsNotice />}
+                              {formattedStat(stat.name, stat.value)}
+                            </span>
+                          </dd>
                         </div>
                       ))}
                     </dl>

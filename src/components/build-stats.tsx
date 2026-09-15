@@ -44,7 +44,7 @@ const groups: Record<StatGroup, { title: string; rows: StatRow[] }> = {
     rows: [
       ["Combined DPS", "CombinedDPS"],
       ["Average hit", "AverageHit"],
-      ["Critical chance", "CritChance", "%"],
+      ["Effective critical chance", "CritChance", "%"],
       ["Critical multiplier", "CritMultiplier", "×"],
       ["Hit chance", "HitChance", "%"],
       ["Mana cost", "ManaCost"],
