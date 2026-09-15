@@ -155,7 +155,9 @@ function StatLine({ stat }: { stat: JewelStat }) {
   if (!stat.values.length)
     return (
       <li>
-        <ReferenceLine text={stat.template} />
+        <span className="build-jewel-stat-reference">
+          <ReferenceLine text={stat.template} />
+        </span>
         {stat.count > 1 && <small>×{stat.count}</small>}
       </li>
     )

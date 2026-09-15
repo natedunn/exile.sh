@@ -763,6 +763,17 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+/* A referenced skill or passive keeps its icon beside the text. */
+.build-jewel-stat-reference {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.build-jewel-stat-reference .equipment-granted-skill-art {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
 .build-jewel-stats strong {
   font-family: var(--font-mono);
   font-weight: 500;

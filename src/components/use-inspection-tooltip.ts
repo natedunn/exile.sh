@@ -83,7 +83,7 @@ export function useInspectionTooltip({
   }
   const triggerProps: ComponentProps<typeof PopoverTrigger> = {
     openOnHover: nested,
-    closeDelay: 150,
+    closeDelay: 0,
     onPointerEnter: (event) => {
       if (event.pointerType === "touch") return
       hovering.current = true
