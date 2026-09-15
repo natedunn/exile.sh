@@ -140,3 +140,55 @@ test("Voices lights as many sinister sockets as it allocates", () => {
     item: "Voices",
   })
 })
+
+test("weapon-set sockets retain their allocation source within spec.nodes", () => {
+  const build = fixture("2k0EPn6QOhTx")
+  const original = build.treeSpecs[build.activeSpec]
+  const sockets = original.sockets!.slice(0, 3)
+  const spec = {
+    ...original,
+    sockets,
+    nodes: sockets.map((socket) => socket.nodeId),
+    weaponSet1: [sockets[0].nodeId],
+    weaponSet2: [sockets[1].nodeId],
+  }
+  expect(
+    socketedJewels(build.items, spec).map((jewel) => jewel.allocation)
+  ).toEqual([
+    { kind: "weapon-set", set: 1 },
+    { kind: "weapon-set", set: 2 },
+    { kind: "tree" },
+  ])
+})
+
+test("only selected variants grant named and sinister sockets", () => {
+  const build = fixture("2k0EPn6QOhTx")
+  const spec = build.treeSpecs[build.activeSpec]
+  const sockets = spec.sockets!.slice(0, 3)
+  const grant = {
+    ...build.items.find((item) => item.id === sockets[0].itemId)!,
+    selectedVariants: ["2"],
+    text: "{variant:1}Allocates Other socket\n{variant:2}Allocates Saved socket\n{variant:1}Allocates 0 Sinister Jewel Sockets\n{variant:2}Allocates 1 Sinister Jewel Socket",
+  }
+  expect([...grantedAllocations([grant]).keys()]).toEqual([
+    "Saved socket",
+    "1 Sinister Jewel Socket",
+  ])
+  const jewels = socketedJewels(
+    build.items.map((item) => (item.id === grant.id ? grant : item)),
+    {
+      ...spec,
+      sockets,
+      nodes: [sockets[0].nodeId],
+      weaponSet1: [],
+      weaponSet2: [],
+    },
+    {
+      nodeNames: new Map([
+        [sockets[1].nodeId, "Saved socket"],
+        [sockets[2].nodeId, "Sinister Jewel Socket"],
+      ]),
+    }
+  )
+  expect(jewels.map((jewel) => jewel.active)).toEqual([true, true, true])
+})

@@ -79,7 +79,7 @@ function SetPicker({
 /** Scrolls a section into view over a fixed, short duration. The browser's
  * smooth scroll is not tunable and takes a beat too long on a tall page. */
 let scrollFrame = 0
-function scrollToSection(id: string) {
+function scrollToSection(id: string, pushHistory = true) {
   const el = document.getElementById(id)
   if (!el) return
   cancelAnimationFrame(scrollFrame)
@@ -87,7 +87,7 @@ function scrollToSection(id: string) {
   const from = window.scrollY
   const limit = document.documentElement.scrollHeight - window.innerHeight
   const to = Math.min(el.getBoundingClientRect().top + from - margin, limit)
-  history.pushState(null, "", `#${id}`)
+  if (pushHistory) history.pushState(null, "", `#${id}`)
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
     window.scrollTo(0, to)
     return
@@ -163,6 +163,29 @@ function SectionNav({
 }) {
   const active = useActiveSection()
   const pinned = useHeaderPinned()
+  useEffect(() => {
+    const previous = history.scrollRestoration
+    history.scrollRestoration = "manual"
+    const restore = () => {
+      const id = window.location.hash.slice(1)
+      if (sections.some((section) => section.id === id)) {
+        scrollToSection(id, false)
+      } else if (!id) {
+        cancelAnimationFrame(scrollFrame)
+        window.scrollTo(0, 0)
+      }
+    }
+    const initial = requestAnimationFrame(() => {
+      if (window.location.hash) restore()
+    })
+    window.addEventListener("popstate", restore)
+    return () => {
+      cancelAnimationFrame(initial)
+      cancelAnimationFrame(scrollFrame)
+      window.removeEventListener("popstate", restore)
+      history.scrollRestoration = previous
+    }
+  }, [])
   return (
     <nav
       className="build-nav"
@@ -537,9 +560,10 @@ export function BuildView({
           <Info size={15} aria-hidden="true" />
           <p>
             This build is a snapshot from Path of Building, not a live
-            character. Stats are the values saved in the export and do not
-            recalculate when you browse other sets. Artwork © Grinding Gear
-            Games. <a href="/methodology">Data &amp; attribution.</a>
+            character. Character and skill stats are saved PoB values and do not
+            recalculate when you browse other sets. Jewel totals reflect the
+            selected tree and equipment. Artwork © Grinding Gear Games.{" "}
+            <a href="/methodology">Data &amp; attribution.</a>
           </p>
         </section>
       </article>

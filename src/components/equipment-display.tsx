@@ -354,6 +354,7 @@ export function WeaponSetSwitch({
               {/* A disabled tab takes no pointer events, so the wrapper listens. */}
               <TooltipTrigger
                 render={<span className="equipment-weapon-switch-off" />}
+                tabIndex={0}
               >
                 <TabsTrigger value="swap" disabled>
                   Set II

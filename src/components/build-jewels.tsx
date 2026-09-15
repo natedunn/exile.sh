@@ -29,7 +29,7 @@ function useSocketedJewels(build: BuildSnapshot, spec?: Spec, gear?: Gear) {
       return (await response.json()) as TreeData
     },
   })
-  return useMemo(() => {
+  const jewels = useMemo(() => {
     const equipped = (gear?.slots ?? []).flatMap((slot) => {
       const item = build.items.find((entry) => entry.id === slot.itemId)
       return item ? [item] : []
@@ -39,6 +39,15 @@ function useSocketedJewels(build: BuildSnapshot, spec?: Spec, gear?: Gear) {
       : undefined
     return socketedJewels(build.items, spec, { equipped, nodeNames })
   }, [build.items, spec, gear, tree.data])
+  const message =
+    !jewels.length || tree.data
+      ? null
+      : !isTreeVersion(version)
+        ? "Jewel allocations and totals are unavailable for this tree version."
+        : tree.isError
+          ? "Tree data could not be loaded. Jewel allocations and totals are unavailable."
+          : "Loading tree data to determine jewel allocations and totals…"
+  return { jewels, message }
 }
 
 function allocationNote(jewel: SocketedJewel) {
@@ -71,7 +80,13 @@ export function BuildJewels({
   spec?: Spec
   gear?: Gear
 }) {
-  const jewels = useSocketedJewels(build, spec, gear)
+  const { jewels, message } = useSocketedJewels(build, spec, gear)
+  if (message)
+    return (
+      <p className="build-muted" role="status">
+        {message}
+      </p>
+    )
   if (!jewels.length)
     return <p className="build-empty">No jewels socketed in this tree.</p>
   return (
@@ -80,7 +95,7 @@ export function BuildJewels({
         const note = allocationNote(jewel)
         return (
           <div
-            key={jewel.nodeId}
+            key={`${jewel.nodeId}:${jewel.item.id}`}
             className="build-jewel"
             data-active={jewel.active}
           >
@@ -139,7 +154,18 @@ export function JewelStats({
   spec?: Spec
   gear?: Gear
 }) {
-  const jewels = useSocketedJewels(build, spec, gear)
+  const { jewels, message } = useSocketedJewels(build, spec, gear)
+  if (message)
+    return (
+      <div className="build-stats-body">
+        <section>
+          <h3>From jewels</h3>
+          <p className="build-muted" role="status">
+            {message}
+          </p>
+        </section>
+      </div>
+    )
   const active = jewels.filter((jewel) => jewel.active)
   const stats = aggregateJewelStats(active.map((jewel) => jewel.item))
   return (

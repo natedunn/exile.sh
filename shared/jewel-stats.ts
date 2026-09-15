@@ -33,7 +33,7 @@ export const SINISTER_SOCKET = "Sinister Jewel Socket"
 export function grantedAllocations(items: Item[]) {
   const granted = new Map<string, string>()
   for (const item of items)
-    for (const match of item.text.matchAll(allocates))
+    for (const match of jewelLines(item).join("\n").matchAll(allocates))
       if (!granted.has(match[1])) granted.set(match[1], item.name)
   return granted
 }
@@ -64,12 +64,12 @@ export function socketedJewels(
     let sinisterLeft = sinister.count
     return sockets.map(({ item, nodeId }) => {
       const name = options.nodeNames?.get(nodeId)
-      let allocation: SocketAllocation = pathed.has(nodeId)
-        ? { kind: "tree" }
-        : weaponSets[0].has(nodeId)
-          ? { kind: "weapon-set", set: 1 }
-          : weaponSets[1].has(nodeId)
-            ? { kind: "weapon-set", set: 2 }
+      let allocation: SocketAllocation = weaponSets[0].has(nodeId)
+        ? { kind: "weapon-set", set: 1 }
+        : weaponSets[1].has(nodeId)
+          ? { kind: "weapon-set", set: 2 }
+          : pathed.has(nodeId)
+            ? { kind: "tree" }
             : name && granted.has(name)
               ? { kind: "item", node: name, item: granted.get(name)! }
               : { kind: "none" }
@@ -86,7 +86,7 @@ export function socketedJewels(
   }
   const sinisterFrom = (candidates: Item[]) => {
     for (const item of candidates) {
-      const match = item.text.match(sinisterGrant)
+      const match = jewelLines(item).join("\n").match(sinisterGrant)
       if (match) return { count: Number(match[1]), item: item.name }
     }
     return { count: 0, item: "" }

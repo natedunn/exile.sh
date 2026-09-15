@@ -232,3 +232,34 @@ test("a shared build keeps its selected sets in the URL", async ({ page }) => {
     page.getByRole("img", { name: /mapped saved passive nodes/ }).first()
   ).toBeVisible()
 })
+
+test("section navigation restores initial hashes and Back/Forward destinations", async ({
+  page,
+}) => {
+  await page.goto(`${buildsURL}#skills`)
+  await page.getByLabel("PoB export or pobb.in link").fill(code)
+  const nav = page.getByRole("navigation", { name: "Build sections" })
+  const skills = page.getByRole("heading", { name: "Skills & supports" })
+  await expect(skills).toBeInViewport()
+  await nav.getByRole("link", { name: "Equipment", exact: true }).click()
+  await expect(
+    page.getByRole("heading", { name: "Equipment", exact: true })
+  ).toBeInViewport()
+  await nav.getByRole("link", { name: "Notes", exact: true }).click()
+  await expect(
+    page.getByRole("heading", { name: "Notes", exact: true })
+  ).toBeInViewport()
+  await page.goBack()
+  await expect(page).toHaveURL(/#equipment$/)
+  await expect(
+    page.getByRole("heading", { name: "Equipment", exact: true })
+  ).toBeInViewport()
+  await page.goBack()
+  await expect(page).toHaveURL(/#skills$/)
+  await expect(skills).toBeInViewport()
+  await page.goForward()
+  await expect(page).toHaveURL(/#equipment$/)
+  await expect(
+    page.getByRole("heading", { name: "Equipment", exact: true })
+  ).toBeInViewport()
+})
