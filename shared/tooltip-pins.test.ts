@@ -10,7 +10,7 @@ import {
 import { afterEach, beforeEach, expect, it, vi } from "vitest"
 import {
   TooltipPinScope,
-  PinnablePopoverContent,
+  InspectionTooltipContent,
 } from "../src/components/tooltip-pins"
 import { Popover } from "../src/components/ui/popover"
 
@@ -44,7 +44,7 @@ function example(enabled = true, limit = 2, resetKey = "first") {
       h(
         Popover,
         { open: true, key: name },
-        h(PinnablePopoverContent, {
+        h(InspectionTooltipContent, {
           showPin: true,
           pinLabel: name,
           onPin() {},
@@ -100,7 +100,7 @@ it("keeps a working explicit close control when pinning is disabled", async () =
       children: h(
         Popover,
         { defaultOpen: true },
-        h(PinnablePopoverContent, {
+        h(InspectionTooltipContent, {
           showPin: true,
           fallbackClose: true,
           pinLabel: "Item details",

@@ -1,6 +1,10 @@
+import {
+  PassiveLines as Lines,
+  PassiveNodeEffects,
+} from "./passive-node-effects"
 import { TreePins } from "./tree-pins"
 import {
-  PinnablePopoverContent,
+  InspectionTooltipContent,
   TooltipPinScope,
   usePinnedTreeNodes,
 } from "./tooltip-pins"
@@ -35,11 +39,7 @@ import ascendancyBackgrounds from "../../shared/generated/ascendancy-backgrounds
 import unseenTreeNodes from "../../shared/generated/tree-unseen.json"
 import { Checkbox } from "./ui/checkbox"
 import { isTreeVersion } from "../../shared/tree-versions"
-import {
-  displayLine,
-  radiusBenefits,
-  treeJewels,
-} from "../../shared/tree-jewels"
+import { radiusBenefits, treeJewels } from "../../shared/tree-jewels"
 import type { TreeJewel } from "../../shared/tree-jewels"
 import type { BuildSnapshot } from "../../shared/pob"
 import { treeAttributes } from "../../shared/tree-attributes"
@@ -95,22 +95,6 @@ const PALETTE_KEY = "exile.tree.palette"
 const LEGACY_COLORBLIND_KEY = "exile.tree.colorblind"
 const isPalette = (value: unknown): value is Palette =>
   PALETTES.some((p) => p.value === value)
-function Lines({
-  items,
-  className = "tree-lines",
-}: {
-  items: string[]
-  className?: string
-}) {
-  if (!items.length) return null
-  return (
-    <ul className={className}>
-      {items.map((line, index) => (
-        <li key={index}>{displayLine(line)}</li>
-      ))}
-    </ul>
-  )
-}
 const Connections = memo(function Connections({
   edges,
   selected,
@@ -1553,7 +1537,7 @@ function TreeMapRenderer({
           }}
         >
           {node && (
-            <PinnablePopoverContent
+            <InspectionTooltipContent
               pinningEnabled={pinningEnabled}
               showPin={held || touchInspect || Boolean(attention)}
               freeze={held}
@@ -1592,11 +1576,8 @@ function TreeMapRenderer({
               data-attention={attention?.glowing || undefined}
               className="tree-inspection"
               data-held={held || Boolean(attention) || touchInspect}
-              positionerClassName={
-                held || attention || touchInspect
-                  ? "tree-node-positioner is-held"
-                  : "tree-node-positioner"
-              }
+              data-hover-only={!held && !attention && !touchInspect}
+              positionerClassName="tree-node-positioner"
               aria-label="Passive node details"
               side="top"
               sideOffset={28}
@@ -1646,29 +1627,10 @@ function TreeMapRenderer({
               {affectedJewels.some((jewel) => jewel.timeless) && (
                 <p>Base passive — conquered effects are not calculated.</p>
               )}
-              {!socketJewel && node.options?.length ? (
-                <section className="tree-choice-intro">
-                  {node.stats.map((line, index) => (
-                    <p key={index}>
-                      {displayLine(line)}
-                      {index === node.stats.length - 1 && " (choose one):"}
-                    </p>
-                  ))}
-                </section>
+              {socketJewel ? (
+                <Lines items={socketJewel.lines.slice(3)} />
               ) : (
-                <Lines
-                  items={socketJewel ? socketJewel.lines.slice(3) : node.stats}
-                />
-              )}
-              {!socketJewel && !!node.options?.length && (
-                <ol
-                  className="tree-choice-lines"
-                  aria-label="Available options"
-                >
-                  {node.options.map((option) => (
-                    <li key={option}>{displayLine(option)}</li>
-                  ))}
-                </ol>
+                <PassiveNodeEffects node={node} />
               )}
               {socketJewel?.warning && <p>{socketJewel.warning}</p>}
               {grantingJewels.map((jewel) => (
@@ -1687,7 +1649,7 @@ function TreeMapRenderer({
                   />
                 </Fragment>
               ))}
-            </PinnablePopoverContent>
+            </InspectionTooltipContent>
           )}
         </Popover>
       </div>

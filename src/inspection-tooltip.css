@@ -1,0 +1,90 @@
+/* Shared shell for item, gem, and passive inspection (live and pinned).
+   Content-specific CSS supplies layout and optional --inspection-* variables. */
+[data-inspection-tooltip][data-slot="popover-content"] {
+  position: relative;
+  display: block;
+  width: var(--inspection-width, 330px);
+  max-width: calc(100vw - 24px);
+  max-height: var(
+    --inspection-max-height,
+    var(--available-height, calc(100dvh - 24px))
+  );
+  overflow: auto;
+  overscroll-behavior: contain;
+  gap: 0;
+  padding: var(--inspection-padding, 18px 18px 16px);
+  border: 1px solid var(--inspection-border, var(--color-rule-strong));
+  border-radius: var(--radius-control);
+  background: oklch(12% 0.008 75);
+  color: var(--color-ink);
+  box-shadow:
+    0 12px 48px #000c,
+    0 0 0 3px #000b;
+}
+[data-inspection-tooltip]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 256px;
+  max-height: 100%;
+  background: var(--inspection-accent, var(--color-brand));
+  mask-image: var(--dither-fade-y);
+  mask-size: auto;
+  mask-repeat: repeat-x;
+  opacity: 0.07;
+  pointer-events: none;
+}
+[data-inspection-tooltip] > * {
+  position: relative;
+}
+[data-inspection-tooltip] [data-slot="popover-title"] {
+  font: 500 24px/1.1 var(--font-display);
+  color: var(--inspection-accent, var(--color-brand));
+}
+.inspection-hover-positioner,
+[data-inspection-tooltip][data-hover-only="true"] {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+[data-inspection-tooltip][data-hover-only="false"] {
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+[data-inspection-tooltip][data-closed] {
+  display: none;
+  animation: none;
+}
+/* Explicit pins keep their viewport position independently of their source. */
+.pinned-tooltip-positioner,
+[data-tooltip-pinned="true"] {
+  pointer-events: auto;
+  user-select: text;
+}
+[data-tooltip-pinned="true"][data-slot="popover-content"] {
+  animation: none;
+}
+[data-pin-control="true"] > :is(header, div):first-child {
+  padding-right: 36px;
+}
+[data-slot="popover-content"] > .tooltip-pin-control {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 8px;
+  margin: 0;
+  color: var(--color-text-muted);
+}
+[data-slot="popover-content"] > .tooltip-pin-control:hover {
+  color: var(--color-brand);
+}
+@media (max-width: 767px), (pointer: coarse) {
+  [data-slot="popover-content"] > .tooltip-pin-control {
+    width: 44px;
+    height: 44px;
+  }
+  [data-pin-control="true"] > :is(header, div):first-child {
+    padding-right: 48px;
+  }
+}

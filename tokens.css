@@ -118,5 +118,8 @@ html:root {
   --color-item-unique: oklch(74% 0.14 55);
   --color-item-modifier: oklch(76% 0.13 285);
   --color-item-crafted: oklch(86% 0.07 285);
+  --color-item-augment: #b4b4ff;
   --color-item-fractured: oklch(80% 0.08 75);
+  --color-item-desecrated: oklch(80% 0.15 125);
+  --color-item-explicit: #e6e6ff;
 }

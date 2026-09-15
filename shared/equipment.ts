@@ -16,7 +16,14 @@ const baseNames = Object.keys(bases).sort((a, b) => b.length - a.length)
 export type EquipmentItem = BuildSnapshot["items"][number]
 export type ItemLine = {
   text: string
-  kind: "normal" | "crafted" | "enchant" | "fractured" | "desecrated"
+  kind:
+    | "normal"
+    | "crafted"
+    | "enchant"
+    | "fractured"
+    | "desecrated"
+    | "mutated"
+    | "corrupted"
 }
 export function describeEquipment(item: EquipmentItem) {
   const lines = item.text
@@ -50,10 +57,19 @@ export function describeEquipment(item: EquipmentItem) {
   const properties: string[] = [],
     requirements: string[] = [],
     modifiers: ItemLine[] = [],
+    implicitModifiers: ItemLine[] = [],
+    explicitModifiers: ItemLine[] = [],
+    augmentModifiers: ItemLine[] = [],
+    statuses: ItemLine[] = [],
     sockets: string[] = []
+  let remainingImplicits = 0
   let socketCount = 0
   let variantWarning = false
   for (const line of body) {
+    if (line.startsWith("Implicits:")) {
+      remainingImplicits = Math.max(0, Number(line.slice(10)) || 0)
+      continue
+    }
     if (
       /^(Unique ID|Item Level|League|Crafted|Prefix|Suffix|Selected Variant|Variant|Implicits|Radius|Limited to):/.test(
         line
@@ -87,26 +103,51 @@ export function describeEquipment(item: EquipmentItem) {
         line
       )
     ) {
+      if (
+        /^Quality:/i.test(line) &&
+        Number.parseFloat(line.slice(line.indexOf(":") + 1)) === 0
+      )
+        continue
       properties.push(line)
       continue
     }
     if (/\{variant:/.test(line)) variantWarning = true
-    const kind = line.includes("{desecrated}")
-      ? "desecrated"
-      : line.includes("{fractured}")
-        ? "fractured"
-        : line.includes("{crafted}")
-          ? "crafted"
-          : /\{(enchant|rune)\}/.test(line)
-            ? "enchant"
-            : "normal"
+    const kind = /^(?:\{[^}]*\})*Allocates\s/i.test(line)
+      ? "enchant"
+      : line.includes("{mutated}")
+        ? "mutated"
+        : line.includes("{desecrated}")
+          ? "desecrated"
+          : line.includes("{fractured}")
+            ? "fractured"
+            : line.includes("{crafted}")
+              ? "crafted"
+              : line.includes("{enchant}") && !line.includes("{rune}")
+                ? "corrupted"
+                : /\{(enchant|rune)\}/.test(line)
+                  ? "enchant"
+                  : "normal"
     // Strip only presentation tags. Variant/range markers remain visible because
     // the viewer must not silently pick or recalculate a variant's modifiers.
     const text = line.replace(
-      /\{(?:crafted|enchant|rune|fractured|desecrated|implicit)\}/g,
+      /\{(?:crafted|enchant|rune|fractured|desecrated|mutated|implicit)\}/g,
       ""
     )
-    if (text !== "--------") modifiers.push({ text, kind })
+    if (text === "--------") continue
+    const modifier: ItemLine = { text, kind }
+    modifiers.push(modifier)
+    if (line.includes("{rune}")) augmentModifiers.push(modifier)
+    if (
+      /^(Corrupted|Twice Corrupted|Mirrored|Split|Unidentified)$/.test(text)
+    ) {
+      statuses.push(modifier)
+      continue
+    }
+    // PoB counts enchantment/rune lines alongside native implicits.
+    const implicit =
+      remainingImplicits > 0 || /\{(?:implicit|enchant|rune)\}/.test(line)
+    if (remainingImplicits > 0) remainingImplicits--
+    ;(implicit ? implicitModifiers : explicitModifiers).push(modifier)
   }
   return {
     name,
@@ -116,6 +157,10 @@ export function describeEquipment(item: EquipmentItem) {
     properties,
     requirements,
     modifiers,
+    implicitModifiers,
+    explicitModifiers,
+    augmentModifiers,
+    statuses,
     sockets,
     socketCount,
     socketContents: Array.from(

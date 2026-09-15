@@ -25,6 +25,10 @@ export type BuildSnapshot = {
       label: string
       slot: string
       enabled: boolean
+      source?: string
+      removed?: boolean
+      set1?: boolean
+      set2?: boolean
       gems: {
         name: string
         gemId?: string
@@ -213,6 +217,20 @@ export function parseBuildXml(xml: string): BuildSnapshot {
         label: skill.attrs.label ?? "",
         slot: skill.attrs.slot ?? "",
         enabled: skill.attrs.enabled !== "false",
+        source: skill.attrs.source ?? "",
+        removed: skill.attrs.removed === "true",
+        set1:
+          skill.attrs.set1 === "true"
+            ? true
+            : skill.attrs.set1 === "false"
+              ? false
+              : undefined,
+        set2:
+          skill.attrs.set2 === "true"
+            ? true
+            : skill.attrs.set2 === "false"
+              ? false
+              : undefined,
         gems: children(skill, "Gem").map((gem) => ({
           name: gem.attrs.nameSpec || gem.attrs.skillId || "Unknown gem",
           gemId: gem.attrs.gemId ?? "",

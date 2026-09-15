@@ -11,6 +11,7 @@ import {
 } from "react"
 import type { ComponentProps, ReactNode, Ref } from "react"
 import { Pin, X } from "lucide-react"
+import { cn } from "cn"
 import type { TreeNode } from "../../shared/tree-render-model"
 import { Button } from "./ui/button"
 import { Popover, PopoverContent, PopoverClose } from "./ui/popover"
@@ -426,6 +427,7 @@ function PinnedWindow({
       <PopoverContent
         ref={setElement}
         className={pin.className}
+        data-inspection-tooltip="true"
         data-tooltip-pinned="true"
         data-rarity={pin.rarity}
         data-pin-control="true"
@@ -472,7 +474,7 @@ function PinnedWindow({
 }
 
 /** The held popup offers Pin; persistent snapshots offer only Close. */
-export function PinnablePopoverContent({
+export function InspectionTooltipContent({
   children,
   pinningEnabled = true,
   showPin = false,
@@ -482,6 +484,7 @@ export function PinnablePopoverContent({
   pinLabel,
   treeTarget,
   onPin,
+  "data-hover-only": hoverOnly = false,
   ...props
 }: ComponentProps<typeof PopoverContent> & {
   pinningEnabled?: boolean
@@ -493,6 +496,7 @@ export function PinnablePopoverContent({
   pinLabel: string
   treeTarget?: TreePinTarget
   onPin: () => void
+  "data-hover-only"?: boolean
 }) {
   const context = useContext(Context)
   const element = useRef<HTMLDivElement>(null)
@@ -516,6 +520,12 @@ export function PinnablePopoverContent({
     <PopoverContent
       {...props}
       ref={element}
+      data-inspection-tooltip="true"
+      data-hover-only={hoverOnly}
+      positionerClassName={cn(
+        props.positionerClassName,
+        hoverOnly && "inspection-hover-positioner"
+      )}
       positionerAdornment={
         treeTarget ? (
           <HoverTreePointer target={treeTarget} />
