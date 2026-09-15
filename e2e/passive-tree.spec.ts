@@ -5,6 +5,48 @@ const code = readFileSync(
   new URL("../shared/fixtures/pob/2k0EPn6QOhTx.txt", import.meta.url),
   "utf8"
 )
+
+test("fullscreen tree stays within the viewport on desktop and mobile", async ({
+  page,
+}) => {
+  await page.goto(process.env.BUILD_TEST_URL || "/build-bin")
+  await page.getByLabel("PoB export or pobb.in link").fill(code)
+  await page
+    .getByRole("navigation", { name: "Build sections" })
+    .getByRole("link", { name: "Trees", exact: true })
+    .click()
+  const open = page.getByRole("button", { name: "Open tree", exact: true })
+  const dialog = page.getByRole("dialog", { name: "Passive tree", exact: true })
+  for (const viewport of [
+    { width: 1440, height: 1000 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await open.click()
+    await expect(dialog).toBeVisible()
+    await expect
+      .poll(async () => {
+        const box = await dialog.boundingBox()
+        return (
+          box &&
+          Object.fromEntries(
+            Object.entries(box).map(([key, value]) => [key, Math.round(value)])
+          )
+        )
+      })
+      .toEqual({ x: 0, y: 0, ...viewport })
+    await expect(
+      dialog.getByRole("heading", { name: "Passive tree" })
+    ).toBeInViewport()
+    await expect(
+      dialog.getByRole("button", { name: "Close", exact: true })
+    ).toBeInViewport()
+    await page.keyboard.press("Escape")
+    await expect(dialog).toHaveCount(0)
+    await expect(open).toBeFocused()
+  }
+})
+
 test("tree preserves geometry and supports inspection, zoom, pan and dismissal", async ({
   page,
 }) => {

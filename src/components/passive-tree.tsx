@@ -1894,7 +1894,7 @@ function PassiveTreeContent({
                     <span>Open tree</span>
                   </DialogTrigger>
                 </div>
-                <DialogContent className="tree-fullscreen">
+                <DialogContent fullscreen className="tree-fullscreen">
                   <DialogTitle>Passive tree</DialogTitle>
                   <TreeMap
                     {...searchOptions}

@@ -1526,12 +1526,6 @@
 
 /* Full-screen map: the dialog becomes a page with the site's dot grid. */
 [data-slot="dialog-content"].tree-fullscreen {
-  inset: 0;
-  transform: none;
-  translate: none;
-  width: 100vw;
-  max-width: none;
-  height: 100dvh;
   padding: 18px 16px 16px;
   gap: 0;
   border: 0;
