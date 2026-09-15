@@ -102,6 +102,24 @@ export function gemEffectValues(
 export type SavedSkillGroup =
   BuildSnapshot["skillSets"][number]["skills"][number]
 
+/** Explicit flags take precedence; only generated sources have authoritative slots. */
+function skillWeaponSets(group: SavedSkillGroup) {
+  let slotSets: [boolean, boolean] | undefined
+  if (
+    /^Item:[^:]+:.+$/.test(group.source ?? "") ||
+    group.source === "Default Attack"
+  ) {
+    if (/^Weapon [12] Swap$/.test(group.slot)) slotSets = [false, true]
+    else if (/^Weapon [12]$/.test(group.slot)) slotSets = [true, false]
+  }
+  return [group.set1 ?? slotSets?.[0], group.set2 ?? slotSets?.[1]] as const
+}
+
+// PoB serializes an unset numeric selection as "nil" in some exports.
+function savedDefault(value: string | undefined, fallback: string) {
+  return !value || value === "nil" ? fallback : value
+}
+
 /** Display saved provenance without merging groups or inferring skill identity. */
 export function skillGroupLabels(group: SavedSkillGroup) {
   const labels: string[] = []
@@ -110,21 +128,17 @@ export function skillGroupLabels(group: SavedSkillGroup) {
   else if (group.source === "Default Attack") labels.push("Default attack")
   else if (group.source) labels.push(`Source: ${group.source}`)
 
-  if (typeof group.set1 === "boolean" && typeof group.set2 === "boolean") {
+  const [set1, set2] = skillWeaponSets(group)
+  if (set1 !== undefined && set2 !== undefined) {
     labels.push(
-      group.set1 && group.set2
+      set1 && set2
         ? "Weapon sets I & II"
-        : group.set1
+        : set1
           ? "Weapon set I"
-          : group.set2
+          : set2
             ? "Weapon set II"
             : "Unavailable in either weapon set"
     )
-  } else if (itemSource || group.source === "Default Attack") {
-    // An item in a named weapon slot belongs to that slot's set. Ordinary
-    // groups' legacy slot fields do not establish their current availability.
-    if (/^Weapon [12] Swap$/.test(group.slot)) labels.push("Weapon set II")
-    else if (/^Weapon [12]$/.test(group.slot)) labels.push("Weapon set I")
   }
   if (!group.enabled) labels.push("Disabled")
   return labels
@@ -154,6 +168,7 @@ export function displaySkillGroups(
       granted.support
     )
       continue
+    const sourceSets = skillWeaponSets(source)
     const matches = groups.filter(
       ({ skill }) =>
         !skill.source &&
@@ -166,10 +181,21 @@ export function displaySkillGroups(
             gem.skillId === granted.skillId &&
             gem.level === granted.level &&
             gem.quality === granted.quality &&
-            gem.enabled === granted.enabled
+            gem.enabled === granted.enabled &&
+            savedDefault(gem.variantId, "") ===
+              savedDefault(granted.variantId, "") &&
+            savedDefault(gem.statSetIndex, "1") ===
+              savedDefault(granted.statSetIndex, "1") &&
+            (gem.corrupted ?? false) === (granted.corrupted ?? false) &&
+            savedDefault(gem.corruptLevel, "0") ===
+              savedDefault(granted.corruptLevel, "0")
         ) &&
-        (skill.set1 === undefined || skill.set1 === source.set1) &&
-        (skill.set2 === undefined || skill.set2 === source.set2)
+        // An unspecified configured set imposes no restriction. An explicit
+        // restriction must be established by the generated source as well.
+        skillWeaponSets(skill).every(
+          (enabled, index) =>
+            enabled === undefined || enabled === sourceSets[index]
+        )
     )
     if (matches.length !== 1) continue
     matches[0].grants.push(source)

@@ -216,3 +216,61 @@ test("bare item grants fold into one matching setup while preserving provenance 
     displaySkillGroups([skills[0], { ...skills[1], gems: skills[0].gems }], 1)
   ).toHaveLength(2)
 })
+
+function itemGrantFixture() {
+  return parseBuildXml(`<PathOfBuilding2><Build className="Sorceress" level="90"/><Skills>
+    <Skill><Gem nameSpec="Impurity" skillId="ImpurityPlayer" variantId="Impurity" level="18" quality="0" statSetIndex="nil"/></Skill>
+    <Skill source="Item:9:Sceptre" slot="Weapon 2"><Gem nameSpec="Impurity" skillId="ImpurityPlayer" variantId="Impurity" level="18" quality="0"/></Skill>
+  </Skills></PathOfBuilding2>`).skillSets[0].skills
+}
+
+test.each([
+  { variantId: "DifferentVariant" },
+  { statSetIndex: "2" },
+  { corrupted: true },
+  { corruptLevel: "1" },
+])("keeps item grants with different saved configuration: %j", (difference) => {
+  const [setup, source] = itemGrantFixture()
+  source.gems[0] = { ...source.gems[0], ...difference }
+  expect(displaySkillGroups([setup, source], 1)).toHaveLength(2)
+})
+
+test("folds equivalent absent, nil and explicit PoB defaults", () => {
+  const [setup, source] = itemGrantFixture()
+  expect(displaySkillGroups([setup, source], 1)).toHaveLength(1)
+  setup.gems[0].statSetIndex = undefined
+  setup.gems[0].corrupted = undefined
+  setup.gems[0].corruptLevel = "nil"
+  expect(displaySkillGroups([setup, source], 1)).toHaveLength(1)
+})
+
+test.each([
+  ["Weapon 2", true, false, "Weapon set I"],
+  ["Weapon 1 Swap", false, true, "Weapon set II"],
+] as const)(
+  "folds a grant in %s into its explicitly configured set",
+  (slot, set1, set2, label) => {
+    const [setup, source] = itemGrantFixture()
+    Object.assign(setup, { set1, set2 })
+    source.slot = slot
+    expect(skillGroupLabels(setup)).toContain(label)
+    expect(skillGroupLabels(source)).toContain(label)
+    const groups = displaySkillGroups([setup, source], 2)
+    expect(groups).toHaveLength(1)
+    expect(groups[0].grants).toEqual([source])
+    expect(groups[0].main).toBe(true)
+  }
+)
+
+test("keeps conflicting or unestablished weapon availability separate", () => {
+  const [setup, source] = itemGrantFixture()
+  Object.assign(setup, { set1: true, set2: false })
+  source.slot = "Weapon 1 Swap"
+  expect(displaySkillGroups([setup, source], 1)).toHaveLength(2)
+  source.slot = ""
+  expect(displaySkillGroups([setup, source], 1)).toHaveLength(2)
+  source.slot = "Weapon 2"
+  Object.assign(source, { set1: false, set2: true })
+  expect(skillGroupLabels(source)).toContain("Weapon set II")
+  expect(displaySkillGroups([setup, source], 1)).toHaveLength(2)
+})
