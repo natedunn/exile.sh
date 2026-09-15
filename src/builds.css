@@ -2114,6 +2114,15 @@ html:has(.build-view) {
 [data-slot="popover-content"] > .tooltip-pin-control:hover {
   color: var(--color-brand);
 }
+@media (max-width: 767px), (pointer: coarse) {
+  [data-slot="popover-content"] > .tooltip-pin-control[data-slot="button"] {
+    width: 44px;
+    height: 44px;
+  }
+  [data-pin-control="true"] > :is(header, div):first-child {
+    padding-right: 48px;
+  }
+}
 .tree-inspection[data-attention="true"] {
   animation: tree-tooltip-attention 3s ease-out;
 }

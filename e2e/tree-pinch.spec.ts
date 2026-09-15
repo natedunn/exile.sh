@@ -59,3 +59,62 @@ for (const route of ["passive", "atlas"]) {
     await cdp.detach()
   })
 }
+
+test("a drifting touch opens a tooltip and quick taps pin and close it", async ({
+  page,
+}) => {
+  await page.goto("/trees/passive")
+  const svg = page.locator(".tree-viewport svg")
+  await expect(svg.locator("[data-node]").first()).toBeAttached()
+  await svg.scrollIntoViewIfNeeded()
+  const target = await svg.evaluate((element) => {
+    const bounds = element.getBoundingClientRect()
+    for (const node of element.querySelectorAll("[data-node]")) {
+      const box = node.getBoundingClientRect()
+      const x = box.x + box.width / 2
+      const y = box.y + box.height / 2
+      if (
+        x > bounds.left + 40 &&
+        x < bounds.right - 40 &&
+        y > Math.max(bounds.top + 40, 100) &&
+        y < Math.min(bounds.bottom - 40, innerHeight - 100) &&
+        document.elementFromPoint(x, y)?.closest("[data-node]") === node
+      )
+        return { x, y }
+    }
+    return null
+  })
+  expect(target).toBeTruthy()
+  const before = await svg.getAttribute("viewBox")
+  const cdp = await page.context().newCDPSession(page)
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [{ id: 1, x: target!.x - 5, y: target!.y }],
+  })
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchMove",
+    touchPoints: [{ id: 1, ...target! }],
+  })
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: [],
+  })
+  await expect(svg).toHaveAttribute("viewBox", before!)
+  const popup = page.locator(
+    '.tree-inspection:not([data-tooltip-pinned="true"])'
+  )
+  await expect(popup).toBeVisible()
+  await popup.dispatchEvent("pointerleave", { pointerType: "touch" })
+  await expect(popup).toBeVisible()
+  const pinButton = popup.getByRole("button", { name: /^Pin / })
+  await expect(pinButton).toHaveCSS("width", "44px")
+  await expect(pinButton).toHaveCSS("height", "44px")
+  await pinButton.tap()
+  const pin = page.locator('[data-tooltip-pinned="true"]')
+  await expect(pin).toBeVisible()
+  const close = pin.getByRole("button", { name: /^Close pinned/ })
+  await expect(close).toHaveCSS("width", "44px")
+  await close.tap()
+  await expect(pin).toHaveCount(0)
+  await cdp.detach()
+})
