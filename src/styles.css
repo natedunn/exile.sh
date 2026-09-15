@@ -193,8 +193,7 @@ h1,
 .market-heading,
 .workspace-header,
 .bottom-note,
-.build-intro,
-.build-layout {
+.build-intro {
   margin-inline: calc(-1 * var(--shell-gutter));
   padding-inline: var(--shell-gutter);
 }

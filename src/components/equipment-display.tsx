@@ -1,5 +1,11 @@
-import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
-import { useEffect, useRef, useState } from "react"
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+} from "./ui/tooltip"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useSinglePin } from "../lib/pins"
 import {
   Gem,
   Shield,
@@ -12,6 +18,7 @@ import {
   Circle,
   Shirt,
   ChevronDown,
+  Pin,
 } from "lucide-react"
 import { Button } from "./ui/button"
 import {
@@ -80,16 +87,31 @@ function ItemCard({
   item,
   details,
   slot,
+  pin,
 }: {
   item: EquipmentItem
   details: EquipmentDetails
   slot: string
+  /** Present while the card is held or pinned; toggles the pin. */
+  pin?: { pinned: boolean; toggle: () => void }
 }) {
   return (
     <>
       <header className="equipment-card-header">
         <PopoverTitle>{details.name}</PopoverTitle>
         {details.base && details.base !== details.name && <p>{details.base}</p>}
+        {pin && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="equipment-card-pin"
+            aria-pressed={pin.pinned}
+            aria-label={pin.pinned ? "Unpin item details" : "Pin item details"}
+            onClick={pin.toggle}
+          >
+            <Pin />
+          </Button>
+        )}
         <PopoverClose
           render={
             <Button
@@ -161,7 +183,7 @@ function ItemCard({
     </>
   )
 }
-function GearSlot({
+export function GearSlot({
   item,
   name,
   label,
@@ -179,12 +201,27 @@ function GearSlot({
   const [hoverOnly, setHoverOnly] = useState(false)
   const hovering = useRef(false)
   const holding = useRef(false)
+  // Holding the hotkey makes the hover card stick and shows a pin button;
+  // pinning keeps it after the key is released. One pin per page.
+  const [pinned, setPinned] = useState(false)
+  const release = useCallback(() => {
+    setPinned(false)
+    setOpen(false)
+    setHeld(false)
+  }, [])
+  useSinglePin(pinned, release)
+  const togglePin = () => {
+    if (pinned) {
+      setPinned(false)
+      if (!hovering.current && !holding.current) setOpen(false)
+    } else setPinned(true)
+  }
   useEffect(() => {
     if (!open) return
-    const release = () => {
+    const releaseHold = () => {
       holding.current = false
       setHeld(false)
-      if (hoverOnly && !hovering.current) setOpen(false)
+      if (hoverOnly && !hovering.current && !pinned) setOpen(false)
     }
     const down = (event: KeyboardEvent) => {
       if (event.key === "Alt") {
@@ -193,11 +230,11 @@ function GearSlot({
       }
     }
     const up = (event: KeyboardEvent) => {
-      if (event.key === "Alt") release()
+      if (event.key === "Alt") releaseHold()
     }
     const blur = () => {
-      release()
-      setOpen(false)
+      releaseHold()
+      if (!pinned) setOpen(false)
     }
     window.addEventListener("keydown", down)
     window.addEventListener("keyup", up)
@@ -208,16 +245,16 @@ function GearSlot({
       window.removeEventListener("blur", blur)
       holding.current = false
     }
-  }, [open, hoverOnly])
+  }, [open, hoverOnly, pinned])
   const details = item ? describeEquipment(item) : null
   return (
     <div className={`gear-cell gear-${area}`}>
       {item && details ? (
         <Popover
           open={open}
-          onOpenChange={(next, eventDetails) => {
+          onOpenChange={(next, change) => {
             if (
-              eventDetails.reason === "trigger-press" &&
+              change.reason === "trigger-press" &&
               hoverOnly &&
               hovering.current
             ) {
@@ -225,14 +262,17 @@ function GearSlot({
               return
             }
             setOpen(next)
-            if (!next) setHeld(false)
+            if (!next) {
+              setHeld(false)
+              setPinned(false)
+            }
           }}
         >
           <PopoverTrigger
             onPointerEnter={(event) => {
               if (event.pointerType === "touch") return
               hovering.current = true
-              if (event.altKey) return
+              if (event.altKey || pinned) return
               setHoverOnly(true)
               setHeld(false)
               setOpen(true)
@@ -240,7 +280,7 @@ function GearSlot({
             onPointerLeave={(event) => {
               if (event.pointerType === "touch") return
               hovering.current = false
-              if (!holding.current) setOpen(false)
+              if (!holding.current && !pinned) setOpen(false)
             }}
             onPointerDown={(event) => {
               if (event.pointerType === "touch") setHoverOnly(false)
@@ -262,6 +302,7 @@ function GearSlot({
               <span
                 className="gear-sockets"
                 data-count={details.socketContents.length}
+                data-item-class={details.artwork?.itemClass}
                 aria-label={details.socketContents
                   .map((socket) => socket.name)
                   .join(", ")}
@@ -287,10 +328,14 @@ function GearSlot({
           </PopoverTrigger>
           <PopoverContent
             className="equipment-card"
-            data-hover-only={hoverOnly && !held}
+            data-hover-only={hoverOnly && !held && !pinned}
             positionerClassName={
-              hoverOnly && !held ? "equipment-hover-positioner" : undefined
+              hoverOnly && !held && !pinned
+                ? "equipment-hover-positioner"
+                : undefined
             }
+            initialFocus={!hoverOnly}
+            finalFocus={!hoverOnly}
             collisionAvoidance={{ side: "shift", align: "shift" }}
             collisionPadding={12}
             data-rarity={details.rarity}
@@ -298,7 +343,12 @@ function GearSlot({
             sideOffset={14}
             align="center"
           >
-            <ItemCard item={item} details={details} slot={label} />
+            <ItemCard
+              item={item}
+              details={details}
+              slot={label}
+              pin={held || pinned ? { pinned, toggle: togglePin } : undefined}
+            />
           </PopoverContent>
         </Popover>
       ) : (
@@ -324,19 +374,38 @@ export function equipmentHasSwap(gear: BuildSnapshot["itemSets"][number]) {
 export function WeaponSetSwitch({
   value,
   onChange,
+  swappable = true,
 }: {
   value: WeaponSet
   onChange: (value: WeaponSet) => void
+  /** Without a second set the switch stays, disabled, and says why. */
+  swappable?: boolean
 }) {
   return (
     <Tabs
-      value={value}
+      value={swappable ? value : "primary"}
       onValueChange={(v) => onChange(v === "swap" ? "swap" : "primary")}
       className="equipment-weapon-switch"
     >
       <TabsList aria-label="Weapon set">
         <TabsTrigger value="primary">Set I</TabsTrigger>
-        <TabsTrigger value="swap">Set II</TabsTrigger>
+        {swappable ? (
+          <TabsTrigger value="swap">Set II</TabsTrigger>
+        ) : (
+          <TooltipProvider delay={0}>
+            <Tooltip>
+              {/* A disabled tab takes no pointer events, so the wrapper listens. */}
+              <TooltipTrigger
+                render={<span className="equipment-weapon-switch-off" />}
+              >
+                <TabsTrigger value="swap" disabled>
+                  Set II
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>No weapon in set 2</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </TabsList>
     </Tabs>
   )
@@ -345,11 +414,14 @@ export function EquipmentDisplay({
   build,
   gear,
   weapons = "primary",
+  onWeaponsChange,
 }: {
   build: BuildSnapshot
   gear: BuildSnapshot["itemSets"][number]
   weapons?: WeaponSet
+  onWeaponsChange?: (value: WeaponSet) => void
 }) {
+  const swappable = equipmentHasSwap(gear)
   const equipped = gear.slots.filter((s) => s.itemId && s.itemId !== "0")
   const known = new Set<string>([
     ...EQUIPMENT_SLOTS.map((s) => s.name),
@@ -365,22 +437,31 @@ export function EquipmentDisplay({
   }
   return (
     <div className="equipment-display">
-      <div className="equipment-board" aria-label="Equipped items">
-        {EQUIPMENT_SLOTS.map((slot) => {
-          const name =
-            slot.name.startsWith("Weapon") && weapons === "swap"
-              ? `${slot.name} Swap`
-              : slot.name
-          return (
-            <GearSlot
-              key={`${name}-${gear.id}`}
-              name={name}
-              label={slot.label}
-              area={slot.area}
-              {...slotItem(name)}
-            />
-          )
-        })}
+      <div className="equipment-board-frame">
+        {onWeaponsChange && (
+          <WeaponSetSwitch
+            value={weapons}
+            onChange={onWeaponsChange}
+            swappable={swappable}
+          />
+        )}
+        <div className="equipment-board" aria-label="Equipped items">
+          {EQUIPMENT_SLOTS.map((slot) => {
+            const name =
+              slot.name.startsWith("Weapon") && weapons === "swap"
+                ? `${slot.name} Swap`
+                : slot.name
+            return (
+              <GearSlot
+                key={`${name}-${gear.id}`}
+                name={name}
+                label={slot.label}
+                area={slot.area}
+                {...slotItem(name)}
+              />
+            )
+          })}
+        </div>
       </div>
       {extras.length > 0 && (
         <section className="equipment-extras">
@@ -398,10 +479,6 @@ export function EquipmentDisplay({
           </div>
         </section>
       )}
-      <p className="equipment-footer">
-        {equipped.length} saved equipment slots · Item artwork © Grinding Gear
-        Games
-      </p>
     </div>
   )
 }

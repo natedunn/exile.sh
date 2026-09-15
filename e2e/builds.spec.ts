@@ -31,6 +31,7 @@ for (const width of [390, 1440])
       "Equipment",
       "Skills",
       "Trees",
+      "Jewels",
       "Notes",
     ])
     await expect(nav.getByRole("link", { name: "Configuration" })).toHaveCount(
@@ -51,21 +52,19 @@ for (const width of [390, 1440])
     await expect(
       page.getByRole("img", { name: /mapped saved passive nodes/ }).first()
     ).toBeVisible()
-    const jewels = page.locator(".tree-socketed-jewels")
     const keystones = page.locator(".tree-key-passives")
     const attributes = page.locator(".tree-attributes")
-    await expect(jewels).toContainText("Prism of Belief")
-    await expect(jewels.locator("img").first()).toBeVisible()
-    // Jewels stay with the maps; keystones and attributes form the section's
-    // right column on wide screens and stack below it on phones.
-    const jewelsBox = (await jewels.boundingBox())!
     const keystonesBox = (await keystones.boundingBox())!
-    if (width >= 1000) {
-      expect(keystonesBox.x).toBeGreaterThan(jewelsBox.x + jewelsBox.width)
-    } else {
-      expect(jewelsBox.y).toBeLessThan(keystonesBox.y)
-    }
     expect((await attributes.boundingBox())!.y).toBeGreaterThan(keystonesBox.y)
+    // Jewels have a section of their own below the trees, with the stats
+    // they add up to beside them.
+    const jewels = page.locator("#jewels")
+    await expect(jewels).toContainText("Prism of Belief")
+    await expect(jewels.locator(".gear-slot img").first()).toBeVisible()
+    await expect(jewels).toContainText("49% increased Presence Area of Effect")
+    expect((await jewels.boundingBox())!.y).toBeGreaterThan(
+      (await page.locator("#tree").boundingBox())!.y
+    )
     const intelligence = attributes
       .getByRole("row")
       .filter({ hasText: "Intelligence" })

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
-import { useEffect, useRef, useState } from "react"
-import { Diamond, Droplet, Info, Star, X } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useSinglePin } from "../lib/pins"
+import { Diamond, Droplet, Info, Pin, Star, X } from "lucide-react"
 import { findGem, gemEffectValues } from "../../shared/gems"
 import type { GemCatalogue, SavedGem, GemEffects } from "../../shared/gems"
 import type { BuildSnapshot } from "../../shared/pob"
@@ -64,9 +65,12 @@ function GemRow({
   gem,
   catalogue,
   main = false,
+  side = "right",
 }: {
   gem: SavedGem
   catalogue?: GemCatalogue
+  /** Which way the card opens, away from the neighbouring column. */
+  side?: "left" | "right"
   main?: boolean
 }) {
   const ref = findGem(catalogue, gem)
@@ -94,12 +98,27 @@ function GemRow({
   const [hoverOnly, setHoverOnly] = useState(false)
   const hovering = useRef(false)
   const holding = useRef(false)
+  // Holding the hotkey makes the hover card stick and shows a pin button;
+  // pinning keeps it after the key is released. One pin per page.
+  const [pinned, setPinned] = useState(false)
+  const release = useCallback(() => {
+    setPinned(false)
+    setOpen(false)
+    setHeld(false)
+  }, [])
+  useSinglePin(pinned, release)
+  const togglePin = () => {
+    if (pinned) {
+      setPinned(false)
+      if (!hovering.current && !holding.current) setOpen(false)
+    } else setPinned(true)
+  }
   useEffect(() => {
     if (!open) return
-    const release = () => {
+    const releaseHold = () => {
       holding.current = false
       setHeld(false)
-      if (hoverOnly && !hovering.current) setOpen(false)
+      if (hoverOnly && !hovering.current && !pinned) setOpen(false)
     }
     const down = (event: KeyboardEvent) => {
       if (event.key === "Alt") {
@@ -108,11 +127,11 @@ function GemRow({
       }
     }
     const up = (event: KeyboardEvent) => {
-      if (event.key === "Alt") release()
+      if (event.key === "Alt") releaseHold()
     }
     const blur = () => {
-      release()
-      setOpen(false)
+      releaseHold()
+      if (!pinned) setOpen(false)
     }
     window.addEventListener("keydown", down)
     window.addEventListener("keyup", up)
@@ -123,7 +142,7 @@ function GemRow({
       window.removeEventListener("blur", blur)
       holding.current = false
     }
-  }, [open, hoverOnly])
+  }, [open, hoverOnly, pinned])
   const effects = useQuery<GemEffects>({
     queryKey: ["gem-effects", "v1", ref?.skillId],
     enabled: open && !!ref?.skillId,
@@ -153,14 +172,17 @@ function GemRow({
             return
           }
           setOpen(next)
-          if (!next) setHeld(false)
+          if (!next) {
+            setHeld(false)
+            setPinned(false)
+          }
         }}
       >
         <PopoverTrigger
           onPointerEnter={(event) => {
             if (event.pointerType === "touch") return
             hovering.current = true
-            if (event.altKey) return
+            if (event.altKey || pinned) return
             setHoverOnly(true)
             setHeld(false)
             setOpen(true)
@@ -168,7 +190,7 @@ function GemRow({
           onPointerLeave={(event) => {
             if (event.pointerType === "touch") return
             hovering.current = false
-            if (!holding.current) setOpen(false)
+            if (!holding.current && !pinned) setOpen(false)
           }}
           onPointerDown={(event) => {
             if (event.pointerType === "touch") setHoverOnly(false)
@@ -206,23 +228,22 @@ function GemRow({
             {!gem.enabled && <span>Disabled</span>}
             {tagRow}
           </span>
-          <span className="skill-gem-number">
-            <span>Level</span>
-            <strong>{gem.level || "—"}</strong>
-          </span>
-          <span className="skill-gem-number">
-            <span>Quality</span>
-            <strong>{gem.quality ? `${gem.quality}%` : "—"}</strong>
-          </span>
         </PopoverTrigger>
         <PopoverContent
           className="skill-gem-tooltip"
-          data-hover-only={hoverOnly && !held}
+          data-hover-only={hoverOnly && !held && !pinned}
           positionerClassName={
-            hoverOnly && !held ? "skill-gem-hover-positioner" : undefined
+            hoverOnly && !held && !pinned
+              ? "skill-gem-hover-positioner"
+              : undefined
           }
-          side="top"
-          sideOffset={10}
+          // A hover preview must not steal focus, or the row would show a
+          // focus ring once the pointer leaves and focus returns to it.
+          initialFocus={!hoverOnly}
+          finalFocus={!hoverOnly}
+          side={side}
+          align="start"
+          sideOffset={14}
           collisionPadding={12}
           collisionAvoidance={{ side: "flip", align: "shift" }}
         >
@@ -243,6 +264,17 @@ function GemRow({
                 </p>
               )}
             </div>
+            {(held || pinned) && (
+              <button
+                type="button"
+                className="skill-gem-pin"
+                aria-pressed={pinned}
+                aria-label={pinned ? "Unpin gem details" : "Pin gem details"}
+                onClick={togglePin}
+              >
+                <Pin size={16} />
+              </button>
+            )}
             <PopoverClose
               className="skill-gem-close"
               aria-label="Close gem details"
@@ -378,7 +410,7 @@ export function SkillGems({
             Number(b.i === mainSocketGroup - 1) -
             Number(a.i === mainSocketGroup - 1)
         )
-        .map(({ skill, i }) => (
+        .map(({ skill, i }, position) => (
           <section
             key={i}
             className="build-skill"
@@ -399,6 +431,7 @@ export function SkillGems({
                     i === mainSocketGroup - 1 &&
                     j === skill.gems.findIndex((g) => !g.support && g.enabled)
                   }
+                  side={position % 2 === 0 ? "left" : "right"}
                 />
               ))}
             </ul>

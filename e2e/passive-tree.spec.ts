@@ -198,7 +198,7 @@ test("From Nothing radius and socketed jewel details render from a real export",
   )
   await page.keyboard.press("Escape")
   await expect(
-    page.getByRole("heading", { name: "Socketed jewels", exact: true })
+    page.getByRole("heading", { name: "Jewels", exact: true })
   ).toBeVisible()
 })
 
