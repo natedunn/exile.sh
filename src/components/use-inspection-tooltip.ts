@@ -83,13 +83,15 @@ export function useInspectionTooltip({
   }
   const triggerProps: ComponentProps<typeof PopoverTrigger> = {
     openOnHover: nested,
-    closeDelay: 150,
+    closeDelay: 0,
     onPointerEnter: (event) => {
       if (event.pointerType === "touch") return
       hovering.current = true
       if (held && !hoverOnly) return
       if (event.altKey && !nested) return
-      setHoverOnly(!nested)
+      // A hover is only ever a hover: no focus, no close control. Touch,
+      // Enter and Space opt into the interactive form below.
+      setHoverOnly(true)
       setHeld(false)
       setOpen(true)
     },

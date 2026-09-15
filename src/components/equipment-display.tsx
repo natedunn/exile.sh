@@ -55,7 +55,7 @@ function SlotIcon({ slot }: { slot: string }) {
                   : Shield
   return <Icon aria-hidden="true" />
 }
-function ItemArtwork({
+export function ItemArtwork({
   details,
   slot,
 }: {
@@ -310,30 +310,32 @@ function EquipmentDisplayContent({
   return (
     <div className="equipment-display">
       <div className="equipment-board-frame">
-        <EquipmentSettings />
-        {onWeaponsChange && (
-          <WeaponSetSwitch
-            value={weapons}
-            onChange={onWeaponsChange}
-            swappable={swappable}
-          />
-        )}
-        <div className="equipment-board" aria-label="Equipped items">
-          {EQUIPMENT_SLOTS.map((slot) => {
-            const name =
-              slot.name.startsWith("Weapon") && weapons === "swap"
-                ? `${slot.name} Swap`
-                : slot.name
-            return (
-              <GearSlot
-                key={`${name}-${gear.id}`}
-                name={name}
-                label={slot.label}
-                area={slot.area}
-                {...slotItem(name)}
-              />
-            )
-          })}
+        <div className="equipment-board-viewport">
+          <EquipmentSettings />
+          {onWeaponsChange && (
+            <WeaponSetSwitch
+              value={weapons}
+              onChange={onWeaponsChange}
+              swappable={swappable}
+            />
+          )}
+          <div className="equipment-board" aria-label="Equipped items">
+            {EQUIPMENT_SLOTS.map((slot) => {
+              const name =
+                slot.name.startsWith("Weapon") && weapons === "swap"
+                  ? `${slot.name} Swap`
+                  : slot.name
+              return (
+                <GearSlot
+                  key={`${name}-${gear.id}`}
+                  name={name}
+                  label={slot.label}
+                  area={slot.area}
+                  {...slotItem(name)}
+                />
+              )
+            })}
+          </div>
         </div>
       </div>
       {extras.length > 0 && (

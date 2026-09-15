@@ -1,14 +1,6 @@
-import {
-  allocatedNodeName,
-  useItemNodeReference,
-  ItemReferenceTooltip,
-  GrantedSkillDetails,
-  AnointedNodeDetails,
-} from "./item-reference-tooltip"
+import { hasReference, ReferenceLine } from "./reference-tooltip"
 import { useCopyItem } from "../lib/use-copy-item"
-import { useGemCatalogue } from "../lib/use-gem-catalogue"
-import { findNamedGem } from "../../shared/gems"
-import { grantedSkillName, groupItemAugments } from "../../shared/item-tooltip"
+import { groupItemAugments } from "../../shared/item-tooltip"
 import type { Augment } from "../../shared/item-tooltip"
 import type {
   ItemLine,
@@ -26,24 +18,19 @@ export function ItemTooltipContent({
   details,
   slot,
   copyStatus = "",
+  inline = false,
 }: {
   item: EquipmentItem
   details: EquipmentDetails
   slot: string
   copyStatus?: string
+  /** Rendered in the page rather than a popover: plain headings and no
+   * inspection footer. */
+  inline?: boolean
 }) {
   const affixLayout = useAffixLayout()
   const bonded = useBondedModifiers()
   const clipboard = useCopyItem(item.text)
-  const catalogue = useGemCatalogue(
-    details.modifiers.some((line) => Boolean(grantedSkillName(line.text)))
-  )
-  const nodeReference = useItemNodeReference(
-    details.modifiers.flatMap((line) => {
-      const name = allocatedNodeName(line.text)
-      return name ? [name] : []
-    })
-  )
   const augments = groupItemAugments(details)
   const visible = (lines: ItemLine[]) =>
     lines.filter(
@@ -86,49 +73,17 @@ export function ItemTooltipContent({
         role="list"
         data-explicit={explicit || undefined}
       >
-        {shown.map((line, i) => {
-          const skill = grantedSkillName(line.text)
-          const skillReference = skill
-            ? findNamedGem(catalogue.data, skill)
-            : undefined
-          const allocated = allocatedNodeName(line.text)
-          const node = allocated ? nodeReference(allocated) : undefined
-          const image = skillReference?.image ?? node?.data?.image
-          return (
-            <li
-              key={i}
-              data-kind={line.kind}
-              data-granted-skill={Boolean(skill || allocated) || undefined}
-              data-augment={sources.length > 0 || undefined}
-            >
-              {sources.length > 0 && augmentIcons(sources)}
-              {skill || allocated ? (
-                <ItemReferenceTooltip
-                  label={line.text}
-                  name={skill || allocated!}
-                  image={image}
-                  artworkLabel={
-                    skill ? `${skill} skill` : `${allocated} passive`
-                  }
-                  passive={Boolean(allocated)}
-                >
-                  {skill ? (
-                    <GrantedSkillDetails
-                      name={skill}
-                      line={line.text}
-                      reference={skillReference}
-                      catalogue={catalogue.data}
-                    />
-                  ) : (
-                    <AnointedNodeDetails name={allocated!} reference={node} />
-                  )}
-                </ItemReferenceTooltip>
-              ) : (
-                <span>{line.text}</span>
-              )}
-            </li>
-          )
-        })}
+        {shown.map((line, i) => (
+          <li
+            key={i}
+            data-kind={line.kind}
+            data-granted-skill={hasReference(line.text) || undefined}
+            data-augment={sources.length > 0 || undefined}
+          >
+            {sources.length > 0 && augmentIcons(sources)}
+            <ReferenceLine text={line.text} />
+          </li>
+        ))}
       </ul>
     )
   }
@@ -136,14 +91,27 @@ export function ItemTooltipContent({
     <>
       <header className="equipment-card-header" data-layout={affixLayout}>
         <div className="equipment-card-identity">
-          <PopoverTitle>{details.name}</PopoverTitle>
+          {inline ? (
+            <h4 data-slot="popover-title" className="font-medium">
+              {details.name}
+            </h4>
+          ) : (
+            <PopoverTitle>{details.name}</PopoverTitle>
+          )}
           {details.base && details.base !== details.name && (
             <p className="equipment-card-base">{details.base}</p>
           )}
-          <PopoverDescription className="equipment-card-type">
-            {details.artwork?.itemClass || slot} ·{" "}
-            {details.rarity.toLowerCase()}
-          </PopoverDescription>
+          {inline ? (
+            <p className="equipment-card-type">
+              {details.artwork?.itemClass || slot} ·{" "}
+              {details.rarity.toLowerCase()}
+            </p>
+          ) : (
+            <PopoverDescription className="equipment-card-type">
+              {details.artwork?.itemClass || slot} ·{" "}
+              {details.rarity.toLowerCase()}
+            </PopoverDescription>
+          )}
         </div>
       </header>
       <div className="equipment-card-scroll" data-layout={affixLayout}>
@@ -243,22 +211,26 @@ export function ItemTooltipContent({
             the export in PoB to inspect the selected rolls.
           </p>
         )}
-        <footer className="equipment-inspection-footer">
-          <span className="equipment-inspection-hint">
-            Hold <kbd>Alt</kbd> to inspect • <kbd>P</kbd> to keep open
-            <span aria-hidden="true"> • </span>
-          </span>
-          <Button
-            className="equipment-copy"
-            variant="ghost"
-            onClick={clipboard.copy}
-            aria-label={clipboard.status || copyStatus || "Click item to copy"}
-          >
-            <span role="status">
-              {clipboard.status || copyStatus || "Click item to copy"}
+        {!inline && (
+          <footer className="equipment-inspection-footer">
+            <span className="equipment-inspection-hint">
+              Hold <kbd>Alt</kbd> to inspect • <kbd>P</kbd> to keep open
+              <span aria-hidden="true"> • </span>
             </span>
-          </Button>
-        </footer>
+            <Button
+              className="equipment-copy"
+              variant="ghost"
+              onClick={clipboard.copy}
+              aria-label={
+                clipboard.status || copyStatus || "Click item to copy"
+              }
+            >
+              <span role="status">
+                {clipboard.status || copyStatus || "Click item to copy"}
+              </span>
+            </Button>
+          </footer>
+        )}
       </div>
     </>
   )

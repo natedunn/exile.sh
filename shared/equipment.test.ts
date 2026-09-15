@@ -228,3 +228,21 @@ test.each(["Corrupted", "Twice Corrupted"])(
     expect(details.explicitModifiers).toHaveLength(0)
   }
 )
+
+test("a modifier wrapped over two export lines reads as one line", () => {
+  const details = describeEquipment({
+    id: "wrapped",
+    name: "Eldritch Battery Jewel",
+    rarity: "RARE",
+    text: [
+      "Rarity: RARE",
+      "Eldritch Battery Jewel",
+      "Diamond",
+      "Passives in Radius of Eldritch Battery can be Allocated",
+      "without being connected to your tree",
+    ].join("\n"),
+  })
+  expect(details.modifiers.map((line) => line.text)).toEqual([
+    "Passives in Radius of Eldritch Battery can be Allocated without being connected to your tree",
+  ])
+})

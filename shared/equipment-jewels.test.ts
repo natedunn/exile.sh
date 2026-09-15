@@ -7,7 +7,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { parseBuild } from "./pob"
 import { BuildJewels, JewelStats } from "../src/components/build-jewels"
 
-vi.mock("../src/components/equipment-display", () => ({ GearSlot: () => null }))
+vi.mock("../src/components/equipment-display", () => ({
+  ItemArtwork: () => null,
+}))
+vi.mock("../src/components/item-tooltip-content", () => ({
+  ItemTooltipContent: ({ details }: { details: { name: string } }) =>
+    createElement("h4", null, details.name),
+}))
 afterEach(() => {
   cleanup()
   vi.unstubAllGlobals()
@@ -61,7 +67,9 @@ for (const state of ["absent", "unsupported", "loading", "failed"] as const) {
         expect(
           view.container.querySelector(".build-jewel-stats")?.textContent
         ).toContain("10 to Intelligence")
-        expect(view.container.querySelectorAll(".build-jewel")).toHaveLength(1)
+        expect(
+          view.container.querySelectorAll(".build-jewel-card")
+        ).toHaveLength(1)
         if (mixed && spec) {
           const text =
             state === "failed"

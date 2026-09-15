@@ -107,8 +107,8 @@
    dithered bronze glow, a serif title over a mono meta line, and the
    actions in the far corner. Its rule runs frame to frame. */
 .build-view {
-  --build-nav: calc(200px + var(--shell-gutter));
-  --build-aside: 320px;
+  --build-nav-height: 60px;
+  --build-aside: 420px;
   --build-strip: 72px;
   --strip-tint: color-mix(
     in oklch,
@@ -207,86 +207,73 @@
   display: none;
 }
 /* ---------------------------------------------------------------- layout
-   The workbench frame again: a sticky section list against the left edge,
-   a divider, and the sections stacked on the right. Each section opens
-   with a tinted strip closed by a rule, then splits into its content and
-   a column of the figures that belong to it, with a hairline between. */
+   A section strip runs under the masthead and sticks to the top of the
+   viewport: the build's identity on the left, which returns to the
+   masthead, then the section list set like the main navigation. The
+   sections stack below at full width. Each opens with a tinted strip
+   closed by a rule, then splits into its content and a column of the
+   figures that belong to it, with a hairline between. */
 .build-layout {
   position: relative;
-  display: grid;
-  grid-template-columns: var(--build-nav) minmax(0, 1fr);
-  align-items: start;
   margin-inline: calc(-1 * var(--shell-gutter));
   min-width: 0;
-}
-/* The divider reaches down across the bottom note's margin to meet its rule. */
-.build-layout::before {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  bottom: calc(-1 * var(--space-2xl));
-  left: var(--build-nav);
-  border-left: var(--rule-thin) solid var(--color-rule-strong);
-  pointer-events: none;
 }
 .build-nav {
   position: sticky;
   top: 0;
+  z-index: 5;
   min-width: 0;
-}
-/* As tall as the section strip beside it, so the two rules meet. */
-.build-nav-strip {
-  display: grid;
-  align-items: center;
-  min-height: var(--build-strip);
-  padding: var(--space-md) var(--space-md) var(--space-md) var(--shell-gutter);
+  height: var(--build-nav-height);
   border-bottom: var(--rule-thin) solid var(--color-rule-strong);
-  background: var(--strip-tint);
+  background: var(--color-paper);
+  transition: box-shadow 220ms var(--ease-out);
 }
-.build-nav-strip > * {
-  grid-area: 1 / 1;
-  min-width: 0;
-  transition:
-    opacity 220ms var(--ease-out),
-    transform 220ms var(--ease-out),
-    visibility 0s 220ms;
+.build-nav[data-pinned] {
+  box-shadow: 0 12px 32px -12px #0008;
 }
-.build-nav-label {
-  font-family: var(--font-mono);
-  font-size: var(--text-label);
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
+.build-nav-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xl);
+  height: 100%;
+  padding-inline: var(--shell-gutter);
 }
-.build-nav[data-pinned] .build-nav-label {
-  opacity: 0;
-  visibility: hidden;
-}
+/* The identity closes with a hairline before the list, like the frame's
+   dividers, and the whole block is the link back to the top. */
 .build-nav-identity {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  visibility: hidden;
-  opacity: 0;
-  transform: translateY(-6px);
+  flex-shrink: 0;
+  height: 100%;
+  padding-right: var(--space-2xl);
+  border-right: var(--rule-thin) solid var(--color-rule-strong);
+  min-width: 0;
+  max-width: 300px;
+  color: inherit;
+  text-decoration: none;
 }
-.build-nav[data-pinned] .build-nav-identity {
-  visibility: visible;
-  opacity: 1;
-  transform: none;
-  transition-delay: 0s;
-}
-.build-nav-identity img {
+.build-nav-identity img,
+.build-nav-emblem {
   width: 36px;
   height: 36px;
   flex-shrink: 0;
   object-fit: cover;
   border: var(--rule-thin) solid var(--color-rule-strong);
   border-radius: 50%;
+  background: var(--color-surface);
+  transition: border-color var(--dur-fast);
 }
-.build-nav-identity > div {
+.build-nav-emblem {
+  display: grid;
+  place-items: center;
+  color: var(--color-brand);
+}
+.build-nav-emblem svg {
+  width: 16px;
+  height: 16px;
+}
+.build-nav-identity-copy {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -299,8 +286,9 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color var(--dur-fast);
 }
-.build-nav-identity span {
+.build-nav-identity-copy > span {
   font-family: var(--font-mono);
   font-size: var(--text-label);
   color: var(--color-text-muted);
@@ -308,76 +296,79 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.build-nav-identity:hover strong,
+.build-nav-identity:focus-visible strong {
+  color: var(--color-brand);
+}
+.build-nav-identity:hover img,
+.build-nav-identity:hover .build-nav-emblem {
+  border-color: var(--color-brand-deep);
+}
+/* The list is the main navigation's: mono capitals with a bronze
+   underline on the current section. */
 .build-nav ul {
   list-style: none;
   margin: 0;
-  padding: var(--space-sm) 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
-}
-.build-nav a {
-  position: relative;
+  padding: 0;
   display: flex;
   align-items: center;
-  gap: var(--space-md);
-  min-height: 42px;
-  padding: 4px var(--space-md) 4px var(--shell-gutter);
-  font-size: var(--text-sm);
+  gap: var(--space-xl);
+  height: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.build-nav ul::-webkit-scrollbar {
+  display: none;
+}
+.build-nav li {
+  height: 100%;
+  flex-shrink: 0;
+}
+.build-nav li > a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  height: 100%;
+  margin-bottom: -1px;
+  border-bottom: 2px solid var(--color-clear);
   color: var(--color-text-muted);
   text-decoration: none;
   white-space: nowrap;
   transition:
     color var(--dur-fast),
-    background-color var(--dur-fast);
+    border-color var(--dur-fast);
 }
-.build-nav a svg {
+.build-nav li > a svg {
   display: block;
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
   flex-shrink: 0;
+  transition: color var(--dur-fast);
 }
-.build-nav a:hover,
-.build-nav a:focus-visible {
+.build-nav li > a:hover,
+.build-nav li > a:focus-visible {
   color: var(--color-ink);
-  background: var(--color-notice-strong);
 }
-.build-nav a[aria-current] {
+.build-nav li > a[aria-current] {
   color: var(--color-ink);
-  background: var(--color-notice);
+  border-bottom-color: var(--color-brand);
 }
-.build-nav a[aria-current]:hover,
-.build-nav a[aria-current]:focus-visible {
-  background: var(--color-notice-strong);
-}
-.build-nav a[aria-current]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  color: var(--color-brand);
-  background-image: var(--dot-screen);
-  background-size: 4px 4px;
-  mask-image: linear-gradient(to right, black, transparent 90%);
-  opacity: 0.32;
-  pointer-events: none;
-}
-.build-nav a[aria-current]::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--color-brand);
-}
-.build-nav a[aria-current] svg {
+.build-nav li > a[aria-current] svg {
   color: var(--color-brand);
 }
 
 /* ---------------------------------------------------------------- sections */
 .build-sections {
   min-width: 0;
+}
+.build-section {
+  scroll-margin-top: var(--build-nav-height);
 }
 .build-section + .build-section {
   border-top: var(--rule-thin) solid var(--color-rule-strong);
@@ -444,7 +435,7 @@
 }
 .build-section-aside {
   position: sticky;
-  top: 0;
+  top: var(--build-nav-height);
   min-width: 0;
   padding: var(--space-xl) var(--shell-gutter) var(--space-2xl) var(--space-xl);
 }
@@ -488,17 +479,36 @@
 }
 
 /* ---------------------------------------------------------------- equipment
-   The board frame sits flush in its cell, its rule closing it from the nav
-   divider to the figures divider. Everything after it takes the cell's
-   usual padding. */
+   The board frame sits flush in its cell, its rule closing it from the
+   frame edge to the figures divider. The board inside keeps its own cap,
+   so a wider cell leaves room in the frame for more. Everything after it
+   takes the cell's usual padding. */
 #equipment .build-section-main {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
   padding: 0 0 var(--space-2xl);
+}
+/* With nothing after the board, the frame runs the full height of the
+   section beside the figures, its rule meeting the section's rule. */
+#equipment .build-section-main:has(.equipment-board-frame:last-child) {
+  padding-bottom: 0;
+}
+.build-section .equipment-display {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.build-section .equipment-board-frame:last-child {
+  flex: 1;
+  border-bottom: 0;
 }
 #equipment .build-section-main > .build-empty {
   margin: var(--space-xl) var(--space-xl) 0 var(--shell-gutter);
 }
 .build-section .equipment-display {
   margin: 0;
+  max-width: none;
 }
 .build-section .equipment-extras {
   margin: var(--space-2xl) var(--space-xl) 0 var(--shell-gutter);
@@ -623,35 +633,115 @@
 /* ---------------------------------------------------------------- jewels
    Socketed jewels as slots like the equipment extras, with the modifiers
    they add up to in the figures column. */
-.build-jewel-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: var(--space-lg);
-}
-.build-jewel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  min-width: 0;
-}
-.build-jewel[data-active="false"] .gear-slot {
-  opacity: 0.55;
-}
-.build-jewel-name,
 .build-jewel-note {
   font-family: var(--font-mono);
   font-size: var(--text-label);
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.build-jewel-name {
-  color: var(--color-text-muted);
-}
-.build-jewel-note {
-  margin-top: calc(-1 * var(--space-xs));
   color: var(--color-text-faint);
+}
+/* Two columns of cards, each the inspection tooltip's shell laid into the
+   page with the jewel's art beside its modifiers. Cards in a row share
+   its height, so a short card never leaves a hole beside a tall one. */
+.build-jewel-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-lg);
+  align-items: stretch;
+}
+.build-jewel-card {
+  --item-color: var(--color-item-normal);
+  --equipment-modifier-font-size: 14px;
+  --equipment-line-height: 1.6;
+  --equipment-line-gap: 3px;
+  --inspection-accent: var(--item-color);
+  --inspection-border: color-mix(
+    in oklch,
+    var(--item-color) 45%,
+    var(--color-rule)
+  );
+  --jewel-art: 56px;
+  --jewel-inset: 18px;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--inspection-border);
+  border-radius: var(--radius-control);
+  background: oklch(12% 0.008 75);
+  color: var(--color-ink);
+}
+.build-jewel-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: -1;
+  height: 200px;
+  max-height: 100%;
+  background: var(--inspection-accent);
+  mask-image: var(--dither-fade-y);
+  mask-size: auto;
+  mask-repeat: repeat-x;
+  opacity: 0.07;
+  pointer-events: none;
+}
+.build-jewel-card::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--color-brand), var(--color-brand)) left top / 10px 1px
+      no-repeat,
+    linear-gradient(var(--color-brand), var(--color-brand)) left top / 1px 10px
+      no-repeat,
+    linear-gradient(var(--color-brand), var(--color-brand)) right bottom / 10px
+      1px no-repeat,
+    linear-gradient(var(--color-brand), var(--color-brand)) right bottom / 1px
+      10px no-repeat;
+  opacity: 0.45;
+}
+.build-jewel-card[data-active="false"] {
+  opacity: 0.6;
+}
+/* The art is a small still square in the header's corner; it takes no
+   pointer events, so it never lights up like a board slot. */
+.build-jewel-card-art {
+  position: absolute;
+  top: 14px;
+  left: var(--jewel-inset);
+  pointer-events: none;
+}
+.build-jewel-card-art .gear-slot {
+  flex: 0 0 auto;
+  width: var(--jewel-art);
+  height: var(--jewel-art);
+  padding: 6px;
+}
+.build-jewel-card-body {
+  min-width: 0;
+  flex: 1;
+}
+.build-jewel-card [data-slot="popover-title"] {
+  font: 500 22px/1.1 var(--font-display);
+  color: var(--inspection-accent);
+}
+.build-jewel-card .equipment-card-header {
+  min-height: calc(var(--jewel-art) + 28px);
+  padding: 14px var(--jewel-inset) 12px
+    calc(var(--jewel-inset) + var(--jewel-art) + 14px);
+}
+.build-jewel-card .equipment-card-scroll {
+  --equipment-content-inset: var(--jewel-inset);
+  padding: 12px var(--equipment-content-inset) 14px;
+}
+.build-jewel-card-footer {
+  padding: 10px var(--jewel-inset) 12px;
+  border-top: 1px solid var(--inspection-border);
+}
+@media (max-width: 1240px) {
+  .build-jewel-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .build-jewel-stats {
   list-style: none;
@@ -672,6 +762,17 @@
 .build-jewel-stats li > span {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+/* A referenced skill or passive keeps its icon beside the text. */
+.build-jewel-stat-reference {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.build-jewel-stat-reference .equipment-granted-skill-art {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 .build-jewel-stats strong {
   font-family: var(--font-mono);
@@ -753,49 +854,18 @@
 
 /* ---------------------------------------------------------------- responsive */
 @media (max-width: 1000px) {
-  .build-layout {
-    grid-template-columns: minmax(0, 1fr);
+  .build-view {
+    --build-nav-height: 52px;
   }
-  .build-layout::before,
-  .build-nav-strip {
-    display: none;
+  .build-nav-inner {
+    gap: var(--space-lg);
   }
-  .build-nav {
-    z-index: 5;
-    background: var(--color-paper);
-    border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+  .build-nav-identity {
+    padding-right: var(--space-lg);
+    max-width: 220px;
   }
   .build-nav ul {
-    flex-direction: row;
-    gap: var(--space-xl);
-    padding: 0 var(--shell-gutter);
-    overflow-x: auto;
-    scrollbar-width: none;
-    border-bottom: 0;
-  }
-  .build-nav ul::-webkit-scrollbar {
-    display: none;
-  }
-  .build-nav a {
-    gap: var(--space-sm);
-    min-height: 0;
-    padding: 14px 0 12px;
-    margin-bottom: -1px;
-    border-bottom: 2px solid var(--color-clear);
-    background: none;
-  }
-  .build-nav a:hover {
-    background: none;
-  }
-  .build-nav a[aria-current]::before,
-  .build-nav a[aria-current]::after {
-    display: none;
-  }
-  .build-nav a[aria-current] {
-    border-bottom-color: var(--color-brand);
-  }
-  .build-section {
-    scroll-margin-top: 48px;
+    gap: var(--space-lg);
   }
   .build-section-body {
     grid-template-columns: minmax(0, 1fr);
@@ -885,6 +955,19 @@
     order: 1;
     flex-basis: 100%;
     margin: 0;
+  }
+  .build-nav-identity-copy {
+    display: none;
+  }
+  .build-nav-identity {
+    padding-right: var(--space-md);
+  }
+  /* Labels alone on phones; the icons cost room the list needs. */
+  .build-nav li > a svg {
+    display: none;
+  }
+  .build-nav ul {
+    gap: var(--space-md);
   }
   .build-section-strip {
     flex-direction: column;
@@ -1026,7 +1109,8 @@
   color: var(--color-brand);
   border-color: var(--color-brand-deep);
 }
-.tree-viewport {
+.tree-viewport,
+.equipment-board-viewport {
   position: relative;
   isolation: isolate;
   width: 100%;
@@ -1041,7 +1125,8 @@
 }
 /* Dot-screen field with bracketed corners, then a dithered bronze glow behind
    the centre of the map. Both are used at native size so the cells stay crisp. */
-.tree-viewport::before {
+.tree-viewport::before,
+.equipment-board-viewport::before {
   content: "";
   position: absolute;
   inset: 14px;
@@ -1068,7 +1153,8 @@
       bottom / 1px 14px no-repeat,
     var(--dot-screen) 0 0 / 5px 5px repeat;
 }
-.tree-viewport::after {
+.tree-viewport::after,
+.equipment-board-viewport::after {
   content: "";
   position: absolute;
   left: 50%;
@@ -1331,9 +1417,21 @@
   color: var(--color-text-muted);
   margin: 12px 0 0;
 }
-/* Maps are square; keep the previews from towering over the section. */
+/* Maps hold a fixed height and take the cell's width; the viewport widens
+   around the map instead of the preview growing taller. Narrow layouts
+   fall back to a square that fits the column. */
 .tree-overview-left > section {
-  max-width: 760px;
+  max-width: none;
+}
+.tree-overview-left .tree-viewport svg {
+  aspect-ratio: auto;
+  height: var(--build-tree-height, 760px);
+}
+@media (max-width: 1000px) {
+  .tree-overview-left .tree-viewport svg {
+    aspect-ratio: 1;
+    height: auto;
+  }
 }
 .tree-overview-left > section + section {
   margin-top: var(--space-2xl);
