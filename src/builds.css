@@ -2487,28 +2487,112 @@ body:has(.tree-pins[data-open="true"])
   border-color: var(--color-brand-deep);
 }
 .build-expanded-dialog[data-slot="dialog-content"] {
-  width: min(860px, calc(100vw - 2rem));
-  max-width: min(860px, calc(100vw - 2rem));
+  width: min(760px, calc(100vw - 2rem));
+  max-width: min(760px, calc(100vw - 2rem));
+  height: min(660px, calc(100dvh - 2rem));
   max-height: calc(100dvh - 2rem);
   grid-template-rows: auto minmax(0, 1fr);
-  padding: var(--space-xl);
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: var(--radius-control);
+  background: oklch(12% 0.008 75);
+  color: var(--color-ink);
+  box-shadow:
+    0 12px 48px #000c,
+    0 0 0 3px #000b;
+}
+.build-expanded-dialog::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 256px;
+  background: var(--color-brand);
+  mask-image: var(--dither-fade-y);
+  mask-repeat: repeat-x;
+  opacity: 0.07;
+  pointer-events: none;
 }
 .build-expanded-dialog [data-slot="dialog-header"] {
-  padding-right: var(--space-xl);
+  position: relative;
+  padding: var(--space-xl) 48px var(--space-lg) var(--space-xl);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+}
+.build-expanded-dialog [data-slot="dialog-title"] {
+  color: var(--color-brand);
+  font: 500 28px/1.1 var(--font-display);
+}
+.build-expanded-dialog [data-slot="dialog-description"] {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+.build-expanded-tabs[data-slot="tabs"] {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 0;
+}
+.build-expanded-nav[data-slot="tabs-list"] {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-start;
+  gap: var(--space-xl);
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--space-xl);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: 0;
+  background: transparent;
+}
+.build-expanded-nav [data-slot="tabs-trigger"] {
+  flex: 0 0 auto;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: 500 var(--text-label)/1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.build-expanded-nav [data-slot="tabs-trigger"]::after {
+  display: none;
+}
+.build-expanded-nav [data-slot="tabs-trigger"][data-active] {
+  border-bottom-color: var(--color-brand);
+  color: var(--color-ink);
+}
+.build-expanded-nav [data-slot="tabs-trigger"]:hover {
+  color: var(--color-ink);
+}
+.build-expanded-select {
+  display: none;
+  padding: var(--space-md) var(--space-xl);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+}
+.build-expanded-select [data-slot="select-trigger"] {
+  width: 100%;
+  min-height: 40px;
 }
 .build-expanded-scroll {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  padding: var(--space-xl);
 }
 .build-expanded-grid.build-stats-body {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-xl);
+  grid-template-columns: minmax(0, 1fr);
 }
 .build-expanded-grid h3 {
-  margin: 0 0 var(--space-sm);
+  margin: 0 0 var(--space-md);
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: 500;
+  color: var(--color-ink);
 }
 .build-expanded-grid.build-stats-body dt {
   white-space: normal;
@@ -2517,8 +2601,22 @@ body:has(.tree-pins[data-open="true"])
 .build-expanded-grid dd {
   flex-shrink: 0;
 }
-@media (max-width: 600px) {
-  .build-expanded-grid.build-stats-body {
-    grid-template-columns: minmax(0, 1fr);
+.build-expanded-empty {
+  padding: var(--space-xl);
+  color: var(--color-text-muted);
+}
+@media (max-width: 640px) {
+  .build-expanded-nav[data-slot="tabs-list"] {
+    display: none;
+  }
+  .build-expanded-select {
+    display: block;
+  }
+  .build-expanded-scroll,
+  .build-expanded-select {
+    padding: var(--space-lg);
+  }
+  .build-expanded-dialog [data-slot="dialog-header"] {
+    padding-left: var(--space-lg);
   }
 }

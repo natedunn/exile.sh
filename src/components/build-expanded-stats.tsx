@@ -1,3 +1,12 @@
+import { useState } from "react"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "./ui/select"
 import { Button } from "./ui/button"
 import {
   Dialog,
@@ -15,6 +24,7 @@ import {
 import type { BuildSnapshot } from "../../shared/pob"
 
 export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
+  const [category, setCategory] = useState("Character & utility")
   const categories = [
     "Character & utility",
     "Defences & resources",
@@ -26,6 +36,18 @@ export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
     stats: build.stats.filter((stat) => statCategory(stat.name) === title),
   }))
   sections.push({ title: "Minion stats", stats: build.minionStats })
+  const available = sections.filter((section) => section.stats.length)
+  const active =
+    available.find((section) => section.title === category)?.title ??
+    available.at(0)?.title ??
+    ""
+  const navigationLabels: Record<string, string> = {
+    "Character & utility": "Character",
+    "Defences & resources": "Defences",
+    Recovery: "Recovery",
+    "Offence & skills": "Skills",
+    "Minion stats": "Minions",
+  }
   return (
     <Dialog>
       <DialogTrigger
@@ -39,7 +61,7 @@ export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
       >
         View all stats
       </DialogTrigger>
-      <DialogContent className="build-expanded-dialog">
+      <DialogContent className="build-expanded-dialog popup-corners">
         <DialogHeader>
           <DialogTitle>Expanded stats</DialogTitle>
           <DialogDescription>
@@ -48,33 +70,73 @@ export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
             in the export.
           </DialogDescription>
         </DialogHeader>
-        <div
-          className="build-expanded-scroll"
-          tabIndex={0}
-          role="region"
-          aria-label="All exported stats"
-        >
-          <div className="build-stats-body build-expanded-grid">
-            {sections
-              .filter((section) => section.stats.length)
-              .map(({ title, stats }) => (
-                <section key={title}>
-                  <h3>{title}</h3>
-                  <dl>
-                    {stats.map((stat, index) => (
-                      <div key={`${stat.name}-${index}`}>
-                        <dt>{statLabel(stat.name)}</dt>
-                        <dd>{formattedStat(stat.name, stat.value)}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </section>
+        {available.length ? (
+          <Tabs
+            value={active}
+            onValueChange={(value) => setCategory(String(value))}
+            className="build-expanded-tabs"
+          >
+            <TabsList
+              variant="line"
+              className="build-expanded-nav"
+              aria-label="Stat categories"
+            >
+              {available.map(({ title }) => (
+                <TabsTrigger key={title} value={title}>
+                  {navigationLabels[title]}
+                </TabsTrigger>
               ))}
-            {!build.stats.length && !build.minionStats.length && (
-              <p>No stats were included in this export.</p>
-            )}
-          </div>
-        </div>
+            </TabsList>
+            <div className="build-expanded-select">
+              <Select
+                value={active}
+                onValueChange={(value) => {
+                  if (value) setCategory(value)
+                }}
+                items={available.map(({ title }) => ({
+                  value: title,
+                  label: title,
+                }))}
+              >
+                <SelectTrigger aria-label="Stat category">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent alignItemWithTrigger={false}>
+                  {available.map(({ title }) => (
+                    <SelectItem key={title} value={title}>
+                      {title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {available.map(({ title, stats }) => (
+              <TabsContent
+                key={title}
+                value={title}
+                className="build-expanded-scroll"
+              >
+                <div className="build-stats-body build-expanded-grid">
+                  <section>
+                    <h3>{title}</h3>
+                    <dl>
+                      {stats.map((stat, index) => (
+                        <div key={`${stat.name}-${index}`}>
+                          <dt>{statLabel(stat.name)}</dt>
+                          <dd>{formattedStat(stat.name, stat.value)}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </section>
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        ) : (
+          <p className="build-expanded-empty">
+            No stats were included in this export.
+          </p>
+        )}
       </DialogContent>
     </Dialog>
   )

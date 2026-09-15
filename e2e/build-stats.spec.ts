@@ -6,7 +6,7 @@ const original = readFileSync(
   new URL("../shared/fixtures/pob/70HXySRg9wV5.txt", import.meta.url),
   "utf8"
 ).trim()
-for (const width of [390, 1440]) {
+for (const width of [390, 640, 1440]) {
   test(`expanded stats, rarity and keyboard at ${width}px`, async ({
     page,
   }) => {
@@ -42,11 +42,9 @@ for (const width of [390, 1440]) {
     const trigger = character.getByRole("button", { name: "View all stats" })
     const characterRows = character.locator("section").first().locator("dt")
     await expect(characterRows.last()).toHaveText("Item rarity")
-    const recovery = character
-      .locator("section")
-      .filter({
-        has: page.getByRole("heading", { name: "Recovery", exact: true }),
-      })
+    const recovery = character.locator("section").filter({
+      has: page.getByRole("heading", { name: "Recovery", exact: true }),
+    })
     const recoveryBox = (await recovery.boundingBox())!
     const buttonBox = (await trigger.boundingBox())!
     expect(buttonBox.y).toBeGreaterThanOrEqual(
@@ -64,11 +62,53 @@ for (const width of [390, 1440]) {
     const dialog = page.getByRole("dialog", { name: "Expanded stats" })
     await expect(dialog).toBeVisible()
     await expect(
-      dialog.getByRole("heading", { name: "Minion stats" })
-    ).toBeAttached()
+      dialog.getByRole("heading", { name: "Character & utility" })
+    ).toBeVisible()
+    await dialog.screenshot({ path: `/tmp/exile-stats-modal-${width}.png` })
+    const categorySelect = dialog.getByRole("combobox", {
+      name: "Stat category",
+    })
+    if (width <= 640) {
+      await expect(dialog.getByRole("tablist")).not.toBeVisible()
+      await categorySelect.focus()
+      await page.keyboard.press("Enter")
+      await page
+        .getByRole("option", { name: "Minion stats", exact: true })
+        .click()
+    } else {
+      await expect(categorySelect).not.toBeVisible()
+      await dialog.getByRole("tab", { name: "Character", exact: true }).focus()
+      await page.keyboard.press("ArrowRight")
+      await expect(
+        dialog.getByRole("tab", { name: "Defences", exact: true })
+      ).toBeFocused()
+      await page.keyboard.press("Enter")
+      await expect(
+        dialog.getByRole("heading", { name: "Defences & resources" })
+      ).toBeVisible()
+      await dialog.getByRole("tab", { name: "Minions", exact: true }).click()
+    }
     await expect(
-      dialog.getByRole("heading", { name: "Offence & skills" })
-    ).toBeAttached()
+      dialog.getByRole("heading", { name: "Minion stats" })
+    ).toBeVisible()
+    await expect(
+      dialog.getByRole("heading", { name: "Character & utility" })
+    ).not.toBeVisible()
+    // Both responsive controls share the category selection.
+    await page.setViewportSize({
+      width: width <= 640 ? 1440 : 390,
+      height: 900,
+    })
+    await expect(
+      dialog.getByRole("heading", { name: "Minion stats" })
+    ).toBeVisible()
+    if (width <= 640) {
+      await expect(
+        dialog.getByRole("tab", { name: "Minions", exact: true })
+      ).toHaveAttribute("aria-selected", "true")
+    } else {
+      await expect(categorySelect).toContainText("Minion stats")
+    }
     expect(
       await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth)
     ).toBe(true)
