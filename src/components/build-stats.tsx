@@ -113,21 +113,10 @@ export function BuildStats({
       {selected.map((group) => (
         <section key={group}>
           <h3>{groups[group].title}</h3>
-          {group === "character" && <BuildExpandedStats build={build} />}
           {group === "main" && (
             <p className="build-stats-skill">{buildSkill(build)}</p>
           )}
           <dl>
-            {group === "character" && (
-              <div className="build-rarity-stat">
-                <dt>Item rarity</dt>
-                <dd>
-                  {rarity === undefined
-                    ? "—"
-                    : `${displayStat(String(rarity))}%`}
-                </dd>
-              </div>
-            )}
             {group === "character" &&
               row(
                 "Attributes",
@@ -146,6 +135,11 @@ export function BuildStats({
                   ["FrenzyChargesMax", "Frenzy", "green"],
                   ["PowerChargesMax", "Power", "blue"],
                 ])
+              )}
+            {group === "character" &&
+              row(
+                "Item rarity",
+                rarity === undefined ? "—" : `${displayStat(String(rarity))}%`
               )}
             {group === "defensive" && (
               <>
@@ -177,6 +171,7 @@ export function BuildStats({
         </section>
       ))}
       {note && <p className="build-stats-note">{note}</p>}
+      {selected.includes("character") && <BuildExpandedStats build={build} />}
     </div>
   )
 }

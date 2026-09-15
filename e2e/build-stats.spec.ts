@@ -33,11 +33,32 @@ for (const width of [390, 1440]) {
     const character = page.getByRole("complementary", {
       name: "Character stats",
     })
-    const rarity = character.locator(".build-rarity-stat")
+    const rarity = character
+      .locator("dl > div")
+      .filter({ has: page.locator("dt", { hasText: /^Item rarity$/ }) })
     // This fixture has no rarity on its gear. Even an exported total must
     // not override the selected equipment's sum.
     await expect(rarity.locator("dd")).toHaveText("0%")
     const trigger = character.getByRole("button", { name: "View all stats" })
+    const characterRows = character.locator("section").first().locator("dt")
+    await expect(characterRows.last()).toHaveText("Item rarity")
+    const recovery = character
+      .locator("section")
+      .filter({
+        has: page.getByRole("heading", { name: "Recovery", exact: true }),
+      })
+    const recoveryBox = (await recovery.boundingBox())!
+    const buttonBox = (await trigger.boundingBox())!
+    expect(buttonBox.y).toBeGreaterThanOrEqual(
+      recoveryBox.y + recoveryBox.height
+    )
+    expect(buttonBox.height).toBeGreaterThanOrEqual(40)
+    expect(
+      await trigger.evaluate((el) => getComputedStyle(el).borderTopStyle)
+    ).toBe("solid")
+    await character.screenshot({
+      path: `/tmp/exile-character-stats-${width}.png`,
+    })
     await trigger.focus()
     await page.keyboard.press("Enter")
     const dialog = page.getByRole("dialog", { name: "Expanded stats" })
