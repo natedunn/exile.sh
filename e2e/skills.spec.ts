@@ -53,8 +53,9 @@ for (const width of [390, 1440])
         )
         .toBeGreaterThan(0)
     }
-    expect((await support.boundingBox())!.x).toBeGreaterThan(
-      (await active.boundingBox())!.x
+    // Supports are indented: their art sits to the right of the active gem's.
+    expect((await support.locator("img").boundingBox())!.x).toBeGreaterThan(
+      (await active.locator("img").boundingBox())!.x
     )
     expect((await support.boundingBox())!.y).toBeGreaterThan(
       (await active.boundingBox())!.y

@@ -66,9 +66,12 @@ function GemRow({
   gem,
   catalogue,
   main = false,
+  side = "right",
 }: {
   gem: SavedGem
   catalogue?: GemCatalogue
+  /** Which way the card opens, away from the neighbouring column. */
+  side?: "left" | "right"
   main?: boolean
 }) {
   const ref = findGem(catalogue, gem)
@@ -98,7 +101,7 @@ function GemRow({
   const holding = useRef(false)
   useEffect(() => {
     if (!open) return
-    const release = () => {
+    const releaseHold = () => {
       holding.current = false
       setHeld(false)
       if (hoverOnly && !hovering.current) setOpen(false)
@@ -110,10 +113,10 @@ function GemRow({
       }
     }
     const up = (event: KeyboardEvent) => {
-      if (event.key === "Alt") release()
+      if (event.key === "Alt") releaseHold()
     }
     const blur = () => {
-      release()
+      releaseHold()
       setOpen(false)
     }
     window.addEventListener("keydown", down)
@@ -155,7 +158,9 @@ function GemRow({
             return
           }
           setOpen(next)
-          if (!next) setHeld(false)
+          if (!next) {
+            setHeld(false)
+          }
         }}
       >
         <PopoverTrigger
@@ -208,14 +213,6 @@ function GemRow({
             {!gem.enabled && <span>Disabled</span>}
             {tagRow}
           </span>
-          <span className="skill-gem-number">
-            <span>Level</span>
-            <strong>{gem.level || "—"}</strong>
-          </span>
-          <span className="skill-gem-number">
-            <span>Quality</span>
-            <strong>{gem.quality ? `${gem.quality}%` : "—"}</strong>
-          </span>
         </PopoverTrigger>
         <PinnablePopoverContent
           fallbackClose={!hoverOnly}
@@ -231,8 +228,13 @@ function GemRow({
           positionerClassName={
             hoverOnly && !held ? "skill-gem-hover-positioner" : undefined
           }
-          side="top"
-          sideOffset={10}
+          // A hover preview must not steal focus, or the row would show a
+          // focus ring once the pointer leaves and focus returns to it.
+          initialFocus={!hoverOnly}
+          finalFocus={!hoverOnly}
+          side={side}
+          align="start"
+          sideOffset={14}
           collisionPadding={12}
           collisionAvoidance={{ side: "flip", align: "shift" }}
         >
@@ -394,7 +396,7 @@ function SkillGemsContent({
             Number(b.i === mainSocketGroup - 1) -
             Number(a.i === mainSocketGroup - 1)
         )
-        .map(({ skill, i }) => (
+        .map(({ skill, i }, position) => (
           <section
             key={i}
             className="build-skill"
@@ -415,6 +417,7 @@ function SkillGemsContent({
                     i === mainSocketGroup - 1 &&
                     j === skill.gems.findIndex((g) => !g.support && g.enabled)
                   }
+                  side={position % 2 === 0 ? "left" : "right"}
                 />
               ))}
             </ul>

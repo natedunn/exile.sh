@@ -6,6 +6,17 @@
   font: 11px/1.6 var(--font-mono);
   color: var(--color-text-muted);
 }
+/* The switch sits inside the frame, centred over the helmet column. */
+.equipment-weapon-switch {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-lg);
+}
+.equipment-weapon-switch-off {
+  display: inline-flex;
+  height: 100%;
+}
 .equipment-weapon-switch [data-slot="tabs-list"] {
   border: 1px solid var(--color-rule-strong);
   background: var(--color-surface);
@@ -21,17 +32,14 @@
   background: var(--color-brand-deep);
   color: var(--color-ink);
 }
-.equipment-board {
+/* The frame fills its cell with the dot screen and closes with a rule; the
+   board inside is capped, so a narrower viewport gives up the frame's
+   padding before it shrinks the items. */
+.equipment-board-frame {
   position: relative;
   isolation: isolate;
-  display: grid;
-  /* Reference inventory: 119px cells on a 135px pitch, scaled together. */
-  aspect-ratio: 1;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  grid-template-rows: repeat(8, minmax(0, 1fr));
-  gap: 1.503759%;
-  padding: 36px;
-  border: 1px solid var(--color-rule);
+  padding: var(--space-2xl);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
   background:
     radial-gradient(
       ellipse at 50% 50%,
@@ -39,21 +47,28 @@
       transparent 70%
     ),
     var(--color-surface);
-  box-shadow:
-    inset 0 0 0 5px var(--color-paper),
-    inset 0 0 0 6px var(--color-rule-strong),
-    0 16px 60px #0003;
 }
-.equipment-board::before {
+.equipment-board-frame::before {
   content: "";
   position: absolute;
-  inset: 18px;
-  border: 1px solid var(--color-rule);
+  inset: 0;
   pointer-events: none;
   z-index: -1;
   background-image: var(--dot-screen);
   background-size: 5px 5px;
   color: oklch(70% 0.03 80 / 0.08);
+}
+.equipment-board {
+  position: relative;
+  display: grid;
+  /* Reference inventory: 119px cells on a 135px pitch, scaled together. */
+  aspect-ratio: 1;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  gap: 1.503759%;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 .gear-cell {
   min-width: 0;
@@ -142,13 +157,15 @@
 .gear-slot:hover > img,
 .gear-slot:focus-visible > img,
 .gear-slot[data-popup-open] > img {
-  transform: translateY(-3px) scale(1.045);
+  transform: scale(1.025);
   filter: drop-shadow(0 7px 12px #000b);
 }
 .gear-slot:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 4px;
 }
+/* Sockets stack two wide: five reads 2-2-1 with the odd one to the right.
+   Wands and staves are tall and narrow, so theirs stack in one column. */
 .gear-sockets {
   position: absolute;
   display: grid;
@@ -160,15 +177,15 @@
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
-.gear-sockets[data-count="1"] {
+.gear-sockets[data-count="1"],
+.gear-sockets[data-item-class="Wand"],
+.gear-sockets[data-item-class="Staff"] {
   grid-template-columns: minmax(0, 1fr);
   width: 35%;
 }
-.gear-sockets[data-count="3"],
-.gear-sockets[data-count="5"],
-.gear-sockets[data-count="6"] {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  width: 75%;
+.gear-sockets:not([data-item-class="Wand"], [data-item-class="Staff"])
+  > span:last-child:nth-child(odd):not(:first-child) {
+  grid-column: 2;
 }
 .gear-sockets > span {
   display: flex;
@@ -317,6 +334,7 @@
 }
 .equipment-card[data-slot="popover-content"] {
   --item-color: var(--color-item-normal);
+  position: relative;
   display: block;
   width: 390px;
   max-width: calc(100vw - 24px);
@@ -349,16 +367,25 @@
 .equipment-card[data-rarity="MAGIC"] {
   --item-color: var(--color-item-magic);
 }
-.equipment-card-header {
+/* The same dithered fade as the tree and gem cards, in the item's colour. */
+.equipment-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 256px;
+  background: var(--item-color);
+  mask-image: var(--dither-fade-y);
+  mask-size: auto;
+  mask-repeat: repeat-x;
+  opacity: 0.09;
+  pointer-events: none;
+}
+.equipment-card > * {
   position: relative;
+}
+.equipment-card-header {
   padding: 18px 38px 16px;
   text-align: center;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in oklch, var(--item-color), transparent 88%),
-    transparent
-  );
   border-bottom: 1px solid
     color-mix(in oklch, var(--item-color), transparent 55%);
 }
@@ -472,11 +499,8 @@
   margin: 12px 0 0;
 }
 @media (max-width: 640px) {
-  .equipment-board {
-    padding: 12px;
-  }
-  .equipment-board::before {
-    inset: 8px;
+  .equipment-board-frame {
+    padding: var(--space-lg);
   }
   .gear-cell {
     gap: 5px;

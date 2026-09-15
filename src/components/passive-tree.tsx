@@ -68,7 +68,7 @@ import {
 } from "./ui/popover"
 import { Button } from "./ui/button"
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog"
-import { Diamond, Info, Minus, Plus, Radius, RotateCcw } from "lucide-react"
+import { Info, Minus, Plus, Radius, RotateCcw } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -1917,34 +1917,6 @@ function PassiveTreeContent({
             )}
           </section>
         ))}
-        <div className="tree-socketed-jewels">
-          <h3>Socketed jewels</h3>
-          {jewels.map((jewel) => {
-            const art = describeEquipment(jewel.item).artwork?.image
-            return (
-              <section key={jewel.origin.id}>
-                {art ? (
-                  <img src={art} alt="" width={48} height={48} loading="lazy" />
-                ) : (
-                  <span className="tree-jewel-fallback">
-                    <Diamond aria-hidden="true" />
-                  </span>
-                )}
-                <div>
-                  <h4>{jewel.item.name}</h4>
-                  <Lines items={jewel.lines.slice(2)} />
-                  {!jewel.active && <p>Socket not allocated in this tree.</p>}
-                  {jewel.warning && <p>{jewel.warning}</p>}
-                </div>
-              </section>
-            )
-          })}
-          {!jewels.length && (
-            <p className="build-muted">
-              No socketed jewels saved in this tree.
-            </p>
-          )}
-        </div>
         {unmapped.length > 0 && (
           <p className="build-muted">
             {unmapped.length} special or unknown node IDs cannot be placed on
@@ -1952,11 +1924,8 @@ function PassiveTreeContent({
           </p>
         )}
         <p className="build-muted tree-snapshot-note">
-          This build is a snapshot from Path of Building, not a live character.
-          Stats reflect the saved setup and do not update when you browse other
-          sets. {nodes.length} saved node IDs; every saved tree specification is
-          preserved in the PoB code.{" "}
-          <a href="/methodology">Data sources & attribution</a>.
+          {nodes.length} saved node IDs. Every saved tree specification is
+          preserved in the PoB code.
         </p>
       </div>
       <aside className="build-section-aside tree-overview-right">

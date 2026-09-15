@@ -2,11 +2,8 @@ import { TooltipPinScope } from "./tooltip-pins"
 import type { TooltipPinOptions } from "./tooltip-pins"
 import { GemReferenceInfo, SkillGems } from "./skill-gems"
 import { BuildStats } from "./build-stats"
-import {
-  EquipmentDisplay,
-  WeaponSetSwitch,
-  equipmentHasSwap,
-} from "./equipment-display"
+import { EquipmentDisplay, equipmentHasSwap } from "./equipment-display"
+import { BuildJewels, JewelStats } from "./build-jewels"
 import type { WeaponSet } from "./equipment-display"
 import { PassiveTree } from "./passive-tree"
 import { useEffect, useMemo, useState } from "react"
@@ -14,8 +11,10 @@ import type { ReactNode } from "react"
 import {
   Check,
   Copy,
+  Diamond,
   Download,
   Gem,
+  Info,
   Link2,
   ScrollText,
   Shield,
@@ -38,6 +37,7 @@ const sections = [
   { id: "equipment", label: "Equipment", icon: Swords },
   { id: "skills", label: "Skills", icon: Gem },
   { id: "tree", label: "Trees", icon: Waypoints },
+  { id: "jewels", label: "Jewels", icon: Diamond },
   { id: "notes", label: "Notes", icon: ScrollText },
 ] as const
 type SectionId = (typeof sections)[number]["id"]
@@ -74,6 +74,33 @@ function SetPicker({
       </SelectContent>
     </Select>
   )
+}
+
+/** Scrolls a section into view over a fixed, short duration. The browser's
+ * smooth scroll is not tunable and takes a beat too long on a tall page. */
+let scrollFrame = 0
+function scrollToSection(id: string, pushHistory = true) {
+  const el = document.getElementById(id)
+  if (!el) return
+  cancelAnimationFrame(scrollFrame)
+  const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0
+  const from = window.scrollY
+  const limit = document.documentElement.scrollHeight - window.innerHeight
+  const to = Math.min(el.getBoundingClientRect().top + from - margin, limit)
+  if (pushHistory) history.pushState(null, "", `#${id}`)
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    window.scrollTo(0, to)
+    return
+  }
+  const duration = 220
+  const start = performance.now()
+  const step = (now: number) => {
+    const t = Math.min(1, (now - start) / duration)
+    const eased = 1 - Math.pow(1 - t, 3)
+    window.scrollTo(0, from + (to - from) * eased)
+    if (t < 1) scrollFrame = requestAnimationFrame(step)
+  }
+  scrollFrame = requestAnimationFrame(step)
 }
 
 /** Tracks which section currently sits under the sticky nav. */
@@ -136,20 +163,50 @@ function SectionNav({
 }) {
   const active = useActiveSection()
   const pinned = useHeaderPinned()
+  useEffect(() => {
+    const previous = history.scrollRestoration
+    history.scrollRestoration = "manual"
+    const restore = () => {
+      const id = window.location.hash.slice(1)
+      if (sections.some((section) => section.id === id)) {
+        scrollToSection(id, false)
+      } else if (!id) {
+        cancelAnimationFrame(scrollFrame)
+        window.scrollTo(0, 0)
+      }
+    }
+    const initial = requestAnimationFrame(() => {
+      if (window.location.hash) restore()
+    })
+    window.addEventListener("popstate", restore)
+    return () => {
+      cancelAnimationFrame(initial)
+      cancelAnimationFrame(scrollFrame)
+      window.removeEventListener("popstate", restore)
+      history.scrollRestoration = previous
+    }
+  }, [])
   return (
     <nav
       className="build-nav"
       aria-label="Build sections"
       data-pinned={pinned || undefined}
     >
-      {/* Reserved height keeps the links from shifting when this appears. */}
-      <div className="build-nav-identity" aria-hidden={!pinned}>
-        {portrait && <img src={portrait} alt="" width={44} height={44} />}
-        <div>
-          <strong>{build.ascendancy || build.className}</strong>
-          <span>
-            Level {build.level} · {build.className}
-          </span>
+      {/* The strip is as tall as the first section's strip beside it, so
+          their rules meet at the divider. It labels the list until the
+          masthead scrolls away, then carries the build's identity. */}
+      <div className="build-nav-strip">
+        <span className="build-nav-label" aria-hidden={pinned}>
+          Sections
+        </span>
+        <div className="build-nav-identity" aria-hidden={!pinned}>
+          {portrait && <img src={portrait} alt="" width={36} height={36} />}
+          <div>
+            <strong>{build.ascendancy || build.className}</strong>
+            <span>
+              Level {build.level} · {build.className}
+            </span>
+          </div>
         </div>
       </div>
       <ul>
@@ -158,6 +215,19 @@ function SectionNav({
             <a
               href={`#${s.id}`}
               aria-current={active === s.id ? "location" : undefined}
+              onClick={(event) => {
+                if (
+                  event.defaultPrevented ||
+                  event.button !== 0 ||
+                  event.metaKey ||
+                  event.ctrlKey ||
+                  event.shiftKey ||
+                  event.altKey
+                )
+                  return
+                event.preventDefault()
+                scrollToSection(s.id)
+              }}
             >
               <s.icon aria-hidden="true" />
               {s.label}
@@ -181,6 +251,7 @@ export type BuildSelection = {
 
 export function BuildView({
   build,
+  title,
   code,
   shared = false,
   shareAction,
@@ -295,25 +366,30 @@ export function BuildView({
       resetKey={`${itemSet}:${weapons}:${skillSet}:${specIndex}`}
     >
       <article className="build-view">
-        <header className="build-heading">
-          <div className="build-emblem">
+        {/* The masthead follows the exchange masthead: a serif title over a
+          mono meta line, closed by a rule that runs frame to frame. */}
+        <header className="market-heading build-heading">
+          <div className="build-emblem" aria-hidden="true">
             {portrait ? (
               <img src={portrait} alt="" width={84} height={84} />
             ) : (
-              <Shield aria-hidden="true" />
+              <Shield />
             )}
           </div>
-          <div className="build-identity">
+          <div className="market-heading-copy build-identity">
             <h1>
-              {build.ascendancy || build.className}
-              {` · Level ${build.level}`}
+              {title.trim() ||
+                `${build.ascendancy || build.className} · Level ${build.level}`}
             </h1>
-            <p>
+            <p className="market-meta">
               <span>{build.className}</span>
               {spec && <span>Tree {spec.version.replaceAll("_", ".")}</span>}
             </p>
           </div>
           <div className="build-actions">
+            <span className="build-copy-status" role="status">
+              {message}
+            </span>
             {shareAction}
             {shared && (
               <Button
@@ -341,14 +417,11 @@ export function BuildView({
             </Button>
           </div>
         </header>
-        <p className="build-copy-status" role="status">
-          {message}
-        </p>
         <div className="build-layout">
           <SectionNav build={build} portrait={portrait} />
           <div className="build-sections">
             <section id="equipment" className="build-section">
-              <div className="build-section-heading">
+              <header className="build-section-strip">
                 <h2>Equipment</h2>
                 <div className="equipment-controls">
                   <SetPicker
@@ -357,14 +430,8 @@ export function BuildView({
                     value={itemSet}
                     onChange={(v) => select("items", v)}
                   />
-                  {swappable && (
-                    <WeaponSetSwitch
-                      value={weapons}
-                      onChange={(v) => select("weapons", v)}
-                    />
-                  )}
                 </div>
-              </div>
+              </header>
               <div className="build-section-body">
                 <div className="build-section-main">
                   {gear && hasGear ? (
@@ -373,6 +440,7 @@ export function BuildView({
                       build={build}
                       gear={gear}
                       weapons={swappable ? weapons : "primary"}
+                      onWeaponsChange={(v) => select("weapons", v)}
                     />
                   ) : (
                     <p className="build-empty">
@@ -387,13 +455,12 @@ export function BuildView({
                   <BuildStats
                     build={build}
                     groups={["character", "defensive", "recovery"]}
-                    note="Saved PoB values. Missing stats are omitted; switching equipment sets does not recalculate them."
                   />
                 </aside>
               </div>
             </section>
             <section id="skills" className="build-section">
-              <div className="build-section-heading">
+              <header className="build-section-strip">
                 <div className="build-skills-heading">
                   <h2>Skills & supports</h2>
                   <GemReferenceInfo />
@@ -404,7 +471,7 @@ export function BuildView({
                   value={skillSet}
                   onChange={(v) => select("skills", v)}
                 />
-              </div>
+              </header>
               <div className="build-section-body">
                 <div className="build-section-main">
                   <SkillGems
@@ -425,7 +492,7 @@ export function BuildView({
               </div>
             </section>
             <section id="tree" className="build-section">
-              <div className="build-section-heading">
+              <header className="build-section-strip">
                 <h2>Trees</h2>
                 <SetPicker
                   label="Tree specification"
@@ -436,7 +503,7 @@ export function BuildView({
                   value={String(specIndex)}
                   onChange={(v) => select("tree", Number(v))}
                 />
-              </div>
+              </header>
               <div className="build-section-body">
                 {spec ? (
                   <PassiveTree
@@ -449,23 +516,56 @@ export function BuildView({
                     items={build.items}
                   />
                 ) : (
-                  <p className="build-empty">
+                  <p className="build-section-main build-empty">
                     No passive tree saved in this export.
                   </p>
                 )}
               </div>
             </section>
-            <section id="notes" className="build-section">
-              <div className="build-section-heading">
-                <h2>Notes</h2>
+            <section id="jewels" className="build-section">
+              <header className="build-section-strip">
+                <h2>Jewels</h2>
+                {build.treeSpecs.length > 1 && spec && (
+                  <span className="build-strip-note">{spec.title}</span>
+                )}
+              </header>
+              <div className="build-section-body">
+                <div className="build-section-main">
+                  <BuildJewels build={build} spec={spec} gear={gear} />
+                </div>
+                <aside className="build-section-aside" aria-label="Jewel stats">
+                  <JewelStats build={build} spec={spec} gear={gear} />
+                </aside>
               </div>
-              <div className="build-notes">
-                {build.notes ||
-                  "The author did not include notes in this export."}
+            </section>
+            <section id="notes" className="build-section">
+              <header className="build-section-strip">
+                <h2>Notes</h2>
+              </header>
+              <div className="build-section-body build-section-full">
+                <div className="build-section-main">
+                  {build.notes ? (
+                    <div className="build-notes">{build.notes}</div>
+                  ) : (
+                    <p className="build-notes build-notes-empty">
+                      The author did not include notes in this export.
+                    </p>
+                  )}
+                </div>
               </div>
             </section>
           </div>
         </div>
+        <section className="bottom-note">
+          <Info size={15} aria-hidden="true" />
+          <p>
+            This build is a snapshot from Path of Building, not a live
+            character. Character and skill stats are saved PoB values and do not
+            recalculate when you browse other sets. Jewel totals reflect the
+            selected tree and equipment. Artwork © Grinding Gear Games.{" "}
+            <a href="/methodology">Data &amp; attribution.</a>
+          </p>
+        </section>
       </article>
     </TooltipPinScope>
   )

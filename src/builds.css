@@ -102,121 +102,175 @@
   display: block;
   max-width: 310px;
 }
+/* ---------------------------------------------------------------- masthead
+   The build masthead is the exchange masthead: the class emblem under a
+   dithered bronze glow, a serif title over a mono meta line, and the
+   actions in the far corner. Its rule runs frame to frame. */
+.build-view {
+  --build-nav: calc(200px + var(--shell-gutter));
+  --build-aside: 320px;
+  --build-strip: 72px;
+  --strip-tint: color-mix(
+    in oklch,
+    var(--color-surface) 60%,
+    var(--color-paper)
+  );
+}
 .build-heading {
-  display: flex;
-  gap: 24px;
   align-items: center;
-  padding: 48px 0 20px;
+  gap: var(--space-xl);
+  min-height: 0;
+  padding-block: var(--space-2xl);
+}
+.build-heading .market-heading-copy {
+  flex: 1;
+  min-width: 0;
+}
+.build-heading h1 {
+  font-size: clamp(34px, 4.2vw, 52px);
+  white-space: normal;
 }
 .build-emblem {
-  width: 84px;
-  height: 84px;
+  position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
-  color: var(--color-brand);
-  border: 1px solid var(--color-rule);
-  border-radius: 50%;
-  background: var(--color-notice);
   flex-shrink: 0;
-  overflow: hidden;
+  width: 84px;
+  height: 84px;
+  color: var(--color-brand);
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: 50%;
+  background: var(--color-surface);
+}
+/* The glow is used at its native 640px so the cells stay crisp; the
+   masthead clips whatever spills past the frame. */
+.build-emblem::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 640px;
+  height: 640px;
+  translate: -50% -50%;
+  z-index: -1;
+  background: var(--color-brand);
+  mask-image: var(--dither-glow);
+  mask-size: auto;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  opacity: 0.08;
+  pointer-events: none;
 }
 .build-emblem img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%;
 }
 .build-emblem svg {
   width: 32px;
   height: 32px;
 }
-.build-identity {
-  min-width: 0;
-  flex: 1;
-}
-.build-identity h1 {
-  font: 500 46px/1.12 var(--font-display);
-}
-.build-identity p {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-top: 14px;
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-.build-identity strong {
-  color: var(--color-brand);
-  font-weight: 500;
-}
 .build-actions {
+  position: relative;
+  z-index: 1;
   display: flex;
-  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
   flex-wrap: wrap;
+  gap: var(--space-sm);
 }
+.build-actions [data-slot="button"],
+.build-publish-fields [data-slot="button"] {
+  border: var(--rule-thin) solid var(--color-rule-strong);
+}
+.build-primary {
+  background: var(--color-brand);
+  color: var(--color-paper);
+  padding-inline: 14px;
+}
+.build-primary:hover {
+  background: var(--color-brand-ink);
+}
+/* Clipboard feedback sits in the row with the buttons, so nothing moves. */
 .build-copy-status {
-  min-height: 22px;
-  text-align: right;
-  font-size: 12px;
+  margin-right: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-brand);
 }
-.build-snapshot-note {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  margin: 20px 0 32px;
-  color: var(--color-text-muted);
-  font-size: 12px;
+.build-copy-status:empty {
+  display: none;
 }
-.build-snapshot-note svg {
-  margin-top: 5px;
-}
-.build-snapshot-note button {
-  height: auto;
-  padding: 0;
-  font-size: 12px;
-}
-html:has(.build-view) {
-  scroll-behavior: smooth;
-}
-/* One page. A sticky list of section links sits in the left column; each
-   section opens with the same full-width heading, then splits into its
-   content and a column of the stats that belong to it. */
+/* ---------------------------------------------------------------- layout
+   The workbench frame again: a sticky section list against the left edge,
+   a divider, and the sections stacked on the right. Each section opens
+   with a tinted strip closed by a rule, then splits into its content and
+   a column of the figures that belong to it, with a hairline between. */
 .build-layout {
   position: relative;
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  column-gap: var(--space-3xl);
+  grid-template-columns: var(--build-nav) minmax(0, 1fr);
   align-items: start;
-  border-top: 1px solid var(--color-rule-strong);
+  margin-inline: calc(-1 * var(--shell-gutter));
+  min-width: 0;
 }
+/* The divider reaches down across the bottom note's margin to meet its rule. */
 .build-layout::before {
   content: "";
   position: absolute;
+  z-index: 1;
   top: 0;
-  bottom: 0;
-  left: calc(var(--shell-gutter) + 200px + var(--space-xl));
+  bottom: calc(-1 * var(--space-2xl));
+  left: var(--build-nav);
   border-left: var(--rule-thin) solid var(--color-rule-strong);
   pointer-events: none;
 }
 .build-nav {
   position: sticky;
   top: 0;
-  padding-top: var(--space-lg);
+  min-width: 0;
+}
+/* As tall as the section strip beside it, so the two rules meet. */
+.build-nav-strip {
+  display: grid;
+  align-items: center;
+  min-height: var(--build-strip);
+  padding: var(--space-md) var(--space-md) var(--space-md) var(--shell-gutter);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+  background: var(--strip-tint);
+}
+.build-nav-strip > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+  transition:
+    opacity 220ms var(--ease-out),
+    transform 220ms var(--ease-out),
+    visibility 0s 220ms;
+}
+.build-nav-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.build-nav[data-pinned] .build-nav-label {
+  opacity: 0;
+  visibility: hidden;
 }
 .build-nav-identity {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  height: 64px;
-  margin-bottom: var(--space-sm);
-  padding-left: var(--space-md);
   visibility: hidden;
   opacity: 0;
-  transform: translateY(-8px);
-  transition:
-    opacity 220ms ease-out,
-    transform 220ms ease-out,
-    visibility 0s 220ms;
+  transform: translateY(-6px);
 }
 .build-nav[data-pinned] .build-nav-identity {
   visibility: visible;
@@ -225,36 +279,43 @@ html:has(.build-view) {
   transition-delay: 0s;
 }
 .build-nav-identity img {
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--color-rule);
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
+  object-fit: cover;
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  border-radius: 50%;
 }
 .build-nav-identity > div {
   display: flex;
   flex-direction: column;
+  gap: 2px;
   min-width: 0;
 }
 .build-nav-identity strong {
-  font: 500 20px/1.15 var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 500;
   color: var(--color-ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .build-nav-identity span {
+  font-family: var(--font-mono);
   font-size: var(--text-label);
   color: var(--color-text-muted);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .build-nav ul {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: var(--space-sm) 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-xs);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
 }
 .build-nav a {
   position: relative;
@@ -262,19 +323,19 @@ html:has(.build-view) {
   align-items: center;
   gap: var(--space-md);
   min-height: 42px;
-  padding: 4px var(--space-sm) 4px var(--space-md);
+  padding: 4px var(--space-md) 4px var(--shell-gutter);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   text-decoration: none;
   white-space: nowrap;
   transition:
-    color 120ms,
-    background-color 120ms;
+    color var(--dur-fast),
+    background-color var(--dur-fast);
 }
 .build-nav a svg {
   display: block;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 .build-nav a:hover,
@@ -313,79 +374,331 @@ html:has(.build-view) {
 .build-nav a[aria-current] svg {
   color: var(--color-brand);
 }
+
+/* ---------------------------------------------------------------- sections */
 .build-sections {
   min-width: 0;
 }
-.build-section {
-  padding: 40px 0 48px;
-  scroll-margin-top: 24px;
-}
 .build-section + .build-section {
-  border-top: 1px solid var(--color-rule);
+  border-top: var(--rule-thin) solid var(--color-rule-strong);
 }
-.build-section-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 40px;
-  align-items: start;
-}
-.build-section-main,
-.build-section-aside {
-  min-width: 0;
-}
-.build-section-aside {
-  position: sticky;
-  top: 40px;
-}
-.build-section-heading {
+.build-section-strip {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin: 0 0 24px;
-  min-height: 34px;
+  gap: var(--space-lg);
+  min-height: var(--build-strip);
+  padding: var(--space-md) var(--shell-gutter);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+  background: var(--strip-tint);
 }
-.build-section-heading h2 {
-  font: 500 30px var(--font-display);
+.build-section-strip h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-section);
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
 }
-.build-section > .build-muted:last-child {
-  margin-bottom: 0;
+.build-skills-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.build-skills-heading [data-slot="button"] {
+  color: var(--color-text-muted);
 }
 .build-set-picker {
-  max-width: 300px;
+  max-width: 260px;
 }
-.build-gear-grid {
+.build-section-body {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) var(--build-aside);
+  align-items: start;
 }
-.build-item {
-  border: 1px solid var(--color-rule);
-  background: var(--color-surface);
-  padding: 22px;
+.build-section-body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: var(--build-aside);
+  z-index: 1;
+  border-left: var(--rule-thin) solid var(--color-rule-strong);
+  pointer-events: none;
+}
+.build-section-full {
+  grid-template-columns: minmax(0, 1fr);
+}
+.build-section-full::before {
+  display: none;
+}
+/* Content takes the frame gutter on its outer edge and the inner
+   spacing beside the hairline, on both sides of it. */
+.build-section-main {
   min-width: 0;
+  padding: var(--space-xl) var(--space-xl) var(--space-2xl) var(--shell-gutter);
 }
-.build-slot {
-  font: 11px var(--font-mono);
+.build-section-full > .build-section-main {
+  padding-right: var(--shell-gutter);
+}
+.build-section-aside {
+  position: sticky;
+  top: 0;
+  min-width: 0;
+  padding: var(--space-xl) var(--shell-gutter) var(--space-2xl) var(--space-xl);
+}
+.build-section-main.build-empty {
+  margin: var(--space-xl) var(--space-xl) var(--space-2xl) var(--shell-gutter);
+  padding: var(--space-3xl) var(--space-lg);
+}
+.build-empty {
+  margin: var(--space-2xl) 0;
+  padding: var(--space-3xl) var(--space-lg);
+  text-align: center;
   color: var(--color-text-muted);
+  border: var(--rule-thin) dashed var(--color-rule-strong);
 }
-.build-item h3 {
-  font: 500 22px var(--font-display);
-  margin: 9px 0 14px;
+.build-empty h1 {
+  font-size: var(--text-section);
+  margin-bottom: var(--space-md);
 }
-.build-item h3[data-rarity="UNIQUE"] {
+.build-empty a {
   color: var(--color-brand);
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
 }
-.build-item h3[data-rarity="RARE"] {
-  color: var(--color-brand-ink);
+.build-section-main > .build-empty {
+  margin: 0;
 }
-.build-item pre {
+.build-muted {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  margin: var(--space-md) 0;
+}
+.build-notes {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font: 11px/1.8 var(--font-mono);
+  max-width: 80ch;
+  line-height: 1.8;
+}
+.build-notes-empty {
   color: var(--color-text-muted);
-  border-top: 1px solid var(--color-rule);
-  padding-top: 14px;
+}
+
+/* ---------------------------------------------------------------- equipment
+   The board frame sits flush in its cell, its rule closing it from the nav
+   divider to the figures divider. Everything after it takes the cell's
+   usual padding. */
+#equipment .build-section-main {
+  padding: 0 0 var(--space-2xl);
+}
+#equipment .build-section-main > .build-empty {
+  margin: var(--space-xl) var(--space-xl) 0 var(--shell-gutter);
+}
+.build-section .equipment-display {
+  margin: 0;
+}
+.build-section .equipment-extras {
+  margin: var(--space-2xl) var(--space-xl) 0 var(--shell-gutter);
+}
+.build-section .equipment-footer {
+  margin: var(--space-lg) var(--space-xl) 0 var(--shell-gutter);
+}
+
+/* ---------------------------------------------------------------- figures
+   The stats column is a ledger: a mono label over rows of muted names and
+   tabular figures, each closed by a hairline. */
+.build-section-aside h3,
+.build-section-aside .tree-attributes-heading {
+  margin: 0 0 var(--space-xs);
+  padding-bottom: var(--space-sm);
+  border-bottom: var(--rule-thin) solid var(--color-rule-strong);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.build-section-aside .tree-attributes-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+.build-section-aside .tree-attributes-heading h3 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.build-section-aside .tree-attributes-heading [data-slot="button"] {
+  width: 22px;
+  height: 22px;
+  color: var(--color-text-muted);
+}
+.build-stats-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-xl);
+}
+.build-stats-body > section {
+  min-width: 0;
+}
+.build-stats-body dl {
+  margin: 0;
+}
+.build-stats-body dl > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  padding: 7px 0;
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+  font-size: var(--text-xs);
+}
+.build-stats-body dt {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.build-stats-body dd {
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+.build-stat-values {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.build-stat-values > span + span::before {
+  content: "/";
+  margin-right: 4px;
+  color: var(--color-text-faint);
+}
+.build-stat-values [data-tone="red"] {
+  color: oklch(72% 0.17 25);
+}
+.build-stat-values [data-tone="green"] {
+  color: oklch(75% 0.14 145);
+}
+.build-stat-values [data-tone="blue"] {
+  color: oklch(75% 0.13 245);
+}
+.build-stat-values [data-tone="yellow"] {
+  color: oklch(85% 0.14 95);
+}
+.build-stat-values [data-tone="purple"] {
+  color: oklch(75% 0.17 315);
+}
+.build-stats-skill {
+  padding: var(--space-sm) 0 var(--space-xs);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.build-stats-note {
+  margin: 0;
+  font-size: var(--text-label);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+.build-strip-note {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------------------------------------------------------------- jewels
+   Socketed jewels as slots like the equipment extras, with the modifiers
+   they add up to in the figures column. */
+.build-jewel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--space-lg);
+}
+.build-jewel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+.build-jewel[data-active="false"] .gear-slot {
+  opacity: 0.55;
+}
+.build-jewel-name,
+.build-jewel-note {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.build-jewel-name {
+  color: var(--color-text-muted);
+}
+.build-jewel-note {
+  margin-top: calc(-1 * var(--space-xs));
+  color: var(--color-text-faint);
+}
+.build-jewel-stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.build-jewel-stats li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  padding: 7px 0;
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+.build-jewel-stats li > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.build-jewel-stats strong {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+.build-jewel-stats small {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--color-text-faint);
+}
+
+/* ---------------------------------------------------------------- skills
+   Each socket group is one panel: the active gem as its header row, the
+   supports as rows beneath it hanging from a connector. */
+/* Two columns of socket groups; each panel stretches to its row so its
+   surface reaches the bottom even with fewer gems than its neighbour. */
+.build-skills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-lg);
+  align-items: stretch;
+}
+.build-skills > .build-muted {
+  grid-column: 1 / -1;
   margin: 0;
 }
 .build-skill {
@@ -393,56 +706,30 @@ html:has(.build-view) {
   break-inside: avoid;
   min-width: 0;
   container-type: inline-size;
-  border-bottom: 1px solid var(--color-rule);
-  padding: 22px 0;
+  border: var(--rule-thin) solid var(--color-rule-strong);
+  background: var(--color-surface);
 }
 .build-skill-title {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 18px;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
+  border-bottom: var(--rule-thin) solid var(--color-rule);
 }
 .build-skill-title > span {
-  font: 11px var(--font-mono);
-  color: var(--color-text-muted);
-}
-.build-skill-title h3 {
-  font-size: 17px;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
   font-weight: 500;
-}
-.build-skill-title .build-selected {
-  margin-left: auto;
-  color: var(--color-brand);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
 }
 [data-disabled="true"] {
   opacity: 0.55;
 }
-.build-notes {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  max-width: 850px;
-  line-height: 1.9;
-  color: var(--color-text-muted);
-}
-.build-view {
-  margin-bottom: 64px;
-}
-.build-publish {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  padding: 32px;
-  margin-top: 32px;
-  background: var(--color-notice);
-  border: 1px solid var(--color-brand-deep);
-}
-.build-publish p {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  margin-top: 12px;
-  max-width: 430px;
-}
+
+/* ---------------------------------------------------------------- share */
 .build-publish-fields {
   display: flex;
   flex-direction: column;
@@ -453,6 +740,9 @@ html:has(.build-view) {
   gap: 10px;
   justify-content: flex-end;
 }
+.build-publish label {
+  font: 12px var(--font-mono);
+}
 .build-error {
   padding: 20px;
   margin: 24px 0;
@@ -460,47 +750,28 @@ html:has(.build-view) {
   color: var(--color-negative);
   overflow-wrap: anywhere;
 }
-.build-empty {
-  padding: 48px 20px;
-  text-align: center;
-  color: var(--color-text-muted);
-  border: 1px dashed var(--color-rule);
-  margin: 24px 0;
-}
-.build-muted {
-  color: var(--color-text-muted);
-  font-size: 12px;
-  margin: 12px 0;
-}
+
+/* ---------------------------------------------------------------- responsive */
 @media (max-width: 1000px) {
-  .build-heading {
-    flex-wrap: wrap;
-  }
-  .build-actions {
-    margin-left: 96px;
-  }
   .build-layout {
     grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-    border-top: 0;
   }
   .build-layout::before,
-  .build-nav-identity {
+  .build-nav-strip {
     display: none;
   }
   .build-nav {
     z-index: 5;
-    padding: 0;
-    margin: 0 calc(-1 * var(--space-2xl));
     background: var(--color-paper);
-    border-bottom: 1px solid var(--color-rule-strong);
+    border-bottom: var(--rule-thin) solid var(--color-rule-strong);
   }
   .build-nav ul {
     flex-direction: row;
-    gap: 20px;
-    padding: 0 var(--space-2xl);
+    gap: var(--space-xl);
+    padding: 0 var(--shell-gutter);
     overflow-x: auto;
     scrollbar-width: none;
+    border-bottom: 0;
   }
   .build-nav ul::-webkit-scrollbar {
     display: none;
@@ -524,18 +795,40 @@ html:has(.build-view) {
     border-bottom-color: var(--color-brand);
   }
   .build-section {
-    padding: 32px 0 40px;
     scroll-margin-top: 48px;
   }
   .build-section-body {
     grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
+  }
+  .build-section-body::before {
+    display: none;
+  }
+  .build-section-main,
+  .build-section-main.build-empty {
+    margin: 0;
+    padding: var(--space-xl) var(--shell-gutter) var(--space-2xl);
+  }
+  .build-section-main.build-empty {
+    margin: var(--space-xl) var(--shell-gutter) var(--space-2xl);
+    padding: var(--space-3xl) var(--space-lg);
   }
   .build-section-aside {
     position: static;
+    padding: var(--space-xl) var(--shell-gutter) var(--space-2xl);
+    border-top: var(--rule-thin) solid var(--color-rule-strong);
   }
-  .build-gear-grid {
+  .build-stats-body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-xl) var(--space-2xl);
+  }
+  .build-section .equipment-extras {
+    margin: var(--space-2xl) var(--shell-gutter) 0;
+  }
+  .build-section .equipment-footer {
+    margin: var(--space-lg) var(--shell-gutter) 0;
+  }
+  #equipment .build-section-main > .build-empty {
+    margin: var(--space-xl) var(--shell-gutter) 0;
   }
   .build-import-layout {
     gap: 32px;
@@ -571,187 +864,43 @@ html:has(.build-view) {
   .build-import-aside h2 br {
     display: none;
   }
-  .build-publish {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    padding: 20px;
-  }
   .build-heading {
-    padding-top: 32px;
-    gap: 14px;
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+    padding-block: var(--space-xl);
   }
   .build-emblem {
-    width: 48px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
   }
   .build-emblem svg {
     width: 24px;
-  }
-  .build-identity h1 {
-    font-size: 34px;
-  }
-  .build-identity p {
-    gap: 8px 14px;
-  }
-  .build-actions {
-    margin: 10px 0 0;
-  }
-  .build-nav ul {
-    gap: 20px;
-  }
-  .build-gear-grid,
-  .tree-node-list {
-    grid-template-columns: 1fr;
-  }
-  .build-section-heading {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .build-skill-title {
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .build-skill-title .build-selected {
-    margin-left: 0;
-  }
-}
-.build-primary {
-  background: var(--color-brand);
-  color: var(--color-paper);
-  padding-inline: 14px;
-}
-.build-primary:hover {
-  background: var(--color-brand-ink);
-}
-.build-actions [data-slot="button"],
-.build-publish-fields [data-slot="button"],
-.tree-controls [data-slot="button"] {
-  border: 1px solid var(--color-rule-strong);
-}
-.build-snapshot-note [data-slot="button"] {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-@media (max-width: 640px) {
-  .build-identity {
-    flex-basis: calc(100% - 64px);
+    height: 24px;
   }
   .build-actions {
     flex-basis: 100%;
+    justify-content: flex-start;
   }
-}
-
-.build-section .equipment-display {
-  margin: 0;
-}
-/* Room between the frame and the items, easing down with the viewport. */
-.build-section .equipment-board {
-  padding: 64px;
-}
-.build-section .equipment-board::before {
-  inset: 14px;
-}
-@media (max-width: 1000px) {
-  .build-section .equipment-board {
-    padding: 36px;
+  .build-copy-status {
+    order: 1;
+    flex-basis: 100%;
+    margin: 0;
   }
-  .build-section .equipment-board::before {
-    inset: 10px;
-  }
-}
-.build-stats-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 24px;
-  padding: 20px 22px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-rule);
-}
-.build-stats-body > section {
-  min-width: 0;
-}
-.build-stats-body h3 {
-  margin: 0 0 12px;
-  font: 500 16px var(--font-body);
-  color: var(--color-text-muted);
-}
-.build-stats-body dl {
-  margin: 0;
-}
-.build-stats-body dl > div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 5px 0;
-  font-size: 13px;
-}
-.build-stats-body dt {
-  color: var(--color-text-muted);
-  white-space: nowrap;
-}
-.build-stats-body dd {
-  margin: 0;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-.build-stat-values {
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 4px;
-}
-.build-stat-values > span + span::before {
-  content: "/";
-  margin-right: 4px;
-  color: var(--color-text-faint);
-}
-.build-stat-values [data-tone="red"] {
-  color: oklch(72% 0.17 25);
-}
-.build-stat-values [data-tone="green"] {
-  color: oklch(75% 0.14 145);
-}
-.build-stat-values [data-tone="blue"] {
-  color: oklch(75% 0.13 245);
-}
-.build-stat-values [data-tone="yellow"] {
-  color: oklch(85% 0.14 95);
-}
-.build-stat-values [data-tone="purple"] {
-  color: oklch(75% 0.17 315);
-}
-.build-stats-skill {
-  font-size: 13px;
-  margin: -4px 0 12px;
-}
-.build-stats-note {
-  grid-column: 1 / -1;
-  margin: 0;
-  padding-top: 20px;
-  border-top: 1px solid var(--color-rule);
-  font-size: 11px;
-  line-height: 1.6;
-  color: var(--color-text-muted);
-}
-@media (max-width: 1000px) {
-  .build-stats-body {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px 40px;
-    padding: 24px 28px;
-  }
-}
-@media (max-width: 640px) {
-  .build-section .equipment-board {
-    padding: 20px;
-  }
-  .build-section .equipment-board::before {
-    inset: 6px;
+  .build-section-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding-block: var(--space-lg);
   }
   .build-stats-body {
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-    padding: 18px;
+    gap: var(--space-xl);
+  }
+  .build-skill-title {
+    gap: 10px;
+  }
+  .build-skills {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 [data-slot="dialog-content"].build-share-dialog {
@@ -1168,55 +1317,28 @@ html:has(.build-view) {
 }
 
 /* Overview: preview map beside the keystone list. */
-.tree-overview-left > .tree-socketed-jewels {
-  margin-top: 32px;
-}
 .tree-overview-right {
   display: grid;
-  gap: 28px;
+  gap: var(--space-xl);
   min-width: 0;
 }
-.tree-jewel-fallback {
-  display: grid;
-  place-items: center;
-  flex: 0 0 48px;
-  height: 48px;
-  border: 1px solid var(--color-rule);
-  color: var(--color-text-muted);
-}
-.tree-socketed-jewels img {
-  object-fit: contain;
-}
-:is(.tree-key-passives, .tree-socketed-jewels) > section > div {
+.tree-key-passives > section > div {
   min-width: 0;
   overflow-wrap: anywhere;
 }
-.tree-attributes {
-  border: 1px solid var(--color-rule);
-  border-top: 2px solid var(--color-brand-deep);
-  background: var(--color-surface);
-  padding: 18px;
-}
-.tree-attributes-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.tree-attributes h3 {
-  font: 500 24px/1.2 var(--font-display);
-  margin: 0;
-}
 .tree-attributes table {
+  margin-top: var(--space-xs);
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
   font-size: 12px;
 }
+.tree-attributes th {
+  background: none;
+}
 .tree-attributes th,
 .tree-attributes td {
-  padding: 12px 5px;
+  padding: 10px 3px;
   text-align: right;
   border-bottom: 1px solid var(--color-rule);
   white-space: normal;
@@ -1255,26 +1377,17 @@ html:has(.build-view) {
   color: var(--color-text-muted);
   margin: 12px 0 0;
 }
-/* The attributes table shares a 300px column with the keystones. */
-.build-section-aside .tree-attributes {
-  padding: 12px;
-}
-.build-section-aside .tree-attributes th,
-.build-section-aside .tree-attributes td {
-  padding-inline: 3px;
-}
 /* Maps are square; keep the previews from towering over the section. */
 .tree-overview-left > section {
   max-width: 760px;
 }
 .tree-overview-left > section + section {
-  margin-top: 32px;
+  margin-top: var(--space-2xl);
 }
 .tree-overview-left h3,
-:is(.tree-key-passives, .tree-socketed-jewels) > h3,
 .tree-jewels > h3 {
   font: 500 24px/1.2 var(--font-display);
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-lg);
 }
 .tree-preview {
   position: relative;
@@ -1335,21 +1448,21 @@ html:has(.build-view) {
 }
 
 /* Keystone and jewel entries share a bronze rule with a dot-screen wash. */
-:is(.tree-key-passives, .tree-socketed-jewels) > section,
+.tree-key-passives > section,
 .tree-node-list > section {
   position: relative;
   isolation: isolate;
   padding: 14px 16px;
   border-left: 2px solid var(--color-brand-deep);
 }
-:is(.tree-key-passives, .tree-socketed-jewels) > section {
+.tree-key-passives > section {
   display: flex;
   gap: 14px;
 }
-:is(.tree-key-passives, .tree-socketed-jewels) > section + section {
+.tree-key-passives > section + section {
   margin-top: 14px;
 }
-:is(.tree-key-passives, .tree-socketed-jewels) > section::before,
+.tree-key-passives > section::before,
 .tree-node-list > section::before {
   content: "";
   position: absolute;
@@ -1362,26 +1475,26 @@ html:has(.build-view) {
   opacity: 0.14;
   pointer-events: none;
 }
-:is(.tree-key-passives, .tree-socketed-jewels) img {
+.tree-key-passives img {
   flex: 0 0 48px;
   height: 48px;
   border: 1px solid var(--color-rule);
   background: var(--color-paper);
 }
-:is(.tree-key-passives, .tree-socketed-jewels) h4,
+.tree-key-passives h4,
 .tree-node-list h3 {
   font: 500 19px/1.2 var(--font-display);
   color: var(--color-brand);
   margin: 0 0 6px;
 }
-:is(.tree-key-passives, .tree-socketed-jewels) p,
+.tree-key-passives p,
 .tree-node-list p,
-:is(.tree-key-passives, .tree-socketed-jewels) .tree-lines li,
+.tree-key-passives .tree-lines li,
 .tree-node-list .tree-lines li {
   color: var(--color-text-muted);
   margin: 0;
 }
-:is(.tree-key-passives, .tree-socketed-jewels) p,
+.tree-key-passives p,
 .tree-node-list p {
   font-size: 13px;
   line-height: 1.5;
@@ -1389,11 +1502,11 @@ html:has(.build-view) {
 .tree-node-list .tree-lines + p {
   margin-top: 8px;
 }
-:is(.tree-key-passives, .tree-socketed-jewels) .tree-lines li + li,
+.tree-key-passives .tree-lines li + li,
 .tree-node-list .tree-lines li + li {
   margin-top: 3px;
 }
-:is(.tree-key-passives, .tree-socketed-jewels) > p.build-muted {
+.tree-key-passives > p.build-muted {
   margin: 0;
 }
 .tree-node-list {
@@ -1406,12 +1519,9 @@ html:has(.build-view) {
   margin-top: 40px;
 }
 .tree-snapshot-note {
-  margin-top: 24px;
-  line-height: 1.6;
-}
-.tree-snapshot-note a {
-  color: var(--color-brand);
-  text-decoration: underline;
+  margin: var(--space-xl) 0 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
 }
 
 /* Full-screen map: the dialog becomes a page with the site's dot grid. */
@@ -1526,37 +1636,51 @@ html:has(.build-view) {
 .skill-gem-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
   list-style: none;
   margin: 0;
   padding: 0;
 }
-.skill-gem-entry[data-support="true"] {
-  margin-left: 30px;
-  padding-left: 14px;
-  border-left: 1px solid var(--color-rule);
+.skill-gem-entry + .skill-gem-entry {
+  border-top: var(--rule-thin) solid var(--color-rule);
 }
 .skill-gem-row {
+  position: relative;
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) 70px 80px;
-  align-items: center;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: start;
   gap: 16px;
   width: 100%;
-  padding: 12px 16px;
+  padding: var(--space-md) var(--space-lg);
   text-align: left;
   color: var(--color-ink);
-  background: var(--color-surface);
-  border: 1px solid var(--color-rule);
-  border-radius: 2px;
+  background: none;
+  border: 0;
+  border-radius: 0;
   cursor: pointer;
-  transition:
-    background 120ms,
-    border-color 120ms;
+  transition: background 120ms;
+}
+/* The first gem heads the group. Everything socketed under it steps in,
+   whether a support or a skill gem sitting inside a meta gem; supports
+   also take smaller art. The rules still run the full width. */
+.skill-gem-entry:first-child .skill-gem-row {
+  background: color-mix(in oklch, var(--color-brand) 4%, var(--color-surface));
+}
+.skill-gem-entry:first-child + .skill-gem-entry {
+  border-top-color: var(--color-rule-strong);
+}
+.skill-gem-entry:not(:first-child) .skill-gem-row {
+  padding-left: calc(var(--space-lg) + var(--space-xl));
+}
+.skill-gem-entry[data-support="true"] .skill-gem-row {
+  grid-template-columns: 40px minmax(0, 1fr);
+}
+.skill-gem-entry[data-support="true"] .skill-gem-art {
+  width: 40px;
+  height: 40px;
 }
 .skill-gem-row:hover,
 .skill-gem-row[data-popup-open] {
-  border-color: color-mix(in oklch, var(--color-brand) 50%, transparent);
-  background: color-mix(in oklch, var(--color-brand) 5%, var(--color-surface));
+  background: color-mix(in oklch, var(--color-brand) 8%, var(--color-surface));
 }
 .skill-gem-row:focus-visible,
 .skill-gem-close:focus-visible {
@@ -1568,6 +1692,7 @@ html:has(.build-view) {
   place-items: center;
   width: 48px;
   height: 48px;
+  margin-top: 2px;
   border: 1px solid color-mix(in oklch, var(--color-brand) 40%, transparent);
   background: #0d0b09;
   color: var(--color-text-muted);
@@ -1582,9 +1707,7 @@ html:has(.build-view) {
   border-color: #dc454570;
 }
 .skill-gem-row[data-corrupted="true"] {
-  position: relative;
   isolation: isolate;
-  border-color: #dc454555;
   background:
     linear-gradient(110deg, #dc45451c, #dc454508), var(--color-surface);
   box-shadow:
@@ -1605,7 +1728,6 @@ html:has(.build-view) {
 }
 .skill-gem-row[data-corrupted="true"]:hover,
 .skill-gem-row[data-corrupted="true"][data-popup-open] {
-  border-color: #dc454590;
   background:
     linear-gradient(110deg, #dc454529, #dc454510), var(--color-surface);
 }
@@ -1680,37 +1802,46 @@ html:has(.build-view) {
   font-weight: 500;
   overflow-wrap: anywhere;
 }
-.skill-gem-name > span,
-.skill-gem-number > span {
+.skill-gem-name > span {
   font: 11px var(--font-mono);
   color: var(--color-text-muted);
-}
-.skill-gem-number {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.skill-gem-number strong {
-  font: 14px var(--font-mono);
-  font-variant-numeric: tabular-nums;
 }
 .skill-gem-properties [data-corrupted="true"] {
   color: #ed8e88;
 }
+/* Gem card: the tree's node card. Dark plate, bronze rule, dithered fade. */
 .skill-gem-tooltip[data-slot="popover-content"] {
+  position: relative;
   display: block;
-  width: 410px;
+  width: 330px;
   max-width: calc(100vw - 24px);
-  max-height: min(640px, var(--available-height, 640px), calc(100dvh - 24px));
+  /* Sized to its content; it only scrolls when the viewport is shorter. */
+  max-height: var(--available-height, calc(100dvh - 24px));
   overflow-y: auto;
-  padding: 20px;
-  border: 1px solid color-mix(in oklch, var(--color-brand) 65%, transparent);
-  border-radius: 2px;
+  overscroll-behavior: contain;
+  padding: 18px 18px 16px;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-control);
   background: oklch(12% 0.008 75);
   color: var(--color-ink);
   box-shadow:
     0 12px 48px #000c,
     0 0 0 3px #000b;
+}
+.skill-gem-tooltip::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 256px;
+  background: var(--color-brand);
+  mask-image: var(--dither-fade-y);
+  mask-size: auto;
+  mask-repeat: repeat-x;
+  opacity: 0.07;
+  pointer-events: none;
+}
+.skill-gem-tooltip > * {
+  position: relative;
 }
 .skill-gem-hover-positioner,
 .skill-gem-tooltip[data-hover-only="true"] {
@@ -1731,9 +1862,8 @@ html:has(.build-view) {
   min-width: 0;
 }
 .skill-gem-tooltip [data-slot="popover-title"] {
-  font: 26px var(--font-display);
+  font: 500 24px/1.1 var(--font-display);
   color: var(--color-brand);
-  line-height: 1.15;
 }
 .skill-gem-tooltip-heading p {
   font: 11px/1.6 var(--font-mono);
@@ -1750,7 +1880,7 @@ html:has(.build-view) {
   cursor: pointer;
 }
 .skill-gem-properties {
-  border-block: 1px solid var(--color-rule);
+  border-block: 1px solid var(--color-rule-strong);
   margin: 16px 0;
   padding: 12px 0;
 }
@@ -1802,30 +1932,25 @@ html:has(.build-view) {
   text-decoration: underline;
 }
 @container (max-width: 600px) {
-  .skill-gem-entry[data-support="true"] {
-    margin-left: 14px;
-    padding-left: 8px;
-  }
   .skill-gem-row {
-    grid-template-columns: 40px minmax(0, 1fr) auto;
+    grid-template-columns: 40px minmax(0, 1fr);
     gap: 8px 12px;
     padding: 12px;
+  }
+  .skill-gem-entry:not(:first-child) .skill-gem-row {
+    padding-left: calc(var(--space-md) + var(--space-lg));
+  }
+  .skill-gem-entry[data-support="true"] .skill-gem-row {
+    grid-template-columns: 34px minmax(0, 1fr);
+  }
+  .skill-gem-entry[data-support="true"] .skill-gem-art {
+    width: 34px;
+    height: 34px;
   }
   .skill-gem-row .skill-gem-art {
     width: 40px;
     height: 40px;
     grid-row: 1 / 3;
-  }
-  .skill-gem-name {
-    grid-column: 2 / -1;
-  }
-  .skill-gem-number {
-    flex-direction: row;
-    align-items: baseline;
-    gap: 6px;
-  }
-  .skill-gem-number:nth-of-type(3) {
-    grid-column: 2;
   }
   .skill-gem-name strong {
     font-size: 14px;
@@ -1838,7 +1963,7 @@ html:has(.build-view) {
 }
 
 .skill-gem-effects {
-  border-top: 1px solid var(--color-rule);
+  border-top: 1px solid var(--color-rule-strong);
   margin-top: 16px;
   padding-top: 14px;
 }

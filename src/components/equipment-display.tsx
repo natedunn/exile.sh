@@ -1,7 +1,12 @@
 import { PinnablePopoverContent, TooltipPinScope } from "./tooltip-pins"
 import type { TooltipPinOptions } from "./tooltip-pins"
 import type { ComponentProps } from "react"
-import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+} from "./ui/tooltip"
 import { useEffect, useRef, useState } from "react"
 import {
   Gem,
@@ -149,7 +154,7 @@ function ItemCard({
     </>
   )
 }
-function GearSlot({
+export function GearSlot({
   item,
   name,
   label,
@@ -169,7 +174,7 @@ function GearSlot({
   const holding = useRef(false)
   useEffect(() => {
     if (!open) return
-    const release = () => {
+    const releaseHold = () => {
       holding.current = false
       setHeld(false)
       if (hoverOnly && !hovering.current) setOpen(false)
@@ -181,10 +186,10 @@ function GearSlot({
       }
     }
     const up = (event: KeyboardEvent) => {
-      if (event.key === "Alt") release()
+      if (event.key === "Alt") releaseHold()
     }
     const blur = () => {
-      release()
+      releaseHold()
       setOpen(false)
     }
     window.addEventListener("keydown", down)
@@ -203,9 +208,9 @@ function GearSlot({
       {item && details ? (
         <Popover
           open={open}
-          onOpenChange={(next, eventDetails) => {
+          onOpenChange={(next, change) => {
             if (
-              eventDetails.reason === "trigger-press" &&
+              change.reason === "trigger-press" &&
               hoverOnly &&
               hovering.current
             ) {
@@ -213,7 +218,9 @@ function GearSlot({
               return
             }
             setOpen(next)
-            if (!next) setHeld(false)
+            if (!next) {
+              setHeld(false)
+            }
           }}
         >
           <PopoverTrigger
@@ -250,6 +257,7 @@ function GearSlot({
               <span
                 className="gear-sockets"
                 data-count={details.socketContents.length}
+                data-item-class={details.artwork?.itemClass}
                 aria-label={details.socketContents
                   .map((socket) => socket.name)
                   .join(", ")}
@@ -288,6 +296,8 @@ function GearSlot({
             positionerClassName={
               hoverOnly && !held ? "equipment-hover-positioner" : undefined
             }
+            initialFocus={!hoverOnly}
+            finalFocus={!hoverOnly}
             collisionAvoidance={{ side: "shift", align: "shift" }}
             collisionPadding={12}
             data-rarity={details.rarity}
@@ -321,19 +331,39 @@ export function equipmentHasSwap(gear: BuildSnapshot["itemSets"][number]) {
 export function WeaponSetSwitch({
   value,
   onChange,
+  swappable = true,
 }: {
   value: WeaponSet
   onChange: (value: WeaponSet) => void
+  /** Without a second set the switch stays, disabled, and says why. */
+  swappable?: boolean
 }) {
   return (
     <Tabs
-      value={value}
+      value={swappable ? value : "primary"}
       onValueChange={(v) => onChange(v === "swap" ? "swap" : "primary")}
       className="equipment-weapon-switch"
     >
       <TabsList aria-label="Weapon set">
         <TabsTrigger value="primary">Set I</TabsTrigger>
-        <TabsTrigger value="swap">Set II</TabsTrigger>
+        {swappable ? (
+          <TabsTrigger value="swap">Set II</TabsTrigger>
+        ) : (
+          <TooltipProvider delay={0}>
+            <Tooltip>
+              {/* A disabled tab takes no pointer events, so the wrapper listens. */}
+              <TooltipTrigger
+                render={<span className="equipment-weapon-switch-off" />}
+                tabIndex={0}
+              >
+                <TabsTrigger value="swap" disabled>
+                  Set II
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent>No weapon in set 2</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </TabsList>
     </Tabs>
   )
@@ -355,11 +385,14 @@ function EquipmentDisplayContent({
   build,
   gear,
   weapons = "primary",
+  onWeaponsChange,
 }: {
   build: BuildSnapshot
   gear: BuildSnapshot["itemSets"][number]
   weapons?: WeaponSet
+  onWeaponsChange?: (value: WeaponSet) => void
 }) {
+  const swappable = equipmentHasSwap(gear)
   const equipped = gear.slots.filter((s) => s.itemId && s.itemId !== "0")
   const known = new Set<string>([
     ...EQUIPMENT_SLOTS.map((s) => s.name),
@@ -375,22 +408,31 @@ function EquipmentDisplayContent({
   }
   return (
     <div className="equipment-display">
-      <div className="equipment-board" aria-label="Equipped items">
-        {EQUIPMENT_SLOTS.map((slot) => {
-          const name =
-            slot.name.startsWith("Weapon") && weapons === "swap"
-              ? `${slot.name} Swap`
-              : slot.name
-          return (
-            <GearSlot
-              key={`${name}-${gear.id}`}
-              name={name}
-              label={slot.label}
-              area={slot.area}
-              {...slotItem(name)}
-            />
-          )
-        })}
+      <div className="equipment-board-frame">
+        {onWeaponsChange && (
+          <WeaponSetSwitch
+            value={weapons}
+            onChange={onWeaponsChange}
+            swappable={swappable}
+          />
+        )}
+        <div className="equipment-board" aria-label="Equipped items">
+          {EQUIPMENT_SLOTS.map((slot) => {
+            const name =
+              slot.name.startsWith("Weapon") && weapons === "swap"
+                ? `${slot.name} Swap`
+                : slot.name
+            return (
+              <GearSlot
+                key={`${name}-${gear.id}`}
+                name={name}
+                label={slot.label}
+                area={slot.area}
+                {...slotItem(name)}
+              />
+            )
+          })}
+        </div>
       </div>
       {extras.length > 0 && (
         <section className="equipment-extras">
@@ -408,10 +450,6 @@ function EquipmentDisplayContent({
           </div>
         </section>
       )}
-      <p className="equipment-footer">
-        {equipped.length} saved equipment slots · Item artwork © Grinding Gear
-        Games
-      </p>
     </div>
   )
 }

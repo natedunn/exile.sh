@@ -108,3 +108,31 @@ test("touch inspection stays within a mobile viewport and can be dismissed", asy
   ).toBeLessThanOrEqual(390)
   await context.close()
 })
+
+for (const width of [390, 1440])
+  test(`unavailable weapon set explains itself on keyboard focus at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 1000 })
+    await page.goto(buildsURL)
+    const noSwap = readFileSync(
+      new URL("../shared/fixtures/pob/R09ZhxGeretC.txt", import.meta.url),
+      "utf8"
+    )
+    await page.getByLabel("PoB export or pobb.in link").fill(noSwap)
+    const first = page.getByRole("tab", { name: "Set I", exact: true })
+    await first.focus()
+    await page.keyboard.press("Tab")
+    await expect(page.locator(".equipment-weapon-switch-off")).toBeFocused()
+    await expect(page.getByRole("tooltip")).toHaveText("No weapon in set 2")
+    await page.keyboard.press("Escape")
+    await expect(page.getByRole("tooltip")).toHaveCount(0)
+    await expect(
+      page.getByRole("tab", { name: "Set II", exact: true })
+    ).toBeDisabled()
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth
+      )
+    ).toBe(true)
+  })
