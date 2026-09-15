@@ -3,6 +3,8 @@ import type { TooltipPinOptions } from "./tooltip-pins"
 import { GemReferenceInfo, SkillGems } from "./skill-gems"
 import { BuildStats } from "./build-stats"
 import { EquipmentDisplay, equipmentHasSwap } from "./equipment-display"
+import { hasBondedModifiers } from "../../shared/bonded-modifiers"
+import { useBondedModifiers } from "./item-display-settings-provider"
 import { BuildJewels, JewelStats } from "./build-jewels"
 import type { WeaponSet } from "./equipment-display"
 import { PassiveTree } from "./passive-tree"
@@ -302,13 +304,16 @@ export function BuildView({
   const skillSets = useMemo(() => {
     if (
       build.skillSets.every((set) =>
-        set.skills.every((skill) =>
-          skill.gems.every(
-            (gem) =>
-              gem.corrupted !== undefined &&
-              gem.gemId !== undefined &&
-              gem.statSetIndex !== undefined
-          )
+        set.skills.every(
+          (skill) =>
+            skill.source !== undefined &&
+            skill.removed !== undefined &&
+            skill.gems.every(
+              (gem) =>
+                gem.corrupted !== undefined &&
+                gem.gemId !== undefined &&
+                gem.statSetIndex !== undefined
+            )
         )
       )
     )
@@ -339,6 +344,12 @@ export function BuildView({
     }
   }, [build, code])
   const spec = treeSpecs.at(specIndex)
+  const { setAutomatic: setAutomaticBonded } = useBondedModifiers()
+  const automaticBonded = hasBondedModifiers(spec, weapons)
+  useEffect(() => {
+    setAutomaticBonded(automaticBonded)
+    return () => setAutomaticBonded(false)
+  }, [automaticBonded, setAutomaticBonded])
   const portrait =
     classPortraits[build.ascendancy] ?? classPortraits[build.className]
   async function copy(kind: string, text: string) {
@@ -439,6 +450,7 @@ export function BuildView({
                       key={gear.id}
                       build={build}
                       gear={gear}
+                      treeVersion={spec?.version}
                       weapons={swappable ? weapons : "primary"}
                       onWeaponsChange={(v) => select("weapons", v)}
                     />

@@ -10,6 +10,64 @@ const item = (rarity: string, body: string) => ({
   rarity,
   text: `Rarity: ${rarity}\n${body}`,
 })
+test("anointment enchantments are distinct from corruption enchantments", () => {
+  const details = describeEquipment(
+    item(
+      "RARE",
+      "Example\nStellar Amulet\nImplicits: 2\n{enchant}Allocates Beef\n{enchant}+82 to Accuracy Rating\nCorrupted"
+    )
+  )
+  expect(details.implicitModifiers).toEqual([
+    { text: "Allocates Beef", kind: "enchant" },
+    { text: "+82 to Accuracy Rating", kind: "corrupted" },
+  ])
+})
+test("implicit counts include enchantments and exclude status lines", () => {
+  const result = describeEquipment(
+    item(
+      "UNIQUE",
+      [
+        "Example",
+        "Stellar Amulet",
+        "Implicits: 2",
+        "{enchant}{rune}+1 to Level of all Spell Skills",
+        "--------",
+        "+10 to all Attributes",
+        "{mutated}+30 to maximum Life",
+        "Corrupted",
+      ].join("\n")
+    )
+  )
+  expect(result.implicitModifiers.map((line) => line.text)).toEqual([
+    "+1 to Level of all Spell Skills",
+    "+10 to all Attributes",
+  ])
+  expect(result.explicitModifiers).toEqual([
+    { text: "+30 to maximum Life", kind: "mutated" },
+  ])
+  expect(result.statuses.map((line) => line.text)).toEqual(["Corrupted"])
+})
+
+test("explicit implicit tags work without a count and retain variant markers", () => {
+  const result = describeEquipment(
+    item(
+      "UNIQUE",
+      [
+        "Example",
+        "Stellar Amulet",
+        "{variant:2}{implicit}+10 to all Attributes",
+        "{crafted}+20 to maximum Life",
+      ].join("\n")
+    )
+  )
+  expect(result.implicitModifiers).toEqual([
+    { text: "{variant:2}+10 to all Attributes", kind: "normal" },
+  ])
+  expect(result.explicitModifiers).toEqual([
+    { text: "+20 to maximum Life", kind: "crafted" },
+  ])
+  expect(result.variantWarning).toBe(true)
+})
 test("rare gear resolves its base artwork instead of its generated name", () => {
   const result = describeEquipment(
     item(
@@ -120,3 +178,18 @@ test("Grand Spectrum artwork follows its Ruby, Emerald, or Sapphire base", () =>
   expect(images.every(Boolean)).toBe(true)
   expect(new Set(images).size).toBe(3)
 })
+
+test.each(["Corrupted", "Twice Corrupted"])(
+  "%s is a status, not an affix",
+  (status) => {
+    const details = describeEquipment(
+      item(
+        "RARE",
+        `Example\nStellar Amulet\nImplicits: 2\n{enchant}+82 to Accuracy Rating\n{enchant}+12% to Chaos Resistance\n${status}`
+      )
+    )
+    expect(details.statuses.map((line) => line.text)).toEqual([status])
+    expect(details.implicitModifiers).toHaveLength(2)
+    expect(details.explicitModifiers).toHaveLength(0)
+  }
+)

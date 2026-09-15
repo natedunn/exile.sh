@@ -1140,50 +1140,8 @@
   cursor: default;
 }
 
-/* Node inspection card: dark plate, bronze rule, dithered fade at the top. */
-.tree-node-positioner,
 .tree-inspection[data-slot="popover-content"] {
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.tree-node-positioner.is-held,
-.tree-inspection[data-held="true"] {
-  pointer-events: auto;
-  user-select: text;
-  -webkit-user-select: text;
-}
-.tree-inspection[data-slot="popover-content"] {
-  position: relative;
-  width: 330px;
-  max-width: calc(100vw - 24px);
-  max-height: min(400px, var(--available-height));
-  overflow: auto;
-  overscroll-behavior: contain;
-  gap: 0;
-  padding: 18px 18px 16px;
-  border-radius: var(--radius-control);
-  border: 1px solid var(--color-rule-strong);
-  background: oklch(12% 0.008 75);
-  color: var(--color-ink);
-  box-shadow:
-    0 12px 48px #000c,
-    0 0 0 3px #000b;
-}
-.tree-inspection::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 256px;
-  background: var(--color-brand);
-  mask-image: var(--dither-fade-y);
-  mask-size: auto;
-  mask-repeat: repeat-x;
-  opacity: 0.07;
-  pointer-events: none;
-}
-.tree-inspection > * {
-  position: relative;
+  --inspection-max-height: min(400px, var(--available-height));
 }
 .tree-inspection > div {
   display: flex;
@@ -1205,10 +1163,6 @@
   border-radius: 0;
   border: 1px solid var(--color-rule);
   background: var(--color-paper);
-}
-.tree-inspection [data-slot="popover-title"] {
-  font: 500 24px/1.1 var(--font-display);
-  color: var(--color-brand);
 }
 .tree-inspection > div [data-slot="button"] {
   margin-left: auto;
@@ -1676,8 +1630,7 @@
 .skill-gem-row[data-popup-open] {
   background: color-mix(in oklch, var(--color-brand) 8%, var(--color-surface));
 }
-.skill-gem-row:focus-visible,
-.skill-gem-close:focus-visible {
+.skill-gem-row:focus-visible {
   outline: 2px solid var(--color-brand);
   outline-offset: 3px;
 }
@@ -1803,49 +1756,6 @@
 .skill-gem-properties [data-corrupted="true"] {
   color: #ed8e88;
 }
-/* Gem card: the tree's node card. Dark plate, bronze rule, dithered fade. */
-.skill-gem-tooltip[data-slot="popover-content"] {
-  position: relative;
-  display: block;
-  width: 330px;
-  max-width: calc(100vw - 24px);
-  /* Sized to its content; it only scrolls when the viewport is shorter. */
-  max-height: var(--available-height, calc(100dvh - 24px));
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 18px 18px 16px;
-  border: 1px solid var(--color-rule-strong);
-  border-radius: var(--radius-control);
-  background: oklch(12% 0.008 75);
-  color: var(--color-ink);
-  box-shadow:
-    0 12px 48px #000c,
-    0 0 0 3px #000b;
-}
-.skill-gem-tooltip::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 256px;
-  background: var(--color-brand);
-  mask-image: var(--dither-fade-y);
-  mask-size: auto;
-  mask-repeat: repeat-x;
-  opacity: 0.07;
-  pointer-events: none;
-}
-.skill-gem-tooltip > * {
-  position: relative;
-}
-.skill-gem-hover-positioner,
-.skill-gem-tooltip[data-hover-only="true"] {
-  pointer-events: none;
-  user-select: none;
-}
-.skill-gem-tooltip[data-closed] {
-  display: none;
-  animation: none;
-}
 .skill-gem-tooltip-heading {
   display: flex;
   align-items: flex-start;
@@ -1855,23 +1765,10 @@
   flex: 1;
   min-width: 0;
 }
-.skill-gem-tooltip [data-slot="popover-title"] {
-  font: 500 24px/1.1 var(--font-display);
-  color: var(--color-brand);
-}
 .skill-gem-tooltip-heading p {
   font: 11px/1.6 var(--font-mono);
   color: var(--color-text-muted);
   margin: 6px 0 0;
-}
-.skill-gem-close {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-  color: var(--color-text-muted);
-  cursor: pointer;
 }
 .skill-gem-properties {
   border-block: 1px solid var(--color-rule-strong);
@@ -2207,41 +2104,6 @@
   }
 }
 
-/* Explicit pins keep their viewport position independently of their source. */
-.pinned-tooltip-positioner,
-[data-tooltip-pinned="true"] {
-  pointer-events: auto;
-  user-select: text;
-}
-.tree-inspection[data-tooltip-pinned="true"]::before {
-  max-height: 100%;
-}
-[data-tooltip-pinned="true"][data-slot="popover-content"] {
-  animation: none;
-}
-[data-pin-control="true"] > :is(header, div):first-child {
-  padding-right: 36px;
-}
-[data-slot="popover-content"] > .tooltip-pin-control[data-slot="button"] {
-  position: absolute;
-  z-index: 2;
-  top: 8px;
-  right: 8px;
-  margin: 0;
-  color: var(--color-text-muted);
-}
-[data-slot="popover-content"] > .tooltip-pin-control:hover {
-  color: var(--color-brand);
-}
-@media (max-width: 767px), (pointer: coarse) {
-  [data-slot="popover-content"] > .tooltip-pin-control[data-slot="button"] {
-    width: 44px;
-    height: 44px;
-  }
-  [data-pin-control="true"] > :is(header, div):first-child {
-    padding-right: 48px;
-  }
-}
 .tree-inspection[data-attention="true"] {
   animation: tree-tooltip-attention 3s ease-out;
 }
@@ -2377,10 +2239,7 @@ body:has(.tree-pins[data-open="true"])
 .tree-pinned-positioner,
 .tree-node-positioner {
   --tree-pin-border: #3a342c;
-}
-.tree-pinned-positioner > .tree-inspection,
-.tree-node-positioner > .tree-inspection {
-  border-color: var(--tree-pin-border);
+  --inspection-border: var(--tree-pin-border);
 }
 .tree-pin-pointer {
   position: absolute;
@@ -2442,4 +2301,28 @@ body:has(.tree-pins[data-open="true"])
     animation: none;
     stop-color: var(--color-focus);
   }
+}
+
+.build-skill-context {
+  padding: 10px var(--space-lg);
+  border-bottom: var(--rule-thin) solid var(--color-rule);
+  color: var(--color-text-muted);
+  font: 12px/1.5 var(--font-body);
+  overflow-wrap: anywhere;
+}
+.build-skill-context p {
+  margin: 0;
+}
+.build-skill-context p + p {
+  margin-top: 3px;
+}
+.build-skill-context .build-skill-warning {
+  color: var(--color-item-fractured);
+}
+.build-skill[data-support-only="true"] .skill-gem-row {
+  padding-left: var(--space-lg);
+  background: none;
+}
+.build-skill[data-support-only="true"] .skill-gem-entry + .skill-gem-entry {
+  border-top-color: var(--color-rule);
 }

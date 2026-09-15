@@ -1,0 +1,1565 @@
+{
+  "Hayoxi's Soul Core of Heatproofing": [
+    "+40% of Armour also applies to Cold Damage"
+  ],
+  "Zalatl's Soul Core of Insulation": [
+    "+40% of Armour also applies to Lightning Damage"
+  ],
+  "Topotante's Soul Core of Dampening": [
+    "+40% of Armour also applies to Fire Damage"
+  ],
+  "Atmohua's Soul Core of Retreat": [
+    "40% increased Energy Shield from Equipped Focus",
+    "30% increased Energy Shield from Equipped Body Armour"
+  ],
+  "Quipolatl's Soul Core of Flow": [
+    "8% increased Skill Effect Duration",
+    "8% increased Cooldown Recovery Rate"
+  ],
+  "Tzamoto's Soul Core of Ferocity": ["+4 to Maximum Rage"],
+  "Uromoti's Soul Core of Attenuation": [
+    "20% increased Curse Duration",
+    "20% increased Poison Duration"
+  ],
+  "Opiloti's Soul Core of Assault": [
+    "50% chance when you gain a Frenzy Charge to gain an additional Frenzy Charge"
+  ],
+  "Guatelitzi's Soul Core of Endurance": [
+    "50% chance when you gain an Endurance Charge to gain an additional Endurance Charge"
+  ],
+  "Xopec's Soul Core of Power": [
+    "50% chance when you gain a Power Charge to gain an additional Power Charge"
+  ],
+  "Estazunti's Soul Core of Convalescence": [
+    "15% increased speed of Recoup Effects",
+    "10% of Damage taken Recouped as Life"
+  ],
+  "Tacati's Soul Core of Affliction": [
+    "Enemies you Curse have -5% to Chaos Resistance"
+  ],
+  "Cholotl's Soul Core of War": [
+    "Projectiles have 20% chance to Chain an additional time from terrain"
+  ],
+  "Citaqualotl's Soul Core of Foulness": ["Adds 19 to 29 Chaos damage"],
+  "Xipocado's Soul Core of Dominion": [
+    "Minions deal 40% increased Damage with Command Skills"
+  ],
+  "Jiquani's Soul Core of Automation": ["+1 to Level of all Totem Skill Gems"],
+  "Jiquani's Soul Core of Malediction": ["+1 to Level of all Curse Skills"],
+  "Jiquani's Soul Core of Targeting": ["+1 to Level of all Mark Skills"],
+  "Jiquani's Soul Core of Rallying": ["+1 to Level of all Warcry Skill Gems"],
+  "Jiquani's Soul Core of Radiance": ["+1 to Level of all Herald Skill Gems"],
+  "Jiquani's Soul Core of Severing": ["+1 to Level of all Strike Skill Gems"],
+  "Jiquani's Soul Core of Rippling": ["+1 to Level of all Nova Skill Gems"],
+  "Jiquani's Soul Core of Quaking": ["+1 to Level of all Slam Skill Gems"],
+  "Jiquani's Soul Core of Munitions": ["+1 to Level of all Grenade Skill Gems"],
+  "Jiquani's Soul Core of Snares": ["+1 to Level of all Hazard Skill Gems"],
+  "Jiquani's Soul Core of Abundance": ["+1 to Level of all Plant Skill Gems"],
+  "Jiquani's Soul Core of Squalls": ["+1 to Level of all Wind Skill Gems"],
+  "Jiquani's Soul Core of Thundering": ["+1 to Level of all Storm Skill Gems"],
+  "Atziri's Soul Core of Devotion": [
+    "1% increased Spirit for each Corrupted Item Equipped",
+    "Corrupting will always result in change"
+  ],
+  "Atziri's Soul Core of Vitality": [
+    "1% increased Maximum Life for each Corrupted Item Equipped",
+    "Corrupting will always result in change"
+  ],
+  "Atziri's Soul Core of Alacrity": [
+    "1% increased Skill Speed for each Corrupted Item Equipped",
+    "Corrupting will always result in change"
+  ],
+  "Atziri's Soul Core of Inoculation": [
+    "+2% to Chaos Resistance for each Corrupted Item Equipped",
+    "Corrupting will always result in change"
+  ],
+  "Soul Core of Vizoma": [
+    "+150 to Accuracy Rating",
+    "30% increased Critical Hit Chance for Spells"
+  ],
+  "Soul Core of Tacati": [
+    "25% increased Magnitude of Poison you inflict",
+    "+13% to Chaos Resistance"
+  ],
+  "Soul Core of Opiloti": [
+    "40% increased Magnitude of Bleeding you inflict",
+    "25% increased Pin duration"
+  ],
+  "Soul Core of Jiquani": [
+    "Recover 5% of maximum Life on Kill",
+    "5% increased maximum Life"
+  ],
+  "Soul Core of Zalatl": [
+    "Recover 4% of maximum Mana on Kill",
+    "5% increased maximum Mana"
+  ],
+  "Soul Core of Citaqualotl": [
+    "40% increased Elemental Damage with Attacks",
+    "+6% to all Elemental Resistances"
+  ],
+  "Soul Core of Puhuarte": [
+    "40% increased Ignite Magnitude",
+    "+2% to Maximum Fire Resistance"
+  ],
+  "Soul Core of Tzamoto": [
+    "60% increased Freeze Buildup",
+    "+2% to Maximum Cold Resistance"
+  ],
+  "Soul Core of Xopec": [
+    "25% increased Magnitude of Shock you inflict",
+    "+2% to Maximum Lightning Resistance"
+  ],
+  "Soul Core of Azcapa": [
+    "+15 to Spirit",
+    "10% increased Quantity of Gold Dropped by Slain Enemies"
+  ],
+  "Soul Core of Topotante": [
+    "Attacks with this Weapon Penetrate 25% Elemental Resistances",
+    "25% reduced Effect of Non-Damaging Ailments on you"
+  ],
+  "Soul Core of Quipolatl": [
+    "5% increased Attack Speed",
+    "15% reduced Slowing Potency of Debuffs on You"
+  ],
+  "Soul Core of Ticaba": [
+    "+5% to Critical Damage Bonus",
+    "Hits against you have 50% reduced Critical Damage Bonus"
+  ],
+  "Soul Core of Atmohua": ["Convert 40% of Requirements to Strength"],
+  "Soul Core of Cholotl": ["Convert 40% of Requirements to Dexterity"],
+  "Soul Core of Zantipi": ["Convert 40% of Requirements to Intelligence"],
+  "Guatelitzi's Thesis": [
+    "Gain Armour equal to 35% of Life Lost from Hits in the past 8 seconds",
+    "10% of Physical Damage prevented Recouped as Life",
+    "Lose 5% of maximum Life per second while Sprinting",
+    "25% increased Movement Speed while Sprinting"
+  ],
+  "Citaqualotl's Thesis": [
+    "You Recoup 50% of Damage taken by your Offerings as Life",
+    "One of your Persistent Minions revives when an Offering expires",
+    "Sacrifice 10% of maximum Life to gain that much Guard when you Dodge Roll"
+  ],
+  "Jiquani's Thesis": [
+    "+1 to maximum Mana per 3 Item Armour on Equipped Helmet",
+    "Energy Shield Recharge starts after spending a total of",
+    " 2000 Mana, no more than once every 2 seconds",
+    "Increases and Reductions to Movement Speed also",
+    " apply to Energy Shield Recharge Rate"
+  ],
+  "Quipolatl's Thesis": [
+    "A random Skill that requires Glory generates 50% of its maximum Glory when your Marks Activate",
+    "Your Energy Shield Recharge starts when your Minions are Reformed",
+    "+75% of Armour also applies to Chaos Damage while on full Energy Shield"
+  ],
+  "Amanamu's Gaze": [
+    "Remove a Damaging Ailment when you use a Command Skill",
+    "+2 to Armour per 1 Spirit",
+    "1% increased Movement Speed per 15 Spirit, up to a maximum of 40%",
+    "Other Modifiers to Movement Speed except for Sprinting do not apply"
+  ],
+  "Kurgal's Gaze": [
+    "Increases and Reductions to Life Regeneration Rate also apply to Mana Regeneration Rate",
+    "40% increased effect of Arcane Surge on you",
+    "15% increased Mana Cost Efficiency if you haven't Dodge Rolled Recently"
+  ],
+  "Tecrod's Gaze": [
+    "Regenerate 1.5% of maximum Life per second",
+    "25% increased Life Cost Efficiency",
+    "10% increased Movement Speed when on Low Life"
+  ],
+  "Ulaman's Gaze": [
+    "+1 to Accuracy Rating per 1 Item Evasion Rating on Equipped Helmet",
+    "Critical Hit chance is Lucky against Parried enemies",
+    "Prevent +3% of Damage from Deflected Hits"
+  ],
+  "Desert Rune": [
+    "Adds 7 to 11 Fire Damage",
+    "Bonded: 30% increased Ignite Magnitude",
+    "Gain 8% of Damage as Extra Fire Damage",
+    "+14% to Fire Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Glacial Rune": [
+    "Adds 6 to 10 Cold Damage",
+    "Bonded: 30% increased Freeze Buildup",
+    "Gain 8% of Damage as Extra Cold Damage",
+    "+14% to Cold Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Storm Rune": [
+    "Adds 1 to 20 Lightning Damage",
+    "Bonded: 30% increased Magnitude of Shock you inflict",
+    "Gain 8% of Damage as Extra Lightning Damage",
+    "+14% to Lightning Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Iron Rune": [
+    "16% increased Physical Damage",
+    "Bonded: 20% increased effect of Fully Broken Armour",
+    "25% increased Spell Damage",
+    "Bonded: Break Armour on Critical Hit with Spells equal to 12% of Physical Damage dealt",
+    "16% increased Armour, Evasion and Energy Shield",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Body Rune": [
+    "Leeches 4% of Physical Damage as Life",
+    "Bonded: 5% increased maximum Life",
+    "+40 to maximum Energy Shield",
+    "+45 to maximum Life",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Mind Rune": [
+    "Leeches 3% of Physical Damage as Mana",
+    "Bonded: 5% increased maximum Mana",
+    "+60 to maximum Mana",
+    "+30 to maximum Mana",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Rebirth Rune": [
+    "Gain 25 Life per enemy killed",
+    "Bonded: Regenerate 0.4% of maximum Life per second",
+    "8% increased Energy Shield Recharge Rate",
+    "Bonded: 8% of Damage taken Recouped as Life",
+    "Regenerate 0.4% of maximum Life per second",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Inspiration Rune": [
+    "Gain 20 Mana per enemy killed",
+    "Bonded: 12% of Skill Mana Costs Converted to Life Costs",
+    "25% increased Mana Regeneration Rate",
+    "Bonded: 16% increased Mana Cost Efficiency",
+    "15% increased Mana Regeneration Rate",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Stone Rune": [
+    "Causes 30% increased Stun Buildup",
+    "Bonded: 40% increased Damage against Immobilised Enemies",
+    "Gain additional Stun Threshold equal to 12% of maximum Energy Shield",
+    "Bonded: 30% increased Immobilisation buildup",
+    "+75 to Stun Threshold",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Vision Rune": [
+    "+90 to Accuracy Rating",
+    "Bonded: Attacks have +1% to Critical Hit Chance",
+    "20% increased Critical Hit Chance for Spells",
+    "Bonded: 25% increased Critical Damage Bonus",
+    "12% increased Life and Mana Recovery from Flasks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Desert Rune": [
+    "Adds 4 to 6 Fire Damage",
+    "Bonded: 30% increased Ignite Magnitude",
+    "Gain 6% of Damage as Extra Fire Damage",
+    "+10% to Fire Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Glacial Rune": [
+    "Adds 3 to 5 Cold Damage",
+    "Bonded: 30% increased Freeze Buildup",
+    "Gain 6% of Damage as Extra Cold Damage",
+    "+10% to Cold Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Storm Rune": [
+    "Adds 1 to 10 Lightning Damage",
+    "Bonded: 30% increased Magnitude of Shock you inflict",
+    "Gain 6% of Damage as Extra Lightning Damage",
+    "+10% to Lightning Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Iron Rune": [
+    "14% increased Physical Damage",
+    "Bonded: 20% increased effect of Fully Broken Armour",
+    "20% increased Spell Damage",
+    "Bonded: Break Armour on Critical Hit with Spells equal to 12% of Physical Damage dealt",
+    "14% increased Armour, Evasion and Energy Shield",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Body Rune": [
+    "Leeches 3% of Physical Damage as Life",
+    "Bonded: 5% increased maximum Life",
+    "+30 to maximum Energy Shield",
+    "+30 to maximum Life",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Mind Rune": [
+    "Leeches 2% of Physical Damage as Mana",
+    "Bonded: 5% increased maximum Mana",
+    "+45 to maximum Mana",
+    "+20 to maximum Mana",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Rebirth Rune": [
+    "Gain 15 Life per enemy killed",
+    "Bonded: Regenerate 0.4% of maximum Life per second",
+    "6% increased Energy Shield Recharge Rate",
+    "Bonded: 8% of Damage taken Recouped as Life",
+    "Regenerate 0.35% of maximum Life per second",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Inspiration Rune": [
+    "Gain 10 Mana per enemy killed",
+    "Bonded: 12% of Skill Mana Costs Converted to Life Costs",
+    "20% increased Mana Regeneration Rate",
+    "Bonded: 16% increased Mana Cost Efficiency",
+    "12% increased Mana Regeneration Rate",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Stone Rune": [
+    "Causes 20% increased Stun Buildup",
+    "Bonded: 40% increased Damage against Immobilised Enemies",
+    "Gain additional Stun Threshold equal to 10% of maximum Energy Shield",
+    "Bonded: 30% increased Immobilisation buildup",
+    "+50 to Stun Threshold",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Vision Rune": [
+    "+60 to Accuracy Rating",
+    "Bonded: Attacks have +1% to Critical Hit Chance",
+    "16% increased Critical Hit Chance for Spells",
+    "Bonded: 25% increased Critical Damage Bonus",
+    "8% increased Life and Mana Recovery from Flasks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Greater Desert Rune": [
+    "Adds 13 to 16 Fire Damage",
+    "Bonded: 30% increased Ignite Magnitude",
+    "Gain 10% of Damage as Extra Fire Damage",
+    "+18% to Fire Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Greater Glacial Rune": [
+    "Adds 9 to 15 Cold Damage",
+    "Bonded: 30% increased Freeze Buildup",
+    "Gain 10% of Damage as Extra Cold Damage",
+    "+18% to Cold Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Greater Storm Rune": [
+    "Adds 1 to 30 Lightning Damage",
+    "Bonded: 30% increased Magnitude of Shock you inflict",
+    "Gain 10% of Damage as Extra Lightning Damage",
+    "+18% to Lightning Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Greater Iron Rune": [
+    "18% increased Physical Damage",
+    "Bonded: 20% increased effect of Fully Broken Armour",
+    "30% increased Spell Damage",
+    "Bonded: Break Armour on Critical Hit with Spells equal to 12% of Physical Damage dealt",
+    "18% increased Armour, Evasion and Energy Shield",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Greater Body Rune": [
+    "Leeches 5% of Physical Damage as Life",
+    "Bonded: 5% increased maximum Life",
+    "+50 to maximum Energy Shield",
+    "+60 to maximum Life",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Greater Mind Rune": [
+    "Leeches 4% of Physical Damage as Mana",
+    "Bonded: 5% increased maximum Mana",
+    "+75 to maximum Mana",
+    "+40 to maximum Mana",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Greater Rebirth Rune": [
+    "Gain 35 Life per enemy killed",
+    "Bonded: Regenerate 0.4% of maximum Life per second",
+    "10% increased Energy Shield Recharge Rate",
+    "Bonded: 8% of Damage taken Recouped as Life",
+    "Regenerate 0.45% of maximum Life per second",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Greater Inspiration Rune": [
+    "Gain 30 Mana per enemy killed",
+    "Bonded: 12% of Skill Mana Costs Converted to Life Costs",
+    "30% increased Mana Regeneration Rate",
+    "Bonded: 16% increased Mana Cost Efficiency",
+    "18% increased Mana Regeneration Rate",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Greater Stone Rune": [
+    "Causes 40% increased Stun Buildup",
+    "Bonded: 40% increased Damage against Immobilised Enemies",
+    "Gain additional Stun Threshold equal to 14% of maximum Energy Shield",
+    "Bonded: 30% increased Immobilisation buildup",
+    "+100 to Stun Threshold",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Greater Vision Rune": [
+    "+120 to Accuracy Rating",
+    "Bonded: Attacks have +1% to Critical Hit Chance",
+    "24% increased Critical Hit Chance for Spells",
+    "Bonded: 25% increased Critical Damage Bonus",
+    "16% increased Life and Mana Recovery from Flasks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Perfect Desert Rune": [
+    "Adds 17 to 20 Fire Damage",
+    "Bonded: 30% increased Ignite Magnitude",
+    "Gain 12% of Damage as Extra Fire Damage",
+    "+22% to Fire Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Perfect Glacial Rune": [
+    "Adds 16 to 20 Cold Damage",
+    "Bonded: 30% increased Freeze Buildup",
+    "Gain 12% of Damage as Extra Cold Damage",
+    "+22% to Cold Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Perfect Storm Rune": [
+    "Adds 1 to 40 Lightning Damage",
+    "Bonded: 30% increased Magnitude of Shock you inflict",
+    "Gain 12% of Damage as Extra Lightning Damage",
+    "+22% to Lightning Resistance",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Perfect Iron Rune": [
+    "20% increased Physical Damage",
+    "Bonded: 20% increased effect of Fully Broken Armour",
+    "35% increased Spell Damage",
+    "Bonded: Break Armour on Critical Hit with Spells equal to 12% of Physical Damage dealt",
+    "20% increased Armour, Evasion and Energy Shield",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Perfect Body Rune": [
+    "Leeches 6% of Physical Damage as Life",
+    "Bonded: 5% increased maximum Life",
+    "+60 to maximum Energy Shield",
+    "+75 to maximum Life",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Perfect Mind Rune": [
+    "Leeches 5% of Physical Damage as Mana",
+    "Bonded: 5% increased maximum Mana",
+    "+90 to maximum Mana",
+    "+50 to maximum Mana",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Perfect Rebirth Rune": [
+    "Gain 45 Life per enemy killed",
+    "Bonded: Regenerate 0.4% of maximum Life per second",
+    "12% increased Energy Shield Recharge Rate",
+    "Bonded: 8% of Damage taken Recouped as Life",
+    "Regenerate 0.5% of maximum Life per second",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Perfect Inspiration Rune": [
+    "Gain 40 Mana per enemy killed",
+    "Bonded: 12% of Skill Mana Costs Converted to Life Costs",
+    "35% increased Mana Regeneration Rate",
+    "Bonded: 16% increased Mana Cost Efficiency",
+    "21% increased Mana Regeneration Rate",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Perfect Stone Rune": [
+    "Causes 50% increased Stun Buildup",
+    "Bonded: 40% increased Damage against Immobilised Enemies",
+    "Gain additional Stun Threshold equal to 16% of maximum Energy Shield",
+    "Bonded: 30% increased Immobilisation buildup",
+    "+125 to Stun Threshold",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Perfect Vision Rune": [
+    "+150 to Accuracy Rating",
+    "Bonded: Attacks have +1% to Critical Hit Chance",
+    "28% increased Critical Hit Chance for Spells",
+    "Bonded: 25% increased Critical Damage Bonus",
+    "20% increased Life and Mana Recovery from Flasks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Lesser Robust Rune": [
+    "+6 to Strength",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 6 to 10 Fire damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +100 to Armour"
+  ],
+  "Robust Rune": [
+    "+9 to Strength",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 6 to 10 Fire damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +100 to Armour"
+  ],
+  "Greater Robust Rune": [
+    "+12 to Strength",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 6 to 10 Fire damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +100 to Armour"
+  ],
+  "Perfect Robust Rune": [
+    "+15 to Strength",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 6 to 10 Fire damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +100 to Armour"
+  ],
+  "Lesser Adept Rune": [
+    "+6 to Dexterity",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 1 to 16 Lightning damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +80 to Evasion Rating"
+  ],
+  "Adept Rune": [
+    "+9 to Dexterity",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 1 to 16 Lightning damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +80 to Evasion Rating"
+  ],
+  "Greater Adept Rune": [
+    "+12 to Dexterity",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 1 to 16 Lightning damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +80 to Evasion Rating"
+  ],
+  "Perfect Adept Rune": [
+    "+15 to Dexterity",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 1 to 16 Lightning damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +80 to Evasion Rating"
+  ],
+  "Lesser Resolve Rune": [
+    "+6 to Intelligence",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 5 to 8 Cold damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +50 to maximum Energy Shield"
+  ],
+  "Resolve Rune": [
+    "+9 to Intelligence",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 5 to 8 Cold damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +50 to maximum Energy Shield"
+  ],
+  "Greater Resolve Rune": [
+    "+12 to Intelligence",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 5 to 8 Cold damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +50 to maximum Energy Shield"
+  ],
+  "Perfect Resolve Rune": [
+    "+15 to Intelligence",
+    "Bonded: Adds 6 to 10 Physical Damage to Attacks",
+    "Bonded: Adds 5 to 8 Cold damage to Attacks",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana",
+    "Bonded: +50 to maximum Energy Shield"
+  ],
+  "Lesser Tempered Rune": [
+    "Adds 3 to 4 Physical Damage",
+    "6 to 9 Physical Thorns damage"
+  ],
+  "Tempered Rune": [
+    "Adds 6 to 9 Physical Damage",
+    "14 to 21 Physical Thorns damage"
+  ],
+  "Greater Tempered Rune": [
+    "Adds 9 to 12 Physical Damage",
+    "31 to 52 Physical Thorns damage"
+  ],
+  "Greater Rune of Leadership": [
+    "Minions gain 10% of their Physical Damage as Extra Lightning Damage",
+    "Bonded: Minions deal 20% increased Damage",
+    "Minions take 10% of Physical Damage as Lightning Damage",
+    "Bonded: Minions have +10% to all Elemental Resistances"
+  ],
+  "Greater Rune of Tithing": [
+    "Meta Skills gain 10% increased Energy",
+    "Bonded: Invocated Spells have 25% chance to consume half as much Energy",
+    "1 to 100 Lightning Thorns damage",
+    "Bonded: 15% increased Thorns damage"
+  ],
+  "Greater Rune of Alacrity": [
+    "8% increased Skill Speed",
+    "Bonded: 15% increased Reservation Efficiency of Herald Skills",
+    "Debuffs on you expire 8% faster",
+    "Bonded: 15% increased Elemental Ailment Threshold"
+  ],
+  "Greater Rune of Nobility": [
+    "Attacks with this Weapon have 10% chance to inflict Exposure",
+    "Bonded: 20% increased Exposure Effect",
+    "10% reduced effect of Shock on you",
+    "Bonded: 10% reduced Shock duration on you"
+  ],
+  "Hedgewitch Assandra's Rune of Wisdom": [
+    "+1 to Level of all Spell Skills",
+    "Bonded: Archon recovery period expires 30% faster"
+  ],
+  "Saqawal's Rune of the Sky": [
+    "Gain 5% of Damage as Extra Damage of all Elements",
+    "Bonded: 8% chance to gain an additional random Charge when you gain a Charge",
+    "Bonded: 12% chance when collecting an Elemental Infusion to gain an",
+    "Bonded: additional Elemental Infusion of the same type"
+  ],
+  "Fenumus' Rune of Agony": [
+    "Gain 13% of Damage as Extra Chaos Damage",
+    "Bonded: Gain 8% of Damage as Extra Physical Damage"
+  ],
+  "Farrul's Rune of Grace": [
+    "8% increased Deflection Rating while moving",
+    "Bonded: Prevent +3% of Damage from Deflected Hits"
+  ],
+  "Farrul's Rune of the Chase": [
+    "5% increased Movement Speed",
+    "Bonded: 10% increased Cooldown Recovery Rate"
+  ],
+  "Craiceann's Rune of Warding": [
+    "50% reduced effect of Curses on you",
+    "Bonded: 8% increased Curse Magnitudes"
+  ],
+  "Saqawal's Rune of Memory": [
+    "2% increased Experience gain",
+    "Bonded: +10% to all Elemental Resistances"
+  ],
+  "Saqawal's Rune of Erosion": [
+    "25% increased Exposure Effect",
+    "Bonded: 15% increased Magnitude of Non-Damaging Ailments you inflict"
+  ],
+  "Farrul's Rune of the Hunt": [
+    "50% increased Attack Damage against Rare or Unique Enemies",
+    "Bonded: +1 to Level of all Attack Skills"
+  ],
+  "Craiceann's Rune of Recovery": [
+    "30% increased Energy Shield Recharge Rate",
+    "Bonded: Gain additional Ailment Threshold equal to 50% of maximum Energy Shield",
+    "Bonded: Gain additional Stun Threshold equal to 50% of maximum Energy Shield"
+  ],
+  "Courtesan Mannan's Rune of Cruelty": [
+    "20% increased Magnitude of Damaging Ailments you inflict",
+    "Bonded: 15% increased Duration of Damaging Ailments on Enemies"
+  ],
+  "Thane Grannell's Rune of Mastery": [
+    "30% increased Magnitude of Non-Damaging Ailments you inflict",
+    "Bonded: 15% increased Duration of Elemental Ailments on Enemies"
+  ],
+  "Fenumus' Rune of Spinning": [
+    "8% increased Cast Speed",
+    "Bonded: 20% increased Mana Cost Efficiency while on Low Mana"
+  ],
+  "Countess Seske's Rune of Archery": [
+    "Bow Attacks fire an additional Arrow",
+    "Bonded: 20% increased Projectile Speed"
+  ],
+  "Thane Girt's Rune of Wildness": [
+    "25% chance for Spell Skills to fire 2 additional Projectiles",
+    "Bonded: Every Rage also grants 1% increased Spell Damage"
+  ],
+  "Fenumus' Rune of Draining": [
+    "20% increased Withered Magnitude",
+    "Bonded: +7% to Chaos Resistance"
+  ],
+  "Thane Myrk's Rune of Summer": [
+    "Adds 23 to 34 Fire Damage to Attacks against Ignited Enemies",
+    "Bonded: +2% to Maximum Fire Resistance"
+  ],
+  "Lady Hestra's Rune of Winter": [
+    "Adds 19 to 28 Cold Damage against Chilled Enemies",
+    "Bonded: +2% to Maximum Cold Resistance"
+  ],
+  "Thane Leld's Rune of Spring": [
+    "Adds 1 to 60 Lightning Damage against Shocked Enemies",
+    "Bonded: +2% to Maximum Lightning Resistance"
+  ],
+  "The Greatwolf's Rune of Claws": [
+    "Adds 5 to 12 Physical Damage to Attacks",
+    "Bonded: Fissure Skills have +2 to Limit"
+  ],
+  "The Greatwolf's Rune of Willpower": [
+    "15% of Damage is taken from Mana before Life",
+    "Bonded: 8% of Maximum Life Converted to Energy Shield"
+  ],
+  "Masterwork Rune": ["Upgrades a socketed Rune"],
+  "Lesser Ward Rune": [
+    "+15 to maximum Runic Ward",
+    "Bonded: 15% increased Global Armour, Evasion and Energy Shield"
+  ],
+  "Ward Rune": [
+    "+20 to maximum Runic Ward",
+    "Bonded: 15% increased Global Armour, Evasion and Energy Shield"
+  ],
+  "Greater Ward Rune": [
+    "+25 to maximum Runic Ward",
+    "Bonded: 15% increased Global Armour, Evasion and Energy Shield"
+  ],
+  "Perfect Ward Rune": [
+    "+30 to maximum Runic Ward",
+    "Bonded: 15% increased Global Armour, Evasion and Energy Shield"
+  ],
+  "Lesser Charging Rune": [
+    "8% increased Runic Ward Regeneration Rate",
+    "Bonded: Regenerate 10 Runic Ward per second"
+  ],
+  "Charging Rune": [
+    "12% increased Runic Ward Regeneration Rate",
+    "Bonded: Regenerate 15 Runic Ward per second"
+  ],
+  "Greater Charging Rune": [
+    "16% increased Runic Ward Regeneration Rate",
+    "Bonded: Regenerate 20 Runic Ward per second"
+  ],
+  "Perfect Charging Rune": [
+    "20% increased Runic Ward Regeneration Rate",
+    "Bonded: Regenerate 25 Runic Ward per second"
+  ],
+  "Warding Rune of Reinforcement": [
+    "20% increased Runic Ward",
+    "Bonded: Gain 2% of maximum Life as Extra maximum Runic Ward"
+  ],
+  "Warding Rune of Protection": [
+    "Every 4 seconds, gain Guard equal to 20% of maximum Runic Ward for 2 seconds",
+    "Bonded: 8% increased Guard gained"
+  ],
+  "Warding Rune of Disintegration": [
+    "Attacks Break Armour equal to 15% of maximum Runic Ward",
+    "Bonded: Break 10% increased Armour"
+  ],
+  "Warding Rune of Desperation": [
+    "Spell damage Penetrates 25% of enemy Elemental Resistances while on Low Runic Ward",
+    "Bonded: 12% increased Elemental Damage"
+  ],
+  "Warding Rune of Symbiosis": [
+    "1% increased Energy Shield Recharge Rate per 30 maximum Runic Ward",
+    "Bonded: Regenerate 1% of maximum Energy Shield per second"
+  ],
+  "Warding Rune of Courage": [
+    "25% increased Armour and Evasion Rating while on Low Runic Ward",
+    "Bonded: 20% increased Armour and Evasion Rating when on Low Life"
+  ],
+  "Warding Rune of Stability": [
+    "+4 to Stun Threshold per 10 maximum Runic Ward",
+    "Bonded: 15% increased Stun buildup while Shapeshifted"
+  ],
+  "Warding Rune of Glancing": [
+    "+3 to Deflection Rating per 10 maximum Runic Ward",
+    "Bonded: Prevent +1% of Damage from Deflected Hits"
+  ],
+  "Warding Rune of Heart": [
+    "Gain 5% of maximum Life as Extra maximum Runic Ward",
+    "Bonded: 1% more Runic Ward Regeneration rate per 2% of maximum Runic Ward lost from Hits Recently, up to 100% more"
+  ],
+  "Warding Rune of Nourishment": [
+    "15% Life Recovery from Flasks also applies to Runic Ward",
+    "Bonded: 15% increased Life Recovery from Flasks"
+  ],
+  "Warding Rune of Annihilation": [
+    "Attacks spend 5% of your maximum Runic Ward if possible to gain that much added Physical damage",
+    "Bonded: 10% reduced Runic Ward Cost Efficiency"
+  ],
+  "Warding Rune of Armature": [
+    "Gain maximum Runic Ward equal to 15% of this Weapon's maximum damage",
+    "Bonded: 5% increased Attack Speed while missing Runic Ward"
+  ],
+  "Warding Rune of Obsession": [
+    "All damage taken bypasses Runic Ward",
+    "Runic Ward Regeneration Rate is doubled",
+    "Bonded: 12% increased maximum Runic Ward"
+  ],
+  "Warding Rune of Equinox": [
+    "40% less Mana Regeneration Rate",
+    "Mana Recovery from Regeneration is also applied to Runic Ward",
+    "Bonded: 20% increased Runic Ward Regeneration Rate if you've dealt a Critical Hit Recently"
+  ],
+  "Warding Rune of Salvaging": [
+    "Recover 3% of maximum Runic Ward when one of your Reviving Minions is Killed",
+    "Bonded: Recover 3% of maximum Life when one of your Minions is Revived"
+  ],
+  "Warding Rune of Bodyguards": [
+    "Minions in your Presence have Onslaught while you are on Low Runic Ward",
+    "Bonded: Damage of Enemies Hitting you is Unlucky if",
+    "Bonded: your Runic Ward has been damaged Recently"
+  ],
+  "Warding Rune of Hollowing": [
+    "Gain 15% of maximum Life as Extra maximum Runic Ward",
+    "15% less maximum Life",
+    "Bonded: +1% to all Maximum Elemental Resistances while on full Runic Ward"
+  ],
+  "Passion of Aldur": [
+    "Transforms all Cold and Lightning modifiers on the item into equivalent Fire modifiers",
+    "Bonded: 25% increased Fire Damage"
+  ],
+  "Breath of Aldur": [
+    "When socketed, transforms all Fire and Lightning modifiers to equivalent Cold modifiers",
+    "Bonded: 25% increased Cold Damage"
+  ],
+  "Ire of Aldur": [
+    "Transforms all Fire and Cold modifiers on the item into equivalent Lightning modifiers",
+    "Bonded: 25% increased Lightning Damage"
+  ],
+  "Betrayal of Aldur": [
+    "Transforms all Fire, Cold and Lightning modifiers on the item into equivalent Chaos modifiers",
+    "Bonded: 25% increased Chaos Damage"
+  ],
+  "Ancient Rune of Splinters": [
+    "+50% Surpassing chance to fire an additional Arrow",
+    "Bonded: 30% increased Projectile Speed"
+  ],
+  "Ancient Rune of Dueling": [
+    "30% increased Parried Debuff Magnitude",
+    "Bonded: 15% increased Block chance"
+  ],
+  "Ancient Rune of the Titan": [
+    "10% chance for Slam Skills you use yourself to cause an additional Aftershock",
+    "Bonded: 15% increased Area of Effect for Attacks"
+  ],
+  "Ancient Rune of Shattering": [
+    "40% increased effect of Fully Broken Armour",
+    "Bonded: Break 50% increased Armour"
+  ],
+  "Ancient Rune of Prowess": [
+    "30% chance when you gain a Charge to gain an additional Charge",
+    "Bonded: 30% increased Endurance, Frenzy and Power Charge Duration"
+  ],
+  "Ancient Rune of Control": [
+    "50% increased Immobilisation buildup",
+    "Bonded: 30% increased Damage against Immobilised Enemies"
+  ],
+  "Ancient Rune of Discovery": [
+    "30% chance to create an additional Remnant",
+    "Bonded: +1 to maximum number of Elemental Infusions"
+  ],
+  "Ancient Rune of Decay": [
+    "25% increased Withered Magnitude",
+    "Bonded: 15% chance that when Volatility on you explodes, you regain an equivalent amount of Volatility"
+  ],
+  "Ancient Rune of Witchcraft": [
+    "40% increased Area of Effect of Curses",
+    "Bonded: 15% faster Curse Activation"
+  ],
+  "Ancient Rune of the Horde": [
+    "Minions have 8% increased Attack and Cast Speed",
+    "Bonded: Minions have 10% increased Movement Speed"
+  ],
+  "Ancient Rune of Animosity": [
+    "Gain 2 Druidic Prowess when you Heavy Stun a Rare or Unique Enemy",
+    "Bonded: 40% increased Stun Buildup"
+  ],
+  "Ancient Rune of Detonation": [
+    "Grenades have 10% chance to activate a second time",
+    "Bonded: 40% increased Crossbow Reload Speed"
+  ],
+  "Ancient Rune of Retaliation": [
+    "8% increased Attack Speed if you have Blocked Recently",
+    "Bonded: +3% to maximum Block chance"
+  ],
+  "Rune of Vitality": [
+    "+80 to maximum Life",
+    "Bonded: 15% increased amount of Life Leeched",
+    "Recover 15 Life when you Block",
+    "Bonded: 5% increased maximum Life"
+  ],
+  "Rune of the Hunt": [
+    "8% increased Movement Speed while Sprinting",
+    "Bonded: 50% increased Stun Recovery",
+    "Companions deal 30% increased Damage",
+    "Bonded: 8% increased Mana Recovery rate while your Companion is in your Presence"
+  ],
+  "Rune of Acrobatics": [
+    "Flasks gain 0.2 charges per Second",
+    "Bonded: Charms gain 0.25 charges per Second",
+    "+0.3 metres to Dodge Roll distance",
+    "Bonded: 30% increased Armour if you haven't Dodge Rolled Recently"
+  ],
+  "Rune of Culmination": [
+    "50% chance to build an additional Combo on Hit",
+    "Bonded: 5% increased Attack Speed",
+    "Rolls only the minimum or maximum Damage value for Physical Damage",
+    "Bonded: 20% increased Bleeding Duration"
+  ],
+  "Rune of Renown": [
+    "50% increased Glory generation",
+    "Bonded: Banner Skills have 20% increased Aura Magnitudes",
+    "Archon recovery period expires 30% faster",
+    "Bonded: 30% increased Archon Buff duration"
+  ],
+  "Rune of Accumulation": [
+    "Gain 3 Life per Enemy Hit with Attacks",
+    "Gain 1 Mana per Enemy Hit with Attacks",
+    "Bonded: +30 to maximum Life",
+    "Bonded: +30 to maximum Mana",
+    "On Hitting an enemy, gains maximum added Cold damage equal to the enemy's Power for 20 seconds, up to a total of 32",
+    "Bonded: 30% increased Freeze Buildup"
+  ],
+  "Rune of Foundations": [
+    "+30 to Armour",
+    "+30 to Evasion Rating",
+    "+10 to maximum Energy Shield",
+    "Bonded: +20 to maximum Life",
+    "Bonded: +20 to maximum Mana"
+  ],
+  "Rune of the Prism": [
+    "-10% to all Maximum Elemental Resistances",
+    "+20% to all Elemental Resistances",
+    "Bonded: 20% of Damage is taken from Mana before Life"
+  ],
+  "Rune of the Blossom": [
+    "+50 to Spirit",
+    "-1 to Spirit per 2 Levels",
+    "Bonded: 5% increased Spirit Reservation Efficiency"
+  ],
+  "Rune of Consistency": [
+    "200% increased Critical Hit Chance",
+    "You have no Critical Damage Bonus",
+    "Bonded: Hits against you have 25% reduced Critical Damage Bonus",
+    "50% increased Spell Damage while your Companion is in your Presence",
+    "Bonded: 8% increased Mana Recovery rate while your Companion is in your Presence"
+  ],
+  "Rune of Reach": [
+    "Remnants you create have 15% increased effect",
+    "Bonded: Recover 3% of Maximum Mana when you collect a Remnant",
+    "Remnants you create have 25% reduced effect",
+    "Remnants can be collected from 50% further away",
+    "Bonded: 20% increased Exposure Effect"
+  ],
+  "Rune of Vital Flame": [
+    "Adds 13 to 16 Fire Damage",
+    "15% of Skill Mana Costs Converted to Life Costs",
+    "Bonded: 30% increased Ignite Magnitude"
+  ],
+  "Rune of Confrontation": ["Gain 4 Rage on Melee Hit", "-10 to Maximum Rage"],
+  "Serle's Triumph": ["+1 Suffix Modifier allowed"],
+  "Cadigan's Epiphany": [
+    "Destroys all Augment Sockets on the item to create a Jewel Socket"
+  ],
+  "Astrid's Creativity": ["Can have 1 additional Crafted Modifier"],
+  "Uhtred's Sidereus": [
+    "Can roll Chronomancy modifiers",
+    "Bonded: 10% increased Cooldown Recovery Rate"
+  ],
+  "Kolr's Hunt": [
+    "Can roll Marksman modifiers",
+    "Bonded: 20% increased Projectile Damage"
+  ],
+  "Vorana's Carnage": [
+    "Can roll Berserking modifiers",
+    "Bonded: Gain 2 Rage on Melee Hit"
+  ],
+  "Thrud's Might": [
+    "Can roll Destruction modifiers",
+    "Bonded: +5% to all Elemental Resistances"
+  ],
+  "Medved's Tending": [
+    "Can roll Soul modifiers",
+    "Bonded: 3% increased maximum Life",
+    "Bonded: 3% increased maximum Mana"
+  ],
+  "Katla's Gloom": [
+    "Can roll Decay modifiers",
+    "Bonded: 25% reduced Effect of Non-Damaging Ailments on you"
+  ],
+  "Aldur's Legacy": [
+    "When socketed into a Unique Kalguuran or Ezomyte item, destroys the item to create a Rune imbued with that item's power"
+  ],
+  "Legacy of Bramblejack": [
+    "250% of Melee Physical Damage taken reflected to Attacker",
+    "Bonded: Regenerate 3% of maximum Life per second while Surrounded"
+  ],
+  "Legacy of Blackbraid": [
+    "+50% of Armour also applies to Elemental Damage",
+    "Bonded: +15% to all Elemental Resistances"
+  ],
+  "Legacy of Edyrn's Tusks": [
+    "50% chance to inflict Bleeding on Hit",
+    "50% reduced Slowing Potency of Debuffs on You",
+    "Bonded: 35% increased Thorns damage"
+  ],
+  "Legacy of Kingsguard": [
+    "Recover 5% of maximum Life for each Endurance Charge consumed",
+    "Bonded: +30 to maximum Life"
+  ],
+  "Legacy of Bristleboar": [
+    "Gain 5 Rage when Hit by an Enemy",
+    "Gain 10 Rage when Critically Hit by an Enemy",
+    "Bonded: +3 to Maximum Rage"
+  ],
+  "Legacy of Foxshade": [
+    "10% increased Movement Speed when on Full Life",
+    "100% increased Evasion Rating when on Full Life",
+    "Bonded: 20% increased Evasion Rating"
+  ],
+  "Legacy of Ashrend": [
+    "Cannot be Ignited",
+    "-10 Physical Damage taken from Attack Hits",
+    "Bonded: +35% to Fire Resistance"
+  ],
+  "Legacy of Briskwrap": [
+    "Gain Deflection Rating equal to 30% of Evasion Rating",
+    "Bonded: 35% increased Flask Mana Recovery rate"
+  ],
+  "Legacy of The Unleashed": [
+    "25% of Damage taken from Hits bypasses Energy Shield if Energy Shield is below half",
+    "Bonded: 20% increased Armour while Shapeshifted"
+  ],
+  "Legacy of Horns of Bynden": [
+    "Gain 1 Rage on Melee Hit",
+    "Every Rage also grants 1% increased Armour",
+    "Bonded: +3 to Maximum Rage"
+  ],
+  "Legacy of Wings of Caelyn": [
+    "Gain 1 Rage on Melee Hit",
+    "Every Rage also grants 1% increased Stun Threshold",
+    "Bonded: Every five Rage also grants you 1% increased Movement Speed"
+  ],
+  "Legacy of Ezomyte Peak": [
+    "15% increased Area of Effect",
+    "Unwavering Stance",
+    "Bonded: 50% reduced Slowing Potency of Debuffs on You"
+  ],
+  "Legacy of Deidbell": [
+    "Warcries Explode Corpses dealing 10% of their Life as Physical Damage",
+    "Bonded: Warcry Skills have 20% increased Area of Effect"
+  ],
+  "Legacy of Elevore": [
+    "Charms gain 1 charge per Second",
+    "+1 Charm Slot",
+    "Bonded: Charms gain 0.5 charges per Second"
+  ],
+  "Legacy of Starkonja's Head": [
+    "100% increased Global Evasion Rating when on Low Life",
+    "5% of Damage from Hits is taken from your Damageable Companion's Life before you",
+    "Bonded: 5% of Damage from Hits is taken from your Damageable Companion's Life before you"
+  ],
+  "Legacy of Crown of Thorns": [
+    "Pain Attunement",
+    "Bonded: 17 to 26 Physical Thorns damage"
+  ],
+  "Legacy of Greymake": [
+    "+50 to all Attributes",
+    "Bonded: +1 Maximum Life per Level"
+  ],
+  "Legacy of Erian's Cobble": [
+    "+30 to Accuracy Rating",
+    "+10 to maximum Life",
+    "+10 to maximum Mana",
+    "10% increased Rarity of Items found",
+    "10% increased Critical Hit Chance",
+    "+5 to all Attributes",
+    "+5% to all Elemental Resistances",
+    "3 Life Regeneration per second",
+    "Bonded: +20 to Armour",
+    "Bonded: +20 to Evasion Rating",
+    "Bonded: +20 to maximum Energy Shield"
+  ],
+  "Legacy of The Smiling Knight": [
+    "Aggravate Bleeding on targets you Critically Hit with Attacks",
+    "Bonded: 20% increased Critical Hit Chance"
+  ],
+  "Legacy of The Vile Knight": [
+    "Deal 4% increased Damage with Hits to Rare or Unique Enemies for each second they've ever been in your Presence, up to a maximum of 200%",
+    "Bonded: 20% increased Presence Area of Effect"
+  ],
+  "Legacy of Northpaw": [
+    "Base Critical Hit Chance for Attacks with Weapons is 7%",
+    "Bonded: 15% increased Critical Damage Bonus"
+  ],
+  "Legacy of Candlemaker": [
+    "40% increased Fire Damage",
+    "Flammability Magnitude is doubled",
+    "Bonded: 20% increased Ignite Duration on Enemies"
+  ],
+  "Legacy of Deathblow": [
+    "Culling Strike",
+    "Bonded: Gain 30 Life per enemy killed"
+  ],
+  "Legacy of Legionstride": [
+    "+10% to Block chance",
+    "Bonded: 10% reduced Damage taken from Projectile Hits"
+  ],
+  "Legacy of Trampletoe": [
+    "Deal 10% of Overkill damage to enemies within 2 metres of the enemy killed",
+    "Bonded: 15% increased Global Physical Damage"
+  ],
+  "Legacy of Briarpatch": [
+    "+15% to Thorns Critical Hit Chance",
+    "Bonded: 15% increased Thorns Critical Damage Bonus"
+  ],
+  "Legacy of Bushwhack": [
+    "Physical Damage is Pinning",
+    "Bonded: +20 to Dexterity"
+  ],
+  "Legacy of Wanderlust": [
+    "Your speed is unaffected by Slows",
+    "Bonded: 5% increased Movement Speed"
+  ],
+  "Legacy of The Knight-errant": [
+    "Iron Reflexes",
+    "Bonded: 25% increased Elemental Ailment Threshold"
+  ],
+  "Legacy of Obern's Bastion": [
+    "200% increased Stun Recovery",
+    "Bonded: 40% reduced Chill Duration on you",
+    "Bonded: 40% reduced Freeze Duration on you"
+  ],
+  "Legacy of Dionadair": [
+    "Double Stun Threshold while Shield is Raised",
+    "Bonded: 15% increased Stun Threshold"
+  ],
+  "Legacy of Wulfsbane": [
+    "Intimidate Enemies on Block for 8 seconds",
+    "Bonded: +25 to Strength"
+  ],
+  "Legacy of Chernobog's Pillar": [
+    "Gain 1% of damage as Fire damage per 2% Chance to Block",
+    "Bonded: +30% to Chaos Resistance"
+  ],
+  "Legacy of Alkem Eira": [
+    "30% of damage Blocked is Recouped as Mana",
+    "Bonded: 20% of damage Blocked is Recouped as Mana"
+  ],
+  "Legacy of Oaksworn": [
+    "50% increased Life Regeneration rate",
+    "Bonded: 50 Life Regeneration per second"
+  ],
+  "Legacy of Dunkelhalt": [
+    "50% increased Parried Debuff Magnitude",
+    "Bonded: 50% increased Parry Damage"
+  ],
+  "Legacy of Rondel de Ezo": [
+    "Curse Enemies with Enfeeble on Block",
+    "Bonded: 100% increased Block chance against Projectiles"
+  ],
+  "Legacy of Brynhand's Mark": [
+    "Causes Double Stun Buildup",
+    "Bonded: Adds 14 to 20 Physical Damage"
+  ],
+  "Legacy of Trenchtimbre": [
+    "Increases and Reductions to Minion Attack Speed also affect you",
+    "Bonded: +1 to Level of all Minion Skills"
+  ],
+  "Legacy of Mjolner": [
+    "+200 Intelligence Requirement",
+    "+3 to Level of all Lightning Skills",
+    "Bonded: +1 to Level of all Lightning Skills"
+  ],
+  "Legacy of Twisted Empyrean": [
+    "Attacks with this Weapon have Added Cold Damage equal to 6% to 10% of maximum Mana",
+    "Bonded: 15% of Damage is taken from Mana before Life"
+  ],
+  "Legacy of Hoghunt": [
+    "+5% to Critical Hit Chance",
+    "Maim on Critical Hit",
+    "Bonded: 25% increased Attack Damage against Maimed Enemies"
+  ],
+  "Legacy of Hrimnor's Hymn": [
+    "25% chance for Slam Skills you use yourself to cause an additional Aftershock",
+    "Bonded: 15% chance for Slam Skills you use yourself to cause an additional Aftershock"
+  ],
+  "Legacy of Brain Rattler": [
+    "All damage with this Weapon causes Electrocution buildup",
+    "Bonded: Damage Penetrates 10% Lightning Resistance"
+  ],
+  "Legacy of Lifesprig": [
+    "+2 to Level of all Spell Skills",
+    "Bonded: Leeches 1% of maximum Life when you Cast a Spell"
+  ],
+  "Legacy of Duality": [
+    "Gain 250 Guard for 0.5 seconds per Combo expended when using Skills",
+    "Bonded: Gain Finality for 0.2 seconds per Combo expended when using Skills"
+  ],
+  "Legacy of Tyranny's Grip": [
+    "Strikes deal Splash Damage",
+    "Bonded: Knocks Enemies Back on Hit"
+  ],
+  "Legacy of The Sentry": [
+    "Adds 23 to 34 Fire damage to Attacks",
+    "100% increased Flammability Magnitude",
+    "Bonded: +2% to Maximum Fire Resistance"
+  ],
+  "Legacy of Adonia's Ego": [
+    "+1 to Maximum Power Charges",
+    "Bonded: +65 to maximum Mana"
+  ],
+  "Legacy of Cursecarver": [
+    "+3 to Level of all Curse Skills",
+    "Bonded: 35% increased Mana Regeneration Rate"
+  ],
+  "Legacy of Dusk Vigil": [
+    "Gain 30% of Physical Damage as Extra Fire Damage",
+    "Bonded: Triggered Spells deal 20% increased Spell Damage"
+  ],
+  "Legacy of The Blood Thorn": [
+    "Adds 4 to 8 Physical Damage",
+    "Causes Bleeding on Hit",
+    "Bonded: 10% increased Magnitude of Bleeding you inflict"
+  ],
+  "Legacy of Quill Rain": [
+    "50% increased Attack Speed",
+    "20% less Attack Damage",
+    "Bonded: 70% increased Arrow Speed"
+  ],
+  "Legacy of Ironbound": [
+    "Hits with this weapon have 1 to 3 Added Physical Damage per 1% Block Chance",
+    "Bonded: 3% increased Block chance per 100 total Item Armour on Equipped Armour Items"
+  ],
+  "Legacy of Amor Mandragora": [
+    "Gain 1 Druidic Prowess for every 20 total Rage spent",
+    "Bonded: Enemies in your Presence are Hindered"
+  ],
+  "Legacy of Spiteful Floret": [
+    "Every 5 Rage also grants 5% of Damage taken Recouped as Life",
+    "Bonded: Attacks have 20% chance to cause Bleeding"
+  ],
+  "Legacy of Svalinn": [
+    "Chance to Block Damage is Lucky",
+    "You take 20% of damage from Blocked Hits",
+    "Bonded: +50 to maximum Runic Ward"
+  ],
+  "Legacy of Keeper of the Arc": [
+    "Alternating every 5 seconds:",
+    "Take 20% less Damage from Hits",
+    "Take 20% less Damage over time",
+    "Bonded: 25% increased Mana Regeneration Rate"
+  ],
+  "Legacy of Olrovasara": [
+    "On Hitting an enemy, gains maximum added Lightning damage equal to",
+    "the enemy's Power for 20 seconds, up to a total of 120",
+    "Bonded: 15% increased Attack Speed"
+  ],
+  "Legacy of A Worthy Foe": [
+    "Off-hand Hits inflict Runefather's Challenge",
+    "Bonded: +45% to Cold Resistance"
+  ],
+  "Legacy of Serle's Grit": [
+    "Maximum Quality is 40%",
+    "Bonded: Skills which Empower an Attack have 20% chance to not count that Attack"
+  ],
+  "Legacy of Runeseeker's Call": [
+    "75% increased effect of Socketed Runes",
+    "Bonded: +100 to maximum Mana"
+  ],
+  "Legacy of Facebreaker": [
+    "+1 to Armour per Strength",
+    "Bonded: 1% increased Damage per 15 Strength"
+  ],
+  "Emergent Vigour": [
+    "+1 to maximum Life per 8 Armour on Equipped Helmet",
+    "Bonded: +20 to Spirit",
+    "Gain Maximum Energy Shield equal to 50% of total",
+    "Strength Requirements of Equipped Armour Items",
+    "Bonded: +20 to Strength",
+    "Hits against you have no Critical Damage Bonus while on Consecrated Ground",
+    "Bonded: 20% increased Effect of Consecrated Ground you create"
+  ],
+  "Emergent Possibility": [
+    "15% of Chaos Damage from Hits taken as Damage of a random Element",
+    "Bonded: +13% to Chaos Resistance",
+    "Gain 1% of Damage as Extra Damage of a random Element per",
+    "Rune Socketed in Equipped Items",
+    "Bonded: 20% increased Elemental Damage",
+    "50% increased Runic Ward Regeneration Rate while Sprinting",
+    "Bonded: 15% increased Runic Ward Cost Efficiency"
+  ],
+  "Emergent Protection": [
+    "Gain 1 Endurance Charge on reaching Low Life, only once every 2 seconds",
+    "Bonded: 40% increased Endurance Charge Duration",
+    "Banners also grant 2% of Life Regenerated per second to affected targets",
+    "Bonded: Regenerate 0.5% of maximum Life per second",
+    "When you stop Sprinting, gain Guard equal to 4% of maximum Life per second spent Sprinting, up to a maximum of 20%, for 4 seconds",
+    "Bonded: 20% increased Guard gained"
+  ],
+  "Emergent Instinct": [
+    "Targets that are Blinded, Maimed, and Bleeding cannot Evade your Hits",
+    "Bonded: 30% increased Immobilisation buildup",
+    "Regenerate 5% of maximum Life per Second if you have used a Command Skill Recently",
+    "Bonded: 20% increased Life Regeneration rate",
+    "Thorns Damage is Lucky against targets with Fully Broken Armour",
+    "Bonded: 30% increased Thorns damage"
+  ],
+  "Idol of Sirrius": [
+    "8% increased Attack Speed",
+    "Bonded: 20% reduced Slowing Potency of Debuffs on You",
+    "Allies in your Presence have 8% increased Movement Speed",
+    "Bonded: 4% increased Movement Speed"
+  ],
+  "Idol of Thruldana": [
+    "25% reduced Poison Duration",
+    "Targets can be affected by +1 of your Poisons at the same time",
+    "Bonded: Gain 13% of Physical Damage as extra Chaos Damage",
+    "Allies in your Presence deal 13 to 27 added Attack Chaos Damage",
+    "Bonded: 15% increased Withered Magnitude"
+  ],
+  "Idol of Grold": [
+    "50% increased total Power counted by Warcries",
+    "Bonded: 30% increased Glory generation",
+    "15% increased Damage per each different Companion in your Presence",
+    "Bonded: 15% increased Reservation Efficiency of Companion Skills"
+  ],
+  "Idol of Eeshta": [
+    "15% increased Cost Efficiency",
+    "Bonded: Meta Skills have 15% increased Reservation Efficiency",
+    "15% increased Mana Recovery rate while your Companion is in your Presence",
+    "Bonded: 8% increased Life Recovery Rate while your Companion is in your Presence"
+  ],
+  "Idol of Egrin": [
+    "Enemies you Curse take 6% increased Damage",
+    "Bonded: 20% increased Area of Effect of Curses",
+    "20% increased Curse Duration",
+    "Bonded: Curse zones erupt after 20% reduced delay"
+  ],
+  "Idol of Maxarius": [
+    "+1 Charm Slot",
+    "Bonded: Storm Skills have +1 to Limit",
+    "Flasks gain 0.2 charges per Second",
+    "Bonded: 20% increased Life and Mana Recovery from Flasks"
+  ],
+  "Idol of Ralakesh": [
+    "8% increased Reservation Efficiency of Minion Skills",
+    "Bonded: Minions Revive 8% faster",
+    "40% increased Armour, Evasion and Energy Shield while your Companion is in your Presence",
+    "Bonded: Companions have 25% increased maximum Life"
+  ],
+  "Snake Idol": [
+    "8% increased Curse Magnitudes",
+    "Bonded: Remnants you create have 15% increased effect",
+    "Allies in your Presence have 10% increased Attack Speed",
+    "Bonded: 10% increased Skill Speed while Shapeshifted"
+  ],
+  "Primate Idol": [
+    "Minions have 15% increased maximum Life",
+    "Bonded: Remnants can be collected from 30% further away",
+    "Allies in your Presence deal 40% increased Damage",
+    "Bonded: 40% increased Damage while Shapeshifted"
+  ],
+  "Owl Idol": [
+    "12% increased Cooldown Recovery Rate",
+    "Bonded: 20% increased effect of Archon Buffs on you",
+    "Allies in your Presence have 10% increased Cast Speed",
+    "Bonded: 10% increased Skill Speed while Shapeshifted"
+  ],
+  "Cat Idol": [
+    "25% increased Accuracy Rating",
+    "Bonded: 30% increased Charm Charges gained",
+    "Allies in your Presence have 14% increased Critical Hit Chance",
+    "Bonded: 25% increased Critical Hit Chance while Shapeshifted"
+  ],
+  "Wolf Idol": [
+    "15% increased Magnitude of Bleeding you inflict",
+    "Bonded: 25% reduced Magnitude of Bleeding on You",
+    "Allies in your Presence have 20% increased Critical Damage Bonus",
+    "Bonded: 25% increased Critical Hit Chance while Shapeshifted"
+  ],
+  "Stag Idol": [
+    "Projectiles have 15% chance to Fork",
+    "Bonded: Projectiles have 25% chance for an additional Projectile when Forking",
+    "Allies in your Presence deal 1 to 40 added Attack Lightning Damage",
+    "Bonded: 40% increased Attack Damage while Shapeshifted"
+  ],
+  "Boar Idol": [
+    "Gain 1 Rage on Melee Hit",
+    "Bonded: 25% increased Warcry Cooldown Recovery Rate",
+    "Allies in your Presence Regenerate 0.5% of your Maximum Life per second",
+    "Bonded: 25% increased Life Regeneration rate while Shapeshifted"
+  ],
+  "Bear Idol": [
+    "10% increased Area of Effect",
+    "Bonded: 12% increased Reservation Efficiency of Companion Skills",
+    "Allies in your Presence deal 12 to 18 added Attack Physical Damage",
+    "Bonded: 40% increased Attack Damage while Shapeshifted"
+  ],
+  "Ox Idol": [
+    "15% increased Block chance",
+    "Bonded: 15% chance for Damage of Enemies Hitting you to be Unlucky",
+    "Allies in your Presence have +12% to all Elemental Resistances",
+    "Bonded: +20% of Armour also applies to Elemental Damage while Shapeshifted"
+  ],
+  "Rabbit Idol": [
+    "12% increased Rarity of Items found",
+    "Bonded: 10% increased Quantity of Gold Dropped by Slain Enemies",
+    "15% increased Spirit",
+    "Bonded: Minions have 30% increased Cooldown Recovery Rate for Command Skills"
+  ],
+  "Fox Idol": [
+    "Idols socketed in this item gain the benefits of their Bonded modifiers",
+    "Bonded: +5% to Quality of all Skills",
+    "50% increased Presence Area of Effect",
+    "Bonded: Minions have 30% increased Area of Effect"
+  ],
+  "Idol of Greust": [
+    "+25% of Armour also applies to Elemental Damage",
+    "Bonded: 12% increased Damage for each type of Elemental Ailment on Enemy",
+    "Gain Deflection Rating equal to 20% of Evasion Rating",
+    "Companions deal 10% more Damage for each different type of dead Companion you have",
+    "Bonded: Recover 3% of maximum Life when one of your Minions is Revived"
+  ],
+  "Idol of Yeena": [
+    "30% increased Skill Effect Duration with Plant Skills",
+    "Bonded: Plants have a 25% chance to immediately Overgrow when they enter your Presence for the first time",
+    "Plants have a 25% chance to immediately Overgrow when they enter your Presence for the first time",
+    "Bonded: 30% increased Skill Effect Duration with Plant Skills"
+  ],
+  "Idol of Eramir": [
+    "Skills have 10% chance to not remove Charges but still count as consuming them",
+    "Bonded: 15% chance for Charms you use to not consume Charges",
+    "Allies in your Presence share Charges with you",
+    "Bonded: 25% increased Endurance, Frenzy and Power Charge Duration"
+  ],
+  "Idol of Oak": [
+    "15% chance when you gain an Endurance Charge to gain an additional Endurance Charge",
+    "Bonded: +1 to Maximum Endurance Charges",
+    "If you would gain an Endurance Charge, Allies in your Presence gain that Charge instead",
+    "Bonded: 40% increased Armour if you've consumed an Endurance Charge Recently"
+  ],
+  "Idol of Alira": [
+    "15% chance when you gain a Power Charge to gain an additional Power Charge",
+    "Bonded: +1 to Maximum Power Charges",
+    "If you would gain a Power Charge, Allies in your Presence gain that Charge instead",
+    "Bonded: 40% increased maximum Energy Shield if you've consumed a Power Charge Recently"
+  ],
+  "Idol of Kraityn": [
+    "15% chance when you gain a Frenzy Charge to gain an additional Frenzy Charge",
+    "Bonded: +1 to Maximum Frenzy Charges",
+    "If you would gain a Frenzy Charge, Allies in your Presence gain that Charge instead",
+    "Bonded: 40% increased Evasion Rating if you've consumed a Frenzy Charge Recently"
+  ],
+  "Idol of Silk": [
+    "15% increased Block chance while your Companion is in your Presence",
+    "Bonded: +3% to maximum Block chance",
+    "Bonded: 30% increased Parry Range",
+    "Companions in your Presence gain 1 Rage on hit",
+    "Bonded: Companions have 30% increased Area of Effect"
+  ],
+  "Idol of the Sycophant": [
+    "-20% to all Elemental Resistances",
+    "Gain 20% of Damage as Extra Damage of a random Element",
+    "Bonded: -20% to Chaos Resistance",
+    "Bonded: Gain 20% of Damage as Extra Chaos Damage",
+    "Companions in your Presence have -20% to all Elemental Resistances",
+    "Companions in your Presence Gain 20% of Damage as Extra Damage of a random Element",
+    "Bonded: Allies in your Presence Gain 20% of Damage as Extra Chaos Damage",
+    "Bonded: Companions in your Presence have -20% to Chaos Resistance"
+  ],
+  "Idol of the Martyr": [
+    "25% reduced Spirit",
+    "Meta Skills gain 40% increased Energy",
+    "Bonded: Invocated skills have 25% increased Maximum Energy",
+    "Bonded: Meta Skills have 25% reduced Reservation Efficiency",
+    "40% reduced Presence Area of Effect",
+    "Aura Skills have 25% increased Magnitudes",
+    "Bonded: Allies in your Presence Regenerate 3% of your Maximum Life per second",
+    "Bonded: 25% reduced Life Regeneration rate"
+  ],
+  "Idol of the Pharisee": [
+    "30% reduced maximum Mana",
+    "Gain 2% of Damage as Extra Physical Damage per ten percent missing Mana",
+    "Bonded: 30% reduced Mana Cost Efficiency",
+    "Bonded: 12% increased Skill Speed while on Low Mana",
+    "30% reduced Mana Cost Efficiency of Command Skills",
+    "Minions deal 60% increased Damage with Command Skills",
+    "Bonded: 25% reduced Reservation Efficiency of Minion Skills",
+    "Bonded: Temporary Minion Skills have +2 to Limit of Minions summoned"
+  ],
+  "Panther Idol": [
+    "+10% of Armour also applies to Chaos Damage",
+    "Bonded: +8% to Chaos Resistance",
+    "Minions have +20% to Chaos Resistance",
+    "Bonded: Minions have 20% additional Physical Damage Reduction"
+  ],
+  "Hawk Idol": [
+    "10% increased Deflection Rating",
+    "Bonded: +12% to Cold Resistance",
+    "Companions have 12% increased Attack Speed",
+    "Bonded: 8% increased Attack Speed while your Companion is in your Presence"
+  ],
+  "Stoat Idol": [
+    "5% of Damage taken bypasses Energy Shield",
+    "Bonded: +12% to Lightning Resistance",
+    "Companions have 25% increased maximum Life",
+    "Bonded: 25% increased Damage while your Companion is in your Presence"
+  ],
+  "Carved Cunning": [
+    "Enemies which are on Full Life cannot Evade your Hits",
+    "Bonded: 30% increased Accuracy Rating",
+    "Prevent +5% of Damage from Deflected Hits if you've",
+    "Deflected no Hits Recently",
+    "Bonded: 8% increased Deflection Rating",
+    "Gain Onslaught for 4 seconds when your Marks Activate",
+    "Bonded: Buffs on you expire 10% slower"
+  ],
+  "Carved Majesty": [
+    "+3 to Spirit per Idol socketed in your Equipment",
+    "Bonded: 5% increased Spirit",
+    "Companions gain Onslaught for 4 seconds on Hitting your Marked targets",
+    "Bonded: Companions deal 30% increased Damage",
+    "1% increased Movement Speed while Sprinting per Persistent Minion",
+    "Bonded: Minions have 12% increased maximum Life"
+  ],
+  "Carved Mischief": [
+    "Gain Guard equal to 10% of maximum Life for 4 seconds on taking Savage Hit",
+    "Bonded: Buffs on you expire 10% slower",
+    "+5% to maximum Block chance if you've Blocked with a raised Shield Recently",
+    "Bonded: 20% increased Block chance",
+    "200% increased Stun Threshold if you've been Stunned Recently",
+    "Bonded: 25% increased Stun Threshold"
+  ],
+  "Carved Tenacity": [
+    "Enemies have no Critical Damage Bonus for 4 seconds after you Blind them",
+    "Bonded: 20% increased Blind Effect",
+    "Enemies you Critically Hit get 100% reduced Life Regeneration Rate for 4 seconds",
+    "Bonded: 15% increased Critical Hit Chance",
+    "Your speed is Unaffected by Slows while Sprinting",
+    "Bonded: 8% increased Movement Speed while Sprinting"
+  ],
+  "Raven-Touched Shard": ["Raven-Touched"]
+}

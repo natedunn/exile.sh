@@ -1,4 +1,7 @@
-import { PinnablePopoverContent, TooltipPinScope } from "./tooltip-pins"
+import { useCopyItem } from "../lib/use-copy-item"
+import { ItemTooltipContent } from "./item-tooltip-content"
+import { useInspectionTooltip } from "./use-inspection-tooltip"
+import { InspectionTooltipContent, TooltipPinScope } from "./tooltip-pins"
 import type { TooltipPinOptions } from "./tooltip-pins"
 import type { ComponentProps } from "react"
 import {
@@ -7,7 +10,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "./ui/tooltip"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import {
   Gem,
   Shield,
@@ -18,24 +21,14 @@ import {
   Footprints,
   Circle,
   Shirt,
-  ChevronDown,
 } from "lucide-react"
-import { Button } from "./ui/button"
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverTitle,
-  PopoverDescription,
-} from "./ui/popover"
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from "./ui/collapsible"
+import { Popover, PopoverTrigger } from "./ui/popover"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 import { describeEquipment, EQUIPMENT_SLOTS } from "../../shared/equipment"
 import type { EquipmentDetails, EquipmentItem } from "../../shared/equipment"
 import type { BuildSnapshot } from "../../shared/pob"
+import { EquipmentSettings } from "./equipment-settings"
+import { ItemTreeVersionProvider } from "./item-reference-tooltip"
 
 function SlotIcon({ slot }: { slot: string }) {
   const Icon = slot.includes("Weapon")
@@ -81,79 +74,6 @@ function ItemArtwork({
     </span>
   )
 }
-function ItemCard({
-  item,
-  details,
-  slot,
-}: {
-  item: EquipmentItem
-  details: EquipmentDetails
-  slot: string
-}) {
-  return (
-    <>
-      <header className="equipment-card-header">
-        <PopoverTitle>{details.name}</PopoverTitle>
-        {details.base && details.base !== details.name && <p>{details.base}</p>}
-      </header>
-      <div className="equipment-card-scroll">
-        <PopoverDescription className="equipment-card-type">
-          {details.artwork?.itemClass || slot} · {details.rarity.toLowerCase()}
-        </PopoverDescription>
-        {details.properties.length > 0 && (
-          <div className="equipment-card-properties">
-            {details.properties.map((line, i) => (
-              <p key={i}>{line}</p>
-            ))}
-          </div>
-        )}
-        {details.requirements.length > 0 && (
-          <p className="equipment-card-requires">
-            Requires {details.requirements.join(" · ")}
-          </p>
-        )}
-        {details.sockets.length > 0 && (
-          <div className="equipment-card-sockets">
-            {details.sockets.map((line, i) => (
-              <p key={i}>
-                <Gem size={12} aria-hidden="true" />
-                {line.replace(/^(Rune|Soul Core): /, "")}
-              </p>
-            ))}
-          </div>
-        )}
-        {details.modifiers.length > 0 && (
-          <div className="equipment-card-modifiers">
-            {details.modifiers.map((line, i) => (
-              <p
-                key={i}
-                data-kind={line.kind}
-                data-corrupted={line.text === "Corrupted"}
-              >
-                {line.text}
-              </p>
-            ))}
-          </div>
-        )}
-        {details.variantWarning && (
-          <p className="equipment-card-warning">
-            This item includes PoB variants. Variant markers are retained; open
-            the export in PoB to inspect the selected rolls.
-          </p>
-        )}
-        <Collapsible className="equipment-original">
-          <CollapsibleTrigger render={<Button variant="ghost" />}>
-            Original PoB text
-            <ChevronDown size={13} />
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <pre>{item.text}</pre>
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
-    </>
-  )
-}
 export function GearSlot({
   item,
   name,
@@ -167,83 +87,19 @@ export function GearSlot({
   area: string
   missing?: boolean
 }) {
-  const [open, setOpen] = useState(false)
-  const [held, setHeld] = useState(false)
-  const [hoverOnly, setHoverOnly] = useState(false)
-  const hovering = useRef(false)
-  const holding = useRef(false)
-  useEffect(() => {
-    if (!open) return
-    const releaseHold = () => {
-      holding.current = false
-      setHeld(false)
-      if (hoverOnly && !hovering.current) setOpen(false)
-    }
-    const down = (event: KeyboardEvent) => {
-      if (event.key === "Alt") {
-        holding.current = true
-        setHeld(true)
-      }
-    }
-    const up = (event: KeyboardEvent) => {
-      if (event.key === "Alt") releaseHold()
-    }
-    const blur = () => {
-      releaseHold()
-      setOpen(false)
-    }
-    window.addEventListener("keydown", down)
-    window.addEventListener("keyup", up)
-    window.addEventListener("blur", blur)
-    return () => {
-      window.removeEventListener("keydown", down)
-      window.removeEventListener("keyup", up)
-      window.removeEventListener("blur", blur)
-      holding.current = false
-    }
-  }, [open, hoverOnly])
+  const inspection = useInspectionTooltip({ stickyShortcut: true })
+  const clipboard = useCopyItem(item?.text ?? "", inspection.open)
   const details = item ? describeEquipment(item) : null
   return (
     <div className={`gear-cell gear-${area}`}>
+      <span className="sr-only" role="status">
+        {clipboard.status}
+      </span>
       {item && details ? (
-        <Popover
-          open={open}
-          onOpenChange={(next, change) => {
-            if (
-              change.reason === "trigger-press" &&
-              hoverOnly &&
-              hovering.current
-            ) {
-              setOpen(true)
-              return
-            }
-            setOpen(next)
-            if (!next) {
-              setHeld(false)
-            }
-          }}
-        >
+        <Popover {...inspection.popoverProps}>
           <PopoverTrigger
-            onPointerEnter={(event) => {
-              if (event.pointerType === "touch") return
-              hovering.current = true
-              if (event.altKey) return
-              setHoverOnly(true)
-              setHeld(false)
-              setOpen(true)
-            }}
-            onPointerLeave={(event) => {
-              if (event.pointerType === "touch") return
-              hovering.current = false
-              if (!holding.current) setOpen(false)
-            }}
-            onPointerDown={(event) => {
-              if (event.pointerType === "touch") setHoverOnly(false)
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ")
-                setHoverOnly(false)
-            }}
+            {...inspection.triggerProps}
+            onClick={clipboard.copy}
             className="gear-slot"
             data-rarity={details.rarity}
             aria-label={`${label}: ${details.name}. Show item details`}
@@ -281,23 +137,11 @@ export function GearSlot({
               </span>
             )}
           </PopoverTrigger>
-          <PinnablePopoverContent
-            fallbackClose={!hoverOnly}
-            showPin={held || !hoverOnly}
-            freeze={held}
+          <InspectionTooltipContent
+            {...inspection.contentProps}
             pinId={`item:${item.id}`}
             pinLabel={`${details.name} item details`}
-            onPin={() => {
-              setOpen(false)
-              setHeld(false)
-            }}
             className="equipment-card"
-            data-hover-only={hoverOnly && !held}
-            positionerClassName={
-              hoverOnly && !held ? "equipment-hover-positioner" : undefined
-            }
-            initialFocus={!hoverOnly}
-            finalFocus={!hoverOnly}
             collisionAvoidance={{ side: "shift", align: "shift" }}
             collisionPadding={12}
             data-rarity={details.rarity}
@@ -305,8 +149,13 @@ export function GearSlot({
             sideOffset={14}
             align="center"
           >
-            <ItemCard item={item} details={details} slot={label} />
-          </PinnablePopoverContent>
+            <ItemTooltipContent
+              item={item}
+              details={details}
+              slot={label}
+              copyStatus={clipboard.status}
+            />
+          </InspectionTooltipContent>
         </Popover>
       ) : (
         <div
@@ -372,13 +221,15 @@ export function EquipmentDisplay(
   props: ComponentProps<typeof EquipmentDisplayContent> & TooltipPinOptions
 ) {
   return (
-    <TooltipPinScope
-      pinningEnabled={props.pinningEnabled}
-      maxPinnedTooltips={props.maxPinnedTooltips ?? 1}
-      resetKey={`${props.gear.id}:${props.weapons}`}
-    >
-      <EquipmentDisplayContent {...props} />
-    </TooltipPinScope>
+    <ItemTreeVersionProvider value={props.treeVersion}>
+      <TooltipPinScope
+        pinningEnabled={props.pinningEnabled}
+        maxPinnedTooltips={props.maxPinnedTooltips ?? 1}
+        resetKey={`${props.gear.id}:${props.weapons}:${props.treeVersion}`}
+      >
+        <EquipmentDisplayContent {...props} />
+      </TooltipPinScope>
+    </ItemTreeVersionProvider>
   )
 }
 function EquipmentDisplayContent({
@@ -391,6 +242,7 @@ function EquipmentDisplayContent({
   gear: BuildSnapshot["itemSets"][number]
   weapons?: WeaponSet
   onWeaponsChange?: (value: WeaponSet) => void
+  treeVersion?: string
 }) {
   const swappable = equipmentHasSwap(gear)
   const equipped = gear.slots.filter((s) => s.itemId && s.itemId !== "0")
@@ -409,6 +261,7 @@ function EquipmentDisplayContent({
   return (
     <div className="equipment-display">
       <div className="equipment-board-frame">
+        <EquipmentSettings />
         {onWeaponsChange && (
           <WeaponSetSwitch
             value={weapons}

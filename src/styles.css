@@ -4,6 +4,7 @@
 @import "../tokens.css";
 @import "./builds.css";
 @import "./equipment.css";
+@import "./inspection-tooltip.css";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";
 @import "@fontsource/cormorant-garamond/500.css";
@@ -613,7 +614,8 @@ h1 > span {
   color: var(--color-text-faint);
   white-space: nowrap;
 }
-.search-hotkey kbd {
+.search-hotkey kbd,
+.equipment-inspection-hint kbd {
   font: inherit;
   padding: 2px 6px;
   border: var(--rule-thin) solid var(--color-rule-strong);

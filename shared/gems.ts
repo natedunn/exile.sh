@@ -1,4 +1,7 @@
 import type { BuildSnapshot } from "./pob"
+import skillNames from "./gem-name-aliases.json"
+
+const aliases: Record<string, string[] | undefined> = skillNames.aliases
 
 export type SavedGem =
   BuildSnapshot["skillSets"][number]["skills"][number]["gems"][number]
@@ -34,12 +37,28 @@ export function findGem(catalogue: GemCatalogue | undefined, gem: SavedGem) {
     const match = refs.find((ref) => ref.skillId === gem.skillId)
     if (match) return match
   }
+  return findNamedGem(catalogue, gem.name, gem.support)
+}
+
+export function findNamedGem(
+  catalogue: GemCatalogue | undefined,
+  name: string,
+  support = false
+) {
+  const refs = Object.values(catalogue?.gems ?? {})
   const matches = refs.filter(
     (ref) =>
-      ref.name.toLowerCase() === gem.name.toLowerCase() &&
-      ref.support === gem.support
+      ref.name.toLowerCase() === name.toLowerCase() && ref.support === support
   )
-  return matches.length === 1 ? matches[0] : undefined
+  if (matches.length) return matches.length === 1 ? matches[0] : undefined
+  // Item exports use the underlying skill name, which can differ from its gem
+  // name. Resolve only source-declared aliases, never fuzzy/suffix matches.
+  const skillIds = aliases[name.toLowerCase()]
+  if (!skillIds) return undefined
+  const alternate = refs.filter(
+    (ref) => skillIds.includes(ref.skillId) && ref.support === support
+  )
+  return alternate.length === 1 ? alternate[0] : undefined
 }
 
 export type GemEffectLines = { lines: string[]; partial: boolean }
@@ -78,4 +97,84 @@ export function gemEffectValues(
       quality < 0 ||
       quality > 100,
   }
+}
+
+export type SavedSkillGroup =
+  BuildSnapshot["skillSets"][number]["skills"][number]
+
+/** Display saved provenance without merging groups or inferring skill identity. */
+export function skillGroupLabels(group: SavedSkillGroup) {
+  const labels: string[] = []
+  const itemSource = group.source?.match(/^Item:[^:]+:(.+)$/)
+  if (itemSource) labels.push(`Granted by ${itemSource[1]}`)
+  else if (group.source === "Default Attack") labels.push("Default attack")
+  else if (group.source) labels.push(`Source: ${group.source}`)
+
+  if (typeof group.set1 === "boolean" && typeof group.set2 === "boolean") {
+    labels.push(
+      group.set1 && group.set2
+        ? "Weapon sets I & II"
+        : group.set1
+          ? "Weapon set I"
+          : group.set2
+            ? "Weapon set II"
+            : "Unavailable in either weapon set"
+    )
+  } else if (itemSource || group.source === "Default Attack") {
+    // An item in a named weapon slot belongs to that slot's set. Ordinary
+    // groups' legacy slot fields do not establish their current availability.
+    if (/^Weapon [12] Swap$/.test(group.slot)) labels.push("Weapon set II")
+    else if (/^Weapon [12]$/.test(group.slot)) labels.push("Weapon set I")
+  }
+  if (!group.enabled) labels.push("Disabled")
+  return labels
+}
+
+/** Fold bare item grants into a single matching setup, without changing the export. */
+export function displaySkillGroups(
+  skills: SavedSkillGroup[],
+  mainSocketGroup: number
+) {
+  const groups = skills
+    .map((skill, i) => ({
+      skill,
+      i,
+      main: i === mainSocketGroup - 1,
+      grants: [] as SavedSkillGroup[],
+    }))
+    .filter(({ skill }) => !skill.removed)
+  const hidden = new Set<number>()
+  for (const entry of groups) {
+    const source = entry.skill
+    const granted = source.gems[0]
+    if (
+      !source.source?.startsWith("Item:") ||
+      source.gems.length !== 1 ||
+      !granted?.skillId ||
+      granted.support
+    )
+      continue
+    const matches = groups.filter(
+      ({ skill }) =>
+        !skill.source &&
+        skill.enabled === source.enabled &&
+        // A multi-active/meta setup is not an unambiguous owner of an item grant.
+        skill.gems.filter((gem) => !gem.support).length === 1 &&
+        skill.gems.some(
+          (gem) =>
+            !gem.support &&
+            gem.skillId === granted.skillId &&
+            gem.level === granted.level &&
+            gem.quality === granted.quality &&
+            gem.enabled === granted.enabled
+        ) &&
+        (skill.set1 === undefined || skill.set1 === source.set1) &&
+        (skill.set2 === undefined || skill.set2 === source.set2)
+    )
+    if (matches.length !== 1) continue
+    matches[0].grants.push(source)
+    matches[0].main ||= entry.main
+    hidden.add(entry.i)
+  }
+  return groups.filter((entry) => !hidden.has(entry.i))
 }

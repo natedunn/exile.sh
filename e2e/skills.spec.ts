@@ -153,3 +153,64 @@ for (const width of [390, 1440])
       )
     ).toBe(true)
   })
+
+for (const width of [390, 1440]) {
+  test(`skill provenance, removed groups and support-only warnings at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 1000 })
+    const source = `<PathOfBuilding2><Build className="Sorceress" level="90" mainSocketGroup="3"/><Skills>
+      <Skill><Gem nameSpec="Impurity" skillId="ImpurityPlayer"/><Gem nameSpec="Vitality II" skillId="SupportVitalityPlayerTwo"/></Skill>
+      <Skill removed="true" source="Item:4:Old Wand" slot="Weapon 1"><Gem nameSpec="Power Siphon" skillId="PowerSiphonPlayer"/></Skill>
+      <Skill source="Item:9:Palm of the Dreamer, Shrine Sceptre" slot="Weapon 2"><Gem nameSpec="Impurity" skillId="ImpurityPlayer"/></Skill>
+      <Skill><Gem nameSpec="Punch Through" gemId="Metadata/Items/Gem/SupportGemPunchThrough" skillId="SupportPunchThroughPlayer"/><Gem nameSpec="Supercritical" skillId="SupportIncreasedCriticalDamagePlayer"/></Skill>
+      <Skill source="Item:3:Morbid Chant, Chiming Staff" slot="Weapon 1 Swap"><Gem nameSpec="Sigil of Power" skillId="SigilOfPowerPlayer"/></Skill>
+    </Skills></PathOfBuilding2>`
+    await page.goto("/build-bin")
+    await page
+      .getByLabel("PoB export or pobb.in link")
+      .fill(Buffer.from(zlibSync(strToU8(source))).toString("base64url"))
+    const groups = page.locator(".build-skill")
+    await expect(groups).toHaveCount(3)
+    await expect(groups.first()).toContainText(
+      "Granted by Palm of the Dreamer, Shrine Sceptre"
+    )
+    await expect(groups.first()).toContainText("Weapon set I")
+    await expect(
+      groups.first().getByRole("img", { name: "Main skill group in PoB" })
+    ).toHaveCount(1)
+    await expect(
+      page.getByRole("button", {
+        name: "Impurity. Show gem details",
+        exact: true,
+      })
+    ).toHaveCount(1)
+    await expect(
+      page.getByRole("button", {
+        name: "Power Siphon. Show gem details",
+        exact: true,
+      })
+    ).toHaveCount(0)
+    await expect(
+      groups.filter({ hasText: "Granted by Morbid Chant, Chiming Staff" })
+    ).toContainText("Weapon set II")
+    const supports = page.locator('.build-skill[data-support-only="true"]')
+    await expect(supports).toContainText(
+      "No active skill in this group — only support gems are saved."
+    )
+    await expect(
+      supports.getByRole("button", {
+        name: "Punch Through. Show gem details",
+        exact: true,
+      })
+    ).toHaveCount(1)
+    const rows = supports.locator(".skill-gem-row")
+    expect(
+      await rows.nth(0).evaluate((el) => getComputedStyle(el).paddingLeft)
+    ).toBe(await rows.nth(1).evaluate((el) => getComputedStyle(el).paddingLeft))
+    await supports.scrollIntoViewIfNeeded()
+    const bounds = await supports.boundingBox()
+    expect(bounds!.x).toBeGreaterThanOrEqual(0)
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width)
+  })
+}

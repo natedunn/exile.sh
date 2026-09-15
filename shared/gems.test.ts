@@ -1,6 +1,12 @@
 import { readFileSync } from "node:fs"
 import { expect, test } from "vitest"
-import { findGem, gemEffectValues } from "./gems"
+import {
+  findGem,
+  findNamedGem,
+  gemEffectValues,
+  skillGroupLabels,
+  displaySkillGroups,
+} from "./gems"
 import type { GemCatalogue, GemEffects } from "./gems"
 import { parseBuildXml } from "./pob"
 
@@ -95,4 +101,118 @@ test("matches active and support art by stable IDs and handles unknown gems", ()
       quality: "0",
     })
   ).toBeUndefined()
+})
+
+test("item skill names resolve through source-declared IDs to gem artwork", () => {
+  const catalogue: GemCatalogue = JSON.parse(
+    readFileSync(
+      new URL("../public/gems/v1/catalogue.json", import.meta.url),
+      "utf8"
+    )
+  )
+  for (const [name, id] of [
+    ["Skeletal Warrior Minion", "SummonSkeletalWarriorsPlayer"],
+    ["Skeletal Sniper Minion", "SummonSkeletalSnipersPlayer"],
+    ["Load Explosive Shot", "ExplosiveShotAmmoPlayer"],
+  ]) {
+    const ref = findNamedGem(catalogue, name)
+    expect(ref?.skillId).toBe(id)
+    expect(ref?.image).toMatch(/^\/gems\/v1\/icons\/.+\.webp$/)
+  }
+  expect(findNamedGem(catalogue, "Spark Minion")).toBeUndefined()
+  expect(
+    findNamedGem(catalogue, "Skeletal Warrior Minion", true)
+  ).toBeUndefined()
+  const warrior = findNamedGem(catalogue, "Skeletal Warrior Minion")!
+  expect(
+    findNamedGem(
+      {
+        version: "test",
+        gems: {
+          first: warrior,
+          second: { ...warrior, variantId: "different" },
+        },
+      },
+      "Skeletal Warrior Minion"
+    )
+  ).toBeUndefined()
+})
+
+test("preserves group source, removal and explicit weapon-set flags", () => {
+  const build =
+    parseBuildXml(`<PathOfBuilding2><Build className="Sorceress" level="90" mainSocketGroup="2"/><Skills>
+    <Skill source="Item:9:Palm of the Dreamer, Shrine Sceptre" slot="Weapon 2" removed="true" set1="true" set2="false"><Gem nameSpec="Impurity" skillId="ImpurityPlayer"/></Skill>
+    <Skill source="Default Attack" slot="Weapon 1 Swap" set1="nil" set2="nil"><Gem nameSpec="Punch" skillId="MeleeUnarmedPlayer"/></Skill>
+    <Skill><Gem nameSpec="Impurity" skillId="ImpurityPlayer"/></Skill>
+  </Skills></PathOfBuilding2>`)
+  const groups = build.skillSets[0].skills
+  expect(groups[0]).toMatchObject({
+    source: "Item:9:Palm of the Dreamer, Shrine Sceptre",
+    slot: "Weapon 2",
+    removed: true,
+    set1: true,
+    set2: false,
+  })
+  expect(groups[1]).toMatchObject({ source: "Default Attack", removed: false })
+  expect(groups[1].set1).toBeUndefined()
+  expect(groups[1].set2).toBeUndefined()
+  expect(groups[2]).toMatchObject({ source: "", removed: false })
+  expect(build.mainSocketGroup).toBe(2)
+  expect(groups[1].gems[0].name).toBe("Punch")
+  expect(skillGroupLabels(groups[0])).toEqual([
+    "Granted by Palm of the Dreamer, Shrine Sceptre",
+    "Weapon set I",
+  ])
+  expect(skillGroupLabels(groups[1])).toEqual([
+    "Default attack",
+    "Weapon set II",
+  ])
+  expect(skillGroupLabels(groups[2])).toEqual([])
+  expect(skillGroupLabels({ ...groups[2], slot: "Weapon 1" })).toEqual([])
+  expect(skillGroupLabels({ ...groups[2], set1: true, set2: true })).toEqual([
+    "Weapon sets I & II",
+  ])
+})
+
+test("bare item grants fold into one matching setup while preserving provenance and main selection", () => {
+  const build =
+    parseBuildXml(`<PathOfBuilding2><Build className="Sorceress" level="90"/><Skills>
+    <Skill><Gem nameSpec="Impurity" skillId="ImpurityPlayer" level="18" quality="0"/><Gem nameSpec="Vitality" skillId="SupportVitalityPlayer"/></Skill>
+    <Skill source="Item:9:Sceptre" slot="Weapon 2"><Gem nameSpec="Impurity" skillId="ImpurityPlayer" level="18" quality="0"/></Skill>
+  </Skills></PathOfBuilding2>`)
+  const skills = build.skillSets[0].skills
+  const groups = displaySkillGroups(skills, 2)
+  expect(groups).toHaveLength(1)
+  expect(groups[0].skill).toBe(skills[0])
+  expect(groups[0].grants).toEqual([skills[1]])
+  expect(groups[0].main).toBe(true)
+  expect(skills).toHaveLength(2)
+  // Distinct supported setups, different levels, and grants without a setup
+  // must never be silently removed based on their display name.
+  expect(displaySkillGroups([...skills, { ...skills[0] }], 1)).toHaveLength(3)
+  expect(displaySkillGroups([skills[1]], 1)).toHaveLength(1)
+  expect(
+    displaySkillGroups(
+      [
+        skills[0],
+        { ...skills[1], gems: [{ ...skills[1].gems[0], level: "19" }] },
+      ],
+      1
+    )
+  ).toHaveLength(2)
+  expect(
+    displaySkillGroups(
+      [
+        skills[0],
+        {
+          ...skills[1],
+          gems: [{ ...skills[1].gems[0], skillId: "OtherPlayer" }],
+        },
+      ],
+      1
+    )
+  ).toHaveLength(2)
+  expect(
+    displaySkillGroups([skills[0], { ...skills[1], gems: skills[0].gems }], 1)
+  ).toHaveLength(2)
 })
