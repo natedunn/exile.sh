@@ -1255,7 +1255,13 @@ function TreeMapRenderer({
             if (d) {
               const dx = event.clientX - d.x,
                 dy = event.clientY - d.y
-              if (Math.abs(dx) + Math.abs(dy) > 2 || d.moved) {
+              // Touch taps naturally drift; measure from the initial press
+              // until a pan starts, while preserving mouse sensitivity.
+              const passedThreshold =
+                event.pointerType === "touch"
+                  ? Math.hypot(dx, dy) > 8
+                  : Math.abs(dx) + Math.abs(dy) > 2
+              if (passedThreshold || d.moved) {
                 d.moved = true
                 panDelta.current.x += dx
                 panDelta.current.y += dy
@@ -1600,7 +1606,9 @@ function TreeMapRenderer({
               anchor={() => inspectionAnchor.current}
               initialFocus={false}
               finalFocus={false}
-              onPointerLeave={hideHover}
+              onPointerLeave={(event) => {
+                if (event.pointerType !== "touch") hideHover()
+              }}
             >
               <div>
                 {(jewelArt || combinedArtwork?.[node.icon]) && (
