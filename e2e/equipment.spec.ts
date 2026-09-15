@@ -37,19 +37,14 @@ for (const width of [390, 1440]) {
       extras.getByRole("button", { name: /Equipment Jewel/ })
     ).toHaveCount(0)
     const jewel = page
-      .locator(".build-jewel")
+      .locator(".build-jewel-card")
       .filter({ hasText: "Equipment Jewel" })
     await jewel.scrollIntoViewIfNeeded()
     await expect(jewel).toHaveAttribute("data-active", "true")
     await expect(jewel).toContainText("Gloves Jewel Socket 1")
-    await jewel
-      .getByRole("button", {
-        name: "Jewel: Equipment Jewel. Show item details",
-      })
-      .click()
-    await expect(page.locator(".equipment-card")).toContainText(
-      "+10 to Intelligence"
-    )
+    await expect(
+      jewel.getByRole("list", { name: "Explicit modifiers", exact: true })
+    ).toHaveText("+10 to Intelligence")
   })
 }
 
@@ -64,12 +59,13 @@ for (const width of [390, 1440]) {
     })
     await main.focus()
     await main.press("Enter")
-    const modifiers = page.locator(".equipment-card-modifiers")
+    const item = page.getByRole("dialog", { name: "Beast Cry", exact: true })
+    const modifiers = item.locator(".equipment-card-modifiers")
     await expect(modifiers).toHaveAttribute("data-layout", "centered")
-    const implicit = page.getByRole("list", {
+    const implicit = item.getByRole("list", {
       name: "Implicit modifiers and enchantments",
     })
-    const explicit = page.getByRole("list", {
+    const explicit = item.getByRole("list", {
       name: "Explicit modifiers",
       exact: true,
     })
@@ -174,6 +170,7 @@ test("Bonded modifiers default off, persist manually, and follow the active buil
     name: "Main hand: Beast Cry. Show item details",
   })
   const bondedLines = page
+    .getByRole("dialog", { name: "Beast Cry", exact: true })
     .locator(".equipment-affix-group li")
     .filter({ hasText: /^Bonded:/ })
   await main.focus()
@@ -386,6 +383,7 @@ test("zero quality is hidden and both item clicks and the footer copy the export
   await main.hover({ position: { x: 4, y: 4 } })
   await expect(
     page
+      .getByRole("dialog", { name: "Beast Cry", exact: true })
       .locator(".equipment-card-properties dt")
       .filter({ hasText: /^Quality$/ })
   ).toHaveCount(0)
@@ -402,7 +400,9 @@ test("zero quality is hidden and both item clicks and the footer copy the export
     .toContain("Beast Cry\nSanctified Staff")
   await expect(page.locator(".equipment-copy")).toHaveText("Item copied")
   await page.mouse.move(0, 0)
-  await expect(page.locator(".equipment-card")).toBeHidden()
+  await expect(
+    page.getByRole("dialog", { name: "Beast Cry", exact: true })
+  ).toBeHidden()
   await main.hover({ position: { x: 4, y: 4 } })
   await expect(page.locator(".equipment-copy")).toHaveText("Click item to copy")
   await page.mouse.move(0, 0)
@@ -451,7 +451,7 @@ for (const width of [390, 1440]) {
     await main.hover({ position: { x: 4, y: 4 } })
     await page.keyboard.press("p")
     await page.mouse.move(0, 0)
-    const item = page.locator(".equipment-card")
+    const item = page.getByRole("dialog", { name: "Beast Cry", exact: true })
     await expect(item).toBeVisible()
     await expect(item).toHaveCSS("pointer-events", "auto")
     const skill = item.getByRole("button", {
@@ -470,6 +470,11 @@ for (const width of [390, 1440]) {
       name: "Close Consecrate",
       exact: true,
     })
+    await expect(close).toHaveCount(0)
+    await page.keyboard.press("Escape")
+    await expect(skillPopup).toBeHidden()
+    await skill.focus()
+    await skill.press("Enter")
     await expect(close).toHaveCSS("position", "absolute")
     const popupBounds = await skillPopup.boundingBox()
     const closeBounds = await close.boundingBox()
@@ -583,6 +588,7 @@ for (const width of [390, 1440]) {
     await body.focus()
     await body.press("Enter")
     const row = page
+      .getByRole("dialog", { name: "Morior Invictus", exact: true })
       .locator('.equipment-affix-group > li[data-augment="true"]')
       .filter({ hasText: /^18% increased Armour, Evasion and Energy Shield$/ })
     await expect(row).toBeVisible()
@@ -629,7 +635,7 @@ for (const width of [390, 1440]) {
     })
     await main.focus()
     await main.press("Enter")
-    const item = page.locator(".equipment-card")
+    const item = page.getByRole("dialog", { name: "Beast Cry", exact: true })
     const art = item.getByRole("img", {
       name: "Pinnacle of Power skill",
       exact: true,

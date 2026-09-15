@@ -27,7 +27,7 @@ for (const width of [390, 1440])
     const main = page.locator("#equipment .build-section-main")
     expect((await main.boundingBox())!.width).toBeGreaterThan(section * 0.6)
     const nav = page.getByRole("navigation", { name: "Build sections" })
-    await expect(nav.getByRole("link")).toHaveText([
+    await expect(nav.getByRole("list").getByRole("link")).toHaveText([
       "Equipment",
       "Skills",
       "Trees",
@@ -92,6 +92,13 @@ for (const width of [390, 1440])
         () => document.documentElement.scrollWidth <= window.innerWidth
       )
     ).toBe(true)
+    const backToTop = nav.getByTitle("Back to top", { exact: true })
+    await expect(backToTop).toHaveAttribute("href", "#")
+    await backToTop.focus()
+    await backToTop.press("Enter")
+    await expect(page).toHaveURL((url) => url.hash === "")
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+    await expect(page.locator(".build-identity h1")).toBeInViewport()
     await page.screenshot({
       path: `/tmp/exile-build-${width}.png`,
       fullPage: true,
