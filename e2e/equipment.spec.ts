@@ -9,6 +9,51 @@ const code = readFileSync(
 )
 const buildsURL = process.env.BUILD_TEST_URL || "/build-bin"
 for (const width of [390, 1440]) {
+  test(`equipment-socketed jewels appear only with jewels at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 1000 })
+    const xml = inflateSync(Buffer.from(code.trim(), "base64url"))
+      .toString()
+      .replace(
+        "</ItemSet>",
+        '<Slot name="Gloves Jewel Socket 1" itemId="9000"/><Slot name="Relic" itemId="9001"/></ItemSet>'
+      )
+      .replace(
+        "</Items>",
+        '<Item id="9000">Rarity: RARE\nEquipment Jewel\nSapphire\n+10 to Intelligence</Item><Item id="9001">Rarity: RARE\nExtra Relic\nGold Ring\n+10 to Intelligence</Item></Items>'
+      )
+    await page.goto(buildsURL)
+    await page
+      .getByLabel("PoB export or pobb.in link")
+      .fill(deflateSync(xml).toString("base64url"))
+    const extras = page.locator(".equipment-extras")
+    await expect(
+      extras.getByRole("button", {
+        name: "Relic: Extra Relic. Show item details",
+      })
+    ).toBeVisible()
+    await expect(
+      extras.getByRole("button", { name: /Equipment Jewel/ })
+    ).toHaveCount(0)
+    const jewel = page
+      .locator(".build-jewel")
+      .filter({ hasText: "Equipment Jewel" })
+    await jewel.scrollIntoViewIfNeeded()
+    await expect(jewel).toHaveAttribute("data-active", "true")
+    await expect(jewel).toContainText("Gloves Jewel Socket 1")
+    await jewel
+      .getByRole("button", {
+        name: "Jewel: Equipment Jewel. Show item details",
+      })
+      .click()
+    await expect(page.locator(".equipment-card")).toContainText(
+      "+10 to Intelligence"
+    )
+  })
+}
+
+for (const width of [390, 1440]) {
   test(`item affix settings persist and separate implicit modifiers at ${width}px`, async ({
     page,
   }) => {
@@ -88,10 +133,8 @@ for (const width of [390, 1440]) {
       await modifiers
         .locator("li")
         .evaluateAll((lines) =>
-          lines.every(
-            (line) =>
-              getComputedStyle(line, "::marker").color ===
-              getComputedStyle(line).color
+          lines.every((line) =>
+            getComputedStyle(line, "::marker").color.endsWith(" / 0.5)")
           )
         )
     ).toBe(true)
@@ -125,7 +168,7 @@ test("Bonded modifiers default off, persist manually, and follow the active buil
     exact: true,
   })
   const toggle = page.getByRole("menuitemcheckbox", {
-    name: "Bonded modifiers",
+    name: "Show Bonded modifiers",
   })
   const main = page.getByRole("button", {
     name: "Main hand: Beast Cry. Show item details",
@@ -196,32 +239,35 @@ test("equipment artwork, hover, keyboard dismissal and weapon swap", async ({
         .evaluate((img: HTMLImageElement) => img.naturalWidth)
     )
     .toBeGreaterThan(0)
-  await expect(main.locator(".gear-sockets img")).toHaveCount(2)
-  await expect(main.getByAltText("Saqawal's Rune of the Sky")).toBeVisible()
+  await expect(main.locator("..").locator(".gear-sockets img")).toHaveCount(2)
+  await expect(
+    main.locator("..").getByAltText("Saqawal's Rune of the Sky")
+  ).toBeVisible()
   await expect
     .poll(() =>
       main
+        .locator("..")
         .locator(".gear-sockets img")
         .evaluateAll((images) =>
           images.every((img) => (img as HTMLImageElement).naturalWidth > 0)
         )
     )
     .toBe(true)
-  await main.hover()
+  await main.hover({ position: { x: 4, y: 4 } })
   await expect(page.getByRole("dialog")).toBeVisible()
   await expect(
     page.getByRole("dialog").getByText("Sanctified Staff", { exact: true })
   ).toBeVisible()
   await page.mouse.move(0, 0)
   await expect(page.getByRole("dialog")).toHaveCount(0)
-  await main.hover()
+  await main.hover({ position: { x: 4, y: 4 } })
   await expect(page.getByRole("dialog")).toBeVisible()
   const dialog = page.getByRole("dialog", { name: "Beast Cry", exact: true })
   await expect(dialog).toHaveCSS("pointer-events", "none")
-  await main.click()
+  await main.click({ position: { x: 4, y: 4 } })
   await page.mouse.move(0, 0)
   await expect(dialog).not.toBeVisible()
-  await main.hover()
+  await main.hover({ position: { x: 4, y: 4 } })
   await expect(dialog).toBeVisible()
   await page.keyboard.down("Alt")
   await expect(dialog).toHaveCSS("pointer-events", "auto")
@@ -337,7 +383,7 @@ test("zero quality is hidden and both item clicks and the footer copy the export
   const main = page.getByRole("button", {
     name: "Main hand: Beast Cry. Show item details",
   })
-  await main.hover()
+  await main.hover({ position: { x: 4, y: 4 } })
   await expect(
     page
       .locator(".equipment-card-properties dt")
@@ -346,7 +392,7 @@ test("zero quality is hidden and both item clicks and the footer copy the export
   await expect(
     page.getByRole("button", { name: "Click item to copy" })
   ).toBeVisible()
-  await main.click()
+  await main.click({ position: { x: 4, y: 4 } })
   await expect
     .poll(() =>
       page.evaluate(
@@ -357,7 +403,7 @@ test("zero quality is hidden and both item clicks and the footer copy the export
   await expect(page.locator(".equipment-copy")).toHaveText("Item copied")
   await page.mouse.move(0, 0)
   await expect(page.locator(".equipment-card")).toBeHidden()
-  await main.hover()
+  await main.hover({ position: { x: 4, y: 4 } })
   await expect(page.locator(".equipment-copy")).toHaveText("Click item to copy")
   await page.mouse.move(0, 0)
   await main.focus()
@@ -374,7 +420,7 @@ test("zero quality is hidden and both item clicks and the footer copy the export
     )
     .toContain("Quality: 0")
   await page.keyboard.press("Escape")
-  await main.hover()
+  await main.hover({ position: { x: 4, y: 4 } })
   await expect(page.locator(".equipment-copy")).toHaveText("Click item to copy")
 })
 
@@ -402,7 +448,7 @@ for (const width of [390, 1440]) {
       name: "Main hand: Beast Cry. Show item details",
     })
     await main.focus()
-    await main.hover()
+    await main.hover({ position: { x: 4, y: 4 } })
     await page.keyboard.press("p")
     await page.mouse.move(0, 0)
     const item = page.locator(".equipment-card")
@@ -460,6 +506,7 @@ for (const width of [390, 1440]) {
     await page.keyboard.press("Escape")
     await expect(nodePopup).toBeHidden()
     await expect(item).toBeVisible()
+    await page.mouse.move(0, 0)
     await page.keyboard.press("Escape")
     await expect(item).toBeHidden()
   })
@@ -472,7 +519,7 @@ test("Alt-held and pinned items keep their skill tooltip layered", async ({
   const main = page.getByRole("button", {
     name: "Main hand: Beast Cry. Show item details",
   })
-  await main.hover()
+  await main.hover({ position: { x: 4, y: 4 } })
   await page.keyboard.down("Alt")
   const item = page.getByRole("dialog", {
     name: /^(Pinned )?Beast Cry( item details)?$/,
@@ -509,14 +556,14 @@ test("P releases a held item and restores normal hover behavior", async ({
     name: "Main hand: Beast Cry. Show item details",
   })
   await main.focus()
-  await main.hover()
+  await main.hover({ position: { x: 4, y: 4 } })
   const item = page.getByRole("dialog", { name: "Beast Cry", exact: true })
   await page.keyboard.press("p")
   await page.mouse.move(0, 0)
   await expect(item).toBeVisible()
   await page.keyboard.press("p")
   await expect(item).toBeHidden()
-  await main.hover()
+  await main.hover({ position: { x: 4, y: 4 } })
   await page.keyboard.press("p")
   await page.keyboard.press("p")
   await expect(item).toHaveAttribute("data-hover-only", "true")
@@ -559,6 +606,60 @@ for (const width of [390, 1440]) {
     })
     await expect(row).toHaveCSS("display", "flex")
     await expect(row).toHaveCSS("justify-content", "flex-start")
+  })
+}
+
+for (const width of [390, 1440]) {
+  test(`item grants without levels show artwork and nested details at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 1000 })
+    await page.goto(buildsURL)
+    const xml = inflateSync(Buffer.from(code.trim(), "base64url"))
+      .toString()
+      .replace(
+        /Grants Skill: Level \d+ Consecrate/,
+        "Grants Skill: Pinnacle of Power"
+      )
+    await page
+      .getByLabel("PoB export or pobb.in link")
+      .fill(deflateSync(xml).toString("base64url"))
+    const main = page.getByRole("button", {
+      name: "Main hand: Beast Cry. Show item details",
+    })
+    await main.focus()
+    await main.press("Enter")
+    const item = page.locator(".equipment-card")
+    const art = item.getByRole("img", {
+      name: "Pinnacle of Power skill",
+      exact: true,
+    })
+    await expect(art).toBeVisible()
+    await expect
+      .poll(() => art.evaluate((img: HTMLImageElement) => img.naturalWidth))
+      .toBeGreaterThan(0)
+    const skill = item.getByRole("button", {
+      name: "Pinnacle of Power. Show skill details",
+    })
+    await skill.focus()
+    await skill.press("Enter")
+    const tooltip = page.locator(".skill-gem-tooltip")
+    await expect(
+      tooltip.getByRole("heading", { name: "Pinnacle of Power" })
+    ).toBeVisible()
+    await expect(tooltip.locator(".skill-gem-description")).toContainText(
+      "Consume all Power Charges"
+    )
+    // An omitted item level must not turn into an invented saved level.
+    await expect(
+      tooltip
+        .locator(".skill-gem-properties > div")
+        .filter({ hasText: "Gem level" })
+    ).toContainText("Not saved")
+    await page.keyboard.press("Escape")
+    await expect(tooltip).toBeHidden()
+    await skill.hover()
+    await expect(tooltip).toBeVisible()
   })
 }
 

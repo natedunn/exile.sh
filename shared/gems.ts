@@ -79,7 +79,7 @@ export function gemEffectValues(
   const level =
     Number(gem.level) + (gem.corrupted ? Number(gem.corruptLevel || 0) : 0)
   const quality = Number(gem.quality)
-  const set = effects?.sets[gem.statSetIndex || "1"]
+  const set = effects?.sets[savedDefault(gem.statSetIndex, "1")]
   return {
     label: set?.label,
     level,
@@ -130,7 +130,7 @@ export function skillGroupLabels(group: SavedSkillGroup) {
 
   const [set1, set2] = skillWeaponSets(group)
   if (set1 !== undefined && set2 !== undefined) {
-    labels.push(
+    const weaponSet =
       set1 && set2
         ? "Weapon sets I & II"
         : set1
@@ -138,7 +138,8 @@ export function skillGroupLabels(group: SavedSkillGroup) {
           : set2
             ? "Weapon set II"
             : "Unavailable in either weapon set"
-    )
+    if (labels.length && (set1 || set2)) labels[0] += ` in ${weaponSet}`
+    else labels.push(weaponSet)
   }
   if (!group.enabled) labels.push("Disabled")
   return labels
@@ -164,7 +165,7 @@ export function displaySkillGroups(
     if (
       !source.source?.startsWith("Item:") ||
       source.gems.length !== 1 ||
-      !granted?.skillId ||
+      !granted.skillId ||
       granted.support
     )
       continue

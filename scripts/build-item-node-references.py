@@ -14,7 +14,10 @@ for source in sorted((root / 'public/pob-trees/v4').glob('*.json')):
     records = {}
     ambiguous = set()
     for node in tree['nodes']:
-        if not node['notable'] or node['ascendancy'] or node['start']:
+        # Items normally allocate notables, but can also allocate named jewel
+        # sockets such as Zarokh's Gift.
+        is_jewel_socket = any('Jewel Socket' in stat for stat in node.get('stats', []))
+        if (not node['notable'] and not is_jewel_socket) or node['ascendancy'] or node['start']:
             continue
         name = node['name'].lower()
         key = hashlib.sha256(name.encode()).hexdigest()[:24]

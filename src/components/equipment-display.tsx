@@ -10,7 +10,8 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "./ui/tooltip"
-import { useState } from "react"
+import { useCallback, useState } from "react"
+import { AugmentSocket } from "./augment-tooltip"
 import {
   Gem,
   Shield,
@@ -24,7 +25,11 @@ import {
 } from "lucide-react"
 import { Popover, PopoverTrigger } from "./ui/popover"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
-import { describeEquipment, EQUIPMENT_SLOTS } from "../../shared/equipment"
+import {
+  describeEquipment,
+  equipmentJewelSlots,
+  EQUIPMENT_SLOTS,
+} from "../../shared/equipment"
 import type { EquipmentDetails, EquipmentItem } from "../../shared/equipment"
 import type { BuildSnapshot } from "../../shared/pob"
 import { EquipmentSettings } from "./equipment-settings"
@@ -88,6 +93,22 @@ export function GearSlot({
   missing?: boolean
 }) {
   const inspection = useInspectionTooltip({ stickyShortcut: true })
+  const [itemPopup, setItemPopup] = useState<HTMLDivElement | null>(null)
+  const [augment, setAugment] = useState<{
+    index: number
+    replace: boolean
+  } | null>(null)
+  const inspectAugment = useCallback(
+    (index: number, open: boolean, replace: boolean) => {
+      setAugment((current) => {
+        if (!open) return current?.index === index ? null : current
+        return current?.index === index && current.replace === replace
+          ? current
+          : { index, replace }
+      })
+    },
+    []
+  )
   const clipboard = useCopyItem(item?.text ?? "", inspection.open)
   const details = item ? describeEquipment(item) : null
   return (
@@ -96,7 +117,20 @@ export function GearSlot({
         {clipboard.status}
       </span>
       {item && details ? (
-        <Popover {...inspection.popoverProps}>
+        <Popover
+          {...inspection.popoverProps}
+          open={inspection.open || augment !== null}
+          onOpenChange={(open, event) => {
+            if (
+              !open &&
+              augment &&
+              (event.reason === "trigger-hover" || event.reason === "focus-out")
+            )
+              return
+            inspection.popoverProps.onOpenChange?.(open, event)
+            if (!open) setAugment(null)
+          }}
+        >
           <PopoverTrigger
             {...inspection.triggerProps}
             onClick={clipboard.copy}
@@ -109,39 +143,51 @@ export function GearSlot({
               details={details}
               slot={name}
             />
-            {details.socketContents.length > 0 && (
-              <span
-                className="gear-sockets"
-                data-count={details.socketContents.length}
-                data-item-class={details.artwork?.itemClass}
-                aria-label={details.socketContents
-                  .map((socket) => socket.name)
-                  .join(", ")}
-              >
-                {details.socketContents.map((socket, i) => (
-                  <Tooltip key={i}>
-                    <TooltipTrigger render={<span />} tabIndex={0}>
-                      {socket.image && (
-                        <img
-                          src={socket.image}
-                          alt={socket.name}
-                          width={64}
-                          height={64}
-                          loading="lazy"
-                        />
-                      )}
-                    </TooltipTrigger>
-                    <TooltipContent>{socket.name}</TooltipContent>
-                  </Tooltip>
-                ))}
-              </span>
-            )}
           </PopoverTrigger>
+          {details.socketContents.length > 0 && (
+            <span
+              className="gear-sockets"
+              data-count={details.socketContents.length}
+              data-item-class={details.artwork?.itemClass}
+              aria-label={details.socketContents
+                .map((socket) => socket.name)
+                .join(", ")}
+            >
+              {details.socketContents.map((socket, i) =>
+                socket.name === "Empty socket" ||
+                socket.name === "Unspecified socket" ? (
+                  <span
+                    key={i}
+                    className="gear-socket"
+                    aria-label={socket.name}
+                  />
+                ) : (
+                  <AugmentSocket
+                    key={i}
+                    {...socket}
+                    index={i}
+                    activeIndex={augment?.index}
+                    itemPopup={itemPopup}
+                    onInspect={inspectAugment}
+                  />
+                )
+              )}
+            </span>
+          )}
           <InspectionTooltipContent
             {...inspection.contentProps}
+            {...(augment && {
+              initialFocus: false,
+              finalFocus: false,
+              "data-hover-only": true,
+              showPin: false,
+              fallbackClose: false,
+            })}
             pinId={`item:${item.id}`}
             pinLabel={`${details.name} item details`}
             className="equipment-card"
+            onElementChange={setItemPopup}
+            data-augment-replaced={augment?.replace || undefined}
             collisionAvoidance={{ side: "shift", align: "shift" }}
             collisionPadding={12}
             data-rarity={details.rarity}
@@ -250,7 +296,10 @@ function EquipmentDisplayContent({
     ...EQUIPMENT_SLOTS.map((s) => s.name),
     ...swapSlots,
   ])
-  const extras = equipped.filter((s) => !known.has(s.name))
+  const jewelSlots = new Set(equipmentJewelSlots(build, gear))
+  const extras = equipped.filter(
+    (s) => !known.has(s.name) && !jewelSlots.has(s)
+  )
   function slotItem(name: string) {
     const slot = equipped.find((s) => s.name === name)
     return {

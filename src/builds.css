@@ -1472,11 +1472,6 @@
 .tree-jewels {
   margin-top: 40px;
 }
-.tree-snapshot-note {
-  margin: var(--space-xl) 0 0;
-  font-family: var(--font-mono);
-  font-size: var(--text-label);
-}
 
 /* Full-screen map: the dialog becomes a page with the site's dot grid. */
 [data-slot="dialog-content"].tree-fullscreen {
@@ -1587,6 +1582,46 @@
   list-style: none;
   margin: 0;
   padding: 0;
+}
+.skill-gem-entry {
+  position: relative;
+}
+.skill-gem-entry[data-context="true"] .skill-gem-row {
+  padding-right: 48px;
+}
+.skill-source-trigger {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  color: var(--color-text-muted);
+}
+.skill-source-trigger:is(:hover, :focus-visible, [data-popup-open]) {
+  background: color-mix(in oklch, var(--color-brand) 18%, var(--color-surface));
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+}
+.skill-source-trigger svg {
+  width: 18px;
+  height: 18px;
+}
+.skill-source-tooltip[data-slot="tooltip-content"] {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 16px;
+  max-width: min(330px, calc(100vw - 24px));
+  font-size: 13px;
+  line-height: 1.6;
+}
+.skill-source-tooltip h3 {
+  font: 500 20px/1.1 var(--font-display);
+  color: var(--color-brand);
+}
+.skill-source-tooltip p {
+  color: var(--color-text-muted);
 }
 .skill-gem-entry + .skill-gem-entry {
   border-top: var(--rule-thin) solid var(--color-rule);
@@ -2317,7 +2352,14 @@ body:has(.tree-pins[data-open="true"])
   margin-top: 3px;
 }
 .build-skill-context .build-skill-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
   color: var(--color-item-fractured);
+}
+.build-skill-warning svg {
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 .build-skill[data-support-only="true"] .skill-gem-row {
   padding-left: var(--space-lg);

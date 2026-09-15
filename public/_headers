@@ -13,6 +13,12 @@
 /gems/v1/*
   Cache-Control: public, max-age=31536000, immutable
 
+/augments/v1/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/pob-trees/node-reference-v1/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /gems/effects-v1/*
   Cache-Control: public, max-age=31536000, immutable
 
