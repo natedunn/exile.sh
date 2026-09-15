@@ -66,7 +66,10 @@ button:disabled {
   cursor: default;
   opacity: 0.4;
 }
-:is(button, a, select, input, [tabindex]):focus-visible {
+:is(button, a, select, input, textarea, [tabindex]):focus-visible {
+  /* Focus indicators must appear in their final color immediately. In
+     particular, transition-all otherwise fades outline-color from currentColor. */
+  transition-property: color, background-color, opacity, transform;
   outline: 2px solid var(--color-focus);
   outline-offset: 3px;
 }

@@ -408,13 +408,6 @@
   font: 500 20px/1.2 var(--font-display);
   margin-top: 4px;
 }
-.equipment-card-pin {
-  position: absolute;
-  top: 6px;
-  right: 40px;
-  color: var(--color-text-muted);
-  z-index: 1;
-}
 .equipment-card-close {
   position: absolute;
   top: 6px;

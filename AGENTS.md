@@ -29,3 +29,26 @@ add route-specific focus outlines or rings to the inner control.
 
 Do not add decorative eyebrows or kickers above headings anywhere in the site.
 Use direct headings; retain functional field and metric labels.
+
+## Tree search performance
+
+Keep search input state outside the SVG renderer. Match against a cached index in
+its worker, reject outdated replies, and retain the yielding fallback. Keep result
+rows virtualized and glow geometry batched; broad queries can match thousands of
+nodes. Preserve keyboard access to offscreen results. When changing this feature,
+run the tree-search browser tests and compare `scripts/measure-tree-search.mjs`
+against the same build and browser conditions; avoid debounce delays that mask
+main-thread work.
+
+## Preserve running development servers
+
+Treat an existing development server as user-owned. Reuse it for browser checks
+with `PLAYWRIGHT_BASE_URL`; do not restart it, take over its Portless route with
+`--force`, or use broad process-kill commands. Only stop a process started for the
+current task when its ownership is known. If a separate test server is necessary,
+use an unused port and a distinct route without replacing an existing server.
+
+Avoid production builds in the same working directory while a development server
+is running: generated files and caches may be shared. Use an isolated checkout for
+build validation, or report that the build was deferred. Prefer targeted tests,
+type checks, and browser checks against the running server during UI work.

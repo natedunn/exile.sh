@@ -1,7 +1,9 @@
+import { PinnablePopoverContent, TooltipPinScope } from "./tooltip-pins"
+import type { TooltipPinOptions } from "./tooltip-pins"
+import type { ComponentProps } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { useCallback, useEffect, useRef, useState } from "react"
-import { useSinglePin } from "../lib/pins"
-import { Diamond, Droplet, Info, Pin, Star, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { Diamond, Droplet, Info, Star } from "lucide-react"
 import { findGem, gemEffectValues } from "../../shared/gems"
 import type { GemCatalogue, SavedGem, GemEffects } from "../../shared/gems"
 import type { BuildSnapshot } from "../../shared/pob"
@@ -12,7 +14,6 @@ import {
   PopoverContent,
   PopoverTitle,
   PopoverDescription,
-  PopoverClose,
 } from "./ui/popover"
 
 export function GemReferenceInfo() {
@@ -98,27 +99,12 @@ function GemRow({
   const [hoverOnly, setHoverOnly] = useState(false)
   const hovering = useRef(false)
   const holding = useRef(false)
-  // Holding the hotkey makes the hover card stick and shows a pin button;
-  // pinning keeps it after the key is released. One pin per page.
-  const [pinned, setPinned] = useState(false)
-  const release = useCallback(() => {
-    setPinned(false)
-    setOpen(false)
-    setHeld(false)
-  }, [])
-  useSinglePin(pinned, release)
-  const togglePin = () => {
-    if (pinned) {
-      setPinned(false)
-      if (!hovering.current && !holding.current) setOpen(false)
-    } else setPinned(true)
-  }
   useEffect(() => {
     if (!open) return
     const releaseHold = () => {
       holding.current = false
       setHeld(false)
-      if (hoverOnly && !hovering.current && !pinned) setOpen(false)
+      if (hoverOnly && !hovering.current) setOpen(false)
     }
     const down = (event: KeyboardEvent) => {
       if (event.key === "Alt") {
@@ -131,7 +117,7 @@ function GemRow({
     }
     const blur = () => {
       releaseHold()
-      if (!pinned) setOpen(false)
+      setOpen(false)
     }
     window.addEventListener("keydown", down)
     window.addEventListener("keyup", up)
@@ -142,7 +128,7 @@ function GemRow({
       window.removeEventListener("blur", blur)
       holding.current = false
     }
-  }, [open, hoverOnly, pinned])
+  }, [open, hoverOnly])
   const effects = useQuery<GemEffects>({
     queryKey: ["gem-effects", "v1", ref?.skillId],
     enabled: open && !!ref?.skillId,
@@ -174,7 +160,6 @@ function GemRow({
           setOpen(next)
           if (!next) {
             setHeld(false)
-            setPinned(false)
           }
         }}
       >
@@ -182,7 +167,7 @@ function GemRow({
           onPointerEnter={(event) => {
             if (event.pointerType === "touch") return
             hovering.current = true
-            if (event.altKey || pinned) return
+            if (event.altKey) return
             setHoverOnly(true)
             setHeld(false)
             setOpen(true)
@@ -190,7 +175,7 @@ function GemRow({
           onPointerLeave={(event) => {
             if (event.pointerType === "touch") return
             hovering.current = false
-            if (!holding.current && !pinned) setOpen(false)
+            if (!holding.current) setOpen(false)
           }}
           onPointerDown={(event) => {
             if (event.pointerType === "touch") setHoverOnly(false)
@@ -229,13 +214,19 @@ function GemRow({
             {tagRow}
           </span>
         </PopoverTrigger>
-        <PopoverContent
+        <PinnablePopoverContent
+          fallbackClose={!hoverOnly}
+          showPin={(held || !hoverOnly) && !effects.isLoading}
+          freeze={held}
+          pinLabel={`${gem.name} gem details`}
+          onPin={() => {
+            setOpen(false)
+            setHeld(false)
+          }}
           className="skill-gem-tooltip"
-          data-hover-only={hoverOnly && !held && !pinned}
+          data-hover-only={hoverOnly && !held}
           positionerClassName={
-            hoverOnly && !held && !pinned
-              ? "skill-gem-hover-positioner"
-              : undefined
+            hoverOnly && !held ? "skill-gem-hover-positioner" : undefined
           }
           // A hover preview must not steal focus, or the row would show a
           // focus ring once the pointer leaves and focus returns to it.
@@ -264,23 +255,6 @@ function GemRow({
                 </p>
               )}
             </div>
-            {(held || pinned) && (
-              <button
-                type="button"
-                className="skill-gem-pin"
-                aria-pressed={pinned}
-                aria-label={pinned ? "Unpin gem details" : "Pin gem details"}
-                onClick={togglePin}
-              >
-                <Pin size={16} />
-              </button>
-            )}
-            <PopoverClose
-              className="skill-gem-close"
-              aria-label="Close gem details"
-            >
-              <X size={16} />
-            </PopoverClose>
           </div>
           {tagRow}
           <dl className="skill-gem-properties">
@@ -370,12 +344,24 @@ function GemRow({
           {!gem.enabled && (
             <p className="skill-gem-disabled">Disabled in this skill group.</p>
           )}
-        </PopoverContent>
+        </PinnablePopoverContent>
       </Popover>
     </li>
   )
 }
-export function SkillGems({
+export function SkillGems(
+  props: ComponentProps<typeof SkillGemsContent> & TooltipPinOptions
+) {
+  return (
+    <TooltipPinScope
+      pinningEnabled={props.pinningEnabled}
+      maxPinnedTooltips={props.maxPinnedTooltips ?? 1}
+    >
+      <SkillGemsContent {...props} />
+    </TooltipPinScope>
+  )
+}
+function SkillGemsContent({
   skills,
   mainSocketGroup,
 }: {

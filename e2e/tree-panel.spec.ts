@@ -5,9 +5,20 @@ for (const width of [1440, 390]) {
     page,
   }) => {
     await page.setViewportSize({ width, height: 844 })
+    const openSettings = async () => {
+      if (width < 768) {
+        await page
+          .getByRole("button", { name: "Tree settings", exact: true })
+          .click()
+        await expect(
+          page.locator(".tree-settings-drawer .tree-drawer-track")
+        ).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)")
+      }
+    }
     const requests: string[] = []
     page.on("request", (request) => requests.push(request.url()))
     await page.goto("/trees/passive")
+    await openSettings()
     const panel = page.locator(".tree-settings-panel")
     const map = page.locator(".tree-viewport svg")
     await expect(map).toBeVisible()
@@ -55,6 +66,7 @@ for (const width of [1440, 390]) {
     await page
       .getByRole("link", { name: "Ascendancy Trees", exact: true })
       .click()
+    await openSettings()
     await expect(
       page.getByRole("combobox", { name: "Ascendancy", exact: true })
     ).toContainText("Oracle")
@@ -63,6 +75,7 @@ for (const width of [1440, 390]) {
       .click()
     await page.getByRole("option", { name: "Titan", exact: true }).click()
     await page.goto("/trees/passive")
+    await openSettings()
     await expect(
       panel.getByRole("combobox", { name: "Show ascendancy" })
     ).toContainText("Titan")
@@ -74,6 +87,7 @@ for (const width of [1440, 390]) {
     await page.getByRole("option", { name: "None", exact: true }).click()
     await expect(map.locator('[data-node^="center:"]')).toHaveCount(0)
     await page.reload()
+    await openSettings()
     await expect(
       panel.getByRole("combobox", { name: "Show ascendancy" })
     ).toContainText("None")

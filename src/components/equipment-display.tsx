@@ -1,16 +1,17 @@
+import { PinnablePopoverContent, TooltipPinScope } from "./tooltip-pins"
+import type { TooltipPinOptions } from "./tooltip-pins"
+import type { ComponentProps } from "react"
 import {
   Tooltip,
   TooltipProvider,
   TooltipTrigger,
   TooltipContent,
 } from "./ui/tooltip"
-import { useCallback, useEffect, useRef, useState } from "react"
-import { useSinglePin } from "../lib/pins"
+import { useEffect, useRef, useState } from "react"
 import {
   Gem,
   Shield,
   Swords,
-  X,
   FlaskConical,
   Crown,
   Hand,
@@ -18,16 +19,13 @@ import {
   Circle,
   Shirt,
   ChevronDown,
-  Pin,
 } from "lucide-react"
 import { Button } from "./ui/button"
 import {
   Popover,
   PopoverTrigger,
-  PopoverContent,
   PopoverTitle,
   PopoverDescription,
-  PopoverClose,
 } from "./ui/popover"
 import {
   Collapsible,
@@ -87,43 +85,16 @@ function ItemCard({
   item,
   details,
   slot,
-  pin,
 }: {
   item: EquipmentItem
   details: EquipmentDetails
   slot: string
-  /** Present while the card is held or pinned; toggles the pin. */
-  pin?: { pinned: boolean; toggle: () => void }
 }) {
   return (
     <>
       <header className="equipment-card-header">
         <PopoverTitle>{details.name}</PopoverTitle>
         {details.base && details.base !== details.name && <p>{details.base}</p>}
-        {pin && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="equipment-card-pin"
-            aria-pressed={pin.pinned}
-            aria-label={pin.pinned ? "Unpin item details" : "Pin item details"}
-            onClick={pin.toggle}
-          >
-            <Pin />
-          </Button>
-        )}
-        <PopoverClose
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className="equipment-card-close"
-              aria-label="Close item details"
-            />
-          }
-        >
-          <X />
-        </PopoverClose>
       </header>
       <div className="equipment-card-scroll">
         <PopoverDescription className="equipment-card-type">
@@ -201,27 +172,12 @@ export function GearSlot({
   const [hoverOnly, setHoverOnly] = useState(false)
   const hovering = useRef(false)
   const holding = useRef(false)
-  // Holding the hotkey makes the hover card stick and shows a pin button;
-  // pinning keeps it after the key is released. One pin per page.
-  const [pinned, setPinned] = useState(false)
-  const release = useCallback(() => {
-    setPinned(false)
-    setOpen(false)
-    setHeld(false)
-  }, [])
-  useSinglePin(pinned, release)
-  const togglePin = () => {
-    if (pinned) {
-      setPinned(false)
-      if (!hovering.current && !holding.current) setOpen(false)
-    } else setPinned(true)
-  }
   useEffect(() => {
     if (!open) return
     const releaseHold = () => {
       holding.current = false
       setHeld(false)
-      if (hoverOnly && !hovering.current && !pinned) setOpen(false)
+      if (hoverOnly && !hovering.current) setOpen(false)
     }
     const down = (event: KeyboardEvent) => {
       if (event.key === "Alt") {
@@ -234,7 +190,7 @@ export function GearSlot({
     }
     const blur = () => {
       releaseHold()
-      if (!pinned) setOpen(false)
+      setOpen(false)
     }
     window.addEventListener("keydown", down)
     window.addEventListener("keyup", up)
@@ -245,7 +201,7 @@ export function GearSlot({
       window.removeEventListener("blur", blur)
       holding.current = false
     }
-  }, [open, hoverOnly, pinned])
+  }, [open, hoverOnly])
   const details = item ? describeEquipment(item) : null
   return (
     <div className={`gear-cell gear-${area}`}>
@@ -264,7 +220,6 @@ export function GearSlot({
             setOpen(next)
             if (!next) {
               setHeld(false)
-              setPinned(false)
             }
           }}
         >
@@ -272,7 +227,7 @@ export function GearSlot({
             onPointerEnter={(event) => {
               if (event.pointerType === "touch") return
               hovering.current = true
-              if (event.altKey || pinned) return
+              if (event.altKey) return
               setHoverOnly(true)
               setHeld(false)
               setOpen(true)
@@ -280,7 +235,7 @@ export function GearSlot({
             onPointerLeave={(event) => {
               if (event.pointerType === "touch") return
               hovering.current = false
-              if (!holding.current && !pinned) setOpen(false)
+              if (!holding.current) setOpen(false)
             }}
             onPointerDown={(event) => {
               if (event.pointerType === "touch") setHoverOnly(false)
@@ -326,13 +281,20 @@ export function GearSlot({
               </span>
             )}
           </PopoverTrigger>
-          <PopoverContent
+          <PinnablePopoverContent
+            fallbackClose={!hoverOnly}
+            showPin={held || !hoverOnly}
+            freeze={held}
+            pinId={`item:${item.id}`}
+            pinLabel={`${details.name} item details`}
+            onPin={() => {
+              setOpen(false)
+              setHeld(false)
+            }}
             className="equipment-card"
-            data-hover-only={hoverOnly && !held && !pinned}
+            data-hover-only={hoverOnly && !held}
             positionerClassName={
-              hoverOnly && !held && !pinned
-                ? "equipment-hover-positioner"
-                : undefined
+              hoverOnly && !held ? "equipment-hover-positioner" : undefined
             }
             initialFocus={!hoverOnly}
             finalFocus={!hoverOnly}
@@ -343,13 +305,8 @@ export function GearSlot({
             sideOffset={14}
             align="center"
           >
-            <ItemCard
-              item={item}
-              details={details}
-              slot={label}
-              pin={held || pinned ? { pinned, toggle: togglePin } : undefined}
-            />
-          </PopoverContent>
+            <ItemCard item={item} details={details} slot={label} />
+          </PinnablePopoverContent>
         </Popover>
       ) : (
         <div
@@ -410,7 +367,20 @@ export function WeaponSetSwitch({
     </Tabs>
   )
 }
-export function EquipmentDisplay({
+export function EquipmentDisplay(
+  props: ComponentProps<typeof EquipmentDisplayContent> & TooltipPinOptions
+) {
+  return (
+    <TooltipPinScope
+      pinningEnabled={props.pinningEnabled}
+      maxPinnedTooltips={props.maxPinnedTooltips ?? 1}
+      resetKey={`${props.gear.id}:${props.weapons}`}
+    >
+      <EquipmentDisplayContent {...props} />
+    </TooltipPinScope>
+  )
+}
+function EquipmentDisplayContent({
   build,
   gear,
   weapons = "primary",

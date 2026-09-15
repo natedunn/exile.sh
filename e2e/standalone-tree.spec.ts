@@ -1,4 +1,16 @@
+import type { Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
+
+async function openMobileSettings(page: Page) {
+  if ((page.viewportSize()?.width ?? 1440) < 768) {
+    await page
+      .getByRole("button", { name: "Tree settings", exact: true })
+      .click()
+    await expect(
+      page.locator(".tree-settings-drawer .tree-drawer-track")
+    ).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)")
+  }
+}
 
 for (const viewport of [
   { width: 1440, height: 900 },
@@ -48,6 +60,7 @@ for (const viewport of [
     await page.mouse.wheel(0, -200)
     await expect(map).not.toHaveAttribute("viewBox", zoomed!)
     await noOverflow()
+    await openMobileSettings(page)
     await page.getByRole("combobox", { name: "Tree version" }).click()
     await page.getByRole("option", { name: "0.1", exact: true }).click()
     await expect(page).toHaveURL(/version=0_1/)
@@ -56,6 +69,7 @@ for (const viewport of [
       .getByRole("navigation", { name: "Tree types" })
       .getByRole("link", { name: "Ascendancy Trees", exact: true })
       .click()
+    await openMobileSettings(page)
     await page
       .getByRole("combobox", { name: "Ascendancy", exact: true })
       .click()
@@ -110,6 +124,7 @@ test("Paths Not Taken toggle supports keyboard and historical versions", async (
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto("/trees/passive?section=Oracle")
+  await openMobileSettings(page)
   const toggle = page.getByRole("checkbox", { name: "Paths Not Taken" })
   await expect(toggle).toBeEnabled()
   await expect(toggle).not.toBeChecked()
@@ -125,10 +140,12 @@ test("Paths Not Taken toggle supports keyboard and historical versions", async (
   await expect(toggle).not.toBeChecked()
   await toggle.check()
   await page.reload()
+  await openMobileSettings(page)
   await expect(toggle).toBeChecked()
   await expect(page.locator("[data-node][data-unseen-path]")).toHaveCount(176)
   await page.getByRole("combobox", { name: "Tree version" }).click()
   await page.getByRole("option", { name: "0.4", exact: true }).click()
+  await openMobileSettings(page)
   await expect(page.locator("[data-node][data-unseen-path]")).toHaveCount(176)
   await page.getByRole("combobox", { name: "Tree version" }).click()
   await page.getByRole("option", { name: "0.1", exact: true }).click()
@@ -228,6 +245,7 @@ test("tree pages offer contextual controls and keep zoom inside the viewport", a
     )
   ).toBe(false)
   await nav.getByRole("link", { name: "Passive Tree", exact: true }).click()
+  await openMobileSettings(page)
   await expect(
     page.getByRole("combobox", { name: "Show ascendancy" })
   ).toBeVisible()
@@ -306,6 +324,7 @@ test("ascendancies load independently and keep the selector inside the viewer", 
   await expect(
     page.locator('[data-ascendancy-background="Oracle"]')
   ).toBeVisible()
+  await openMobileSettings(page)
   const canvas = (await page.locator(".tree-viewport").boundingBox())!
   const panel = page.locator(".tree-settings-panel")
   const selector = (await panel.boundingBox())!
