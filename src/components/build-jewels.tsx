@@ -40,14 +40,19 @@ function useSocketedJewels(build: BuildSnapshot, spec?: Spec, gear?: Gear) {
     return socketedJewels(build.items, spec, { equipped, nodeNames, gear })
   }, [build.items, spec, gear, tree.data])
   const message =
-    !jewels.length || tree.data
+    !jewels.some((jewel) => jewel.allocation.kind !== "equipment") || tree.data
       ? null
       : !isTreeVersion(version)
-        ? "Jewel allocations and totals are unavailable for this tree version."
+        ? "Tree jewel allocations and totals are unavailable for this tree version."
         : tree.isError
-          ? "Tree data could not be loaded. Jewel allocations and totals are unavailable."
-          : "Loading tree data to determine jewel allocations and totals…"
-  return { jewels, message }
+          ? "Tree data could not be loaded. Tree jewel allocations and totals are unavailable."
+          : "Loading tree data to determine tree jewel allocations and totals…"
+  return {
+    jewels: tree.data
+      ? jewels
+      : jewels.filter((jewel) => jewel.allocation.kind === "equipment"),
+    message,
+  }
 }
 
 function allocationNote(jewel: SocketedJewel) {
@@ -83,7 +88,7 @@ export function BuildJewels({
   gear?: Gear
 }) {
   const { jewels, message } = useSocketedJewels(build, spec, gear)
-  if (message)
+  if (message && !jewels.length)
     return (
       <p className="build-muted" role="status">
         {message}
@@ -92,31 +97,38 @@ export function BuildJewels({
   if (!jewels.length)
     return <p className="build-empty">No jewels socketed in this setup.</p>
   return (
-    <div className="build-jewel-grid">
-      {jewels.map((jewel) => {
-        const note = allocationNote(jewel)
-        return (
-          <div
-            key={`${jewel.nodeId}:${jewel.item.id}`}
-            className="build-jewel"
-            data-active={jewel.active}
-          >
-            <GearSlot
-              item={jewel.item}
-              name="Jewel"
-              label="Jewel"
-              area="extra"
-            />
-            <span className="build-jewel-name">{jewel.item.name}</span>
-            {note && (
-              <span className="build-jewel-note" title={note}>
-                {note}
-              </span>
-            )}
-          </div>
-        )
-      })}
-    </div>
+    <>
+      {message && (
+        <p className="build-muted" role="status">
+          {message}
+        </p>
+      )}
+      <div className="build-jewel-grid">
+        {jewels.map((jewel) => {
+          const note = allocationNote(jewel)
+          return (
+            <div
+              key={`${jewel.nodeId}:${jewel.item.id}`}
+              className="build-jewel"
+              data-active={jewel.active}
+            >
+              <GearSlot
+                item={jewel.item}
+                name="Jewel"
+                label="Jewel"
+                area="extra"
+              />
+              <span className="build-jewel-name">{jewel.item.name}</span>
+              {note && (
+                <span className="build-jewel-note" title={note}>
+                  {note}
+                </span>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </>
   )
 }
 
@@ -157,7 +169,7 @@ export function JewelStats({
   gear?: Gear
 }) {
   const { jewels, message } = useSocketedJewels(build, spec, gear)
-  if (message)
+  if (message && !jewels.length)
     return (
       <div className="build-stats-body">
         <section>
@@ -174,6 +186,11 @@ export function JewelStats({
     <div className="build-stats-body">
       <section>
         <h3>From jewels</h3>
+        {message && (
+          <p className="build-muted" role="status">
+            {message}
+          </p>
+        )}
         <p className="build-stats-skill">
           {jewels.length === 1 ? "1 jewel" : `${jewels.length} jewels`}
           {jewels.length > active.length &&

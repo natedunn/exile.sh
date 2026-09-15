@@ -6,6 +6,9 @@ import re
 import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+destination = ROOT / 'public/augments/v1'
+if (destination / 'catalogue.json').exists() or (destination / 'source.json').exists():
+    raise SystemExit('Published augment data exists; use a new asset revision to update it.')
 revision = json.loads((ROOT / 'public/gems/v1/source.json').read_text())['revision']
 url = f'https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/{revision}/src/Data/ModRunes.lua'
 raw = urllib.request.urlopen(url, timeout=30).read()
@@ -50,7 +53,6 @@ if any(not ref.get('type') or not ref['applications'] for ref in references.valu
     'source': url, 'revision': revision, 'sha256': hashlib.sha256(raw).hexdigest(),
     'artworkOwner': 'Grinding Gear Games',
 }, indent=2) + '\n')
-destination = ROOT / 'public/augments/v1'
 destination.mkdir(parents=True, exist_ok=True)
 (destination / 'catalogue.json').write_text(json.dumps(references, separators=(',', ':'), ensure_ascii=False) + '\n')
 (destination / 'source.json').write_text(json.dumps({
