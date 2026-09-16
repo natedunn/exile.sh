@@ -100,7 +100,7 @@ for (const width of [1440, 390]) {
     await expect(page.locator('[data-tooltip-pinned="true"]')).toHaveCount(0)
   })
 }
-test("Build Bin pins one item or gem and keeps it fixed while scrolling", async ({
+test("Build Bin pins one item or gem and scrolls it with the page", async ({
   page,
 }) => {
   await page.goto("/build-bin")
@@ -116,11 +116,19 @@ test("Build Bin pins one item or gem and keeps it fixed while scrolling", async 
   const pin = page.locator('[data-tooltip-pinned="true"]')
   await expect(pin).toHaveCount(1)
   const before = (await pin.boundingBox())!
+  const scrollBefore = await page.evaluate(() => window.scrollY)
   await page.mouse.move(10, 10)
   await page.mouse.wheel(0, 250)
   await expect
-    .poll(async () => (await pin.boundingBox())!.y)
-    .toBeCloseTo(before.y, 0)
+    .poll(() => page.evaluate(() => window.scrollY))
+    .toBeGreaterThan(scrollBefore + 200)
+  await expect
+    .poll(
+      async () =>
+        (await pin.boundingBox())!.y +
+        (await page.evaluate(() => window.scrollY))
+    )
+    .toBeCloseTo(before.y + scrollBefore, 0)
   const gem = page.locator(".skill-gem-row").first()
   await gem.scrollIntoViewIfNeeded()
   await gem.hover()

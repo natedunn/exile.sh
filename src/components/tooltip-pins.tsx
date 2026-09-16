@@ -29,6 +29,7 @@ export type TreePinTarget = {
   source: () => SVGSVGElement | null
 }
 
+// Non-tree pins store document coordinates so they scroll with the page.
 type PinnedTooltip = Point & {
   treeTarget?: TreePinTarget
   id: string
@@ -416,7 +417,27 @@ function PinnedWindow({
       document.removeEventListener("scroll", update, true)
     }
   }, [element, pin.treeTarget])
-  const anchor = useMemo(() => anchorAt(point), [point])
+  const anchor = useMemo(
+    () =>
+      pin.treeTarget
+        ? anchorAt(point)
+        : {
+            getBoundingClientRect: () =>
+              new DOMRect(
+                Math.max(
+                  12,
+                  Math.min(
+                    point.x - window.scrollX,
+                    innerWidth - Math.min(point.width, innerWidth - 24) - 12
+                  )
+                ),
+                point.y - window.scrollY,
+                0,
+                0
+              ),
+          },
+    [point, pin.treeTarget]
+  )
   return (
     <Popover
       open
@@ -434,7 +455,7 @@ function PinnedWindow({
         data-held="true"
         aria-label={`Pinned ${pin.label}`}
         anchor={anchor}
-        positionMethod="fixed"
+        positionMethod={pin.treeTarget ? "fixed" : "absolute"}
         positionerClassName={
           pin.treeTarget
             ? "pinned-tooltip-positioner tree-pinned-positioner"
@@ -586,8 +607,8 @@ export function InspectionTooltipContent({
               treeTarget,
               className: props.className,
               label: pinLabel,
-              x: rect.x,
-              y: rect.y,
+              x: rect.x + (treeTarget ? 0 : window.scrollX),
+              y: rect.y + (treeTarget ? 0 : window.scrollY),
               width: rect.width,
               height: rect.height,
             })

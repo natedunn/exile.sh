@@ -9,7 +9,7 @@ const code = readFileSync(
 )
 const buildsURL = process.env.BUILD_TEST_URL || "/build-bin"
 for (const width of [390, 1440]) {
-  test(`equipment-socketed jewels appear only with jewels at ${width}px`, async ({
+  test(`equipment-socketed jewels have floating and inline cards at ${width}px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 1000 })
@@ -17,11 +17,11 @@ for (const width of [390, 1440]) {
       .toString()
       .replace(
         "</ItemSet>",
-        '<Slot name="Gloves Jewel Socket 1" itemId="9000"/><Slot name="Relic" itemId="9001"/></ItemSet>'
+        '<Slot name="Gloves Jewel Socket 1" itemId="9000"/><Slot name="Relic" itemId="9001"/><Slot name="Jewel Socket 2" itemId="9002"/></ItemSet>'
       )
       .replace(
         "</Items>",
-        '<Item id="9000">Rarity: RARE\nEquipment Jewel\nSapphire\n+10 to Intelligence</Item><Item id="9001">Rarity: RARE\nExtra Relic\nGold Ring\n+10 to Intelligence</Item></Items>'
+        '<Item id="9000">Rarity: RARE\nEquipment Jewel\nSapphire\n+10 to Intelligence</Item><Item id="9001">Rarity: RARE\nExtra Relic\nGold Ring\n+10 to Intelligence</Item><Item id="9002">Rarity: RARE\nUnmatched Jewel\nSapphire\n+12 to Intelligence</Item></Items>'
       )
     await page.goto(buildsURL)
     await page
@@ -36,8 +36,41 @@ for (const width of [390, 1440]) {
     await expect(
       extras.getByRole("button", { name: /Equipment Jewel/ })
     ).toHaveCount(0)
+    await expect(
+      extras.getByRole("button", {
+        name: "Jewel Socket 2: Unmatched Jewel. Show item details",
+      })
+    ).toBeVisible()
+    const socket = page.getByRole("button", {
+      name: "Equipment Jewel. Show jewel details",
+    })
+    await expect(
+      page
+        .locator(".gear-gloves > .gear-sockets")
+        .getByRole("button", { name: "Equipment Jewel. Show jewel details" })
+    ).toBeVisible()
+    await socket.scrollIntoViewIfNeeded()
+    await socket.focus()
+    await page.keyboard.press("Enter")
+    const floating = page.getByRole("dialog", {
+      name: "Equipment Jewel",
+      exact: true,
+    })
+    await expect(floating).toBeVisible()
+    await expect(floating).toHaveClass(/build-jewel-card/)
+    await expect(floating).toContainText("+10 to Intelligence")
+    const art = (await floating.locator(".build-jewel-card-art").boundingBox())!
+    const header = (await floating
+      .locator(".equipment-card-header")
+      .boundingBox())!
+    expect(art.y).toBeGreaterThanOrEqual(header.y)
+    expect(art.y + art.height).toBeLessThanOrEqual(header.y + header.height)
+    const box = (await floating.boundingBox())!
+    expect(box.x).toBeGreaterThanOrEqual(0)
+    expect(box.x + box.width).toBeLessThanOrEqual(width)
+    await page.keyboard.press("Escape")
     const jewel = page
-      .locator(".build-jewel-card")
+      .locator("#jewels .build-jewel-card")
       .filter({ hasText: "Equipment Jewel" })
     await jewel.scrollIntoViewIfNeeded()
     await expect(jewel).toHaveAttribute("data-active", "true")

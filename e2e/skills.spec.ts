@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 import { strToU8, zlibSync } from "fflate"
-const xml = `<PathOfBuilding2><Build className="Sorceress" ascendClassName="Stormweaver" level="90" mainSocketGroup="2"/><Skills><Skill label="Other setup"><Gem nameSpec="Other skill" skillId="OtherSkill" level="1" quality="0"/></Skill><Skill label="Spark setup"><Gem nameSpec="Spark" gemId="Metadata/Items/Gems/SkillGemSpark" skillId="SparkPlayer" statSetIndex="nil" level="20" quality="23" corrupted="true" corruptLevel="1"/><Gem nameSpec="Elemental Armament II" gemId="Metadata/Items/Gems/SupportGemPrimalArmamentTwo" skillId="SupportElementalArmamentPlayerTwo" level="1" quality="0" enabled="false"/><Gem nameSpec="Loyalty" skillId="SupportLoyaltyPlayer" statSetIndex="nil" level="1" quality="0"/><Gem nameSpec="Unknown future support" skillId="SupportFuture" level="1" quality="0"/></Skill></Skills></PathOfBuilding2>`
+const xml = `<PathOfBuilding2><Build className="Sorceress" ascendClassName="Stormweaver" level="90" mainSocketGroup="3"/><Skills><Skill source="Thorns"><Gem skillId="ThornsPlayer"/></Skill><Skill label="Other setup"><Gem nameSpec="Other skill" skillId="OtherSkill" level="1" quality="0"/></Skill><Skill label="Spark setup"><Gem nameSpec="Spark" gemId="Metadata/Items/Gems/SkillGemSpark" skillId="SparkPlayer" statSetIndex="nil" level="20" quality="23" corrupted="true" corruptLevel="1"/><Gem nameSpec="Elemental Armament II" gemId="Metadata/Items/Gems/SupportGemPrimalArmamentTwo" skillId="SupportElementalArmamentPlayerTwo" level="1" quality="0" enabled="false"/><Gem nameSpec="Loyalty" skillId="SupportLoyaltyPlayer" statSetIndex="nil" level="1" quality="0"/><Gem nameSpec="Unknown future support" skillId="SupportFuture" level="1" quality="0"/></Skill></Skills></PathOfBuilding2>`
 const code = Buffer.from(zlibSync(strToU8(xml))).toString("base64url")
 for (const width of [390, 1440])
   test(`vertical gems, art and inspection at ${width}px`, async ({ page }) => {
@@ -19,18 +19,12 @@ for (const width of [390, 1440])
     await page
       .getByRole("heading", { name: "Skills & supports" })
       .scrollIntoViewIfNeeded()
-    const info = page.getByRole("button", { name: "About gem data" })
-    await info.focus()
-    await page.keyboard.press("Enter")
-    const reference = page.getByRole("dialog", {
-      name: "Gem data",
-      exact: true,
-    })
-    await expect(reference).toContainText("build modifiers are not applied")
     await expect(
-      reference.getByRole("link", { name: "Data & attribution" })
-    ).toHaveAttribute("href", "/methodology")
-    await page.keyboard.press("Escape")
+      page.getByRole("button", { name: "About gem data" })
+    ).toHaveCount(0)
+    await expect(page.locator(".build-skills")).not.toContainText(
+      "ThornsPlayer"
+    )
     const active = page.getByRole("button", {
       name: "Spark. Show gem details",
       exact: true,

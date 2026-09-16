@@ -1,3 +1,4 @@
+import { ItemArtwork, SlotIcon } from "./equipment-artwork"
 import { useCopyItem } from "../lib/use-copy-item"
 import { ItemTooltipContent } from "./item-tooltip-content"
 import { useInspectionTooltip } from "./use-inspection-tooltip"
@@ -12,17 +13,6 @@ import {
 } from "./ui/tooltip"
 import { useCallback, useState } from "react"
 import { AugmentSocket } from "./augment-tooltip"
-import {
-  Gem,
-  Shield,
-  Swords,
-  FlaskConical,
-  Crown,
-  Hand,
-  Footprints,
-  Circle,
-  Shirt,
-} from "lucide-react"
 import { Popover, PopoverTrigger } from "./ui/popover"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 import {
@@ -30,67 +20,25 @@ import {
   equipmentJewelSlots,
   EQUIPMENT_SLOTS,
 } from "../../shared/equipment"
-import type { EquipmentDetails, EquipmentItem } from "../../shared/equipment"
+import type { EquipmentItem } from "../../shared/equipment"
 import type { BuildSnapshot } from "../../shared/pob"
 import { EquipmentSettings } from "./equipment-settings"
 import { ItemTreeVersionProvider } from "./item-reference-tooltip"
 
-function SlotIcon({ slot }: { slot: string }) {
-  const Icon = slot.includes("Weapon")
-    ? Swords
-    : slot === "Helmet"
-      ? Crown
-      : slot === "Body Armour"
-        ? Shirt
-        : slot === "Gloves"
-          ? Hand
-          : slot === "Boots"
-            ? Footprints
-            : slot.includes("Flask")
-              ? FlaskConical
-              : slot.includes("Ring")
-                ? Circle
-                : slot.includes("Charm") || slot === "Amulet"
-                  ? Gem
-                  : Shield
-  return <Icon aria-hidden="true" />
-}
-export function ItemArtwork({
-  details,
-  slot,
-}: {
-  details: EquipmentDetails
-  slot: string
-}) {
-  const [failed, setFailed] = useState(false)
-  return details.artwork?.image && !failed ? (
-    <img
-      src={details.artwork.image}
-      alt=""
-      loading="lazy"
-      onError={() => setFailed(true)}
-      width={details.artwork.width * 64}
-      height={details.artwork.height * 64}
-    />
-  ) : (
-    <span className="gear-art-fallback">
-      <SlotIcon slot={slot} />
-      <span>{details.name}</span>
-    </span>
-  )
-}
 export function GearSlot({
   item,
   name,
   label,
   area,
   missing = false,
+  jewels = [],
 }: {
   item?: EquipmentItem
   name: string
   label: string
   area: string
   missing?: boolean
+  jewels?: { name: string; item: EquipmentItem }[]
 }) {
   const inspection = useInspectionTooltip({ stickyShortcut: true })
   const [itemPopup, setItemPopup] = useState<HTMLDivElement | null>(null)
@@ -144,14 +92,15 @@ export function GearSlot({
               slot={name}
             />
           </PopoverTrigger>
-          {details.socketContents.length > 0 && (
+          {(details.socketContents.length > 0 || jewels.length > 0) && (
             <span
               className="gear-sockets"
-              data-count={details.socketContents.length}
+              data-count={details.socketContents.length + jewels.length}
               data-item-class={details.artwork?.itemClass}
-              aria-label={details.socketContents
-                .map((socket) => socket.name)
-                .join(", ")}
+              aria-label={[
+                ...details.socketContents.map((socket) => socket.name),
+                ...jewels.map(({ item: socketed }) => socketed.name),
+              ].join(", ")}
             >
               {details.socketContents.map((socket, i) =>
                 socket.name === "Empty socket" ||
@@ -172,6 +121,18 @@ export function GearSlot({
                   />
                 )
               )}
+              {jewels.map(({ name: socket, item: jewel }, i) => (
+                <AugmentSocket
+                  key={socket}
+                  name={jewel.name}
+                  image={describeEquipment(jewel).artwork?.image}
+                  jewel={jewel}
+                  index={details.socketContents.length + i}
+                  activeIndex={augment?.index}
+                  itemPopup={itemPopup}
+                  onInspect={inspectAugment}
+                />
+              ))}
             </span>
           )}
           <InspectionTooltipContent
@@ -298,7 +259,12 @@ function EquipmentDisplayContent({
   ])
   const jewelSlots = new Set(equipmentJewelSlots(build, gear))
   const extras = equipped.filter(
-    (s) => !known.has(s.name) && !jewelSlots.has(s)
+    (s) =>
+      !known.has(s.name) &&
+      !(
+        jewelSlots.has(s) &&
+        [...known].some((name) => s.name.startsWith(`${name} Jewel Socket `))
+      )
   )
   function slotItem(name: string) {
     const slot = equipped.find((s) => s.name === name)
@@ -331,6 +297,16 @@ function EquipmentDisplayContent({
                   name={name}
                   label={slot.label}
                   area={slot.area}
+                  jewels={[...jewelSlots]
+                    .filter((socket) =>
+                      socket.name.startsWith(`${name} Jewel Socket `)
+                    )
+                    .flatMap((socket) => {
+                      const item = build.items.find(
+                        (entry) => entry.id === socket.itemId
+                      )
+                      return item ? [{ name: socket.name, item }] : []
+                    })}
                   {...slotItem(name)}
                 />
               )

@@ -24,36 +24,9 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
 import {
   Popover,
   PopoverTrigger,
-  PopoverContent,
   PopoverTitle,
   PopoverDescription,
 } from "./ui/popover"
-
-export function GemReferenceInfo() {
-  return (
-    <Popover>
-      <PopoverTrigger
-        openOnHover
-        render={<Button variant="ghost" size="icon-sm" />}
-        aria-label="About gem data"
-      >
-        <Info aria-hidden="true" />
-      </PopoverTrigger>
-      <PopoverContent
-        className="gem-reference-info"
-        side="top"
-        collisionPadding={12}
-      >
-        <PopoverTitle>Gem data</PopoverTitle>
-        <PopoverDescription>
-          Gem reference: PoE 2 0.5. Base information; build modifiers are not
-          applied.
-        </PopoverDescription>
-        <a href="/methodology">Data & attribution</a>
-      </PopoverContent>
-    </Popover>
-  )
-}
 
 function SkillSourceInfo({ name, labels }: { name: string; labels: string[] }) {
   const [open, setOpen] = useState(false)

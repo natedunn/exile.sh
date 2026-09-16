@@ -1,6 +1,6 @@
 import { TooltipPinScope } from "./tooltip-pins"
 import type { TooltipPinOptions } from "./tooltip-pins"
-import { GemReferenceInfo, SkillGems } from "./skill-gems"
+import { SkillGems } from "./skill-gems"
 import { BuildStats } from "./build-stats"
 import { EquipmentDisplay, equipmentHasSwap } from "./equipment-display"
 import { hasBondedModifiers } from "../../shared/bonded-modifiers"
@@ -11,6 +11,7 @@ import { PassiveTree } from "./passive-tree"
 import { useEffect, useMemo, useState } from "react"
 import type { ReactNode } from "react"
 import {
+  ArrowUp,
   Check,
   Copy,
   Diamond,
@@ -100,15 +101,23 @@ function animateScroll(to: number) {
   }
   scrollFrame = requestAnimationFrame(step)
 }
+/** One document-pixel stop for anchor scrolling and the nav identity reveal.
+ * Round down once so landing on a fractional layout boundary never leaves
+ * the reveal waiting for another scroll pixel. */
+function sectionScrollTarget(el: HTMLElement) {
+  const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0
+  const limit = document.documentElement.scrollHeight - window.innerHeight
+  return Math.max(
+    0,
+    Math.floor(
+      Math.min(el.getBoundingClientRect().top + window.scrollY - margin, limit)
+    )
+  )
+}
 function scrollToSection(id: string, pushHistory = true) {
   const el = document.getElementById(id)
   if (!el) return
-  const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0
-  const limit = document.documentElement.scrollHeight - window.innerHeight
-  const to = Math.min(
-    el.getBoundingClientRect().top + window.scrollY - margin,
-    limit
-  )
+  const to = sectionScrollTarget(el)
   if (pushHistory) history.pushState(null, "", `#${id}`)
   animateScroll(to)
 }
@@ -159,18 +168,36 @@ function useActiveSection() {
   return active
 }
 
-/** True once the masthead has scrolled above the viewport, so the strip
- * can cast a shadow only while it is stuck. */
+/** The identity is visible at or below Equipment's document-pixel stop,
+ * independently of CSS sticky state or the heading's visibility. */
 function useHeaderPinned() {
   const [pinned, setPinned] = useState(false)
   useEffect(() => {
+    const equipment = document.getElementById("equipment")
+    if (!equipment) return
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const threshold = sectionScrollTarget(equipment)
+      // Some zoom levels expose a fractional scrollY for an integer target.
+      setPinned(Math.ceil(window.scrollY) >= threshold)
+    }
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    const sizes = new ResizeObserver(schedule)
+    sizes.observe(equipment)
     const heading = document.querySelector(".build-heading")
-    if (!heading) return
-    const observer = new IntersectionObserver(([entry]) =>
-      setPinned(!entry.isIntersecting && entry.boundingClientRect.top < 0)
-    )
-    observer.observe(heading)
-    return () => observer.disconnect()
+    if (heading) sizes.observe(heading)
+    window.addEventListener("scroll", schedule, { passive: true })
+    window.addEventListener("resize", schedule)
+    update()
+    return () => {
+      sizes.disconnect()
+      window.removeEventListener("scroll", schedule)
+      window.removeEventListener("resize", schedule)
+      if (frame) cancelAnimationFrame(frame)
+    }
   }, [])
   return pinned
 }
@@ -216,38 +243,51 @@ function SectionNav({
       {/* The build's identity leads the strip and returns the reader to the
           masthead; the section list follows the main navigation's styling. */}
       <div className="build-nav-inner">
-        <a
-          href="#"
-          className="build-nav-identity"
-          title="Back to top"
-          onClick={(event) => {
-            if (
-              event.defaultPrevented ||
-              event.button !== 0 ||
-              event.metaKey ||
-              event.ctrlKey ||
-              event.shiftKey ||
-              event.altKey
-            )
-              return
-            event.preventDefault()
-            scrollToTop()
-          }}
+        <div
+          className="build-nav-identity-reveal"
+          inert={!pinned}
+          aria-hidden={!pinned}
         >
-          {portrait ? (
-            <img src={portrait} alt="" width={36} height={36} />
-          ) : (
-            <span className="build-nav-emblem" aria-hidden="true">
-              <Shield />
-            </span>
-          )}
-          <span className="build-nav-identity-copy">
-            <strong>{build.ascendancy || build.className}</strong>
-            <span>
-              Level {build.level} · {build.className}
-            </span>
-          </span>
-        </a>
+          <div className="build-nav-identity-clip">
+            <a
+              href="#"
+              className="build-nav-identity"
+              title="Back to top"
+              aria-label="Go to top"
+              onClick={(event) => {
+                if (
+                  event.defaultPrevented ||
+                  event.button !== 0 ||
+                  event.metaKey ||
+                  event.ctrlKey ||
+                  event.shiftKey ||
+                  event.altKey
+                )
+                  return
+                event.preventDefault()
+                scrollToTop()
+              }}
+            >
+              {portrait ? (
+                <img src={portrait} alt="" width={36} height={36} />
+              ) : (
+                <span className="build-nav-emblem" aria-hidden="true">
+                  <Shield />
+                </span>
+              )}
+              <span className="build-nav-identity-copy">
+                <strong>{build.ascendancy || build.className}</strong>
+                <span>
+                  Level {build.level} · {build.className}
+                </span>
+              </span>
+              <span className="build-nav-return" aria-hidden="true">
+                <ArrowUp />
+                <span>Go to top</span>
+              </span>
+            </a>
+          </div>
+        </div>
         <ul>
           {sections.map((s) => (
             <li key={s.id}>
@@ -515,7 +555,6 @@ export function BuildView({
               <header className="build-section-strip">
                 <div className="build-skills-heading">
                   <h2>Skills & supports</h2>
-                  <GemReferenceInfo />
                 </div>
                 <SetPicker
                   label="Skill set"

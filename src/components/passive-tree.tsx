@@ -531,6 +531,41 @@ function TreeMapWithAscendancy({ defaultAscendancy, ...props }: TreeMapProps) {
   )
 }
 
+function PassiveHeading({
+  node,
+  image,
+  name = node.name,
+  allocated,
+  weaponSet = 0,
+  inline = false,
+}: {
+  node: TreeNode
+  image?: string
+  name?: string
+  allocated: boolean
+  weaponSet?: WeaponSet
+  inline?: boolean
+}) {
+  return (
+    <div className="tree-inspect-header">
+      <PassiveNodeImage src={image} width={48} height={48} loading="lazy" />
+      <div className="tree-inspect-heading">
+        {inline ? <h4>{name}</h4> : <PopoverTitle>{name}</PopoverTitle>}
+        <p className="tree-status" data-allocated={allocated}>
+          {allocated ? "Allocated" : "Unallocated"}
+          {node.unseenPaths && (
+            <>
+              {" "}
+              · <span className="tree-unseen-label">Paths Not Taken</span>
+            </>
+          )}
+          {weaponSet ? " · Weapon set " + weaponSet : ""}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 function TreeMapRenderer({
   data,
   frameNodes = data.nodes,
@@ -554,8 +589,11 @@ function TreeMapRenderer({
   searchHotkey = true,
   showSearchResults = true,
   pinningEnabled = true,
+  initialNodeId,
 }: TreeSearchOptions &
   TooltipPinOptions & {
+    /** Node to reveal when opening from an allocated-passive card. */
+    initialNodeId?: string
     treeType?: TreeType
     mode?: "interactive" | "preview" | "ascendancy"
     /** Stable full geometry for camera bounds, independent of visibility filters. */
@@ -694,6 +732,10 @@ function TreeMapRenderer({
     token: number
     glowing: boolean
   } | null>(null)
+  const highlightedIds = useMemo(() => {
+    if (!attention || !inspect) return searchIds
+    return new Set([...searchIds, inspect])
+  }, [searchIds, attention, inspect])
   const attentionSequence = useRef(0)
   const attentionToken = attention?.token
   useEffect(() => {
@@ -931,21 +973,40 @@ function TreeMapRenderer({
     element.addEventListener("wheel", wheel, { passive: false })
     return () => element.removeEventListener("wheel", wheel)
   }, [bounds.size, setCamera, mode, aspect])
-  const selectTreeNode = (match: TreeNode, showCallout = true) => {
-    showCallout = showCallout && !pinnedIds.has(match.id)
-    setCamera((current) => ({
-      ...current,
-      x: match.x,
-      y: match.y,
-      zoom: mode === "ascendancy" ? current.zoom : Math.max(current.zoom, 4),
-    }))
-    setInspect(showCallout ? match.id : null)
-    setTouchInspect(false)
-    setAttention(
-      showCallout ? { token: ++attentionSequence.current, glowing: true } : null
-    )
-    setHeld(false)
-  }
+  const selectTreeNode = useCallback(
+    (match: TreeNode, showCallout = true) => {
+      showCallout = showCallout && !pinnedIds.has(match.id)
+      setCamera((current) => ({
+        ...current,
+        x: match.x,
+        y: match.y,
+        zoom: mode === "ascendancy" ? current.zoom : Math.max(current.zoom, 4),
+      }))
+      setInspect(showCallout ? match.id : null)
+      setTouchInspect(false)
+      setAttention(
+        showCallout
+          ? { token: ++attentionSequence.current, glowing: true }
+          : null
+      )
+      setHeld(false)
+    },
+    [pinnedIds, setCamera, mode]
+  )
+  const revealedNode = useRef<string | null>(null)
+  useEffect(() => {
+    if (!initialNodeId) {
+      revealedNode.current = null
+      return
+    }
+    if (!pixelWidth || revealedNode.current === initialNodeId) return
+    const match =
+      all.get(initialNodeId) ??
+      data.nodes.find((node) => node.baseId === initialNodeId)
+    if (!match) return
+    revealedNode.current = initialNodeId
+    selectTreeNode(match)
+  }, [initialNodeId, all, data.nodes, pixelWidth, selectTreeNode])
   const node = inspect && !pinnedIds.has(inspect) ? all.get(inspect) : undefined
   const socketJewel = jewels.find((jewel) => jewel.origin.id === inspect)
   const affectedJewels = jewels.filter((jewel) =>
@@ -1516,7 +1577,7 @@ function TreeMapRenderer({
           )}
           <SearchHighlights
             nodes={visibleNodes}
-            matches={searchIds}
+            matches={highlightedIds}
             showArt={Boolean(showArt)}
             socketed={socketed}
           />
@@ -1592,36 +1653,13 @@ function TreeMapRenderer({
                 if (event.pointerType !== "touch") hideHover()
               }}
             >
-              <div>
-                <PassiveNodeImage
-                  src={jewelArt || combinedArtwork?.[node.icon]}
-                  width={48}
-                  height={48}
-                  loading="lazy"
-                />
-                <div className="tree-inspect-heading">
-                  <PopoverTitle>
-                    {socketJewel?.item.name || node.name}
-                  </PopoverTitle>
-                  <p
-                    className="tree-status"
-                    data-allocated={selected.has(node.id)}
-                  >
-                    {selected.has(node.id) ? "Allocated" : "Unallocated"}
-                    {node.unseenPaths && (
-                      <>
-                        {" · "}
-                        <span className="tree-unseen-label">
-                          Paths Not Taken
-                        </span>
-                      </>
-                    )}
-                    {weaponSetOf(node.id)
-                      ? " · Weapon set " + weaponSetOf(node.id)
-                      : ""}
-                  </p>
-                </div>
-              </div>
+              <PassiveHeading
+                node={node}
+                name={socketJewel?.item.name || node.name}
+                image={jewelArt || combinedArtwork?.[node.icon]}
+                allocated={selected.has(node.id)}
+                weaponSet={weaponSetOf(node.id)}
+              />
               {affectedJewels.some((jewel) => jewel.timeless) && (
                 <p>Base passive — conquered effects are not calculated.</p>
               )}
@@ -1689,6 +1727,7 @@ function PassiveTreeContent({
     /** Node IDs allocated only with weapon set 1, then only with set 2. */
     weaponSets?: [string[], string[]]
   }) {
+  const [initialNodeId, setInitialNodeId] = useState<string>()
   const weaponSets = useMemo<WeaponSets>(
     () =>
       new Map<string, WeaponSet>([
@@ -1814,7 +1853,11 @@ function PassiveTreeContent({
   )
   const attributes = treeAttributes(tree.data.nodes, nodes, attributeOverrides)
   return (
-    <>
+    <Dialog
+      onOpenChange={(open) => {
+        if (!open) setInitialNodeId(undefined)
+      }}
+    >
       <div className="build-section-main tree-overview-left">
         {maps.map((map) => (
           <section key={version + map.name + nodes.join(",")}>
@@ -1832,7 +1875,7 @@ function PassiveTreeContent({
                 />
               </>
             ) : (
-              <Dialog>
+              <>
                 <div className="tree-preview">
                   <TreeMap
                     {...searchOptions}
@@ -1850,6 +1893,7 @@ function PassiveTreeContent({
                   />
                   <DialogTrigger
                     render={<Button className="tree-open-button" />}
+                    onClick={() => setInitialNodeId(undefined)}
                   >
                     <span>Open tree</span>
                   </DialogTrigger>
@@ -1858,6 +1902,7 @@ function PassiveTreeContent({
                   <DialogTitle>Passive tree</DialogTitle>
                   <TreeMap
                     {...searchOptions}
+                    initialNodeId={initialNodeId}
                     data={map.data}
                     defaultAscendancy={
                       ascendancy || maps.find((entry) => entry.name)?.name
@@ -1873,7 +1918,7 @@ function PassiveTreeContent({
                     overlayControls
                   />
                 </DialogContent>
-              </Dialog>
+              </>
             )}
           </section>
         ))}
@@ -1890,17 +1935,22 @@ function PassiveTreeContent({
           {tree.data.nodes
             .filter((n) => nodes.includes(n.id) && n.keystone)
             .map((n) => (
-              <section key={n.id}>
-                <PassiveNodeImage
-                  src={artwork.data?.[n.icon]}
-                  width={48}
-                  height={48}
-                  loading="lazy"
+              <section key={n.id} className="tree-keystone-card popup-corners">
+                <PassiveHeading
+                  node={n}
+                  image={artwork.data?.[n.icon]}
+                  allocated
+                  weaponSet={weaponSets.get(n.id)}
+                  inline
                 />
-                <div>
-                  <h4>{n.name}</h4>
-                  <Lines items={n.stats} />
-                </div>
+                <PassiveNodeEffects node={n} />
+                <DialogTrigger
+                  render={
+                    <Button variant="ghost" className="tree-keystone-open" />
+                  }
+                  aria-label={`Show ${n.name} in passive tree`}
+                  onClick={() => setInitialNodeId(n.id)}
+                />
               </section>
             ))}
           {!tree.data.nodes.some((n) => nodes.includes(n.id) && n.keystone) && (
@@ -1986,7 +2036,7 @@ function PassiveTreeContent({
           )}
         </section>
       </aside>
-    </>
+    </Dialog>
   )
 }
 

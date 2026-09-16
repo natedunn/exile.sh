@@ -298,3 +298,20 @@ test("keeps conflicting or unestablished weapon availability separate", () => {
   expect(skillGroupLabels(source).join(" ")).toContain("in Weapon set II")
   expect(displaySkillGroups([setup, source], 1)).toHaveLength(2)
 })
+
+test("generated Thorns groups are hidden without shifting main selection or dropping real skills", () => {
+  const build =
+    parseBuildXml(`<PathOfBuilding2><Build className="Sorceress" level="90"/><Skills>
+    <Skill source="Thorns"><Gem skillId="ThornsPlayer"/></Skill>
+    <Skill><Gem nameSpec="Spark" skillId="SparkPlayer"/></Skill>
+    <Skill><Gem nameSpec="Thorns" skillId="FutureThornsGem"/></Skill>
+  </Skills></PathOfBuilding2>`)
+  const skills = build.skillSets[0].skills
+  expect(
+    displaySkillGroups(skills, 2).map(({ i, main }) => ({ i, main }))
+  ).toEqual([
+    { i: 1, main: true },
+    { i: 2, main: false },
+  ])
+  expect(skills).toHaveLength(3)
+})
