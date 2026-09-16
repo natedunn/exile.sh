@@ -259,7 +259,12 @@ function EquipmentDisplayContent({
   ])
   const jewelSlots = new Set(equipmentJewelSlots(build, gear))
   const extras = equipped.filter(
-    (s) => !known.has(s.name) && !jewelSlots.has(s)
+    (s) =>
+      !known.has(s.name) &&
+      !(
+        jewelSlots.has(s) &&
+        [...known].some((name) => s.name.startsWith(`${name} Jewel Socket `))
+      )
   )
   function slotItem(name: string) {
     const slot = equipped.find((s) => s.name === name)

@@ -465,6 +465,10 @@ for (const width of [390, 1440])
       await expect(callout.locator(".tree-status")).toHaveText("Allocated")
       const node = dialog.locator('circle[data-node="51749"]')
       await expect(node).toBeInViewport()
+      await expect(dialog.locator(".tree-search-highlights")).toHaveAttribute(
+        "data-search-match-count",
+        "1"
+      )
       await dialog.getByRole("button", { name: "Close", exact: true }).click()
       await expect(dialog).toBeHidden()
       await expect(open).toBeFocused()

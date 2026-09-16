@@ -17,11 +17,11 @@ for (const width of [390, 1440]) {
       .toString()
       .replace(
         "</ItemSet>",
-        '<Slot name="Gloves Jewel Socket 1" itemId="9000"/><Slot name="Relic" itemId="9001"/></ItemSet>'
+        '<Slot name="Gloves Jewel Socket 1" itemId="9000"/><Slot name="Relic" itemId="9001"/><Slot name="Jewel Socket 2" itemId="9002"/></ItemSet>'
       )
       .replace(
         "</Items>",
-        '<Item id="9000">Rarity: RARE\nEquipment Jewel\nSapphire\n+10 to Intelligence</Item><Item id="9001">Rarity: RARE\nExtra Relic\nGold Ring\n+10 to Intelligence</Item></Items>'
+        '<Item id="9000">Rarity: RARE\nEquipment Jewel\nSapphire\n+10 to Intelligence</Item><Item id="9001">Rarity: RARE\nExtra Relic\nGold Ring\n+10 to Intelligence</Item><Item id="9002">Rarity: RARE\nUnmatched Jewel\nSapphire\n+12 to Intelligence</Item></Items>'
       )
     await page.goto(buildsURL)
     await page
@@ -36,6 +36,11 @@ for (const width of [390, 1440]) {
     await expect(
       extras.getByRole("button", { name: /Equipment Jewel/ })
     ).toHaveCount(0)
+    await expect(
+      extras.getByRole("button", {
+        name: "Jewel Socket 2: Unmatched Jewel. Show item details",
+      })
+    ).toBeVisible()
     const socket = page.getByRole("button", {
       name: "Equipment Jewel. Show jewel details",
     })

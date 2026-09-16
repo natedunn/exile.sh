@@ -732,6 +732,10 @@ function TreeMapRenderer({
     token: number
     glowing: boolean
   } | null>(null)
+  const highlightedIds = useMemo(() => {
+    if (!attention || !inspect) return searchIds
+    return new Set([...searchIds, inspect])
+  }, [searchIds, attention, inspect])
   const attentionSequence = useRef(0)
   const attentionToken = attention?.token
   useEffect(() => {
@@ -1573,7 +1577,7 @@ function TreeMapRenderer({
           )}
           <SearchHighlights
             nodes={visibleNodes}
-            matches={searchIds}
+            matches={highlightedIds}
             showArt={Boolean(showArt)}
             socketed={socketed}
           />
