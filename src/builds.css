@@ -229,24 +229,70 @@
   transition: box-shadow 220ms var(--ease-out);
 }
 .build-nav[data-pinned] {
+  /* Only the stuck navigation sits above tooltip layers. */
+  z-index: 60;
   box-shadow: 0 12px 32px -12px #0008;
 }
+/* Modal views cover the page, including its otherwise raised navigation. */
+body:has([data-slot="dialog-content"][data-open]) .build-nav[data-pinned] {
+  z-index: 5;
+}
 .build-nav-inner {
+  --build-nav-gap: var(--space-2xl);
   display: flex;
   align-items: center;
-  gap: var(--space-2xl);
+  gap: 0;
   height: 100%;
   padding-inline: var(--shell-gutter);
+  transition: padding-left 320ms var(--ease-out);
+}
+.build-nav[data-pinned] .build-nav-inner {
+  padding-left: 0;
+}
+.build-nav-identity-reveal {
+  display: grid;
+  grid-template-columns: 0fr;
+  flex-shrink: 0;
+  height: 100%;
+  margin-right: 0;
+  opacity: 0;
+  transform: translateX(-18px);
+  transition:
+    grid-template-columns 320ms var(--ease-out),
+    margin-right 320ms var(--ease-out),
+    opacity 220ms var(--ease-out),
+    transform 320ms var(--ease-out);
+}
+.build-nav-identity-clip {
+  min-width: 0;
+  overflow: hidden;
+}
+.build-nav[data-pinned] .build-nav-identity-reveal {
+  grid-template-columns: 1fr;
+  margin-right: var(--build-nav-gap);
+  opacity: 1;
+  transform: translateX(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .build-nav-inner,
+  .build-nav-identity-reveal {
+    transition: none;
+  }
 }
 /* The identity closes with a hairline before the list, like the frame's
    dividers, and the whole block is the link back to the top. */
 .build-nav-identity {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: max-content;
   display: flex;
   align-items: center;
   gap: var(--space-md);
   flex-shrink: 0;
   height: 100%;
-  padding-right: var(--space-2xl);
+  padding-left: min(var(--shell-gutter), var(--space-lg));
+  padding-right: var(--space-lg);
   border-right: var(--rule-thin) solid var(--color-rule-strong);
   min-width: 0;
   max-width: 300px;
@@ -296,13 +342,69 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.build-nav-identity:hover strong,
-.build-nav-identity:focus-visible strong {
-  color: var(--color-brand);
+.build-nav-return {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #e1b265;
+  color: #21170c;
+  font: 600 14px/1.2 var(--font-body);
+  pointer-events: none;
+  transform: translateY(calc(100% + 48px));
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.build-nav-identity:hover img,
-.build-nav-identity:hover .build-nav-emblem {
-  border-color: var(--color-brand-deep);
+/* Native-size dither cells form the rising edge and texture the gold fill. */
+.build-nav-return::before,
+.build-nav-return::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  mask-image: var(--dither-fade-y);
+  mask-size: auto;
+  mask-position: center;
+  mask-repeat: repeat-x;
+  pointer-events: none;
+}
+.build-nav-return::before {
+  top: -48px;
+  height: 48px;
+  background: #e1b265;
+  transform: rotate(180deg);
+}
+.build-nav-return::after {
+  inset: 0;
+  background: #493015;
+  opacity: 0.16;
+}
+.build-nav-return > * {
+  position: relative;
+  z-index: 1;
+}
+.build-nav-return svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.build-nav-identity:is(:hover, :focus-visible) .build-nav-return {
+  transform: translateY(0);
+}
+@media (max-width: 600px) {
+  .build-nav-return {
+    gap: 0;
+  }
+  .build-nav-return > span {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .build-nav-return {
+    transition: none;
+  }
 }
 /* The list is the main navigation's: mono capitals with a bronze
    underline on the current section. */
@@ -858,7 +960,7 @@
     --build-nav-height: 52px;
   }
   .build-nav-inner {
-    gap: var(--space-lg);
+    --build-nav-gap: var(--space-lg);
   }
   .build-nav-identity {
     padding-right: var(--space-lg);
@@ -1229,12 +1331,12 @@
 .tree-inspection[data-slot="popover-content"] {
   --inspection-max-height: min(400px, var(--available-height));
 }
-.tree-inspection > div {
+.tree-inspect-header {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-.tree-inspection > div:not(:last-child) {
+.tree-inspect-header:not(:last-child) {
   padding-bottom: 12px;
   margin-bottom: 8px;
   border-bottom: 1px solid var(--color-rule-strong);
@@ -1243,7 +1345,7 @@
   flex: 1;
   min-width: 0;
 }
-.tree-inspection img {
+.tree-inspect-header img {
   flex: 0 0 48px;
   height: 48px;
   border-radius: 0;
@@ -1254,7 +1356,7 @@
   margin-left: auto;
   color: var(--color-text-muted);
 }
-.tree-inspection .tree-status {
+.tree-inspect-header .tree-status {
   margin: 5px 0 0;
   font: 11px var(--font-mono);
   color: var(--color-text-faint);
@@ -1361,10 +1463,6 @@
   display: grid;
   gap: var(--space-xl);
   min-width: 0;
-}
-.tree-key-passives > section > div {
-  min-width: 0;
-  overflow-wrap: anywhere;
 }
 .tree-attributes table {
   margin-top: var(--space-xs);
@@ -1499,22 +1597,13 @@
   opacity: 0.4;
 }
 
-/* Keystone and jewel entries share a bronze rule with a dot-screen wash. */
-.tree-key-passives > section,
+/* Jewel entries use a bronze rule with a dot-screen wash. */
 .tree-node-list > section {
   position: relative;
   isolation: isolate;
   padding: 14px 16px;
   border-left: 2px solid var(--color-brand-deep);
 }
-.tree-key-passives > section {
-  display: flex;
-  gap: 14px;
-}
-.tree-key-passives > section + section {
-  margin-top: 14px;
-}
-.tree-key-passives > section::before,
 .tree-node-list > section::before {
   content: "";
   position: absolute;
@@ -1527,26 +1616,16 @@
   opacity: 0.14;
   pointer-events: none;
 }
-.tree-key-passives img {
-  flex: 0 0 48px;
-  height: 48px;
-  border: 1px solid var(--color-rule);
-  background: var(--color-paper);
-}
-.tree-key-passives h4,
 .tree-node-list h3 {
   font: 500 19px/1.2 var(--font-display);
   color: var(--color-brand);
   margin: 0 0 6px;
 }
-.tree-key-passives p,
 .tree-node-list p,
-.tree-key-passives .tree-lines li,
 .tree-node-list .tree-lines li {
   color: var(--color-text-muted);
   margin: 0;
 }
-.tree-key-passives p,
 .tree-node-list p {
   font-size: 13px;
   line-height: 1.5;
@@ -1554,9 +1633,54 @@
 .tree-node-list .tree-lines + p {
   margin-top: 8px;
 }
-.tree-key-passives .tree-lines li + li,
 .tree-node-list .tree-lines li + li {
   margin-top: 3px;
+}
+.tree-keystone-card {
+  position: relative;
+  isolation: isolate;
+  padding: 18px 18px 16px;
+  margin-top: 14px;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-control);
+  background: oklch(12% 0.008 75);
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+.tree-keystone-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--color-brand);
+  mask-image: var(--dither-fade-y);
+  mask-size: auto;
+  mask-repeat: repeat-x;
+  opacity: 0.07;
+  pointer-events: none;
+}
+.tree-keystone-card h4 {
+  margin: 0;
+  font: 500 24px/1.1 var(--font-display);
+  color: var(--color-brand);
+}
+.tree-keystone-card .tree-keystone-open {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: none;
+}
+.tree-keystone-card:has(.tree-keystone-open:is(:hover, :focus-visible)) {
+  border-color: var(--color-brand);
+}
+.tree-keystone-card .tree-keystone-open:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
 }
 .tree-key-passives > p.build-muted {
   margin: 0;
@@ -1743,8 +1867,26 @@
 /* The first gem heads the group. Everything socketed under it steps in,
    whether a support or a skill gem sitting inside a meta gem; supports
    also take smaller art. The rules still run the full width. */
-.skill-gem-entry:first-child .skill-gem-row {
-  background: color-mix(in oklch, var(--color-brand) 4%, var(--color-surface));
+.skill-gem-entry:first-child[data-support="false"] .skill-gem-row {
+  isolation: isolate;
+  background: color-mix(in oklch, var(--color-brand) 8%, var(--color-surface));
+}
+.skill-gem-entry:first-child[data-support="false"] .skill-gem-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--color-brand);
+  mask-image: var(--dither-fade-y);
+  /* Keep the 2px dither cells at native size instead of blurring them down. */
+  mask-size: auto;
+  mask-position: center;
+  mask-repeat: repeat-x;
+  opacity: 0.11;
+  pointer-events: none;
+}
+.skill-gem-entry:first-child[data-support="false"] .skill-gem-name strong {
+  font-size: 17px;
 }
 .skill-gem-entry:first-child + .skill-gem-entry {
   border-top-color: var(--color-rule-strong);
@@ -1759,9 +1901,12 @@
   width: 40px;
   height: 40px;
 }
-.skill-gem-row:hover,
-.skill-gem-row[data-popup-open] {
-  background: color-mix(in oklch, var(--color-brand) 8%, var(--color-surface));
+.skill-gem-entry .skill-gem-row:is(:hover, [data-popup-open]) {
+  background: color-mix(in oklch, var(--color-brand) 12%, var(--color-surface));
+}
+.skill-gem-entry[data-support="true"]
+  .skill-gem-row:is(:hover, [data-popup-open]) {
+  background: color-mix(in oklch, var(--color-brand) 3%, var(--color-surface));
 }
 .skill-gem-row:focus-visible {
   outline: 2px solid var(--color-brand);
@@ -1781,35 +1926,6 @@
 }
 .skill-gem-art[data-support="true"] {
   border-radius: 50%;
-}
-.skill-gem-row[data-corrupted="true"] .skill-gem-art {
-  box-shadow: 0 0 12px 2px #dc454533;
-  border-color: #dc454570;
-}
-.skill-gem-row[data-corrupted="true"] {
-  isolation: isolate;
-  background:
-    linear-gradient(110deg, #dc45451c, #dc454508), var(--color-surface);
-  box-shadow:
-    inset 0 0 20px #dc454508,
-    0 0 14px #dc454512;
-}
-.skill-gem-row[data-corrupted="true"]::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  background: #dc4545;
-  opacity: 0.12;
-  mask-image: var(--dither-glow);
-  mask-size: 100% 100%;
-}
-.skill-gem-row[data-corrupted="true"]:hover,
-.skill-gem-row[data-corrupted="true"][data-popup-open] {
-  background:
-    linear-gradient(110deg, #dc454529, #dc454510), var(--color-surface);
 }
 .skill-gem-main-icon {
   display: inline-block;
@@ -1974,10 +2090,12 @@
   .skill-gem-row .skill-gem-art {
     width: 40px;
     height: 40px;
-    grid-row: 1 / 3;
   }
   .skill-gem-name strong {
     font-size: 14px;
+  }
+  .skill-gem-entry:first-child[data-support="false"] .skill-gem-name strong {
+    font-size: 16px;
   }
 }
 @media (max-width: 600px) {

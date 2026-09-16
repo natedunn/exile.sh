@@ -421,3 +421,55 @@ test("Build Bin embeds its fixed ascendancy and retains center allocations", asy
     await page.evaluate(() => localStorage.getItem("exile.tree.ascendancy"))
   ).toBe("Oracle")
 })
+
+for (const width of [390, 1440])
+  test(`sidebar keystone opens a focused tree callout at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 1000 })
+    await page.goto(process.env.BUILD_TEST_URL || "/build-bin")
+    await page.getByLabel("PoB export or pobb.in link").fill(code)
+    const card = page
+      .locator(".tree-keystone-card")
+      .filter({ hasText: "Blood Magic" })
+    const open = card.getByRole("button", {
+      name: "Show Blood Magic in passive tree",
+    })
+    await card.scrollIntoViewIfNeeded()
+    await expect(
+      card.getByRole("heading", { name: "Blood Magic" })
+    ).toBeVisible()
+    await expect(card.locator(".tree-status")).toHaveText("Allocated")
+    await expect(card.locator("img")).toBeVisible()
+    const bounds = (await card.boundingBox())!
+    expect(bounds.x).toBeGreaterThanOrEqual(0)
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(width)
+    const dialog = page.getByRole("dialog", {
+      name: "Passive tree",
+      exact: true,
+    })
+    for (const keyboard of [true, false]) {
+      if (keyboard) {
+        await open.focus()
+        await open.press("Enter")
+      } else await open.click()
+      await expect(dialog).toBeVisible()
+      const callout = page.locator(
+        '.tree-inspection[data-search-callout="true"]'
+      )
+      await expect(callout).toBeVisible()
+      await expect(
+        callout.getByRole("heading", { name: "Blood Magic", exact: true })
+      ).toBeVisible()
+      await expect(callout).toHaveAttribute("data-attention", "true")
+      await expect(callout.locator(".tree-status")).toHaveText("Allocated")
+      const node = dialog.locator('circle[data-node="51749"]')
+      await expect(node).toBeInViewport()
+      await dialog.getByRole("button", { name: "Close", exact: true }).click()
+      await expect(dialog).toBeHidden()
+      await expect(open).toBeFocused()
+    }
+    await page.getByRole("button", { name: "Open tree", exact: true }).click()
+    await expect(dialog).toBeVisible()
+    await expect(page.locator('[data-search-callout="true"]')).toHaveCount(0)
+  })

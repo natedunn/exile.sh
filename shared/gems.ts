@@ -157,7 +157,9 @@ export function displaySkillGroups(
       main: i === mainSocketGroup - 1,
       grants: [] as SavedSkillGroup[],
     }))
-    .filter(({ skill }) => !skill.removed)
+    // PoB adds this calculation-only group when gear or skills grant Thorns.
+    // Preserve its original index for mainSocketGroup, but do not list it as a gem.
+    .filter(({ skill }) => !skill.removed && skill.source !== "Thorns")
   const hidden = new Set<number>()
   for (const entry of groups) {
     const source = entry.skill

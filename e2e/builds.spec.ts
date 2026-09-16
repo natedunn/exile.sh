@@ -270,3 +270,101 @@ test("section navigation restores initial hashes and Back/Forward destinations",
     page.getByRole("heading", { name: "Equipment", exact: true })
   ).toBeInViewport()
 })
+
+for (const width of [390, 1440])
+  test(`Equipment anchor keeps the sticky identity and links stable at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 1000 })
+    await page.goto(buildsURL)
+    await page.getByLabel("PoB export or pobb.in link").fill(code)
+    const nav = page.getByRole("navigation", { name: "Build sections" })
+    await expect(nav).not.toHaveAttribute("data-pinned")
+    const equipment = nav.getByRole("link", { name: "Equipment", exact: true })
+    await equipment.click()
+    await expect(nav).toHaveAttribute("data-pinned", "true")
+    await expect(nav.locator(".build-nav-identity-reveal")).toHaveCSS(
+      "opacity",
+      "1"
+    )
+    // Finish the reveal before comparing link positions across section jumps.
+    await expect
+      .poll(() =>
+        nav
+          .locator(".build-nav-identity-reveal")
+          .evaluate((el) => getComputedStyle(el).transform)
+      )
+      .toBe("matrix(1, 0, 0, 1, 0, 0)")
+    const initialX = (await equipment.boundingBox())!.x
+    for (const section of ["Skills", "Notes"]) {
+      await nav.getByRole("link", { name: section, exact: true }).click()
+      await expect(page).toHaveURL(new RegExp(`#${section.toLowerCase()}$`))
+      await expect
+        .poll(() =>
+          page
+            .locator(`#${section.toLowerCase()}`)
+            .evaluate((el) =>
+              Math.abs(
+                Math.min(
+                  el.getBoundingClientRect().top +
+                    window.scrollY -
+                    parseFloat(getComputedStyle(el).scrollMarginTop),
+                  document.documentElement.scrollHeight - window.innerHeight
+                ) - window.scrollY
+              )
+            )
+        )
+        .toBeLessThan(2)
+      const stayedVisible = nav.evaluate(
+        (el) =>
+          new Promise<boolean>((resolve) => {
+            let visible = el.hasAttribute("data-pinned")
+            const observer = new MutationObserver(() => {
+              visible &&= el.hasAttribute("data-pinned")
+            })
+            observer.observe(el, {
+              attributes: true,
+              attributeFilter: ["data-pinned"],
+            })
+            setTimeout(() => {
+              observer.disconnect()
+              resolve(visible)
+            }, 700)
+          })
+      )
+      await equipment.click()
+      expect(await stayedVisible).toBe(true)
+      await expect
+        .poll(() =>
+          page
+            .locator("#equipment")
+            .evaluate((el) =>
+              Math.abs(
+                Math.min(
+                  el.getBoundingClientRect().top +
+                    window.scrollY -
+                    parseFloat(getComputedStyle(el).scrollMarginTop),
+                  document.documentElement.scrollHeight - window.innerHeight
+                ) - window.scrollY
+              )
+            )
+        )
+        .toBeLessThan(2)
+      await expect(nav).toHaveAttribute("data-pinned", "true")
+      await expect
+        .poll(async () => (await equipment.boundingBox())!.x)
+        .toBeCloseTo(initialX, 0)
+    }
+    const stop = await page.evaluate(() => window.scrollY)
+    await page.evaluate((y) => window.scrollTo(0, y - 2), stop)
+    await expect(nav).not.toHaveAttribute("data-pinned")
+    await page.evaluate((y) => window.scrollTo(0, y), stop)
+    await expect(nav).toHaveAttribute("data-pinned", "true")
+    await nav.getByRole("link", { name: "Go to top", exact: true }).click()
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+    await expect(nav).not.toHaveAttribute("data-pinned")
+    await expect(nav.locator(".build-nav-identity-reveal")).toHaveCSS(
+      "opacity",
+      "0"
+    )
+  })

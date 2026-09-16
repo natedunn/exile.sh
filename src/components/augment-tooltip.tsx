@@ -1,3 +1,5 @@
+import { JewelCardContent } from "./jewel-card-content"
+import type { EquipmentItem } from "../../shared/equipment"
 import { useLayoutEffect, useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Gem } from "lucide-react"
@@ -99,14 +101,17 @@ export function AugmentSocket({
   onInspect,
   index,
   activeIndex,
+  jewel,
 }: {
   name: string
   image?: string
+  jewel?: EquipmentItem
   itemPopup: HTMLDivElement | null
   index: number
   activeIndex?: number
   onInspect: (index: number, open: boolean, replaceItem: boolean) => void
 }) {
+  const width = jewel ? 390 : AUGMENT_WIDTH
   const inspection = useInspectionTooltip({ nested: true })
   // A sibling socket may still be inside Base UI's safe pointer-travel area.
   // The item owns which socket can display a tooltip, regardless of that area.
@@ -128,7 +133,7 @@ export function AugmentSocket({
         Math.max(0, innerHeight - itemPopup.getBoundingClientRect().top - EDGE)
       )
       const replace =
-        itemPopup.getBoundingClientRect().right + GAP + AUGMENT_WIDTH >
+        itemPopup.getBoundingClientRect().right + GAP + width >
         innerWidth - EDGE
       setReplaceItem(replace)
       onInspect(index, true, replace)
@@ -143,7 +148,7 @@ export function AugmentSocket({
       window.removeEventListener("resize", update)
       document.removeEventListener("scroll", update, true)
     }
-  }, [open, itemPopup, onInspect, index])
+  }, [open, itemPopup, onInspect, index, width])
   const anchor = useMemo(
     () =>
       itemPopup
@@ -185,7 +190,7 @@ export function AugmentSocket({
           inspection.triggerProps.onKeyDown?.(event)
         }}
         className="gear-socket gear-augment-trigger"
-        aria-label={`${name}. Show augment details`}
+        aria-label={`${name}. Show ${jewel ? "jewel" : "augment"} details`}
       >
         {image ? (
           <img src={image} alt={name} width={64} height={64} loading="lazy" />
@@ -199,7 +204,10 @@ export function AugmentSocket({
         finalFocus={keyboardOpened}
         pinningEnabled={false}
         pinLabel={name}
-        className="augment-tooltip"
+        className={
+          jewel ? "equipment-card build-jewel-card" : "augment-tooltip"
+        }
+        data-rarity={jewel?.rarity.toUpperCase()}
         style={{ maxHeight: availableHeight }}
         anchor={anchor}
         side="right"
@@ -208,7 +216,11 @@ export function AugmentSocket({
         collisionPadding={EDGE}
         collisionAvoidance={{ side: "shift", align: "shift" }}
       >
-        <AugmentDetails name={name} image={image} />
+        {jewel ? (
+          <JewelCardContent item={jewel} inline={false} />
+        ) : (
+          <AugmentDetails name={name} image={image} />
+        )}
       </InspectionTooltipContent>
     </Popover>
   )

@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
-import { ItemArtwork } from "./equipment-display"
-import { ItemTooltipContent } from "./item-tooltip-content"
+import { JewelCardContent } from "./jewel-card-content"
 import { describeEquipment } from "../../shared/equipment"
 import { ReferenceLine } from "./reference-tooltip"
 import {
@@ -117,19 +116,7 @@ export function BuildJewels({
               data-rarity={details.rarity}
               data-active={jewel.active}
             >
-              <div className="build-jewel-card-art" aria-hidden="true">
-                <div className="gear-slot" data-rarity={details.rarity}>
-                  <ItemArtwork details={details} slot="Jewel" />
-                </div>
-              </div>
-              <div className="build-jewel-card-body">
-                <ItemTooltipContent
-                  item={jewel.item}
-                  details={details}
-                  slot="Jewel"
-                  inline
-                />
-              </div>
+              <JewelCardContent item={jewel.item} />
               {note && (
                 <footer className="build-jewel-card-footer">
                   <span className="build-jewel-note">{note}</span>

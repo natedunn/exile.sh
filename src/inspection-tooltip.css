@@ -65,7 +65,7 @@
   display: none;
   animation: none;
 }
-/* Explicit pins keep their viewport position independently of their source. */
+/* Explicit pins remain interactive after their source tooltip closes. */
 .pinned-tooltip-positioner,
 [data-tooltip-pinned="true"] {
   pointer-events: auto;
