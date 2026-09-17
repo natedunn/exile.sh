@@ -202,8 +202,9 @@ test("Convex can fetch public signing keys without a frontend forwarding origin"
   expect(keys.length).toBeGreaterThan(0)
   for (const key of keys) {
     expect(key).toHaveProperty("kid")
-    expect(key).not.toHaveProperty("d")
-    expect(key).not.toHaveProperty("p")
+    for (const privateField of ["d", "p", "q", "dp", "dq", "qi", "oth"]) {
+      expect(key).not.toHaveProperty(privateField)
+    }
   }
   const discovery = await t.fetch(
     "/api/auth/convex/.well-known/openid-configuration",
