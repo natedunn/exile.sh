@@ -96,3 +96,41 @@ test("restores Portless public URLs while retaining the OAuth request body", asy
     )
   ).toThrow()
 })
+
+test("accepts Cloudflare protocol-only headers on allowed public request URLs", () => {
+  for (const origin of [
+    "https://exile.sh",
+    "https://branch-exile-sh.hello-fc8.workers.dev",
+  ]) {
+    const request = new Request(
+      `${origin}/api/auth/callback/discord?code=test&state=test`,
+      {
+        headers: { "x-forwarded-proto": "https" },
+      }
+    )
+    expect(publicAuthRequest(request).url).toBe(request.url)
+  }
+  for (const origin of [
+    "https://evil.example",
+    "http://exile.sh",
+    "https://127.0.0.1:4185",
+  ]) {
+    expect(() =>
+      publicAuthRequest(
+        new Request(`${origin}/api/auth/get-session`, {
+          headers: { "x-forwarded-proto": "https" },
+        })
+      )
+    ).toThrow()
+  }
+  expect(() =>
+    publicAuthRequest(
+      new Request("https://exile.sh/api/auth/get-session", {
+        headers: {
+          "x-forwarded-host": "evil.example",
+          "x-forwarded-proto": "https",
+        },
+      })
+    )
+  ).toThrow()
+})
