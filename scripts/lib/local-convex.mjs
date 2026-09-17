@@ -154,6 +154,8 @@ export function updateEnvFile(file, values) {
     fs.mkdirSync(path.dirname(file), { recursive: true })
     fs.writeFileSync(file, next, { mode: 0o600 })
   }
+  // Enforce permissions on existing files even when their contents are unchanged.
+  fs.chmodSync(file, 0o600)
 }
 
 export function configureWorktreePorts(workspaceRoot) {

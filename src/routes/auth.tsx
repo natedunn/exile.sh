@@ -84,7 +84,7 @@ function AuthPage() {
 
 function Profile() {
   const crpc = useCRPC()
-  const profile = useQuery(crpc.profiles.me.queryOptions())
+  const profile = useQuery(crpc.profiles.me.queryOptions({}))
   const complete = useMutation(crpc.profiles.complete.mutationOptions())
   const signOut = useMutation(useSignOutMutationOptions())
   const [username, setUsername] = useState<string | null>(null)

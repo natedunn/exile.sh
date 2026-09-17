@@ -24,7 +24,7 @@ async function availableUsername(ctx: QueryCtx, name: string) {
   })
 }
 
-export const me = authQuery.query(async ({ ctx }) => {
+export const me = authQuery.input(z.object({})).query(async ({ ctx }) => {
   const profile = await ctx.orm.query.profiles.findFirst({
     where: { userId: ctx.userId },
   })
@@ -33,8 +33,7 @@ export const me = authQuery.query(async ({ ctx }) => {
       ? { username: profile.username, avatar: profile.avatar }
       : null,
     suggestedUsername:
-      profile?.username ??
-      (await availableUsername(ctx, ctx.user.name)),
+      profile?.username ?? (await availableUsername(ctx, ctx.user.name)),
     discordAvatar: ctx.user.image || null,
   }
 })

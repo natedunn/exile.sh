@@ -17,6 +17,11 @@ test("worktree startup replaces copied origins while retaining credentials and b
       path.join(root, ".env.local"),
       "VITE_SITE_URL=https://old.localhost:1355\nVITE_CONVEX_URL=http://127.0.0.1:3210\n"
     )
+    const files = [
+      path.join(root, "convex/.env"),
+      path.join(root, ".env.local"),
+    ]
+    for (const file of files) fs.chmodSync(file, 0o644)
     const expected = "https://new-exile.localhost:1444"
     assert.equal(configureLocalAuthOrigin(root, "new-exile", 1444), expected)
     const auth = fs.readFileSync(path.join(root, "convex/.env"), "utf8")
@@ -30,7 +35,13 @@ test("worktree startup replaces copied origins while retaining credentials and b
         .readFileSync(path.join(root, ".env.local"), "utf8")
         .includes("VITE_CONVEX_URL=http://127.0.0.1:3210")
     )
+    for (const file of files) {
+      assert.equal(fs.statSync(file).mode & 0o777, 0o600)
+      fs.chmodSync(file, 0o644)
+    }
     configureLocalAuthOrigin(root, "new-exile", 1444)
+    for (const file of files)
+      assert.equal(fs.statSync(file).mode & 0o777, 0o600)
     assert.equal(fs.readFileSync(path.join(root, "convex/.env"), "utf8"), auth)
     assert.throws(() => configureLocalAuthOrigin(root, "host\nBAD=1", 1444))
   } finally {
