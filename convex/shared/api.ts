@@ -24,6 +24,10 @@ export const api = {
     latest: createApiLeaf<"query", typeof import("../functions/patchStore").latest>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchStore").latest>("patchStore:latest"), { type: "query" }),
     post: createApiLeaf<"query", typeof import("../functions/patchStore").post>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchStore").post>("patchStore:post"), { type: "query" }),
   },
+  profiles: {
+    complete: createApiLeaf<"mutation", typeof import("../functions/profiles").complete>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/profiles").complete>("profiles:complete"), { auth: "required", type: "mutation" }),
+    me: createApiLeaf<"query", typeof import("../functions/profiles").me>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/profiles").me>("profiles:me"), { auth: "required", type: "query" }),
+  },
   xStore: {
     latest: createApiLeaf<"query", typeof import("../functions/xStore").latest>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/xStore").latest>("xStore:latest"), { type: "query" }),
   },

@@ -1,10 +1,13 @@
 import {
+  boolean,
   convexTable,
   defineSchema,
   index,
   integer,
   json,
   text,
+  timestamp,
+  uniqueIndex,
 } from "kitcn/orm"
 import type { BuildSnapshot } from "../../shared/pob"
 import type { ItemRow, Pair, Point } from "../../shared/economy"
@@ -161,7 +164,104 @@ export const patchBodies = convexTable(
   (t) => [index("by_threadId").on(t.threadId)]
 )
 
+export const userTable = convexTable(
+  "user",
+  {
+    name: text().notNull(),
+    email: text().notNull().unique(),
+    emailVerified: boolean().notNull(),
+    image: text(),
+    createdAt: timestamp().notNull(),
+    updatedAt: timestamp().notNull(),
+    userId: text(),
+  },
+  (t) => [index("email_name").on(t.email, t.name), index("name").on(t.name)]
+)
+
+export const sessionTable = convexTable(
+  "session",
+  {
+    expiresAt: timestamp().notNull(),
+    token: text().notNull().unique(),
+    createdAt: timestamp().notNull(),
+    updatedAt: timestamp().notNull(),
+    ipAddress: text(),
+    userAgent: text(),
+    userId: text()
+      .notNull()
+      .references(() => userTable.id),
+  },
+  (t) => [
+    index("expiresAt").on(t.expiresAt),
+    index("expiresAt_userId").on(t.expiresAt, t.userId),
+    index("userId").on(t.userId),
+  ]
+)
+
+export const accountTable = convexTable(
+  "account",
+  {
+    accountId: text().notNull(),
+    providerId: text().notNull(),
+    userId: text()
+      .notNull()
+      .references(() => userTable.id),
+    accessToken: text(),
+    refreshToken: text(),
+    idToken: text(),
+    accessTokenExpiresAt: timestamp(),
+    refreshTokenExpiresAt: timestamp(),
+    scope: text(),
+    password: text(),
+    createdAt: timestamp().notNull(),
+    updatedAt: timestamp().notNull(),
+    issuer: text().notNull(),
+  },
+  (t) => [
+    index("accountId").on(t.accountId),
+    index("accountId_providerId").on(t.accountId, t.providerId),
+    index("providerId_userId").on(t.providerId, t.userId),
+    index("userId").on(t.userId),
+    uniqueIndex("issuer_accountId").on(t.issuer, t.accountId),
+  ]
+)
+
+export const verificationTable = convexTable(
+  "verification",
+  {
+    identifier: text().notNull(),
+    value: text().notNull(),
+    expiresAt: timestamp().notNull(),
+    createdAt: timestamp().notNull(),
+    updatedAt: timestamp().notNull(),
+  },
+  (t) => [
+    index("expiresAt").on(t.expiresAt),
+    index("identifier").on(t.identifier),
+  ]
+)
+
+export const jwksTable = convexTable("jwks", {
+  publicKey: text().notNull(),
+  privateKey: text().notNull(),
+  createdAt: timestamp().notNull(),
+  expiresAt: timestamp(),
+  alg: text(),
+  crv: text(),
+})
+
+// App-owned identity remains independent of OAuth providers and their tokens.
+export const profiles = convexTable("profiles", {
+  userId: text()
+    .notNull()
+    .unique()
+    .references(() => userTable.id),
+  username: text().notNull().unique(),
+  avatar: text(),
+})
+
 export const tables = {
+  profiles,
   patchThreads,
   patchBodies,
   xPosts,
@@ -173,8 +273,36 @@ export const tables = {
   collector,
   builds,
   buildLimits,
+  user: userTable,
+  session: sessionTable,
+  account: accountTable,
+  verification: verificationTable,
+  jwks: jwksTable,
 }
 // Explicit synchronous mutations keep hour publication and checkpoints atomic.
 export default defineSchema(tables, {
   defaults: { mutationExecutionMode: "sync" },
-})
+}).relations((r) => ({
+  user: {
+    sessions: r.many.session({
+      from: r.user.id,
+      to: r.session.userId,
+    }),
+    accounts: r.many.account({
+      from: r.user.id,
+      to: r.account.userId,
+    }),
+  },
+  session: {
+    user: r.one.user({
+      from: r.session.userId,
+      to: r.user.id,
+    }),
+  },
+  account: {
+    user: r.one.user({
+      from: r.account.userId,
+      to: r.user.id,
+    }),
+  },
+}))

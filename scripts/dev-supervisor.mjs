@@ -3,6 +3,7 @@ import path from "node:path"
 
 import { anonymousConvexEnv, anonymousEnvFile } from "./lib/local-convex.mjs"
 import { ensurePortlessProxy, portlessCli } from "./lib/portless.mjs"
+import { configureLocalAuthOrigin } from "./lib/auth-env.mjs"
 import { portlessName } from "./portless-name.mjs"
 
 const workspaceRoot = process.cwd()
@@ -32,6 +33,12 @@ if (
 ) {
   throw new Error("PORTLESS_PORT must be an integer between 1 and 65535.")
 }
+
+const routeName = portlessName("exile")
+const localOrigin =
+  mode === "anonymous"
+    ? configureLocalAuthOrigin(workspaceRoot, routeName, portlessPort)
+    : undefined
 
 const children = []
 let stopping = false
@@ -103,6 +110,43 @@ await new Promise((resolve, reject) => {
 })
 
 if (mode === "anonymous") {
+  // The raw Convex watcher does not perform Kitcn's auth env bootstrap.
+  // Always target this worktree explicitly; never the copied shared deployment.
+  const originSync = spawnSync(
+    bin("convex"),
+    [
+      "env",
+      "set",
+      "SITE_URL",
+      localOrigin,
+      "--env-file",
+      anonymousEnvFile(workspaceRoot),
+    ],
+    {
+      cwd: workspaceRoot,
+      env: anonymousConvexEnv(),
+      stdio: "inherit",
+    }
+  )
+  if (originSync.error || originSync.status !== 0) {
+    console.error("[auth] Could not configure this worktree's origin.")
+    stop()
+    process.exit(originSync.status ?? 1)
+  }
+  const authSync = spawnSync(
+    bin("kitcn"),
+    ["env", "push", "--env-file", anonymousEnvFile(workspaceRoot)],
+    {
+      cwd: workspaceRoot,
+      env: anonymousConvexEnv(),
+      stdio: "inherit",
+    }
+  )
+  if (authSync.error || authSync.status !== 0) {
+    console.error("[auth] Could not initialize local auth configuration.")
+    stop()
+    process.exit(authSync.status ?? 1)
+  }
   const pauseCollector = spawnSync(
     bin("convex"),
     [
@@ -161,7 +205,6 @@ if (mode === "anonymous") {
 }
 
 await ensurePortlessProxy(workspaceRoot, portlessPort)
-const routeName = portlessName("exile")
 const vite = start(
   process.execPath,
   [portlessCli(workspaceRoot), routeName, "bun", "run", "dev:vite"],

@@ -1,3 +1,4 @@
+import { AccountLink } from "./account-link"
 import { Link, useSearch } from "@tanstack/react-router"
 import { filters } from "../lib/economy-filters"
 import { SiteNavigation } from "./site-navigation"
@@ -12,6 +13,7 @@ export function ViewerHeader() {
           exile<span>.sh</span>
         </Link>
         <SiteNavigation filters={f} />
+        <AccountLink />
       </div>
     </header>
   )

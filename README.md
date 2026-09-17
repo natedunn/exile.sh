@@ -68,3 +68,8 @@ Original code and documentation: [MIT](LICENSE). Third-party game data and artwo
 This product isn't affiliated with or endorsed by Grinding Gear Games in any way.
 
 Contact: hello@natedunn.net
+
+## Discord sign-in
+
+See [Discord authentication setup](docs/discord-auth.md) for application creation,
+callback URLs, local and production configuration, and live verification steps.

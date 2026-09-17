@@ -1,0 +1,25 @@
+diff --git a/dist/auth/index.js b/dist/auth/index.js
+index c10ba062368262b47ddc7bc0b4216aef1293291e..2779e1f2406cc16aeef472d85d84d47e46d5dcb9 100644
+--- a/dist/auth/index.js
++++ b/dist/auth/index.js
+@@ -927,6 +927,7 @@ const createApi = (schema, getAuth, options) => {
+ 		}),
+ 		findMany: internalQueryGeneric({
+ 			args: {
++				select: v.optional(v.array(v.string())),
+ 				join: v.optional(v.any()),
+ 				limit: v.optional(v.number()),
+ 				model: modelValidator,
+diff --git a/dist/local-env-CYYSNf_o.mjs b/dist/local-env-CYYSNf_o.mjs
+index 10e9e7927abdefc6e91c43ab59176c9b54599357..bbcd9c7bd7a221d5f1b9db15f6ba24123aa5feb3 100644
+--- a/dist/local-env-CYYSNf_o.mjs
++++ b/dist/local-env-CYYSNf_o.mjs
+@@ -3631,6 +3631,8 @@ export const {
+   getAuth,
+   auth,
+   count,
++  consumeOne,
++  incrementOne,
+   create,
+   deleteMany,
+   deleteOne,

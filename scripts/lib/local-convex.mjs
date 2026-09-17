@@ -133,21 +133,27 @@ export function reserveWorktreePorts(workspaceRoot) {
   throw new Error("Could not find an available local Convex port pair.")
 }
 
-function updateEnvFile(file, values) {
+export function updateEnvFile(file, values) {
   const original = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : ""
   const lines = original === "" ? [] : original.split(/\r?\n/)
   const remaining = new Map(Object.entries(values))
-  const updated = lines.map((line) => {
-    const match = line.match(/^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)=/)
-    if (!match || !remaining.has(match[1])) return line
+  const updated = lines.flatMap((line) => {
+    const match = line.match(/^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/)
+    if (!match || !Object.hasOwn(values, match[1])) return [line]
+    // dotenv uses the last duplicate assignment. Keep exactly one updated
+    // entry, so an old copied value later in the file cannot override it.
+    if (!remaining.has(match[1])) return []
     const value = remaining.get(match[1])
     remaining.delete(match[1])
-    return `${match[1]}=${value}`
+    return [`${match[1]}=${value}`]
   })
   for (const [key, value] of remaining) updated.push(`${key}=${value}`)
   while (updated.at(-1) === "") updated.pop()
   const next = `${updated.join("\n")}\n`
-  if (next !== original) fs.writeFileSync(file, next)
+  if (next !== original) {
+    fs.mkdirSync(path.dirname(file), { recursive: true })
+    fs.writeFileSync(file, next, { mode: 0o600 })
+  }
 }
 
 export function configureWorktreePorts(workspaceRoot) {
