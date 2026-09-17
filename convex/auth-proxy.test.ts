@@ -122,6 +122,50 @@ test.each([
     expect(
       await target.run((ctx) => ctx.db.query("session").take(2))
     ).toHaveLength(1)
+    // Exercise the handoff that happens after Better Auth issues its session:
+    // obtain the Convex JWT, then verify it using direct public key discovery.
+    const tokenResponse = await target.fetch("/api/auth/convex/token", {
+      headers: headers(origin, cookies(complete)),
+    })
+    expect(tokenResponse.status).toBe(200)
+    const { token } = await tokenResponse.json()
+    const [encodedHeader, encodedPayload, signature] = token.split(".")
+    const decode = (part: string) =>
+      Uint8Array.from(
+        atob(part.replace(/-/g, "+").replace(/_/g, "/")),
+        (char) => char.charCodeAt(0)
+      )
+    const jwtHeader = JSON.parse(
+      new TextDecoder().decode(decode(encodedHeader))
+    )
+    const payload = JSON.parse(new TextDecoder().decode(decode(encodedPayload)))
+    expect(payload.iss).toBe("http://localhost:3211")
+    expect(payload.aud).toBe("convex")
+    const publicKeys = await target.fetch("/api/auth/convex/jwks", {
+      headers: {
+        "x-forwarded-host": "backend.convex.site",
+        "x-forwarded-proto": "https",
+      },
+    })
+    expect(publicKeys.status).toBe(200)
+    const { keys } = await publicKeys.json()
+    const jwk = keys.find((key: { kid: string }) => key.kid === jwtHeader.kid)
+    expect(jwk).toBeDefined()
+    const key = await crypto.subtle.importKey(
+      "jwk",
+      jwk,
+      { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+      false,
+      ["verify"]
+    )
+    expect(
+      await crypto.subtle.verify(
+        "RSASSA-PKCS1-v1_5",
+        key,
+        decode(signature),
+        new TextEncoder().encode(`${encodedHeader}.${encodedPayload}`)
+      )
+    ).toBe(true)
     await target.fetch(returned.pathname + returned.search, {
       headers: headers(origin, cookies(start)),
     })
@@ -142,4 +186,38 @@ test("rejects a foreign forwarded host before beginning OAuth", async () => {
     }),
   })
   expect(response.status).toBe(400)
+})
+
+test("Convex can fetch public signing keys without a frontend forwarding origin", async () => {
+  const t = convexTest(schema, modules)
+  const backendHeaders = {
+    "x-forwarded-host": "backend.convex.site",
+    "x-forwarded-proto": "https",
+  }
+  const response = await t.fetch("/api/auth/convex/jwks", {
+    headers: backendHeaders,
+  })
+  expect(response.status).toBe(200)
+  const { keys } = await response.json()
+  expect(keys.length).toBeGreaterThan(0)
+  for (const key of keys) {
+    expect(key).toHaveProperty("kid")
+    expect(key).not.toHaveProperty("d")
+    expect(key).not.toHaveProperty("p")
+  }
+  const discovery = await t.fetch(
+    "/api/auth/convex/.well-known/openid-configuration",
+    { headers: backendHeaders }
+  )
+  expect(discovery.status).toBe(200)
+  const signIn = await t.fetch("/api/auth/sign-in/social", {
+    method: "POST",
+    headers: { ...backendHeaders, "Content-Type": "application/json" },
+    body: JSON.stringify({ provider: "discord", callbackURL: "/auth" }),
+  })
+  expect(signIn.status).toBe(400)
+  const session = await t.fetch("/api/auth/get-session", {
+    headers: backendHeaders,
+  })
+  expect(session.status).toBe(400)
 })

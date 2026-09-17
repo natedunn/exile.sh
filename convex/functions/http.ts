@@ -20,7 +20,15 @@ app.use(
   })
 )
 app.use(async (c, next) => {
-  if (!c.req.path.startsWith("/api/auth/"))
+  // Convex fetches these public verification documents directly, without
+  // frontend forwarding headers. Resolve them against the configured origin.
+  const publicDiscovery =
+    c.req.method === "GET" &&
+    [
+      "/api/auth/convex/jwks",
+      "/api/auth/convex/.well-known/openid-configuration",
+    ].includes(c.req.path)
+  if (publicDiscovery || !c.req.path.startsWith("/api/auth/"))
     return authMiddleware(getAuth)(c, next)
   let authOrigin: string
   try {
