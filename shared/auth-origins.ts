@@ -51,9 +51,9 @@ export function forwardedAuthOrigin(
 
 export function publicAuthRequest(request: Request) {
   const url = new URL(request.url)
-  const hasForwarding =
-    request.headers.has("x-forwarded-host") ||
-    request.headers.has("x-forwarded-proto")
+  // Cloudflare may send only x-forwarded-proto. Without a forwarded host,
+  // the public request URL is authoritative; still validate its origin below.
+  const hasForwarding = request.headers.has("x-forwarded-host")
   const origin = hasForwarding
     ? forwardedAuthOrigin(request.headers, AUTH_ORIGIN)
     : url.origin
