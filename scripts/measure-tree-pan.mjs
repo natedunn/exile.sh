@@ -1,7 +1,11 @@
 // Run against the same server/browser before and after a renderer change.
 // Usage: node scripts/measure-tree-pan.mjs /tmp/tree-pan-baseline.json
+// For allocated trees, set PLAYWRIGHT_BASE_URL to the full /build-bin URL and
+// TREE_PERF_BUILD to a local PoB export file. TREE_PERF_ZOOM_CLICKS=0,3 compares
+// the overview and artwork views. pointerDownMaxMs measures press handling;
+// the frame metrics also include the camera commit on release.
 import { chromium, expect } from "@playwright/test"
-import { writeFileSync } from "node:fs"
+import { readFileSync, writeFileSync } from "node:fs"
 const browser = await chromium.launch({ channel: "chrome" })
 const results = []
 try {
@@ -12,7 +16,20 @@ try {
   await page.goto(
     process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:4173/trees/passive"
   )
-  const svg = page.locator(".tree-viewport svg")
+  const build = process.env.TREE_PERF_BUILD
+  if (build) {
+    await page
+      .getByLabel("PoB export or pobb.in link")
+      .fill(readFileSync(build, "utf8"))
+    await page
+      .getByRole("navigation", { name: "Build sections" })
+      .getByRole("link", { name: "Trees", exact: true })
+      .click()
+    await page.getByRole("button", { name: "Open tree", exact: true }).click()
+  }
+  const svg = page.locator(
+    build ? ".tree-fullscreen .tree-viewport svg" : ".tree-viewport svg"
+  )
   await expect(svg).toBeVisible()
   for (const zoomClicks of (process.env.TREE_PERF_ZOOM_CLICKS || "3,5")
     .split(",")
@@ -21,7 +38,8 @@ try {
       await page.getByRole("button", { name: "Reset", exact: true }).click()
       for (let i = 0; i < zoomClicks; i++)
         await page.getByRole("button", { name: "Zoom in", exact: true }).click()
-      await expect(page.locator(".tree-passive-art").first()).toBeAttached()
+      if (zoomClicks >= 3)
+        await expect(svg.locator(".tree-passive-art").first()).toBeAttached()
       await page.waitForTimeout(400)
       const cdp = await page.context().newCDPSession(page)
       await cdp.send("Emulation.setCPUThrottlingRate", {
@@ -47,8 +65,8 @@ try {
       })
       const box = await svg.boundingBox()
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
-      await page.mouse.down()
       const start = performance.now()
+      await page.mouse.down()
       for (let i = 0; i < 120; i++)
         await page.mouse.move(
           box.x +
@@ -82,6 +100,7 @@ try {
         deviceScaleFactor: Number(process.env.TREE_PERF_DPR || 1),
         cpuThrottle: Number(process.env.TREE_PERF_CPU || 1),
         renderer: "svg",
+        build: build || null,
         zoom: 1.5 ** zoomClicks,
         run,
         elapsedMs: Math.round(elapsed),
@@ -94,6 +113,19 @@ try {
         framesOver25Ms: frames.filter((x) => x > 25).length,
         elements: await svg.locator("*").count(),
         images: await svg.locator("image").count(),
+        pointerDownMaxMs:
+          Math.round(
+            Math.max(
+              0,
+              ...trace
+                .filter(
+                  (e) =>
+                    e.name === "EventDispatch" &&
+                    e.args?.data?.type === "pointerdown"
+                )
+                .map((e) => (e.dur || 0) / 1000)
+            ) * 10
+          ) / 10,
         timingMs: Object.fromEntries(
           [
             "FunctionCall",

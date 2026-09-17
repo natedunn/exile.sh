@@ -1297,6 +1297,12 @@ body:has([data-slot="dialog-content"][data-open]) .build-nav[data-pinned] {
 .tree-viewport svg:active {
   cursor: grabbing;
 }
+/* Keep the grab/grabbing change on the SVG surface from propagating an
+   inherited cursor change through thousands of node and artwork elements.
+   Node hit targets retain their explicit pointer cursor below. */
+.passive-tree[data-mode="interactive"] .tree-viewport svg > * {
+  cursor: grab;
+}
 .tree-viewport svg:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: -9px;
