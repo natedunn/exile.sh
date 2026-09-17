@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MoversRouteImport } from './routes/movers'
@@ -29,10 +30,16 @@ import { Route as TreesIndexRouteImport } from './routes/trees.index'
 import { Route as TreesAscendanciesRouteImport } from './routes/trees.ascendancies'
 import { Route as TreesAtlasRouteImport } from './routes/trees.atlas'
 import { Route as TreesPassiveRouteImport } from './routes/trees.passive'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EconomyRoute = EconomyRouteImport.update({
@@ -130,9 +137,15 @@ const TreesPassiveRoute = TreesPassiveRouteImport.update({
   path: '/passive',
   getParentRoute: () => TreesRoute,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/economy': typeof EconomyRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
@@ -152,9 +165,11 @@ export interface FileRoutesByFullPath {
   '/economy/': typeof EconomyIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
   '/trees/': typeof TreesIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
   '/news': typeof NewsRoute
@@ -172,10 +187,12 @@ export interface FileRoutesByTo {
   '/economy': typeof EconomyIndexRoute
   '/patch-notes': typeof PatchNotesIndexRoute
   '/trees': typeof TreesIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/economy': typeof EconomyRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
@@ -195,11 +212,13 @@ export interface FileRoutesById {
   '/economy/': typeof EconomyIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
   '/trees/': typeof TreesIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/economy'
     | '/methodology'
     | '/movers'
@@ -219,9 +238,11 @@ export interface FileRouteTypes {
     | '/economy/'
     | '/patch-notes/'
     | '/trees/'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/methodology'
     | '/movers'
     | '/news'
@@ -239,9 +260,11 @@ export interface FileRouteTypes {
     | '/economy'
     | '/patch-notes'
     | '/trees'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/economy'
     | '/methodology'
     | '/movers'
@@ -261,10 +284,12 @@ export interface FileRouteTypes {
     | '/economy/'
     | '/patch-notes/'
     | '/trees/'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   EconomyRoute: typeof EconomyRouteWithChildren
   MethodologyRoute: typeof MethodologyRoute
   MoversRoute: typeof MoversRoute
@@ -277,6 +302,7 @@ export interface RootRouteChildren {
   BuildBinIndexRoute: typeof BuildBinIndexRoute
   BuildsIndexRoute: typeof BuildsIndexRoute
   PatchNotesIndexRoute: typeof PatchNotesIndexRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -286,6 +312,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/economy': {
@@ -421,6 +454,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TreesPassiveRouteImport
       parentRoute: typeof TreesRoute
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -457,6 +497,7 @@ const TreesRouteWithChildren = TreesRoute._addFileChildren(TreesRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   EconomyRoute: EconomyRouteWithChildren,
   MethodologyRoute: MethodologyRoute,
   MoversRoute: MoversRoute,
@@ -469,6 +510,7 @@ const rootRouteChildren: RootRouteChildren = {
   BuildBinIndexRoute: BuildBinIndexRoute,
   BuildsIndexRoute: BuildsIndexRoute,
   PatchNotesIndexRoute: PatchNotesIndexRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

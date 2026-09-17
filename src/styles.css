@@ -2423,3 +2423,52 @@ body:has(.viewer-shell) {
   width: max-content;
   max-width: 100%;
 }
+
+.account-link {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+.account-page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 48px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.account-page h1 {
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 1.1;
+}
+.account-page p {
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+.account-page [role="alert"] {
+  color: var(--color-text);
+}
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.account-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+.account-avatar-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.account-avatar-choice label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.account-username {
+  overflow-wrap: anywhere;
+}

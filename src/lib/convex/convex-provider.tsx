@@ -2,11 +2,13 @@
 
 import { QueryClientProvider as TanstackQueryClientProvider } from "@tanstack/react-query"
 import {
-  ConvexProvider,
+  useAuthStore,
   ConvexReactClient,
   getConvexQueryClientSingleton,
   getQueryClientSingleton,
 } from "kitcn/react"
+import { ConvexAuthProvider } from "kitcn/auth/client"
+import { authClient } from "./auth-client"
 import { useState } from "react"
 import type { ReactNode } from "react"
 
@@ -22,9 +24,9 @@ function createClient() {
 export function AppConvexProvider({ children }: { children: ReactNode }) {
   const [convex] = useState(createClient)
   return (
-    <ConvexProvider client={convex}>
+    <ConvexAuthProvider client={convex} authClient={authClient}>
       <QueryProvider convex={convex}>{children}</QueryProvider>
-    </ConvexProvider>
+    </ConvexAuthProvider>
   )
 }
 
@@ -35,10 +37,12 @@ function QueryProvider({
   children: ReactNode
   convex: ConvexReactClient
 }) {
+  const authStore = useAuthStore()
   const queryClient = getQueryClientSingleton(createQueryClient)
   const convexQueryClient = getConvexQueryClientSingleton({
     convex,
     queryClient,
+    authStore,
   })
 
   return (

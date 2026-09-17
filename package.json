@@ -44,6 +44,7 @@
     "@tanstack/react-start": "1.168.52",
     "@tanstack/react-virtual": "3.14.13",
     "@tanstack/router-plugin": "1.168.37",
+    "better-auth": "1.7.1",
     "class-variance-authority": "0.7.1",
     "cn": "0.2.6",
     "convex": "1.44.0",
@@ -77,6 +78,7 @@
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.1",
     "convex-test": "0.0.57",
+    "esbuild": "0.27.0",
     "eslint": "9.39.5",
     "jsdom": "28.1.0",
     "portless": "0.13.1",
@@ -88,5 +90,8 @@
     "wrangler": "4.131.0"
   },
   "packageManager": "bun@1.3.9",
-  "workspaces": []
+  "workspaces": [],
+  "patchedDependencies": {
+    "kitcn@0.32.2": "patches/kitcn@0.32.2.patch"
+  }
 }
