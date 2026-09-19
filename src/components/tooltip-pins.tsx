@@ -258,14 +258,28 @@ function drawTreePointer(
 function TreePointer({ ref }: { ref?: Ref<SVGSVGElement> }) {
   const gradient = useId()
   return (
-    <svg ref={ref} className="tree-pin-pointer" aria-hidden="true">
+    <svg
+      ref={ref}
+      data-slot="tree-pin-pointer"
+      className="pointer-events-none absolute inset-0 z-51 size-full translate-y-px overflow-visible fill-(--tree-pin-border)"
+      aria-hidden="true"
+    >
       <defs>
         <linearGradient id={gradient} gradientUnits="userSpaceOnUse">
-          <stop className="tree-pointer-base" offset="0%" />
-          <stop className="tree-pointer-tip" offset="100%" />
+          <stop
+            className="[stop-color:var(--tree-pin-border)] in-has-[>[data-attention=true]]:animate-tree-pointer-border-attention motion-reduce:in-has-[>[data-attention=true]]:animate-none motion-reduce:in-has-[>[data-attention=true]]:[stop-color:var(--color-focus)]"
+            offset="0%"
+          />
+          <stop
+            className="[stop-color:var(--color-tree-pointer-tip)]"
+            offset="100%"
+          />
         </linearGradient>
       </defs>
-      <polygon fill={`url(#${gradient})`} />
+      <polygon
+        className="in-has-[>[data-attention=true]]:animate-tree-pointer-attention motion-reduce:in-has-[>[data-attention=true]]:animate-none motion-reduce:in-has-[>[data-attention=true]]:drop-shadow-tree-attention"
+        fill={`url(#${gradient})`}
+      />
     </svg>
   )
 }
@@ -348,7 +362,7 @@ function PinnedWindow({
     const target = pin.treeTarget
     const source = target?.source()
     const positioner = element?.closest<HTMLElement>(
-      ".pinned-tooltip-positioner"
+      '[data-slot="popover-positioner"]'
     )
     if (!target || !source || !element || !positioner) return
     // Update the transform in the same pre-paint turn as the SVG viewBox.
@@ -359,7 +373,7 @@ function PinnedWindow({
     let previousY: number | undefined
     let previousVisible: boolean | undefined
     const pointer = positioner.querySelector<SVGPolygonElement>(
-      ".tree-pin-pointer polygon"
+      '[data-slot="tree-pin-pointer"] polygon'
     )
     const update = () => {
       const rect = target.anchor()
@@ -447,7 +461,12 @@ function PinnedWindow({
     >
       <PopoverContent
         ref={setElement}
-        className={pin.className}
+        variant="inspection"
+        className={cn(
+          inspectionContent,
+          pin.className,
+          "pointer-events-auto select-text"
+        )}
         data-inspection-tooltip="true"
         data-tooltip-pinned="true"
         data-rarity={pin.rarity}
@@ -456,11 +475,11 @@ function PinnedWindow({
         aria-label={`Pinned ${pin.label}`}
         anchor={anchor}
         positionMethod={pin.treeTarget ? "fixed" : "absolute"}
-        positionerClassName={
-          pin.treeTarget
-            ? "pinned-tooltip-positioner tree-pinned-positioner"
-            : "pinned-tooltip-positioner"
-        }
+        positionerClassName={cn(
+          "pointer-events-auto select-text [--inspection-border:var(--tree-pin-border)] [--tree-pin-border:var(--color-tree-pin-border)]",
+          pin.treeTarget &&
+            "top-0! left-0! transform-[translate3d(var(--tree-pin-x,0px),var(--tree-pin-y,0px),0)]! transition-none not-data-[tree-pin-visible=true]:pointer-events-none not-data-[tree-pin-visible=true]:invisible in-has-[[data-tree-pins][data-open=true]]:pointer-events-none in-has-[[data-tree-pins][data-open=true]]:invisible max-md:in-has-[[data-tree-drawer][data-open=true]]:pointer-events-none max-md:in-has-[[data-tree-drawer][data-open=true]]:invisible"
+        )}
         positionerAdornment={pin.treeTarget ? <TreePointer /> : undefined}
         side={pin.treeTarget ? "top" : "bottom"}
         align={pin.treeTarget ? "center" : "start"}
@@ -483,7 +502,7 @@ function PinnedWindow({
         <Button
           variant="ghost"
           size="icon"
-          className="tooltip-pin-control"
+          className={pinControl}
           aria-label={`Close pinned ${pin.label}`}
           onClick={close}
         >
@@ -550,11 +569,13 @@ export function InspectionTooltipContent({
     <PopoverContent
       {...props}
       ref={setElement}
+      variant="inspection"
+      className={cn(inspectionContent, props.className)}
       data-inspection-tooltip="true"
       data-hover-only={hoverOnly}
       positionerClassName={cn(
         props.positionerClassName,
-        hoverOnly && "inspection-hover-positioner"
+        hoverOnly && "pointer-events-none select-none"
       )}
       positionerAdornment={
         treeTarget ? (
@@ -578,13 +599,7 @@ export function InspectionTooltipContent({
       {children}
       {!canPin && fallbackClose && (
         <PopoverClose
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className="tooltip-pin-control"
-            />
-          }
+          render={<Button variant="ghost" size="icon" className={pinControl} />}
           aria-label={`Close ${pinLabel}`}
         >
           <X />
@@ -594,7 +609,7 @@ export function InspectionTooltipContent({
         <Button
           variant="ghost"
           size="icon"
-          className="tooltip-pin-control"
+          className={pinControl}
           aria-label={`Pin ${pinLabel}`}
           onClick={() => {
             const rect = element.current!.getBoundingClientRect()
@@ -621,3 +636,9 @@ export function InspectionTooltipContent({
     </PopoverContent>
   )
 }
+
+const inspectionContent =
+  "data-[hover-only=true]:pointer-events-none data-[hover-only=true]:select-none data-[hover-only=false]:pointer-events-auto data-[hover-only=false]:select-text data-[tooltip-pinned=true]:pointer-events-auto data-[tooltip-pinned=true]:select-text data-[pin-control=true]:[&>:first-child]:pr-9 max-md:data-[pin-control=true]:[&>:first-child]:pr-12 pointer-coarse:data-[pin-control=true]:[&>:first-child]:pr-12 [&_li::marker]:[color:color-mix(in_srgb,currentColor_50%,transparent)] [&_[data-slot=popover-title]]:font-display [&_[data-slot=popover-title]]:text-card-title [&_[data-slot=popover-title]]:leading-[1.1] [&_[data-slot=popover-title]]:font-medium [&_[data-slot=popover-title]]:text-(--inspection-accent,var(--color-brand))"
+
+const pinControl =
+  "absolute top-2 right-2 z-2 m-0 text-ink-muted hover:text-brand max-md:size-11 pointer-coarse:size-11"

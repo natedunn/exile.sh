@@ -12,20 +12,38 @@ Convex agent skills for common tasks can be installed by running
 
 <!-- convex-ai-end -->
 
-## UI components
+## UI components and styling
 
-Use the project's shadcn/ui `base-nova` components from `src/components/ui`
-for applicable controls. Interactive primitives must use `@base-ui/react`;
-do not add the Radix variants or duplicate native controls in route files.
-Add components with the existing `components.json` configuration, then adapt
-shared styles to the workbench tokens in `tokens.css`. Keep custom economy
-charts, data calculations, and layout where a generic control is not a fit.
-Verify keyboard behavior and mobile widths when replacing interactive controls.
+Styling is Tailwind utilities plus the shared components in
+`src/components/ui`. The design tokens in `tokens.css` are the only
+vocabulary: every colour, type size, radius, shadow, tracking and easing is a
+`@theme` entry there, and Tailwind's default palette, type scale and radii are
+cleared. Reach for `bg-surface`, `text-ink-muted`, `text-label`,
+`border-rule-strong`, `shadow-popup`, `duration-120`. Do not write an
+arbitrary colour or size; add a token first if one is genuinely missing.
+Spacing uses Tailwind's numeric scale (`p-3` is 12px). Composed voices live
+as `@utility` rules in `src/styles.css`: `mono-label`, `figure`,
+`display`, `dot-screen`, `dither-fade`, `popup-corners`,
+`touch-safe-text`.
 
-Field focus styling belongs in `src/components/ui/field.css`, consumed by the
-shared Input, Textarea, SelectTrigger, and InputGroup components. Use InputGroup
-with InputGroupInput/Addon/Button for fields containing icons or actions; do not
-add route-specific focus outlines or rings to the inner control.
+Element resets in `src/styles.css` sit in `@layer base` so utilities always
+win over them. Page-level CSS files and semantic class names are not allowed.
+The only hand-written rules in `styles.css` are base resets and `@utility`
+definitions for textures or renderer effects that utilities cannot express.
+Run `bun run lint` after styling changes; its classname check rejects tokens
+that Tailwind does not compile.
+
+Use the shared components for anything repeated: `Button` (variants include
+`pill` and `segment`, sizes include `nav` and `bare`), `SegmentedControl`,
+`Panel`, `EmptyState`, `Label`/`LabelText`, `Field`, `Badge`/`StatusDot`,
+`Note`, `PageHeading`/`PageTitle`/`PageMeta`, and `PopoverContent
+variant="inspection"` for item, gem and passive tooltips. Interactive
+primitives must use `@base-ui/react`; do not add Radix variants or duplicate
+native controls in route files. Components own their focus treatment: fields
+use a `focus-glow` ring, everything else the 2px `focus` outline. Do not
+style a ui component from page CSS through `[data-slot]` selectors; add a
+variant or pass `className`. Verify keyboard behaviour and mobile widths when
+replacing interactive controls.
 
 Do not add decorative eyebrows or kickers above headings anywhere in the site.
 Use direct headings; retain functional field and metric labels.

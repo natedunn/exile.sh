@@ -17,12 +17,12 @@ export function JewelCardContent({
   const details = describeEquipment(item)
   return (
     <>
-      <div className="build-jewel-card-art" aria-hidden="true">
-        <div className="gear-slot" data-rarity={details.rarity}>
+      <div data-slot="jewel-art" aria-hidden="true">
+        <div className="item-slot" data-rarity={details.rarity}>
           <ItemArtwork details={details} slot="Jewel" />
         </div>
       </div>
-      <div className="build-jewel-card-body">
+      <div data-slot="jewel-body">
         <ItemTooltipContent
           item={item}
           details={details}

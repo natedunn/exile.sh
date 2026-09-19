@@ -24,6 +24,30 @@ import type { EquipmentItem } from "../../shared/equipment"
 import type { BuildSnapshot } from "../../shared/pob"
 import { EquipmentSettings } from "./equipment-settings"
 import { ItemTreeVersionProvider } from "./item-reference-tooltip"
+import { cn } from "cn"
+import { itemCard, socket as socketClass } from "./equipment-classes"
+
+const gearArea: Record<string, string> = {
+  weapon: "col-[1/3] row-[1/5]",
+  offhand: "col-[7/9] row-[1/5]",
+  helmet: "col-[4/6] row-[1/3]",
+  body: "col-[4/6] row-[3/6]",
+  amulet: "col-start-6 row-start-3",
+  "ring-left": "col-start-3 row-start-4",
+  "ring-right": "col-start-6 row-start-4",
+  gloves: "col-[2/4] row-[5/7]",
+  belt: "col-[4/6] row-start-6",
+  boots: "col-[6/8] row-[5/7]",
+  "flask-life": "col-start-2 row-[7/9]",
+  "flask-mana": "col-start-7 row-[7/9]",
+  "charm-one":
+    "col-[1/9] row-[7/9] h-[46.850394%] w-[11.184211%] justify-self-center -translate-x-full",
+  "charm-two":
+    "col-[1/9] row-[7/9] h-[46.850394%] w-[11.184211%] justify-self-center",
+  "charm-three":
+    "col-[1/9] row-[7/9] h-[46.850394%] w-[11.184211%] justify-self-center translate-x-full",
+  extra: "aspect-square",
+}
 
 export function GearSlot({
   item,
@@ -60,7 +84,14 @@ export function GearSlot({
   const clipboard = useCopyItem(item?.text ?? "", inspection.open)
   const details = item ? describeEquipment(item) : null
   return (
-    <div className={`gear-cell gear-${area}`}>
+    <div
+      data-slot="gear-slot"
+      data-area={area}
+      className={cn(
+        "relative flex min-h-0 min-w-0 flex-col gap-1.75 max-sm:gap-1.25",
+        gearArea[area]
+      )}
+    >
       <span className="sr-only" role="status">
         {clipboard.status}
       </span>
@@ -82,7 +113,7 @@ export function GearSlot({
           <PopoverTrigger
             {...inspection.triggerProps}
             onClick={clipboard.copy}
-            className="gear-slot"
+            className="item-slot focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus in-data-[slot=equipment-board]:h-full in-data-[slot=equipment-board]:p-[4%] in-data-[slot=equipment-board]:[&>img]:size-full"
             data-rarity={details.rarity}
             aria-label={`${label}: ${details.name}. Show item details`}
           >
@@ -94,7 +125,8 @@ export function GearSlot({
           </PopoverTrigger>
           {(details.socketContents.length > 0 || jewels.length > 0) && (
             <span
-              className="gear-sockets"
+              data-slot="gear-sockets"
+              className="pointer-events-none absolute top-1/2 left-1/2 grid w-[70%] -translate-x-1/2 -translate-y-1/2 grid-cols-2 gap-1 data-[count=1]:w-[35%] data-[count=1]:grid-cols-1 data-[item-class=Staff]:w-[35%] data-[item-class=Staff]:grid-cols-1 data-[item-class=Wand]:w-[35%] data-[item-class=Wand]:grid-cols-1"
               data-count={details.socketContents.length + jewels.length}
               data-item-class={details.artwork?.itemClass}
               aria-label={[
@@ -107,7 +139,7 @@ export function GearSlot({
                 socket.name === "Unspecified socket" ? (
                   <span
                     key={i}
-                    className="gear-socket"
+                    className={socketClass}
                     aria-label={socket.name}
                   />
                 ) : (
@@ -136,6 +168,7 @@ export function GearSlot({
             </span>
           )}
           <InspectionTooltipContent
+            data-tooltip-kind="item"
             {...inspection.contentProps}
             {...(augment && {
               initialFocus: false,
@@ -146,7 +179,7 @@ export function GearSlot({
             })}
             pinId={`item:${item.id}`}
             pinLabel={`${details.name} item details`}
-            className="equipment-card"
+            className={itemCard}
             onElementChange={setItemPopup}
             data-augment-replaced={augment?.replace || undefined}
             collisionAvoidance={{ side: "shift", align: "shift" }}
@@ -166,7 +199,7 @@ export function GearSlot({
         </Popover>
       ) : (
         <div
-          className="gear-slot gear-slot-empty"
+          className="item-slot flex-col gap-2 border-dashed text-ink-faint opacity-50 before:hidden [&>span]:font-mono [&>span]:text-fine max-sm:[&>span]:text-micro [&>svg]:size-7.5 [&>svg]:stroke-1 [&>svg]:opacity-40 max-sm:[&>svg]:size-5"
           aria-label={`${label}: ${missing ? "item missing from export" : "empty"}`}
         >
           <SlotIcon slot={name} />
@@ -198,21 +231,43 @@ export function WeaponSetSwitch({
     <Tabs
       value={swappable ? value : "primary"}
       onValueChange={(v) => onChange(v === "swap" ? "swap" : "primary")}
-      className="equipment-weapon-switch"
+      className="relative mb-4 flex justify-center"
     >
-      <TabsList aria-label="Weapon set">
-        <TabsTrigger value="primary">Set I</TabsTrigger>
+      <TabsList
+        aria-label="Weapon set"
+        className="h-8.5 gap-0.5 border-rule-strong bg-surface p-0.75"
+      >
+        <TabsTrigger
+          className="px-3.5 py-1 font-mono text-label data-active:bg-brand-deep"
+          value="primary"
+        >
+          Set I
+        </TabsTrigger>
         {swappable ? (
-          <TabsTrigger value="swap">Set II</TabsTrigger>
+          <TabsTrigger
+            className="px-3.5 py-1 font-mono text-label data-active:bg-brand-deep"
+            value="swap"
+          >
+            Set II
+          </TabsTrigger>
         ) : (
           <TooltipProvider delay={0}>
             <Tooltip>
               {/* A disabled tab takes no pointer events, so the wrapper listens. */}
               <TooltipTrigger
-                render={<span className="equipment-weapon-switch-off" />}
+                render={
+                  <span
+                    data-slot="equipment-weapon-switch-off"
+                    className="inline-flex h-full"
+                  />
+                }
                 tabIndex={0}
               >
-                <TabsTrigger value="swap" disabled>
+                <TabsTrigger
+                  className="px-3.5 font-mono text-label"
+                  value="swap"
+                  disabled
+                >
                   Set II
                 </TabsTrigger>
               </TooltipTrigger>
@@ -274,9 +329,9 @@ function EquipmentDisplayContent({
     }
   }
   return (
-    <div className="equipment-display">
-      <div className="equipment-board-frame">
-        <div className="equipment-board-viewport">
+    <div className="mx-auto max-w-235 in-data-[slot=build-section]:max-w-none">
+      <div className="relative flex flex-col items-center border-b border-rule-strong p-8 max-sm:px-3 max-sm:py-4">
+        <div className="inspection-field mx-auto flex w-full flex-1 flex-col items-center justify-center p-8 max-sm:p-4">
           <EquipmentSettings />
           {onWeaponsChange && (
             <WeaponSetSwitch
@@ -285,7 +340,11 @@ function EquipmentDisplayContent({
               swappable={swappable}
             />
           )}
-          <div className="equipment-board" aria-label="Equipped items">
+          <div
+            data-slot="equipment-board"
+            className="relative mx-auto grid aspect-square min-h-0 w-full max-w-170 grid-cols-8 grid-rows-8 gap-[1.503759%]"
+            aria-label="Equipped items"
+          >
             {EQUIPMENT_SLOTS.map((slot) => {
               const name =
                 slot.name.startsWith("Weapon") && weapons === "swap"
@@ -315,9 +374,9 @@ function EquipmentDisplayContent({
         </div>
       </div>
       {extras.length > 0 && (
-        <section className="equipment-extras">
-          <h3>Additional equipment</h3>
-          <div>
+        <section data-slot="equipment-extras" className="mt-7">
+          <h3 className="mb-4 font-display text-xl">Additional equipment</h3>
+          <div className="grid grid-cols-[repeat(auto-fill,128px)] gap-4">
             {extras.map((slot, i) => (
               <GearSlot
                 key={`${slot.name}-${i}`}

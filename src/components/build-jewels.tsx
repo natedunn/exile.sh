@@ -3,6 +3,14 @@ import { useMemo } from "react"
 import { JewelCardContent } from "./jewel-card-content"
 import { describeEquipment } from "../../shared/equipment"
 import { ReferenceLine } from "./reference-tooltip"
+import { EmptyState } from "./ui/empty-state"
+import { Note } from "./ui/note"
+import {
+  StatsBody,
+  StatsCaption,
+  StatsHeading,
+  StatsSection,
+} from "./build/stats-ledger"
 import {
   aggregateJewelStats,
   SINISTER_SOCKET,
@@ -12,6 +20,8 @@ import type { JewelStat, SocketedJewel } from "../../shared/jewel-stats"
 import type { BuildSnapshot } from "../../shared/pob"
 import type { TreeData } from "../../shared/tree-render-model"
 import { isTreeVersion } from "../../shared/tree-versions"
+import { cn } from "cn"
+import { itemCard, jewelCard } from "./equipment-classes"
 
 type Spec = BuildSnapshot["treeSpecs"][number]
 type Gear = BuildSnapshot["itemSets"][number]
@@ -92,34 +102,43 @@ export function BuildJewels({
   const { jewels, message } = useSocketedJewels(build, spec, gear)
   if (message && !jewels.length)
     return (
-      <p className="build-muted" role="status">
+      <Note className="my-3" role="status">
         {message}
-      </p>
+      </Note>
     )
   if (!jewels.length)
-    return <p className="build-empty">No jewels socketed in this setup.</p>
+    return (
+      <EmptyState frame="dashed" className="my-0">
+        No jewels socketed in this setup.
+      </EmptyState>
+    )
   return (
     <>
       {message && (
-        <p className="build-muted" role="status">
+        <Note className="my-3" role="status">
           {message}
-        </p>
+        </Note>
       )}
-      <div className="build-jewel-cards">
+      {/* Two columns of cards, one under xl. Cards in a row share its
+          height, so a short card never leaves a hole beside a tall one. */}
+      <div className="grid grid-cols-2 items-stretch gap-4 max-xl:grid-cols-1">
         {jewels.map((jewel) => {
           const note = allocationNote(jewel)
           const details = describeEquipment(jewel.item)
           return (
             <article
               key={`${jewel.nodeId}:${jewel.item.id}`}
-              className="build-jewel-card equipment-card"
+              data-slot="build-jewel-card"
+              className={cn(itemCard, jewelCard)}
               data-rarity={details.rarity}
               data-active={jewel.active}
             >
               <JewelCardContent item={jewel.item} />
               {note && (
-                <footer className="build-jewel-card-footer">
-                  <span className="build-jewel-note">{note}</span>
+                <footer className="border-t border-(--inspection-border) px-4.5 pt-2.5 pb-3">
+                  <span className="font-mono text-label text-ink-faint">
+                    {note}
+                  </span>
                 </footer>
               )}
             </article>
@@ -135,32 +154,45 @@ function formatValue(value: number) {
     ? String(value)
     : value.toFixed(2).replace(/\.?0+$/, "")
 }
+const statLineClass =
+  "flex items-baseline justify-between gap-4 border-b border-rule py-[7px] text-xs leading-[1.45] text-ink-muted [&>span]:min-w-0 [&>span]:[overflow-wrap:anywhere]"
+function StatCount({ count }: { count: number }) {
+  if (count < 2) return null
+  return (
+    <small className="shrink-0 font-mono text-label text-ink-faint">
+      ×{count}
+    </small>
+  )
+}
 function StatLine({ stat }: { stat: JewelStat }) {
   // Interleave the summed numbers with the template text so the figures
   // read in the ledger's mono voice.
   const parts = stat.template.split("#")
   if (!stat.values.length)
     return (
-      <li>
-        <span className="build-jewel-stat-reference">
+      <li className={statLineClass}>
+        {/* A referenced skill or passive keeps its icon beside the text. */}
+        <span className="flex items-center gap-2 [&_img]:size-5 [&_img]:shrink-0 [&_svg]:size-5 [&_svg]:shrink-0">
           <ReferenceLine text={stat.template} />
         </span>
-        {stat.count > 1 && <small>×{stat.count}</small>}
+        <StatCount count={stat.count} />
       </li>
     )
   return (
-    <li>
+    <li className={statLineClass}>
       <span>
         {parts.map((part, index) => (
           <span key={index}>
             {part}
             {index < stat.values.length && (
-              <strong>{formatValue(stat.values[index])}</strong>
+              <strong className="figure font-medium text-ink">
+                {formatValue(stat.values[index])}
+              </strong>
             )}
           </span>
         ))}
       </span>
-      {stat.count > 1 && <small>×{stat.count}</small>}
+      <StatCount count={stat.count} />
     </li>
   )
 }
@@ -178,45 +210,45 @@ export function JewelStats({
   const { jewels, message } = useSocketedJewels(build, spec, gear)
   if (message && !jewels.length)
     return (
-      <div className="build-stats-body">
-        <section>
-          <h3>From jewels</h3>
-          <p className="build-muted" role="status">
+      <StatsBody>
+        <StatsSection>
+          <StatsHeading>From jewels</StatsHeading>
+          <Note className="my-3" role="status">
             {message}
-          </p>
-        </section>
-      </div>
+          </Note>
+        </StatsSection>
+      </StatsBody>
     )
   const active = jewels.filter((jewel) => jewel.active)
   const stats = aggregateJewelStats(active.map((jewel) => jewel.item))
   return (
-    <div className="build-stats-body">
-      <section>
-        <h3>From jewels</h3>
+    <StatsBody data-slot="build-jewel-stats">
+      <StatsSection>
+        <StatsHeading>From jewels</StatsHeading>
         {message && (
-          <p className="build-muted" role="status">
+          <Note className="my-3" role="status">
             {message}
-          </p>
+          </Note>
         )}
-        <p className="build-stats-skill">
+        <StatsCaption>
           {jewels.length === 1 ? "1 jewel" : `${jewels.length} jewels`}
           {jewels.length > active.length &&
             ` · ${active.length} in allocated sockets`}
-        </p>
+        </StatsCaption>
         {stats.length ? (
-          <ul className="build-jewel-stats">
+          <ul className="m-0 list-none p-0">
             {stats.map((stat) => (
               <StatLine key={stat.template} stat={stat} />
             ))}
           </ul>
         ) : (
-          <p className="build-muted">
+          <Note className="my-3">
             {jewels.length
               ? "None of the socketed jewels sit in an allocated socket."
               : "No jewel modifiers in this tree."}
-          </p>
+          </Note>
         )}
-      </section>
-    </div>
+      </StatsSection>
+    </StatsBody>
   )
 }

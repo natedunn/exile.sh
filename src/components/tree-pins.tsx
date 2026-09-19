@@ -30,7 +30,12 @@ export function TreePins({
     if (!nodes.length) setOpen(false)
   }, [nodes.length])
   return (
-    <div ref={root} className="tree-pins" data-open={open}>
+    <div
+      ref={root}
+      className="absolute bottom-3.5 left-1/2 z-51 -translate-x-1/2 border border-rule-strong bg-paper p-1.5 shadow-menu empty:hidden max-md:left-3.5 max-md:translate-x-0 [&>button]:h-8 [&>button]:border-rule-strong [&>button]:bg-surface [&>button]:hover:border-brand-deep [&>button]:hover:text-brand"
+      data-open={open}
+      data-tree-pins=""
+    >
       {nodes.length > 0 && (
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger
@@ -38,13 +43,14 @@ export function TreePins({
             aria-label={`${nodes.length} pinned ${nodes.length === 1 ? "node" : "nodes"}`}
           >
             <Pin /> {nodes.length}{" "}
-            <span className="tree-pins-count-label">
+            <span className="max-md:hidden">
               pinned {nodes.length === 1 ? "node" : "nodes"}
             </span>
           </PopoverTrigger>
           <PopoverContent
-            className="tree-pins-panel"
-            positionerClassName="tree-pins-positioner"
+            data-tree-pins-panel=""
+            className="max-h-[min(70dvh,var(--available-height))] w-[min(440px,calc(100vw-24px))] overflow-hidden border-rule-strong bg-paper p-3 text-ink [&_ul]:min-h-0"
+            positionerClassName="z-52"
             side="top"
             sideOffset={8}
             align="center"
@@ -73,8 +79,8 @@ export function TreePins({
               results.current?.focus(next)
             }}
           >
-            <div className="tree-pins-heading">
-              <PopoverTitle>
+            <div className="flex items-center justify-between gap-3">
+              <PopoverTitle className="flex items-center gap-2 text-base [&_svg]:size-4">
                 <Pin aria-hidden="true" /> Pinned nodes
               </PopoverTitle>
               <Button

@@ -52,7 +52,7 @@ export function ItemArtwork({
       height={details.artwork.height * 64}
     />
   ) : (
-    <span className="gear-art-fallback">
+    <span className="flex flex-col items-center justify-center gap-2 text-center font-display text-2xs text-(--item-color) max-sm:[&_span]:text-micro max-sm:[&_span]:wrap-anywhere [&>svg]:size-7 [&>svg]:opacity-65 max-sm:[&>svg]:size-5">
       <SlotIcon slot={slot} />
       <span>{details.name}</span>
     </span>

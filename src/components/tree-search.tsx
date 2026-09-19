@@ -1,6 +1,9 @@
 import { TreeSearchResults } from "./tree-search-results"
 import type { TreeSearchResultsHandle } from "./tree-search-results"
-import { useTreePanelCoordination } from "./tree-panel-state"
+import {
+  announceTreePanelOpen,
+  useTreePanelCoordination,
+} from "./tree-panel-state"
 import { useCallback, useEffect, useId, useRef, useState } from "react"
 import { ArrowRight, Search, X } from "lucide-react"
 import type { TreeNode } from "../../shared/tree-render-model"
@@ -11,6 +14,14 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "./ui/input-group"
+import {
+  drawer,
+  drawerPanel,
+  drawerTrack,
+  panelHandle,
+} from "./tree-panel-classes"
+import { cn } from "cn"
+import { flushSync } from "react-dom"
 
 export type TreeSearchOptions = {
   /** Show tree search. Defaults to true. */
@@ -44,6 +55,15 @@ export function TreeSearch({
   const trigger = useRef<HTMLButtonElement>(null)
   const resultList = useRef<TreeSearchResultsHandle>(null)
   const id = useId()
+  const focusInput = useCallback(
+    () => input.current?.focus({ preventScroll: true }),
+    []
+  )
+  const openSearch = useCallback(() => {
+    flushSync(() => setOpen(true))
+    if (root.current) announceTreePanelOpen(root.current)
+    focusInput()
+  }, [focusInput])
   useTreePanelCoordination(root, open, setOpen)
   const close = useCallback(() => {
     setOpen(false)
@@ -58,18 +78,18 @@ export function TreeSearch({
   )
   useEffect(() => {
     if (!open) return
-    input.current?.focus({ preventScroll: true })
+    focusInput()
     const frame = requestAnimationFrame(() => {
       // A fast keypress may already have moved focus into the results.
       if (
         document.activeElement === trigger.current ||
         !root.current?.contains(document.activeElement)
       ) {
-        input.current?.focus({ preventScroll: true })
+        focusInput()
       }
     })
     return () => cancelAnimationFrame(frame)
-  }, [open])
+  }, [open, focusInput])
   useEffect(() => {
     if (!searchHotkey) return
     const handle = (event: KeyboardEvent) => {
@@ -107,52 +127,56 @@ export function TreeSearch({
       })
       const owner =
         candidates.find((element) =>
-          element.closest(".passive-tree")?.contains(target)
+          element.closest("[data-passive-tree]")?.contains(target)
         ) ?? candidates[0]
       if (owner !== root.current) return
       event.preventDefault()
-      setOpen(true)
-      input.current?.focus({ preventScroll: true })
+      openSearch()
     }
     document.addEventListener("keydown", handle)
     return () => document.removeEventListener("keydown", handle)
-  }, [searchHotkey])
+  }, [searchHotkey, openSearch])
   return (
     <div
       ref={root}
-      className="tree-search tree-drawer"
+      className={drawer}
+      data-tree-drawer=""
       data-open={open}
       data-tree-search={searchHotkey || undefined}
     >
-      <div className="tree-drawer-track">
+      <div className={drawerTrack}>
         <Button
-          className="tree-panel-handle"
+          className={cn(panelHandle, "max-w-full")}
           ref={trigger}
           variant="outline"
           aria-label={open ? "Close tree search" : "Search tree"}
           aria-expanded={open}
           aria-controls={id}
           aria-keyshortcuts={searchHotkey ? "f" : undefined}
-          onClick={() => (open ? close() : setOpen(true))}
+          onClick={() => (open ? close() : openSearch())}
         >
           {open ? <ArrowRight /> : <Search />}
           {!open && (
             <span
-              className="tree-search-trigger-label"
+              className="min-w-0 truncate max-md:hidden"
               title={query.trim() || undefined}
             >
               {query.trim() || "Search"}
             </span>
           )}
           {!open && searchHotkey && (
-            <span className="search-hotkey" aria-hidden="true">
+            <span
+              className="ml-3 shrink-0 max-md:hidden [&_kbd]:rounded [&_kbd]:border [&_kbd]:border-rule-strong [&_kbd]:px-1.5 [&_kbd]:py-0.5"
+              aria-hidden="true"
+            >
               <kbd>F</kbd>
             </span>
           )}
         </Button>
         <section
           id={id}
-          className="tree-search-panel"
+          data-slot="tree-search-panel"
+          className={drawerPanel}
           data-open={open}
           inert={!open}
           aria-hidden={!open}
@@ -187,7 +211,7 @@ export function TreeSearch({
               if (next !== undefined) {
                 event.preventDefault()
                 event.stopPropagation()
-                if (next < 0) input.current?.focus({ preventScroll: true })
+                if (next < 0) focusInput()
                 else resultList.current?.focus(next)
                 return
               }
@@ -199,10 +223,10 @@ export function TreeSearch({
             }
           }}
         >
-          <div className="tree-search-heading">
+          <div className="flex min-h-6 items-center">
             <strong>Search tree</strong>
           </div>
-          <InputGroup className="search-input">
+          <InputGroup className="shrink-0">
             <InputGroupAddon>
               <Search />
             </InputGroupAddon>
@@ -215,7 +239,10 @@ export function TreeSearch({
             />
             {!query && searchHotkey && (
               <InputGroupAddon align="inline-end">
-                <span className="search-hotkey" aria-hidden="true">
+                <span
+                  className="[&_kbd]:rounded [&_kbd]:border [&_kbd]:border-rule-strong [&_kbd]:px-1.5 [&_kbd]:py-0.5"
+                  aria-hidden="true"
+                >
                   <kbd>F</kbd>
                 </span>
               </InputGroupAddon>
@@ -227,7 +254,7 @@ export function TreeSearch({
                   aria-label="Clear search"
                   onClick={() => {
                     onQueryChange("")
-                    input.current?.focus({ preventScroll: true })
+                    focusInput()
                   }}
                 >
                   <X />
@@ -235,7 +262,7 @@ export function TreeSearch({
               </InputGroupAddon>
             )}
           </InputGroup>
-          <p role="status">
+          <p className="text-2xs text-ink-muted" role="status">
             {searching
               ? "Searching…"
               : query.trim()

@@ -1,12 +1,30 @@
 import { equipmentRarity } from "../../shared/equipment-rarity"
 import { BuildExpandedStats } from "./build-expanded-stats"
 import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
+import { Note } from "./ui/note"
+import {
+  StatsBody,
+  StatsCaption,
+  StatsHeading,
+  StatsList,
+  StatsRow,
+  StatsSection,
+} from "./build/stats-ledger"
 import type { ReactNode } from "react"
 import { buildSkill, displayStat, statValue } from "../../shared/pob"
 import type { BuildSnapshot } from "../../shared/pob"
 
 type StatRow = [label: string, key: string, suffix?: string, scale?: number]
 export type StatGroup = "character" | "defensive" | "recovery" | "main"
+
+/** Attribute, charge, resistance and hit-taken figures in their element's colour. */
+const toneClass: Record<string, string> = {
+  red: "text-tone-red",
+  green: "text-tone-green",
+  blue: "text-tone-blue",
+  yellow: "text-tone-yellow",
+  purple: "text-tone-purple",
+}
 
 const groups: Record<StatGroup, { title: string; rows: StatRow[] }> = {
   character: {
@@ -76,10 +94,9 @@ export function BuildStats({
   }
   function row(label: string, content: ReactNode) {
     return (
-      <div key={label}>
-        <dt>{label}</dt>
-        <dd>{content}</dd>
-      </div>
+      <StatsRow key={label} label={label}>
+        {content}
+      </StatsRow>
     )
   }
   function rows(entries: StatRow[]) {
@@ -91,7 +108,7 @@ export function BuildStats({
   }
   function multiple(entries: [string, string, string][], suffix = "") {
     return (
-      <span className="build-stat-values">
+      <span className="inline-flex flex-wrap justify-end gap-1 [&>span+span]:before:mr-1 [&>span+span]:before:text-ink-faint [&>span+span]:before:content-['/']">
         {entries.map(([key, label, tone]) => (
           <Tooltip key={key}>
             <TooltipTrigger
@@ -99,6 +116,7 @@ export function BuildStats({
               tabIndex={0}
               aria-label={label + ": " + value(key, suffix)}
               data-tone={tone}
+              className={toneClass[tone]}
             >
               {value(key, suffix)}
             </TooltipTrigger>
@@ -109,14 +127,12 @@ export function BuildStats({
     )
   }
   return (
-    <div className="build-stats-body">
+    <StatsBody>
       {selected.map((group) => (
-        <section key={group}>
-          <h3>{groups[group].title}</h3>
-          {group === "main" && (
-            <p className="build-stats-skill">{buildSkill(build)}</p>
-          )}
-          <dl>
+        <StatsSection key={group}>
+          <StatsHeading>{groups[group].title}</StatsHeading>
+          {group === "main" && <StatsCaption>{buildSkill(build)}</StatsCaption>}
+          <StatsList>
             {group === "character" &&
               row(
                 "Attributes",
@@ -167,11 +183,11 @@ export function BuildStats({
                 )}
               </>
             )}
-          </dl>
-        </section>
+          </StatsList>
+        </StatsSection>
       ))}
-      {note && <p className="build-stats-note">{note}</p>}
+      {note && <Note className="m-0 text-label">{note}</Note>}
       {selected.includes("character") && <BuildExpandedStats build={build} />}
-    </div>
+    </StatsBody>
   )
 }

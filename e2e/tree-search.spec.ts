@@ -14,6 +14,13 @@ for (const width of [1440, 390, 320]) {
         exact: true,
       })
       await expect(search).toBeVisible()
+      await search.click()
+      await page.keyboard.type("focus check")
+      await expect(
+        page.getByRole("textbox", { name: "Search nodes" })
+      ).toHaveValue("focus check")
+      await page.getByRole("button", { name: "Clear search" }).click()
+      await page.keyboard.press("Escape")
       if (width < 768 && route !== "atlas") {
         await expect(
           page.getByRole("button", { name: "Tree settings", exact: true })
@@ -25,7 +32,7 @@ for (const width of [1440, 390, 320]) {
           page.getByRole("button", { name: "Close tree settings" })
         ).toBeVisible()
       }
-      await page.locator(".tree-viewport svg").focus()
+      await page.locator('[data-slot="tree-viewport"] svg').focus()
       await page.keyboard.press("f")
       const input = page.getByRole("textbox", { name: "Search nodes" })
       await expect(input).toBeFocused()
@@ -33,11 +40,12 @@ for (const width of [1440, 390, 320]) {
         await expect(
           page.getByRole("button", { name: "Tree settings", exact: true })
         ).toHaveAttribute("aria-expanded", "false")
-      await input.fill(query)
+      await page.keyboard.type(query)
+      await expect(input).toHaveValue(query)
       await expect(page.getByRole("status")).not.toHaveText("Searching…")
       const matches = page.locator("[data-search-match-count]")
       await expect(matches.first()).toBeAttached()
-      const results = page.locator(".tree-search-results button")
+      const results = page.locator('[data-slot="tree-results"] button')
       await expect(results.first()).toBeVisible()
       await expect(results.first().locator("img")).toBeVisible()
       await expect
@@ -50,13 +58,15 @@ for (const width of [1440, 390, 320]) {
             )
         )
         .toBe(true)
-      await expect(page.locator(".tree-search-highlights")).toHaveCSS(
+      await expect(page.locator("[data-search-match-count]")).toHaveCSS(
         "animation-name",
-        "tree-search-pulse"
+        "pulse"
       )
       await expect
         .poll(async () => {
-          const box = (await page.locator(".tree-search-panel").boundingBox())!
+          const box = (await page
+            .locator('[data-slot="tree-search-panel"]')
+            .boundingBox())!
           return box.x >= 0 && box.x + box.width <= width
         })
         .toBe(true)
@@ -69,13 +79,14 @@ for (const width of [1440, 390, 320]) {
       await expect(input).not.toBeVisible()
       await expect(matches.first()).toBeAttached()
       await search.click()
+      await expect(input).toBeFocused()
       await expect(input).toHaveValue(query)
-      await input.press("ArrowDown")
+      await page.keyboard.press("ArrowDown")
       await expect(page.locator('[data-result-index="0"]')).toBeFocused()
       await page.keyboard.press("End")
       const total = Number(
         await page
-          .locator(".tree-search-results")
+          .locator('[data-slot="tree-results"]')
           .getAttribute("data-result-count")
       )
       await expect(
@@ -87,7 +98,7 @@ for (const width of [1440, 390, 320]) {
             .locator(`[data-result-index="${total - 1}"]`)
             .boundingBox())!
           const list = (await page
-            .locator(".tree-search-results")
+            .locator('[data-slot="tree-results"]')
             .boundingBox())!
           return row.y + row.height <= list.y + list.height + 1
         })
@@ -117,7 +128,7 @@ for (const width of [1440, 390, 320]) {
       await page.emulateMedia({ reducedMotion: "reduce" })
       await input.fill(query)
       await expect(page.getByRole("status")).not.toHaveText("Searching…")
-      await expect(page.locator(".tree-search-highlights")).toHaveCSS(
+      await expect(page.locator("[data-search-match-count]")).toHaveCSS(
         "animation-name",
         "none"
       )
@@ -136,12 +147,12 @@ test("broad searches keep rendering bounded and keyboard navigation reaches ever
   await page.getByRole("button", { name: "Search tree", exact: true }).click()
   const input = page.getByRole("textbox", { name: "Search nodes" })
   await input.pressSequentially("increased", { delay: 10 })
-  const list = page.locator(".tree-search-results")
+  const list = page.locator('[data-slot="tree-results"]')
   await expect(page.getByRole("status")).toHaveText(/\d+ matching nodes/)
   const count = Number(await list.getAttribute("data-result-count"))
   expect(count).toBeGreaterThan(1000)
   expect(await list.locator("button").count()).toBeLessThan(40)
-  await expect(page.locator(".tree-search-highlights path")).toHaveCount(3)
+  await expect(page.locator("[data-search-match-count] path")).toHaveCount(3)
   await input.press("ArrowDown")
   await page.keyboard.press("End")
   const last = list.locator(`[data-result-index="${count - 1}"]`)
@@ -159,11 +170,11 @@ test("broad searches keep rendering bounded and keyboard navigation reaches ever
   expect(await list.locator("button").count()).toBeLessThan(40)
   await input.fill("no-matching-node-xyz")
   await expect(page.getByRole("status")).toHaveText("0 matching nodes")
-  await expect(page.locator(".tree-search-highlights")).toHaveCount(0)
+  await expect(page.locator("[data-search-match-count]")).toHaveCount(0)
   await input.fill("increased")
   await input.fill("")
   await expect(page.getByRole("status")).toHaveText(
     "Search names and stats across this tree."
   )
-  await expect(page.locator(".tree-search-highlights")).toHaveCount(0)
+  await expect(page.locator("[data-search-match-count]")).toHaveCount(0)
 })

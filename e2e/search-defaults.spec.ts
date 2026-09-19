@@ -7,7 +7,7 @@ test("defaults stay out of URLs and only changed filters are shared", async ({
   context,
 }) => {
   await page.goto("/")
-  await expect(page.locator(".currency-row").first()).toBeVisible()
+  await expect(page.locator("[data-testid=currency-row]").first()).toBeVisible()
   expect(new URL(page.url()).pathname).toBe("/economy/market")
   expect(params(page.url())).toEqual({})
   const quote = page.getByRole("combobox", {
@@ -25,7 +25,7 @@ test("defaults stay out of URLs and only changed filters are shared", async ({
   await page
     .getByRole("textbox", { name: "Search currencies", exact: true })
     .fill("Divine Orb")
-  await expect(page.locator(".currency-row")).toHaveCount(1)
+  await expect(page.locator("[data-testid=currency-row]")).toHaveCount(1)
   expect(params(page.url())).toEqual({ quote: "Chaos", q: "Divine Orb" })
   const shared = await context.newPage()
   await shared.goto(page.url())
@@ -38,7 +38,7 @@ test("defaults stay out of URLs and only changed filters are shared", async ({
   await shared.close()
   await page.reload()
   await expect(quote).toContainText("Chaos")
-  await page.locator(".wordmark").click()
+  await page.locator("[data-testid=wordmark]").click()
   expect(params(page.url())).toEqual({ quote: "Chaos", q: "Divine Orb" })
   await page.getByRole("button", { name: "Clear search", exact: true }).click()
   expect(params(page.url())).toEqual({ quote: "Chaos" })

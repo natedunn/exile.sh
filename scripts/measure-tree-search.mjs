@@ -28,12 +28,12 @@ try {
   const report = await page.evaluate(() => ({
     inputToFrameMs: window.searchFrameSamples,
     matchingNodes: Number(
-      document.querySelector(".tree-search-results").dataset.resultCount
+      document.querySelector("[data-slot=tree-results]").dataset.resultCount
     ),
     mountedResultButtons: document.querySelectorAll(
-      ".tree-search-results button"
+      "[data-slot=tree-results] button"
     ).length,
-    highlightPaths: document.querySelectorAll(".tree-search-highlights path")
+    highlightPaths: document.querySelectorAll("[data-search-match-count] path")
       .length,
   }))
   console.log(JSON.stringify(report, null, 2))

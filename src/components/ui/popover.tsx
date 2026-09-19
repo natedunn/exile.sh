@@ -1,6 +1,25 @@
 import * as React from "react"
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
 import { cn } from "cn"
+import { cva } from "class-variance-authority"
+import type { VariantProps } from "class-variance-authority"
+
+const popoverContentVariants = cva(
+  "z-50 flex origin-(--transform-origin) flex-col rounded border text-ink outline-hidden transition-none",
+  {
+    variants: {
+      variant: {
+        default:
+          "w-72 gap-2.5 border-rule-strong bg-surface p-2.5 text-sm shadow-menu",
+        /* Shared shell for item, gem and passive inspection, live or pinned.
+           Content sets --inspection-width/-padding/-border/-accent. */
+        inspection:
+          "dither-fade block max-h-(--inspection-max-height,var(--available-height,calc(100dvh-24px))) w-(--inspection-width,330px) max-w-[calc(100vw-24px)] gap-0 overflow-auto overscroll-contain border-(--inspection-border,var(--color-rule-strong)) bg-paper-deep p-(--inspection-padding,18px_18px_16px) shadow-popup [--dither-color:var(--inspection-accent,var(--color-brand))] [--dither-opacity:0.07] data-closed:hidden",
+      },
+    },
+    defaultVariants: { variant: "default" },
+  }
+)
 
 function Popover({ ...props }: PopoverPrimitive.Root.Props) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />
@@ -26,11 +45,13 @@ function PopoverContent({
   positionMethod,
   positionerClassName,
   positionerAdornment,
+  variant = "default",
   ...props
-}: PopoverPrimitive.Popup.Props & {
-  positionerClassName?: string
-  positionerAdornment?: React.ReactNode
-} & Pick<
+}: PopoverPrimitive.Popup.Props &
+  VariantProps<typeof popoverContentVariants> & {
+    positionerClassName?: string
+    positionerAdornment?: React.ReactNode
+  } & Pick<
     PopoverPrimitive.Positioner.Props,
     | "align"
     | "alignOffset"
@@ -44,6 +65,7 @@ function PopoverContent({
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Positioner
+        data-slot="popover-positioner"
         align={align}
         alignOffset={alignOffset}
         side={side}
@@ -52,14 +74,14 @@ function PopoverContent({
         collisionPadding={collisionPadding}
         anchor={anchor}
         positionMethod={positionMethod}
-        className={cn("popup-corners isolate z-50", positionerClassName)}
+        className={cn(
+          "popup-corners isolate z-50 [&:has(>[data-augment-replaced=true])]:pointer-events-none [&:has(>[data-augment-replaced=true])]:invisible",
+          positionerClassName
+        )}
       >
         <PopoverPrimitive.Popup
           data-slot="popover-content"
-          className={cn(
-            "data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 z-50 flex w-72 origin-(--transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden transition-none duration-100",
-            className
-          )}
+          className={cn(popoverContentVariants({ variant }), className)}
           {...props}
         />
         {positionerAdornment}
@@ -95,13 +117,14 @@ function PopoverDescription({
   return (
     <PopoverPrimitive.Description
       data-slot="popover-description"
-      className={cn("text-muted-foreground", className)}
+      className={cn("text-ink-muted", className)}
       {...props}
     />
   )
 }
 
 export {
+  popoverContentVariants,
   Popover,
   PopoverContent,
   PopoverClose,

@@ -35,7 +35,7 @@ export function ReferenceTooltip({
     <Popover {...inspection.popoverProps}>
       {passive ? (
         <PassiveNodeImage
-          className="equipment-granted-skill-art"
+          className="mr-2 inline-block size-6 shrink-0 border border-ink-muted object-contain align-middle in-data-[layout=bullets]:mr-0"
           src={image}
           alt={artworkLabel}
           width={24}
@@ -44,7 +44,7 @@ export function ReferenceTooltip({
       ) : (
         image && (
           <img
-            className="equipment-granted-skill-art"
+            className="mr-2 inline-block size-6 shrink-0 border border-ink-muted object-contain align-middle in-data-[layout=bullets]:mr-0"
             src={image}
             alt={artworkLabel}
             width={24}
@@ -52,13 +52,13 @@ export function ReferenceTooltip({
           />
         )
       )}
-      <span className="equipment-reference-text">
+      <span className="min-w-0">
         {label.slice(0, label.lastIndexOf(name))}
         <PopoverTrigger
           {...inspection.triggerProps}
           render={<span />}
           nativeButton={false}
-          className="equipment-reference-trigger"
+          className="inline cursor-pointer border-0 bg-transparent p-0 text-inherit underline decoration-dotted underline-offset-3 focus-visible:outline focus-visible:outline-offset-3 focus-visible:outline-current"
           aria-label={`${name}. Show ${passive ? "passive" : "skill"} details`}
         >
           {name}
@@ -66,10 +66,15 @@ export function ReferenceTooltip({
         {label.slice(label.lastIndexOf(name) + name.length)}
       </span>
       <InspectionTooltipContent
+        data-tooltip-kind={passive ? "passive" : "skill"}
         {...inspection.contentProps}
         pinningEnabled={false}
         pinLabel={name}
-        className={passive ? "tree-inspection" : "skill-gem-tooltip"}
+        className={
+          passive
+            ? "[--inspection-max-height:min(400px,var(--available-height))] [&>p]:mt-1.5 [&>p]:text-xs [&>p]:leading-normal [&>p]:text-ink-muted"
+            : "[--inspection-width:330px] max-sm:[--inspection-padding:16px]"
+        }
         side="right"
         align="start"
         sideOffset={14}

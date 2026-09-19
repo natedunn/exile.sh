@@ -97,11 +97,11 @@ export function AnointedNodeDetails({
   const image = node?.image
   return (
     <>
-      <div>
+      <div className="flex items-center gap-3 not-last:mb-2 not-last:border-b not-last:border-rule-strong not-last:pb-3 [&>img]:h-12 [&>img]:basis-12 [&>img]:border [&>img]:border-rule [&>img]:bg-paper">
         <PassiveNodeImage src={image} width={48} height={48} />
-        <div className="tree-inspect-heading">
+        <div className="min-w-0 flex-1">
           <PopoverTitle>{name}</PopoverTitle>
-          <p className="tree-status" data-allocated="true">
+          <p className="mt-1.25 font-mono text-label text-brand opacity-70">
             Allocated by anointment
           </p>
         </div>

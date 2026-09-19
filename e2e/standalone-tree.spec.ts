@@ -7,8 +7,8 @@ async function openMobileSettings(page: Page) {
       .getByRole("button", { name: "Tree settings", exact: true })
       .click()
     await expect(
-      page.locator(".tree-settings-drawer .tree-drawer-track")
-    ).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)")
+      page.locator('[data-slot="tree-settings"]').locator("..")
+    ).toHaveCSS("transform", "none")
   }
 }
 
@@ -22,7 +22,9 @@ for (const viewport of [
   }) => {
     await page.setViewportSize(viewport)
     await page.goto("/trees")
-    const map = page.locator(".standalone-tree .tree-viewport svg")
+    const map = page.locator(
+      '[data-slot="tree-page"] [data-slot="tree-viewport"] svg'
+    )
     await expect(map).toBeVisible()
     // Upstream image-only decorations must not become interactive passives.
     await expect(map.locator('[data-node="857"]')).toHaveCount(0)
@@ -39,16 +41,50 @@ for (const viewport of [
     }
     await noOverflow()
     const canvas = (await page
-      .locator(".standalone-tree .tree-viewport")
+      .locator('[data-slot="tree-page"] [data-slot="tree-viewport"]')
       .boundingBox())!
     expect(canvas.x).toBe(0)
     expect(canvas.width).toBe(viewport.width)
-    for (const selector of [".viewer-header", ".viewer-footer"]) {
+    const controls = (await page
+      .locator('[data-slot="tree-controls"]')
+      .boundingBox())!
+    expect(controls.y + controls.height).toBeLessThanOrEqual(
+      canvas.y + canvas.height
+    )
+    const treeNav = page.getByRole("navigation", { name: "Tree types" })
+    const navLayout = await treeNav.getByRole("link").evaluateAll((links) => ({
+      viewport: innerWidth,
+      links: links.map((link) => {
+        const bounds = link.getBoundingClientRect()
+        return { left: bounds.left, right: bounds.right }
+      }),
+    }))
+    expect(
+      navLayout.links.every(
+        ({ left, right }) => left >= 0 && right <= navLayout.viewport
+      )
+    ).toBe(true)
+    const activeTreeLink = treeNav.getByRole("link", {
+      name: "Passive Tree",
+      exact: true,
+    })
+    await expect(activeTreeLink).toHaveCSS("border-bottom-width", "2px")
+    expect(
+      await activeTreeLink.evaluate(
+        (link) => getComputedStyle(link).borderBottomColor
+      )
+    ).not.toBe("rgba(0, 0, 0, 0)")
+    for (const selector of [
+      "[data-testid=viewer-header]",
+      "[data-testid=viewer-footer]",
+    ]) {
       const bounds = (await page.locator(selector).boundingBox())!
       expect(bounds.x).toBe(0)
       expect(bounds.width).toBe(viewport.width)
     }
-    await expect(page.locator(".viewer-shell .topbar")).toHaveCount(0)
+    await expect(
+      page.locator("[data-shell=viewer] [data-testid=site-header]")
+    ).toHaveCount(0)
     const original = await map.getAttribute("viewBox")
     await map.focus()
     await page.keyboard.press("+")
@@ -95,7 +131,7 @@ for (const viewport of [
     await expect(page).toHaveURL(/version=0_1/)
     await expect(map).toBeVisible()
     await page.goto("/build-bin")
-    await expect(page.locator(".viewer-shell")).toHaveCount(0)
+    await expect(page.locator("[data-shell=viewer]")).toHaveCount(0)
     expect(
       await page
         .locator("body")
@@ -116,7 +152,7 @@ test("tree load failures can be retried and invalid versions fall back", async (
   ).toBeVisible({ timeout: 20000 })
   await page.unroute("**/pob-trees/passives-v1/0_5.json")
   await page.getByRole("button", { name: "Retry", exact: true }).click()
-  await expect(page.locator(".tree-viewport svg")).toBeVisible()
+  await expect(page.locator('[data-slot="tree-viewport"] svg')).toBeVisible()
 })
 
 test("Paths Not Taken toggle supports keyboard and historical versions", async ({
@@ -158,7 +194,9 @@ test("toggling Oracle paths preserves framing, zoom and pan", async ({
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto("/trees/passive?section=Oracle")
-  const map = page.locator(".standalone-tree .tree-viewport svg")
+  const map = page.locator(
+    '[data-slot="tree-page"] [data-slot="tree-viewport"] svg'
+  )
   const toggle = page.getByRole("checkbox", { name: "Paths Not Taken" })
   await expect(map).toBeVisible()
   const checkToggle = async () => {
@@ -175,7 +213,9 @@ test("toggling Oracle paths preserves framing, zoom and pan", async ({
         await expect(map.locator("[data-node][data-unseen-path]")).toHaveCount(
           0
         )
-      else if ((await page.locator(".tree-zoom").textContent()) === "1.0×")
+      else if (
+        (await page.locator('[data-slot="tree-zoom"]').textContent()) === "1.0×"
+      )
         await expect(map.locator("[data-node][data-unseen-path]")).toHaveCount(
           176
         )
@@ -205,7 +245,7 @@ test("tree pages offer contextual controls and keep zoom inside the viewport", a
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto("/trees")
-  await expect(page.locator(".tree-viewport svg")).toBeVisible()
+  await expect(page.locator('[data-slot="tree-viewport"] svg')).toBeVisible()
   const nav = page.getByRole("navigation", { name: "Tree types" })
   await expect(
     page.getByRole("combobox", { name: "Ascendancy", exact: true })
@@ -216,10 +256,13 @@ test("tree pages offer contextual controls and keep zoom inside the viewport", a
     page.getByRole("combobox", { name: "Tree version" })
   ).toHaveCount(0)
   await expect(page.locator("[data-node]")).toHaveCount(537)
-  await expect(page.locator(".tree-explorer-options")).toHaveCount(0)
   await expect(page.getByRole("checkbox")).toHaveCount(0)
-  const canvas = (await page.locator(".tree-viewport").boundingBox())!
-  const controls = (await page.locator(".tree-controls").boundingBox())!
+  const canvas = (await page
+    .locator('[data-slot="tree-viewport"]')
+    .boundingBox())!
+  const controls = (await page
+    .locator('[data-slot="tree-controls"]')
+    .boundingBox())!
   expect(controls.x).toBeGreaterThan(canvas.x)
   expect(controls.y).toBeGreaterThan(canvas.y)
   expect(canvas.y + canvas.height - controls.y - controls.height).toBeCloseTo(
@@ -230,7 +273,7 @@ test("tree pages offer contextual controls and keep zoom inside the viewport", a
     14,
     0
   )
-  const map = page.locator(".tree-viewport svg")
+  const map = page.locator('[data-slot="tree-viewport"] svg')
   const view = await map.getAttribute("viewBox")
   await page.getByRole("button", { name: "Zoom in", exact: true }).click()
   await expect(map).not.toHaveAttribute("viewBox", view!)
@@ -260,9 +303,11 @@ test("ascendancy links survive reload, version changes and history", async ({
   await expect(
     page.locator('[data-ascendancy-background="Oracle"]')
   ).toBeVisible()
-  await expect(page.locator(".tree-passive-art").first()).toBeAttached()
-  await expect(page.locator(".tree-controls")).toHaveCount(0)
-  const map = page.locator(".tree-viewport svg")
+  await expect(
+    page.locator("[data-tree-art-region] image").first()
+  ).toBeAttached()
+  await expect(page.locator('[data-slot="tree-controls"]')).toHaveCount(0)
+  const map = page.locator('[data-slot="tree-viewport"] svg')
   const view = await map.getAttribute("viewBox")
   await map.focus()
   await page.keyboard.press("+")
@@ -275,9 +320,9 @@ test("ascendancy links survive reload, version changes and history", async ({
   await expect(map).toHaveAttribute("viewBox", view!)
   await map.focus()
   await page.keyboard.press("Enter")
-  await expect(page.locator(".tree-inspection")).toBeVisible()
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toBeVisible()
   await page.keyboard.press("Escape")
-  await expect(page.locator(".tree-viewport svg")).toBeVisible()
+  await expect(page.locator('[data-slot="tree-viewport"] svg')).toBeVisible()
   await expect(page.getByRole("checkbox")).toHaveCount(0)
   await choice.click()
   await page.getByRole("option", { name: "Amazon", exact: true }).click()
@@ -299,7 +344,7 @@ test("ascendancy links survive reload, version changes and history", async ({
   await page.getByRole("combobox", { name: "Tree version" }).click()
   await page.getByRole("option", { name: "0.1", exact: true }).click()
   await expect(choice).not.toContainText("Amazon")
-  await expect(page.locator(".tree-viewport svg")).toBeVisible()
+  await expect(page.locator('[data-slot="tree-viewport"] svg')).toBeVisible()
 })
 
 for (const [legacy, target] of [
@@ -310,7 +355,7 @@ for (const [legacy, target] of [
   test(`legacy tree link ${legacy} redirects`, async ({ page }) => {
     await page.goto(legacy)
     await expect(page).toHaveURL(new RegExp(target))
-    await expect(page.locator(".tree-viewport svg")).toBeVisible()
+    await expect(page.locator('[data-slot="tree-viewport"] svg')).toBeVisible()
   })
 }
 
@@ -325,8 +370,10 @@ test("ascendancies load independently and keep the selector inside the viewer", 
     page.locator('[data-ascendancy-background="Oracle"]')
   ).toBeVisible()
   await openMobileSettings(page)
-  const canvas = (await page.locator(".tree-viewport").boundingBox())!
-  const panel = page.locator(".tree-settings-panel")
+  const canvas = (await page
+    .locator('[data-slot="tree-viewport"]')
+    .boundingBox())!
+  const panel = page.locator('[data-slot="tree-settings"]')
   const selector = (await panel.boundingBox())!
   await expect(
     panel.getByRole("combobox", { name: "Ascendancy", exact: true })
@@ -334,7 +381,6 @@ test("ascendancies load independently and keep the selector inside the viewer", 
   await expect(
     panel.getByRole("combobox", { name: "Tree version" })
   ).toBeVisible()
-  await expect(page.locator(".tree-explorer-options")).toHaveCount(0)
   expect(selector.x - canvas.x).toBeCloseTo(14, 0)
   expect(selector.y - canvas.y).toBeCloseTo(14, 0)
   expect(requests.some((url) => /\/pob-trees\/v4\//.test(url))).toBe(false)
@@ -388,7 +434,9 @@ test("Abyssal Lich shows alternate passives and its own artwork", async ({
   ).toBeVisible()
   await expect(page.locator("[data-node]")).toHaveCount(19)
   await page.locator('[data-node="41162"]').hover()
-  await expect(page.locator(".tree-inspection")).toContainText("Umbral Well")
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toContainText(
+    "Umbral Well"
+  )
   await page.getByRole("combobox", { name: "Tree version" }).click()
   await page.getByRole("option", { name: "0.2", exact: true }).click()
   await page.getByRole("combobox", { name: "Ascendancy", exact: true }).click()
@@ -401,7 +449,7 @@ test("buffered panning retains visible nodes and commits the final camera", asyn
   page,
 }) => {
   await page.goto("/trees/passive?section=Oracle")
-  const map = page.locator(".tree-viewport svg")
+  const map = page.locator('[data-slot="tree-viewport"] svg')
   await expect(map).toBeVisible()
   const total = await map.locator("[data-node]").count()
   for (let i = 0; i < 5; i++)
@@ -443,11 +491,13 @@ test("held inspection survives its node leaving the rendering buffer", async ({
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto("/trees/passive")
-  const map = page.locator(".tree-viewport svg")
+  const map = page.locator('[data-slot="tree-viewport"] svg')
   await expect(map).toBeVisible()
   for (let i = 0; i < 3; i++)
     await page.getByRole("button", { name: "Zoom in", exact: true }).click()
-  await expect(map.locator(".tree-passive-art").first()).toBeAttached()
+  await expect(
+    map.locator("[data-tree-art-region] image").first()
+  ).toBeAttached()
   const id = await map.locator("[data-node]").evaluateAll((nodes) =>
     nodes
       .find((node) => {
@@ -459,7 +509,7 @@ test("held inspection survives its node leaving the rendering buffer", async ({
   expect(id).toBeTruthy()
   const target = map.locator(`[data-node="${id}"]`)
   await target.hover()
-  const tooltip = page.locator(".tree-inspection")
+  const tooltip = page.locator('[data-inspection-tooltip="true"]')
   await expect(tooltip).toBeVisible()
   const title = await tooltip.locator("h2").textContent()
   await page.keyboard.down("Alt")
@@ -468,7 +518,7 @@ test("held inspection survives its node leaving the rendering buffer", async ({
   await expect(target).toHaveCount(0)
   await expect(tooltip).toBeVisible()
   await expect(tooltip.locator("h2")).toHaveText(title!)
-  await expect(map.locator(".tree-inspect-ring")).toHaveCount(1)
+  await expect(map.locator('[data-slot="tree-inspect-ring"]')).toHaveCount(1)
   await page.keyboard.up("Alt")
   await expect(tooltip).toHaveCount(0)
 })
@@ -477,12 +527,14 @@ test("batched node paint covers every target and artwork image once", async ({
   page,
 }) => {
   await page.goto("/trees/passive?section=Oracle")
-  const map = page.locator(".tree-viewport svg")
+  const map = page.locator('[data-slot="tree-viewport"] svg')
   await expect(map).toBeVisible()
   await page.getByRole("checkbox", { name: "Paths Not Taken" }).check()
   for (let i = 0; i < 3; i++)
     await page.getByRole("button", { name: "Zoom in", exact: true }).click()
-  await expect(map.locator(".tree-passive-art").first()).toBeAttached()
+  await expect(
+    map.locator("[data-tree-art-region] image").first()
+  ).toBeAttached()
   const counts = await map.evaluate((svg) => {
     const sum = (selector: string) =>
       [...svg.querySelectorAll(selector)].reduce(
@@ -494,7 +546,7 @@ test("batched node paint covers every target and artwork image once", async ({
       fills: sum("[data-node-fill]"),
       unseen: svg.querySelectorAll("[data-node][data-unseen-path]").length,
       unseenFills: sum('[data-node-fill="unseen"]'),
-      images: svg.querySelectorAll(".tree-passive-art").length,
+      images: svg.querySelectorAll("[data-tree-art-region] image").length,
       backgrounds: sum("[data-art-background]"),
       borders: sum("[data-art-border]"),
       fillPaths: svg.querySelectorAll("[data-node-fill]").length,

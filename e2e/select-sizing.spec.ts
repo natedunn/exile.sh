@@ -10,7 +10,10 @@ for (const width of [320, 768]) {
       ["/economy/market", "Quote currency"],
     ]) {
       await page.goto(path)
-      await page.locator(".currency-row, .mover-row").first().waitFor()
+      await page
+        .locator("[data-testid=currency-row], [data-testid=mover-row]")
+        .first()
+        .waitFor()
       await page.getByRole("combobox", { name, exact: true }).click()
       await expect(page.getByRole("listbox")).toBeVisible()
       const sizing = await page

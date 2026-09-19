@@ -13,6 +13,13 @@ import {
 } from "../components/ui/dialog"
 import { Input } from "../components/ui/input"
 import { Textarea } from "../components/ui/textarea"
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "../components/ui/field"
+import { BuildPrimaryButton } from "../components/build/primary-button"
 import { useCRPC } from "../lib/convex/crpc"
 import { normalizeCode, parseBuild, MAX_CODE_LENGTH } from "../../shared/pob"
 import type { BuildSnapshot } from "../../shared/pob"
@@ -167,56 +174,78 @@ function BuildImport() {
   }
   return !preview ? (
     <>
-      <section className="build-intro">
+      <section className="relative -mx-[var(--shell-gutter)] flex min-h-[310px] items-center justify-between overflow-hidden border-b border-rule-strong px-[var(--shell-gutter)] max-sm:min-h-65">
         <div>
-          <h1>A build worth sharing.</h1>
-          <p>
+          <h1 className="display text-title leading-[1.1] text-ink max-lg:text-5xl max-sm:text-4xl">
+            A build worth sharing.
+          </h1>
+          <p className="mt-6 text-lg leading-[1.8] text-ink-muted max-sm:text-base">
             Your gear. Your skills. Your next idea.
             <br />
             Turn a Path of Building 2 export into a link anyone can explore.
           </p>
         </div>
-        <div className="build-intro-art" aria-hidden="true">
-          <img src="/art/divine-dither.png" alt="" />
+        <div
+          className="mr-10 h-60 w-62.5 opacity-65 max-sm:hidden"
+          aria-hidden="true"
+        >
+          <img
+            src="/art/divine-dither.png"
+            alt=""
+            className="size-full object-contain [image-rendering:pixelated]"
+          />
         </div>
       </section>
-      <div className="build-import-layout">
-        <section className="build-import-card">
-          <h2>Bring your build</h2>
-          <p>
+      <div className="mt-12 mb-22.5 grid grid-cols-[1.25fr_1fr] gap-20 max-lg:gap-8 max-sm:mt-6 max-sm:mb-10 max-sm:grid-cols-1 max-sm:gap-6">
+        <section className="relative min-w-0 border border-rule-strong bg-surface p-8 max-sm:p-5.5">
+          <h2 className="font-display text-3xl font-medium text-ink">
+            Bring your build
+          </h2>
+          <p className="mt-2 mb-6.5 text-ink-muted">
             Paste a PoB export or pobb.in link. Your preview opens
             automatically.
           </p>
           <form
+            className="flex flex-col gap-3"
             onSubmit={(e) => {
               e.preventDefault()
               void inspect(source)
             }}
           >
-            <label htmlFor="pob-source">PoB export or pobb.in link</label>
-            <Textarea
-              id="pob-source"
-              disabled={!ready}
-              value={source}
-              onChange={(e) => {
-                requestId.current++
-                pendingSource.current = null
-                lastAttempt.current = ""
-                setStatus("idle")
-                setError("")
-                setSource(e.target.value)
-              }}
-              maxLength={MAX_CODE_LENGTH * 2}
-              placeholder="PoB code or https://pobb.in/…"
-              spellCheck={false}
-              required
-              aria-describedby="pob-help"
-            />
-            <p id="pob-help">
-              In Path of Building 2: Import/Export Build → Generate → Copy.
-            </p>
-            <Button
-              className="build-primary build-import-submit"
+            <Field className="gap-3">
+              <FieldLabel
+                htmlFor="pob-source"
+                tone="ink"
+                className="font-mono text-2xs font-normal tracking-normal normal-case"
+              >
+                PoB export or pobb.in link
+              </FieldLabel>
+              <Textarea
+                id="pob-source"
+                disabled={!ready}
+                value={source}
+                onChange={(e) => {
+                  requestId.current++
+                  pendingSource.current = null
+                  lastAttempt.current = ""
+                  setStatus("idle")
+                  setError("")
+                  setSource(e.target.value)
+                }}
+                maxLength={MAX_CODE_LENGTH * 2}
+                placeholder="PoB code or https://pobb.in/…"
+                spellCheck={false}
+                required
+                aria-describedby="pob-help"
+                className="field-sizing-fixed h-43 max-h-43 min-h-43 resize-none overflow-y-auto font-mono text-xs leading-[1.6]"
+              />
+              <FieldDescription id="pob-help" className="mb-3.5 text-2xs">
+                In Path of Building 2: Import/Export Build → Generate → Copy.
+              </FieldDescription>
+            </Field>
+            <BuildPrimaryButton
+              data-testid="build-import-submit"
+              className="w-50 max-w-full justify-between self-start"
               aria-busy={busy}
               aria-label={importLabel}
               type="submit"
@@ -234,48 +263,49 @@ function BuildImport() {
               ) : (
                 <ArrowRight aria-hidden="true" />
               )}
-            </Button>
+            </BuildPrimaryButton>
             {error && (
-              <p className="build-error" role="alert">
+              <FieldError className="my-6 border border-negative p-5 [overflow-wrap:anywhere]">
                 {error}
-              </p>
+              </FieldError>
             )}
           </form>
         </section>
-        <aside className="build-import-aside">
-          <h2>
+        <aside className="py-4 max-sm:px-1.5">
+          <h2 className="mb-8 display text-4xl leading-[1.1] text-ink max-sm:[&>br]:hidden">
             From your desktop.
             <br />
             To your party.
           </h2>
-          <div>
-            <Code />
-            <p>
-              <strong>Keep every detail</strong>
-              <span>
-                Equipment, gem setups, passive trees, and the stats you
-                exported.
-              </span>
-            </p>
-          </div>
-          <div>
-            <Link2 />
-            <p>
-              <strong>One link, ready to share</strong>
-              <span>
-                A readable build page on desktop and mobile. No account needed.
-              </span>
-            </p>
-          </div>
-          <div>
-            <Check />
-            <p>
-              <strong>Back to PoB in a click</strong>
-              <span>
-                Your original export stays intact, including every saved setup.
-              </span>
-            </p>
-          </div>
+          {[
+            {
+              icon: Code,
+              title: "Keep every detail",
+              copy: "Equipment, gem setups, passive trees, and the stats you exported.",
+            },
+            {
+              icon: Link2,
+              title: "One link, ready to share",
+              copy: "A readable build page on desktop and mobile. No account needed.",
+            },
+            {
+              icon: Check,
+              title: "Back to PoB in a click",
+              copy: "Your original export stays intact, including every saved setup.",
+            },
+          ].map(({ icon: Icon, title: featureTitle, copy }) => (
+            <div key={featureTitle} className="my-6.5 flex gap-4.5">
+              <Icon className="mt-0.75 size-4.5 shrink-0 text-brand" />
+              <p>
+                <strong className="mb-1.5 block font-medium">
+                  {featureTitle}
+                </strong>
+                <span className="block max-w-[310px] text-sm text-ink-muted">
+                  {copy}
+                </span>
+              </p>
+            </div>
+          ))}
         </aside>
       </div>
     </>
@@ -291,23 +321,30 @@ function BuildImport() {
             <Link2 />
             Share
           </DialogTrigger>
-          <DialogContent className="build-share-dialog">
+          <DialogContent className="max-h-[calc(100dvh-32px)] max-w-[min(520px,calc(100vw-32px))] overflow-y-auto border-rule bg-paper p-7 text-ink sm:max-w-[min(520px,calc(100vw-32px))]">
             <div>
-              <DialogTitle>Ready to share?</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="mb-3 font-display text-3xl leading-normal font-medium">
+                Ready to share?
+              </DialogTitle>
+              <DialogDescription className="leading-relaxed">
                 This creates a public, permanent snapshot. Review your notes and
                 custom modifiers before publishing.
               </DialogDescription>
             </div>
-            <div className="build-publish-fields">
-              <label htmlFor="build-title">Build title</label>
+            <Field className="gap-2.5">
+              <FieldLabel
+                htmlFor="build-title"
+                className="font-mono text-2xs font-normal tracking-normal normal-case"
+              >
+                Build title
+              </FieldLabel>
               <Input
                 id="build-title"
                 value={title}
                 maxLength={100}
                 onChange={(e) => setTitle(e.target.value)}
               />
-              <div>
+              <div className="flex justify-end gap-2.5">
                 <Button
                   variant="outline"
                   disabled={create.isPending}
@@ -318,21 +355,20 @@ function BuildImport() {
                 >
                   Change export
                 </Button>
-                <Button
-                  className="build-primary"
+                <BuildPrimaryButton
                   disabled={create.isPending || !title.trim()}
                   onClick={publish}
                 >
                   {create.isPending ? "Publishing…" : "Create share link"}
                   <ArrowRight />
-                </Button>
+                </BuildPrimaryButton>
               </div>
               {error && (
-                <p className="build-error" role="alert">
+                <FieldError className="my-6 border border-negative p-5 [overflow-wrap:anywhere]">
                   {error}
-                </p>
+                </FieldError>
               )}
-            </div>
+            </Field>
           </DialogContent>
         </Dialog>
       }

@@ -77,6 +77,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select"
+import { Field, FieldLabel } from "./ui/field"
+import { EmptyState, emptyStateVariants } from "./ui/empty-state"
+import { Note } from "./ui/note"
+import { buildSectionAsideClass, buildSectionMainClass } from "./build/section"
+import { cn } from "cn"
 
 // Which weapon set a passive belongs to, or 0 when it applies to both.
 type WeaponSet = 0 | 1 | 2
@@ -338,7 +343,6 @@ const Artwork = memo(function Artwork({
                 <image
                   key={node.id}
                   href={image}
-                  className="tree-passive-art"
                   data-allocated={allocated.has(node.id)}
                   opacity={allocated.has(node.id) ? 1 : 0.6}
                   clipPath={"url(#" + clipId + ")"}
@@ -399,7 +403,7 @@ const SearchHighlights = memo(function SearchHighlights({
     <g
       pointerEvents="none"
       fill="none"
-      className="tree-search-highlights"
+      className="animate-pulse motion-reduce:animate-none"
       data-search-match-count={found.length}
       stroke="color-mix(in oklch, var(--color-brand) 18%, white)"
       aria-hidden="true"
@@ -547,16 +551,20 @@ function PassiveHeading({
   inline?: boolean
 }) {
   return (
-    <div className="tree-inspect-header">
+    <div className="flex items-center gap-3 not-last:mb-2 not-last:border-b not-last:border-rule-strong not-last:pb-3 [&>img]:h-12 [&>img]:basis-12 [&>img]:border [&>img]:border-rule [&>img]:bg-paper">
       <PassiveNodeImage src={image} width={48} height={48} loading="lazy" />
-      <div className="tree-inspect-heading">
+      <div className="min-w-0 flex-1">
         {inline ? <h4>{name}</h4> : <PopoverTitle>{name}</PopoverTitle>}
-        <p className="tree-status" data-allocated={allocated}>
+        <p
+          data-slot="tree-status"
+          className="mt-1.25 font-mono text-label text-ink-faint data-[allocated=true]:text-brand data-[allocated=true]:opacity-70"
+          data-allocated={allocated}
+        >
           {allocated ? "Allocated" : "Unallocated"}
           {node.unseenPaths && (
             <>
               {" "}
-              · <span className="tree-unseen-label">Paths Not Taken</span>
+              · <span className="text-tree-unseen">Paths Not Taken</span>
             </>
           )}
           {weaponSet ? " · Weapon set " + weaponSet : ""}
@@ -1051,7 +1059,8 @@ function TreeMapRenderer({
   }
   return (
     <div
-      className="passive-tree"
+      data-passive-tree=""
+      className="relative min-w-0 data-[mode=interactive]:flex data-[mode=interactive]:h-full data-[mode=interactive]:min-h-0 data-[mode=interactive]:w-full data-[mode=interactive]:flex-1 data-[mode=interactive]:flex-col data-[mode=interactive]:overflow-hidden data-[palette]:[--color-tree-allocated-ring:var(--color-tree-allocated-neutral-ring)] data-[palette]:[--color-tree-allocated:var(--color-tree-allocated-neutral)] data-[palette=achroma]:[--color-tree-allocated-ring:var(--color-tree-allocated-achroma-ring)] data-[palette=achroma]:[--color-tree-allocated:var(--color-tree-allocated-achroma)] data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-achroma)] data-[palette=achroma]:[--color-weapon-1:var(--color-weapon-1-achroma)] data-[palette=achroma]:[--color-weapon-2:var(--color-weapon-2-achroma)] data-[palette=deutan]:[--color-weapon-1:var(--color-weapon-1-deutan)] data-[palette=deutan]:[--color-weapon-2:var(--color-weapon-2-deutan)] data-[palette=protan]:[--color-weapon-1:var(--color-weapon-1-protan)] data-[palette=protan]:[--color-weapon-2:var(--color-weapon-2-protan)] data-[palette=tritan]:[--color-weapon-1:var(--color-weapon-1-tritan)] data-[palette=tritan]:[--color-weapon-2:var(--color-weapon-2-tritan)] data-[tree-type=ascendancy]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)] data-[tree-type=atlas]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)]"
       data-mode={mode}
       data-tree-type={isAscendancyTree ? "ascendancy" : treeType}
       data-overlay-controls={overlayControls || undefined}
@@ -1064,8 +1073,8 @@ function TreeMapRenderer({
           <TreeSettings>
             {panel}
             {showPaletteSelector && nodes.length > 0 && onPaletteChange && (
-              <div className="tree-setting">
-                <span className="tree-setting-label">Color vision</span>
+              <Field>
+                <FieldLabel>Color vision</FieldLabel>
                 <Select
                   value={palette}
                   items={PALETTES}
@@ -1087,12 +1096,15 @@ function TreeMapRenderer({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             )}
           </TreeSettings>
         )}
       {mode === "interactive" && (
-        <div className="tree-controls">
+        <div
+          data-slot="tree-controls"
+          className="my-2.5 mt-5 flex items-center gap-2 in-data-[overlay-controls]:absolute in-data-[overlay-controls]:right-3.5 in-data-[overlay-controls]:bottom-3.5 in-data-[overlay-controls]:z-2 in-data-[overlay-controls]:m-0 in-data-[overlay-controls]:max-w-[calc(100%-28px)] in-data-[overlay-controls]:border in-data-[overlay-controls]:border-rule-strong in-data-[overlay-controls]:bg-paper in-data-[overlay-controls]:p-1.5 in-data-[overlay-controls]:shadow-popup max-md:flex-wrap [&_[data-slot=button]]:border-rule-strong [&_[data-slot=button]]:bg-surface [&_[data-slot=button]]:hover:border-brand-deep [&_[data-slot=button]]:hover:text-brand"
+        >
           <Button
             variant="outline"
             size="icon"
@@ -1122,10 +1134,19 @@ function TreeMapRenderer({
             <RotateCcw />
             Reset
           </Button>
-          <span className="tree-zoom">{camera.zoom.toFixed(1)}×</span>
+          <span
+            data-slot="tree-zoom"
+            className="ml-1.5 min-w-[4ch] font-mono text-label text-brand tabular-nums"
+          >
+            {camera.zoom.toFixed(1)}×
+          </span>
           {hasWeaponSets && (
             <>
-              <ul className="tree-legend" aria-label="Weapon set passives">
+              <ul
+                data-slot="tree-legend"
+                className="ml-3.5 flex list-none gap-3.5 p-0 font-mono text-label text-ink-muted max-md:order-1 max-md:mt-1 max-md:ml-0 max-md:w-full max-md:flex-wrap [&_li]:flex [&_li]:items-center [&_li]:gap-1.5 [&_li]:before:size-2 [&_li]:before:rounded-full [&_li]:before:bg-tree-allocated [&_li]:before:content-[''] [&_li[data-weapon-set='1']]:before:bg-weapon-1 [&_li[data-weapon-set='2']]:before:bg-weapon-2"
+                aria-label="Weapon set passives"
+              >
                 <li>Both sets</li>
                 <li data-weapon-set="1">Weapon set 1</li>
                 <li data-weapon-set="2">Weapon set 2</li>
@@ -1133,7 +1154,7 @@ function TreeMapRenderer({
             </>
           )}
           {!overlayControls && (
-            <span className="tree-hint">
+            <span className="ml-auto font-mono text-label text-ink-faint max-md:hidden">
               Drag to pan · Scroll to zoom · Hover or tap to inspect
             </span>
           )}
@@ -1155,8 +1176,12 @@ function TreeMapRenderer({
           onSelect={(match) => selectTreeNode(match, false)}
         />
       )}
-      <div className="tree-viewport">
+      <div
+        data-slot="tree-viewport"
+        className="inspection-field mx-auto w-full in-data-[mode=interactive]:min-h-0 in-data-[mode=interactive]:flex-1 in-data-[mode=interactive]:touch-none"
+      >
         <svg
+          className="block aspect-square w-full cursor-grab touch-none select-none focus-visible:outline-2 focus-visible:-outline-offset-9 focus-visible:outline-focus active:cursor-grabbing in-data-[mode=ascendancy]:cursor-default in-data-[mode=ascendancy]:touch-pan-y in-data-[mode=interactive]:aspect-auto in-data-[mode=interactive]:h-full in-data-[mode=preview]:cursor-default in-data-[mode=preview]:touch-pan-y [&_[data-node]]:cursor-pointer"
           ref={svg}
           role="img"
           tabIndex={mode === "preview" ? -1 : 0}
@@ -1425,7 +1450,6 @@ function TreeMapRenderer({
           {ascendancyBackground && (
             <g pointerEvents="none">
               <image
-                className="tree-ascendancy-background"
                 data-ascendancy-background={data.nodes[0].ascendancy}
                 href={ascendancyBackground.image}
                 x={ascendancyBackground.x - ascendancyBackground.width / 2}
@@ -1552,7 +1576,8 @@ function TreeMapRenderer({
           {node && (
             <circle
               key={node.id + (showArt ? "-art" : "")}
-              className="tree-inspect-ring"
+              data-slot="tree-inspect-ring"
+              className="animate-[tree-ring-thicken_220ms_var(--ease-out)_both] [filter:drop-shadow(0_0_10px_color-mix(in_oklab,currentColor_60%,transparent))_drop-shadow(0_0_24px_color-mix(in_oklab,currentColor_30%,transparent))] motion-reduce:animate-none"
               style={
                 {
                   "--tree-ring-inner-radius": `${ringRadius(node)}px`,
@@ -1636,10 +1661,10 @@ function TreeMapRenderer({
               }}
               data-search-callout={Boolean(attention) || undefined}
               data-attention={attention?.glowing || undefined}
-              className="tree-inspection"
+              className="[--inspection-max-height:min(400px,var(--available-height))] data-[attention=true]:border-focus data-[attention=true]:shadow-attention [&>p]:mt-1.5 [&>p]:text-xs [&>p]:leading-normal [&>p]:text-ink-muted"
               data-held={held || Boolean(attention) || touchInspect}
               data-hover-only={!held && !attention && !touchInspect}
-              positionerClassName="tree-node-positioner"
+              positionerClassName="[--tree-pin-border:var(--color-tree-pin-border)] [--inspection-border:var(--tree-pin-border)]"
               aria-label="Passive node details"
               side="top"
               sideOffset={28}
@@ -1674,14 +1699,14 @@ function TreeMapRenderer({
               ))}
               {affectedJewels.map((jewel) => (
                 <Fragment key={jewel.item.id}>
-                  <p className="tree-note">
+                  <p className="relative pl-3.5 [&_svg]:absolute [&_svg]:top-[0.32em] [&_svg]:-left-px [&_svg]:size-2.5">
                     <Radius aria-hidden="true" />
                     Within {jewel.item.name} radius
                     {jewel.timeless ? " · Conquered" : ""}
                   </p>
                   <Lines
                     items={radiusBenefits(jewel, node)}
-                    className="tree-lines tree-note-lines"
+                    className="mt-1 ml-3.5 list-none p-0 [&>li]:relative [&>li]:pl-3.5 [&>li]:text-xs [&>li]:leading-[1.45] [&>li]:before:absolute [&>li]:before:top-[0.58em] [&>li]:before:left-px [&>li]:before:size-1.25 [&>li]:before:rotate-45 [&>li]:before:bg-brand [&>li]:before:content-[''] [&>li+li]:mt-0.75"
                   />
                 </Fragment>
               ))}
@@ -1828,14 +1853,24 @@ function PassiveTreeContent({
   })
   if (!isTreeVersion(version))
     return (
-      <p className="build-section-main build-empty">
+      <p
+        className={cn(
+          buildSectionMainClass,
+          emptyStateVariants({ frame: "dashed" })
+        )}
+      >
         The map for this tree version is not available yet. Its {nodes.length}{" "}
         node IDs are preserved in the export.
       </p>
     )
   if (tree.isError)
     return (
-      <div className="build-section-main build-empty">
+      <div
+        className={cn(
+          buildSectionMainClass,
+          emptyStateVariants({ frame: "dashed" })
+        )}
+      >
         Tree data could not be loaded.{" "}
         <Button variant="outline" onClick={() => tree.refetch()}>
           Retry
@@ -1844,7 +1879,13 @@ function PassiveTreeContent({
     )
   if (!tree.data)
     return (
-      <p className="build-section-main build-empty" role="status">
+      <p
+        className={cn(
+          buildSectionMainClass,
+          emptyStateVariants({ frame: "dashed" })
+        )}
+        role="status"
+      >
         Loading passive tree…
       </p>
     )
@@ -1858,7 +1899,12 @@ function PassiveTreeContent({
         if (!open) setInitialNodeId(undefined)
       }}
     >
-      <div className="build-section-main tree-overview-left">
+      <div
+        className={cn(
+          buildSectionMainClass,
+          "[&_[data-passive-tree]_svg]:aspect-auto [&_[data-passive-tree]_svg]:h-(--build-tree-height,760px) max-lg:[&_[data-passive-tree]_svg]:aspect-square max-lg:[&_[data-passive-tree]_svg]:h-auto [&_h3]:mb-4 [&_h3]:font-display [&_h3]:text-xl [&_h3]:leading-[1.2] [&_h3]:font-medium [&>section]:max-w-none [&>section+section]:mt-8"
+        )}
+      >
         {maps.map((map) => (
           <section key={version + map.name + nodes.join(",")}>
             {map.name ? (
@@ -1876,7 +1922,10 @@ function PassiveTreeContent({
               </>
             ) : (
               <>
-                <div className="tree-preview">
+                <div
+                  data-slot="tree-preview"
+                  className="group/tree-preview relative overflow-hidden"
+                >
                   <TreeMap
                     {...searchOptions}
                     data={map.data}
@@ -1892,13 +1941,19 @@ function PassiveTreeContent({
                     mode="preview"
                   />
                   <DialogTrigger
-                    render={<Button className="tree-open-button" />}
+                    render={
+                      <Button className="absolute inset-0 size-full rounded-none border-0 bg-transparent text-paper before:pointer-events-none before:absolute before:top-1/2 before:left-1/2 before:size-160 before:-translate-x-1/2 before:-translate-y-1/2 before:dot-screen before:mask-(--dither-glow) before:mask-center before:mask-no-repeat before:text-brand before:opacity-0 before:transition-opacity before:duration-160 before:content-[''] group-hover/tree-preview:before:opacity-40 hover:bg-transparent focus-visible:before:opacity-40 [&>span]:relative [&>span]:translate-y-2 [&>span]:border [&>span]:border-brand-ink [&>span]:bg-brand [&>span]:px-5.5 [&>span]:py-3 [&>span]:text-sm [&>span]:font-medium [&>span]:opacity-0 [&>span]:shadow-[0_0_0_4px_var(--color-paper)] [&>span]:transition [&>span]:duration-160 group-hover/tree-preview:[&>span]:translate-y-0 group-hover/tree-preview:[&>span]:opacity-100 focus-visible:[&>span]:translate-y-0 focus-visible:[&>span]:opacity-100 [@media(hover:none)]:[&>span]:translate-y-0 [@media(hover:none)]:[&>span]:opacity-100" />
+                    }
                     onClick={() => setInitialNodeId(undefined)}
                   >
                     <span>Open tree</span>
                   </DialogTrigger>
                 </div>
-                <DialogContent fullscreen className="tree-fullscreen">
+                <DialogContent
+                  fullscreen
+                  data-tree-fullscreen=""
+                  className="flex flex-col gap-0 overflow-hidden rounded-none border-0 paper-grid px-4 pt-4.5 pb-4 shadow-none max-sm:p-3 [&>[data-passive-tree]]:flex [&>[data-passive-tree]]:min-h-0 [&>[data-passive-tree]]:flex-1 [&>[data-passive-tree]]:flex-col [&>[data-passive-tree]>.inspection-field]:min-h-0 [&>[data-passive-tree]>.inspection-field]:flex-1 [&>[data-passive-tree]>.inspection-field>svg]:aspect-auto [&>[data-passive-tree]>.inspection-field>svg]:h-full [&>[data-passive-tree]>.inspection-field>svg]:w-full [&>[data-slot=dialog-title]]:shrink-0 [&>[data-slot=dialog-title]]:border-b [&>[data-slot=dialog-title]]:border-rule-strong [&>[data-slot=dialog-title]]:pt-0.5 [&>[data-slot=dialog-title]]:pr-12 [&>[data-slot=dialog-title]]:pb-3 [&>[data-slot=dialog-title]]:font-display [&>[data-slot=dialog-title]]:text-3xl [&>[data-slot=dialog-title]]:leading-[1.1] [&>[data-slot=dialog-title]]:font-medium [&>[data-slot=dialog-title]]:italic max-sm:[&>[data-slot=dialog-title]]:text-xl"
+                >
                   <DialogTitle>Passive tree</DialogTitle>
                   <TreeMap
                     {...searchOptions}
@@ -1923,19 +1978,25 @@ function PassiveTreeContent({
           </section>
         ))}
         {unmapped.length > 0 && (
-          <p className="build-muted">
+          <Note className="my-3">
             {unmapped.length} special or unknown node IDs cannot be placed on
             this map: {unmapped.join(", ")}
-          </p>
+          </Note>
         )}
       </div>
-      <aside className="build-section-aside tree-overview-right">
-        <div className="tree-key-passives">
-          <h3>Keystone passives</h3>
+      <aside className={cn(buildSectionAsideClass, "grid min-w-0 gap-6")}>
+        <div data-slot="tree-key-passives">
+          <h3 className="mb-1 border-b border-rule-strong pb-2 mono-label text-ink-muted">
+            Keystone passives
+          </h3>
           {tree.data.nodes
             .filter((n) => nodes.includes(n.id) && n.keystone)
             .map((n) => (
-              <section key={n.id} className="tree-keystone-card popup-corners">
+              <section
+                key={n.id}
+                data-slot="tree-keystone-card"
+                className="popup-corners dither-fade relative isolate mt-3.5 border border-rule-strong bg-paper-deep px-4.5 pt-4.5 pb-4 wrap-anywhere text-ink [--dither-opacity:0.07] [&_h4]:font-display [&_h4]:text-card-title [&_h4]:leading-[1.1] [&_h4]:font-medium [&_h4]:text-brand"
+              >
                 <PassiveHeading
                   node={n}
                   image={artwork.data?.[n.icon]}
@@ -1946,7 +2007,10 @@ function PassiveTreeContent({
                 <PassiveNodeEffects node={n} />
                 <DialogTrigger
                   render={
-                    <Button variant="ghost" className="tree-keystone-open" />
+                    <Button
+                      variant="ghost"
+                      className="absolute inset-0 size-full rounded-[inherit] border-0 bg-transparent p-0 shadow-none hover:bg-transparent focus-visible:outline-brand"
+                    />
                   }
                   aria-label={`Show ${n.name} in passive tree`}
                   onClick={() => setInitialNodeId(n.id)}
@@ -1954,13 +2018,16 @@ function PassiveTreeContent({
               </section>
             ))}
           {!tree.data.nodes.some((n) => nodes.includes(n.id) && n.keystone) && (
-            <p className="build-muted">
+            <Note className="my-3">
               No Keystone passives allocated in this tree.
-            </p>
+            </Note>
           )}
         </div>
-        <section className="tree-attributes">
-          <div className="tree-attributes-heading">
+        <section
+          data-slot="tree-attributes"
+          className="[&_small]:mt-1 [&_small]:block [&_small]:text-fine [&_small]:text-ink-muted [&_strong]:font-medium [&_strong]:text-ink [&_table]:mt-1 [&_table]:w-full [&_table]:table-fixed [&_table]:border-collapse [&_table]:text-2xs [&_tbody_th]:font-sans [&_tbody_th]:text-2xs [&_tbody_th]:font-medium [&_tbody_th]:tracking-normal [&_tbody_th]:normal-case [&_td]:border-b [&_td]:border-rule [&_td]:px-0.75 [&_td]:py-2.5 [&_td]:text-right [&_td]:font-mono [&_td]:whitespace-normal [&_td]:tabular-nums [&_th]:border-b [&_th]:border-rule [&_th]:px-0.75 [&_th]:py-2.5 [&_th]:text-right [&_th]:whitespace-normal [&_th:first-child]:w-[34%] [&_th:first-child]:text-left [&_thead_th]:font-mono [&_thead_th]:text-fine [&_thead_th]:font-medium [&_thead_th]:tracking-label [&_thead_th]:text-ink-muted [&_thead_th]:uppercase [&>p]:mt-3 [&>p]:font-mono [&>p]:text-label [&>p]:leading-relaxed [&>p]:text-ink-muted"
+        >
+          <div className="mb-1 flex items-center justify-between gap-2 border-b border-rule-strong pb-2 mono-label text-ink-muted [&_[data-slot=button]]:size-5.5 [&_[data-slot=button]]:text-ink-muted [&_h3]:m-0 [&_h3]:border-0 [&_h3]:p-0">
             <h3>Attributes from passives</h3>
             <Popover>
               <PopoverTrigger
@@ -1971,7 +2038,7 @@ function PassiveTreeContent({
                 <Info aria-hidden="true" />
               </PopoverTrigger>
               <PopoverContent
-                className="gem-reference-info"
+                className="max-w-[calc(100vw-24px)] border-rule bg-surface p-3.5 text-2xs leading-relaxed text-ink-muted [&_[data-slot=popover-title]]:text-ink [&_a]:text-brand [&_a]:underline"
                 side="top"
                 collisionPadding={12}
               >
@@ -2088,7 +2155,7 @@ function TreeExplorerContent({
 }) {
   if (type === "ascendancy")
     return (
-      <div className="tree-explorer">
+      <div className="relative h-full min-h-0 flex-1 overflow-hidden [&>div]:h-full [&>div]:overflow-hidden [&>div>[data-passive-tree]]:flex [&>div>[data-passive-tree]]:h-full [&>div>[data-passive-tree]]:min-h-0 [&>div>[data-passive-tree]]:flex-col [&>div>[data-passive-tree]>.inspection-field]:min-h-0 [&>div>[data-passive-tree]>.inspection-field]:flex-1 [&>div>[data-passive-tree]>.inspection-field>svg]:aspect-auto [&>div>[data-passive-tree]>.inspection-field>svg]:h-full">
         <AscendancyTree
           pinningEnabled={panelOptions.pinningEnabled}
           maxPinnedTooltips={panelOptions.maxPinnedTooltips}
@@ -2273,16 +2340,16 @@ function PassiveAtlasExplorer({
   ])
   const activeQuery = isAtlas ? atlas : tree
   return (
-    <div className="tree-explorer">
+    <div className="relative h-full min-h-0 flex-1 overflow-hidden">
       {activeQuery.isError ? (
-        <div className="build-empty" role="alert">
+        <EmptyState frame="dashed" role="alert">
           {isAtlas ? "Atlas" : "Tree"} data could not be loaded.{" "}
           <Button onClick={() => void activeQuery.refetch()}>Retry</Button>
-        </div>
+        </EmptyState>
       ) : !data ? (
-        <p className="build-empty" role="status">
+        <EmptyState frame="dashed" role="status">
           Loading {isAtlas ? "Atlas" : "passive"} tree…
-        </p>
+        </EmptyState>
       ) : (
         <TreeMap
           {...searchOptions}
@@ -2295,8 +2362,8 @@ function PassiveAtlasExplorer({
               <>
                 {showVersionSelector && options}
                 {showAscendancySelector && defaultAscendancy === undefined && (
-                  <div className="tree-setting">
-                    <span className="tree-setting-label">Show ascendancy</span>
+                  <Field>
+                    <FieldLabel>Show ascendancy</FieldLabel>
                     <Select
                       value={selectedAscendancy?.value ?? "None"}
                       items={[{ value: "None", label: "None" }, ...choices]}
@@ -2322,10 +2389,10 @@ function PassiveAtlasExplorer({
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
+                  </Field>
                 )}
                 {selectedAscendancy?.value === "Oracle" && (
-                  <label className="tree-unseen-toggle">
+                  <label className="flex items-center gap-2 text-xs text-ink-muted">
                     <Checkbox
                       checked={unseenEnabled && unseen.size > 0}
                       onCheckedChange={onShowUnseenChange}
@@ -2452,13 +2519,13 @@ function AscendancyTreeContent({
     return mapped
   }, [tree.data, weaponSets])
   return (
-    <div className="ascendancy-tree">
+    <div data-ascendancy-tree="" className="relative min-h-0 flex-1">
       {(options || showSelector) && (
         <TreeSettings>
           {options}
           {showSelector && (
-            <div className="tree-setting">
-              <span className="tree-setting-label">Ascendancy</span>
+            <Field>
+              <FieldLabel>Ascendancy</FieldLabel>
               <Select
                 value={selected?.value ?? ""}
                 items={choices}
@@ -2483,19 +2550,19 @@ function AscendancyTreeContent({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           )}
         </TreeSettings>
       )}
       {tree.isError ? (
-        <div className="build-empty" role="alert">
+        <EmptyState frame="dashed" role="alert">
           Ascendancy tree could not be loaded.{" "}
           <Button onClick={() => void tree.refetch()}>Retry</Button>
-        </div>
+        </EmptyState>
       ) : !tree.data || !selected ? (
-        <p className="build-empty" role="status">
+        <EmptyState frame="dashed" role="status">
           Loading ascendancy tree…
-        </p>
+        </EmptyState>
       ) : (
         <TreeMap
           {...searchOptions}

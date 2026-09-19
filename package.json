@@ -12,7 +12,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "eslint src shared convex/lib convex/functions --ignore-pattern \"**/generated/**\" --ignore-pattern \"**/_generated/**\"",
+    "lint": "eslint src shared convex/lib convex/functions --ignore-pattern \"**/generated/**\" --ignore-pattern \"**/_generated/**\" && node scripts/check-classnames.mjs",
     "format": "prettier --write src shared convex docs e2e *.json *.ts *.md",
     "check": "prettier --check src shared convex docs e2e *.json *.ts *.md",
     "typecheck": "tsc --noEmit && bun run typecheck:convex",

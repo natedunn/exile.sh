@@ -3,6 +3,13 @@ import type { ReactNode } from "react"
 import { ArrowLeft, Settings } from "lucide-react"
 import { Button } from "./ui/button"
 import { useTreePanelCoordination } from "./tree-panel-state"
+import {
+  drawer,
+  drawerPanel,
+  drawerTrack,
+  panelHandle,
+} from "./tree-panel-classes"
+import { cn } from "cn"
 
 export function TreeSettings({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -18,15 +25,16 @@ export function TreeSettings({ children }: { children: ReactNode }) {
     trigger.current?.focus({ preventScroll: true })
   }
   return (
-    <div
-      ref={root}
-      className="tree-drawer tree-settings-drawer"
-      data-open={open}
-    >
-      <div className="tree-drawer-track">
+    <div ref={root} className={drawer} data-open={open} data-tree-drawer="">
+      <div
+        className={cn(
+          drawerTrack,
+          "right-auto left-3.5 w-[min(220px,calc(100%-82px))] -translate-x-full"
+        )}
+      >
         <Button
           ref={trigger}
-          className="tree-panel-handle"
+          className={cn(panelHandle, "right-auto left-[calc(100%+6px)] px-0")}
           variant="outline"
           size="icon"
           aria-label={open ? "Close tree settings" : "Tree settings"}
@@ -38,7 +46,8 @@ export function TreeSettings({ children }: { children: ReactNode }) {
         </Button>
         <section
           id={id}
-          className="tree-settings-panel"
+          data-slot="tree-settings"
+          className={cn(drawerPanel, "overflow-y-auto overscroll-contain")}
           aria-label="Tree settings"
           aria-hidden={!open}
           inert={!open}

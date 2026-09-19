@@ -10,10 +10,20 @@ const port = process.env.PORT ? Number(process.env.PORT) : undefined
 
 const config = defineConfig({
   resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-      "@convex": fileURLToPath(new URL("./convex/shared", import.meta.url)),
-    },
+    alias: [
+      {
+        find: /^cn$/,
+        replacement: fileURLToPath(new URL("./src/lib/cn.ts", import.meta.url)),
+      },
+      {
+        find: "@",
+        replacement: fileURLToPath(new URL("./src", import.meta.url)),
+      },
+      {
+        find: "@convex",
+        replacement: fileURLToPath(new URL("./convex/shared", import.meta.url)),
+      },
+    ],
     tsconfigPaths: true,
   },
   plugins: [

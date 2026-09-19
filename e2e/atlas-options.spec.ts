@@ -22,7 +22,7 @@ for (const width of [1440, 390]) {
       const target = page.locator(`[data-node="${id}"]`)
       if (width === 390) await target.click()
       else await target.hover()
-      const tooltip = page.locator(".tree-inspection")
+      const tooltip = page.locator("[data-inspection-tooltip=true]")
       await expect(tooltip).toBeVisible()
       const options = tooltip.getByRole("list", { name: "Available options" })
       await expect(options.getByRole("listitem")).toHaveText(node.options!)

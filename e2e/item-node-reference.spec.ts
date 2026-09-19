@@ -36,7 +36,7 @@ for (const result of ["success", "missing", "timeout"]) {
     })
     await passive.focus()
     await passive.press("Enter")
-    const popup = page.locator(".tree-inspection")
+    const popup = page.locator("[data-tooltip-kind=passive]")
     await expect(popup).toContainText("Loading passive details")
     if (result !== "timeout") finishRequest()
     if (result !== "success")

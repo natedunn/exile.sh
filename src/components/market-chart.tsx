@@ -11,6 +11,7 @@ import {
 } from "recharts"
 import { HOUR } from "../../shared/economy"
 import type { Point } from "../../shared/economy"
+import { EmptyState } from "@/components/ui/empty-state"
 import { compact, number, utc } from "../lib/format"
 
 export default function MarketChart({
@@ -39,10 +40,13 @@ export default function MarketChart({
         )
       : []
   if (data.length === 0)
-    return <div className="chart-empty">No completed trades in this range.</div>
+    return (
+      <EmptyState size="chart">No completed trades in this range.</EmptyState>
+    )
   return (
     <div
-      className="chart-wrap"
+      data-testid="chart-wrap"
+      className="relative px-3"
       role="img"
       aria-label={`${daily ? "Daily" : "Hourly"} price in ${quote}, with traded volume. ${points.length} observations. Missing hours are gaps.`}
     >
@@ -103,7 +107,7 @@ export default function MarketChart({
             axisLine={false}
             tickLine={false}
             tick={{
-              fill: "var(--color-text-muted)",
+              fill: "var(--color-ink-muted)",
               fontSize: 11,
               fontFamily: "var(--font-mono)",
             }}
@@ -116,7 +120,7 @@ export default function MarketChart({
             axisLine={false}
             tickLine={false}
             tick={{
-              fill: "var(--color-text-muted)",
+              fill: "var(--color-ink-muted)",
               fontSize: 11,
               fontFamily: "var(--font-mono)",
             }}
@@ -124,6 +128,7 @@ export default function MarketChart({
           />
           <YAxis yAxisId="volume" hide domain={[0, (max: number) => max * 5]} />
           <Tooltip
+            wrapperClassName="popup-corners"
             labelFormatter={(v) => utc(Number(v))}
             formatter={(value, name) => [
               name === "Price"
@@ -174,12 +179,13 @@ export default function MarketChart({
           />
         </ComposedChart>
       </ResponsiveContainer>
-      <div className="chart-legend">
+      <div className="mt-2 mb-4 flex justify-center gap-6 font-mono text-label font-medium tracking-[0.02em] text-ink-muted max-sm:flex-wrap max-sm:gap-3 [&_i]:block [&_i]:size-2.5 [&_i]:bg-brand [&>span]:flex [&>span]:items-center [&>span]:gap-2">
         <span>
           <i /> Executed average · {quote}
         </span>
         <span>
-          <i className="volume-dot" /> Traded units
+          <i className="bg-brand-deep bg-[radial-gradient(circle,var(--color-surface)_1px,transparent_1.2px)] bg-size-[4px_4px]" />{" "}
+          Traded units
         </span>
       </div>
     </div>

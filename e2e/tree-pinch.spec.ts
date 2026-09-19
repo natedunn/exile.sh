@@ -11,7 +11,7 @@ for (const route of ["passive", "atlas"]) {
     page,
   }) => {
     await page.goto(`/trees/${route}`)
-    const svg = page.locator(".tree-viewport svg")
+    const svg = page.locator("[data-slot=tree-viewport] svg")
     await expect(svg).toBeVisible()
     const box = (await svg.boundingBox())!
     const x = box.x + box.width / 2
@@ -64,7 +64,7 @@ test("a drifting touch opens a tooltip and quick taps pin and close it", async (
   page,
 }) => {
   await page.goto("/trees/passive")
-  const svg = page.locator(".tree-viewport svg")
+  const svg = page.locator("[data-slot=tree-viewport] svg")
   await expect(svg.locator("[data-node]").first()).toBeAttached()
   await svg.scrollIntoViewIfNeeded()
   const target = await svg.evaluate((element) => {
@@ -101,7 +101,7 @@ test("a drifting touch opens a tooltip and quick taps pin and close it", async (
   })
   await expect(svg).toHaveAttribute("viewBox", before!)
   const popup = page.locator(
-    '.tree-inspection:not([data-tooltip-pinned="true"])'
+    '[data-inspection-tooltip]:not([data-tooltip-pinned="true"])'
   )
   await expect(popup).toBeVisible()
   await popup.dispatchEvent("pointerleave", { pointerType: "touch" })
