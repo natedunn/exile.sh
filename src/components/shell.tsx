@@ -5,6 +5,10 @@ import { cn } from "cn"
 import { filters } from "../lib/economy-filters"
 import { AccountLink } from "./account-link"
 import { SiteNavigation } from "./site-navigation"
+import {
+  navigationHeight,
+  navigationContentHeight,
+} from "./ui/navigation-styles"
 
 /* Economy filters ride along in shell links so switching sections never
    loses the reader's league or display currency. */
@@ -40,7 +44,7 @@ function Masthead({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex items-center gap-12 px-(--shell-gutter) max-lg:gap-4 max-sm:min-h-[55px] max-sm:flex-wrap max-sm:gap-2 max-sm:py-2",
+        "flex items-center gap-12 px-(--shell-gutter) max-lg:gap-4 max-sm:gap-2 max-sm:py-1",
         className
       )}
     >
@@ -66,7 +70,10 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       {/* Masthead: a plain hairline rule. */}
       <header
         data-testid="site-header"
-        className="relative h-17 shrink-0 border-b border-rule-strong max-sm:h-auto max-sm:min-h-14"
+        className={cn(
+          navigationHeight,
+          "relative shrink-0 border-b border-rule-strong"
+        )}
       >
         <Masthead className="h-full" />
       </header>
@@ -120,7 +127,12 @@ export function ViewerLayout({ children }: { children: ReactNode }) {
         data-testid="viewer-header"
         className="w-full shrink-0 border-b border-rule-strong"
       >
-        <Masthead className="mx-auto h-[67px] w-full max-w-(--shell-max-width) border-x border-transparent max-sm:h-auto max-sm:min-h-[55px] max-sm:border-x-0" />
+        <Masthead
+          className={cn(
+            navigationContentHeight,
+            "mx-auto w-full max-w-(--shell-max-width) border-x border-transparent max-sm:border-x-0"
+          )}
+        />
       </header>
       <main
         id="main"

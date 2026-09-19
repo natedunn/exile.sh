@@ -8,8 +8,9 @@ import { cn } from "cn"
  * breakpoint the two columns stack. */
 
 /** The sticky section nav is 60px, 52px under lg: sections stop below it. */
-export const buildNavHeightClass = "h-15 max-lg:h-13"
-export const buildScrollMarginClass = "scroll-mt-15 max-lg:scroll-mt-13"
+export { navigationHeight as buildNavHeightClass } from "../ui/navigation-styles"
+export const buildScrollMarginClass =
+  "scroll-mt-navigation max-lg:scroll-mt-navigation-compact"
 
 export const buildSectionMainClass =
   "min-w-0 pt-6 pr-6 pb-8 pl-[var(--shell-gutter)] max-lg:px-[var(--shell-gutter)]"

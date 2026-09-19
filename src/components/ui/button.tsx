@@ -2,6 +2,7 @@ import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva } from "class-variance-authority"
 import type { VariantProps } from "class-variance-authority"
 import { cn } from "cn"
+import { navigationItem } from "./navigation-styles"
 
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-[color,background-color,border-color,opacity,transform] duration-120 ease-out outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-focus disabled:pointer-events-none disabled:opacity-40 aria-invalid:border-negative [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -26,8 +27,10 @@ const buttonVariants = cva(
           "rounded-none border-0 mono-label text-label text-ink-muted hover:bg-hover hover:text-ink focus-visible:z-1 focus-visible:-outline-offset-3 aria-[current=page]:bg-brand aria-[current=page]:text-paper data-active:bg-brand data-active:text-paper [&_svg]:size-3.5",
         /* Second-level site navigation: quiet text with a masthead-style
            bronze rule for the active destination. */
-        subnav:
-          "rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 mono-label text-label text-ink-muted hover:bg-transparent hover:text-ink focus-visible:z-1 focus-visible:-outline-offset-3 aria-[current=page]:border-brand aria-[current=page]:text-ink [&_svg]:size-3.5",
+        subnav: cn(
+          "rounded-none border-0 bg-transparent px-0 mono-label text-label hover:bg-transparent focus-visible:z-1 focus-visible:-outline-offset-3",
+          navigationItem
+        ),
       },
       size: {
         default:

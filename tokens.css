@@ -5,6 +5,12 @@
  * palette, type scale and radii are cleared so the tokens are the only
  * vocabulary. Add a token here before you reach for an arbitrary value. */
 @theme {
+  --spacing-navigation: 60px;
+  --spacing-navigation-compact: 52px;
+  --spacing-navigation-content: calc(var(--spacing-navigation) - 1px);
+  --spacing-navigation-content-compact: calc(
+    var(--spacing-navigation-compact) - 1px
+  );
   --animate-tree-pointer-attention: tree-pointer-attention 3s ease-out;
   --animate-tree-pointer-border-attention: tree-pointer-border-attention 3s
     ease-out;

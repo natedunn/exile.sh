@@ -36,15 +36,10 @@ export function WorkspaceHeader({
   delayNotice?: string
 }) {
   const link = { ...f, item: "" }
-  const item = "max-sm:flex-1 max-sm:justify-center max-sm:gap-1 max-sm:px-2"
   return (
-    <div className="-mx-[var(--shell-gutter)] flex items-center justify-between gap-x-4 border-b border-rule-strong px-[var(--shell-gutter)] max-sm:flex-wrap">
-      <SubNavigation
-        aria-label="Economy views"
-        className="max-sm:w-full max-sm:justify-between"
-      >
+    <div className="-mx-[var(--shell-gutter)] flex items-center justify-between gap-x-4 border-b border-rule-strong px-[var(--shell-gutter)] max-lg:flex-wrap">
+      <SubNavigation aria-label="Economy views" className="max-lg:w-full">
         <SubNavigationItem
-          className={item}
           render={
             <Link
               to="/economy/market"
@@ -56,7 +51,6 @@ export function WorkspaceHeader({
           <Gem className="size-3.5" /> Currency market
         </SubNavigationItem>
         <SubNavigationItem
-          className={item}
           render={
             <Link
               to="/economy/movers"
@@ -68,7 +62,7 @@ export function WorkspaceHeader({
           <ArrowUpRight className="size-3.5" /> Market movers
         </SubNavigationItem>
       </SubNavigation>
-      <div className="flex items-end gap-4 max-sm:order-first max-sm:w-full max-sm:py-3">
+      <div className="flex items-end gap-4 max-lg:order-first max-lg:w-full max-lg:py-3">
         {delayNotice && (
           <Tooltip>
             <TooltipTrigger

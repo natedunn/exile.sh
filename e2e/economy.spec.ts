@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
+import { readFileSync } from "node:fs"
 
-for (const width of [390, 1440]) {
+for (const width of [390, 768, 1440]) {
   test(`Economy navigation underline meets the divider at ${width}px`, async ({
     page,
   }) => {
@@ -16,6 +17,8 @@ for (const width of [390, 1440]) {
         return {
           height: element.getBoundingClientRect().height,
           fontSize: style.fontSize,
+          fontWeight: style.fontWeight,
+          gap: style.gap,
           lineHeight: style.lineHeight,
           letterSpacing: style.letterSpacing,
           borderBottomWidth: style.borderBottomWidth,
@@ -25,6 +28,20 @@ for (const width of [390, 1440]) {
         }
       })
     const treeStyle = await measurements(treeTab)
+    await page.goto("/build-bin")
+    await page
+      .getByLabel("PoB export or pobb.in link")
+      .fill(
+        readFileSync(
+          new URL("../shared/fixtures/pob/2k0EPn6QOhTx.txt", import.meta.url),
+          "utf8"
+        )
+      )
+    const buildTab = page
+      .getByRole("navigation", { name: "Build sections" })
+      .getByRole("link", { name: "Equipment", exact: true })
+    await expect(buildTab).toBeVisible()
+    expect(treeStyle).toEqual(await measurements(buildTab))
     for (const route of ["market", "movers"]) {
       await page.goto(`/economy/${route}`)
       const nav = page.getByRole("navigation", { name: "Economy views" })

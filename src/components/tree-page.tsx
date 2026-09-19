@@ -97,10 +97,7 @@ export function TreePage({ type }: { type: TreeType }) {
     >
       <div className="shrink-0 border-b border-rule-strong">
         <div className="mx-auto flex max-w-(--shell-max-width) px-(--shell-gutter)">
-          <SubNavigation
-            aria-label="Tree types"
-            className="max-sm:w-full max-sm:justify-between max-sm:gap-2"
-          >
+          <SubNavigation aria-label="Tree types" className="max-sm:w-full">
             {TREE_PAGES.map((page) => (
               <SubNavigationItem
                 key={page.type}

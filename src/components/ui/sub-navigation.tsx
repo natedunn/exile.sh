@@ -2,14 +2,19 @@ import * as React from "react"
 import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
+import { navigationContentHeight, navigationRow } from "./navigation-styles"
 
-/* Match the masthead's 67px content row (68px including its outer divider).
-   Own the height here so feature toolbars cannot change label/underline spacing. */
+/* Use Build Bin's spacing, leaving one pixel for the enclosing divider. */
 function SubNavigation({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
       data-slot="sub-navigation"
-      className={cn("flex h-16.75 shrink-0 items-center gap-6", className)}
+      className={cn(
+        navigationRow,
+        navigationContentHeight,
+        "shrink-0",
+        className
+      )}
       {...props}
     />
   )
@@ -25,7 +30,7 @@ function SubNavigationItem({
     <Button
       variant="subnav"
       size="bare"
-      className={cn("h-full", className)}
+      className={cn("h-full gap-2", className)}
       render={render}
       nativeButton={nativeButton ?? !render}
       role={render ? "link" : undefined}

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { Gem, Menu, Swords, Newspaper, Network, XIcon } from "lucide-react"
 import { Link } from "@tanstack/react-router"
 import { Button } from "./ui/button"
+import { cn } from "cn"
+import { navigationRow, navigationItem } from "./ui/navigation-styles"
 import {
   Sheet,
   SheetClose,
@@ -33,7 +35,7 @@ export function SiteNavigation({ filters }: { filters: Filters }) {
     <>
       {/* Underlined tab row: the active destination carries a bronze rule. */}
       <nav
-        className="flex h-full items-center gap-6 mono-label text-ink-muted max-lg:hidden"
+        className={cn(navigationRow, "h-full text-ink-muted max-lg:hidden")}
         aria-label="Main navigation"
       >
         {destinations.map(({ label, to }) => (
@@ -42,7 +44,7 @@ export function SiteNavigation({ filters }: { filters: Filters }) {
             to={to}
             search={to === "/economy" ? filters : {}}
             activeProps={{ "aria-current": "page" }}
-            className="-mb-px flex h-full items-center border-b-2 border-transparent whitespace-nowrap hover:text-ink aria-[current=page]:border-brand aria-[current=page]:text-ink"
+            className={navigationItem}
           >
             {label}
           </Link>

@@ -25,6 +25,7 @@ import {
   Waypoints,
 } from "lucide-react"
 import { Button } from "./ui/button"
+import { navigationRow, navigationItem } from "./ui/navigation-styles"
 import { EmptyState } from "./ui/empty-state"
 import { LabelText } from "./ui/label"
 import { Note } from "./ui/note"
@@ -336,12 +337,17 @@ function SectionNav({
         </div>
         {/* The list is the main navigation's: mono capitals with a bronze
             underline on the current section. */}
-        <ul className="m-0 flex h-full min-w-0 [scrollbar-width:none] list-none items-center gap-6 overflow-x-auto p-0 mono-label max-lg:gap-4 max-sm:gap-3 [&::-webkit-scrollbar]:hidden">
+        <ul
+          className={cn(
+            navigationRow,
+            "m-0 h-full [scrollbar-width:none] list-none overflow-x-auto p-0 [&::-webkit-scrollbar]:hidden"
+          )}
+        >
           {sections.map((s) => (
             <li key={s.id} className="h-full shrink-0">
               <a
                 href={`#${s.id}`}
-                className="-mb-px flex h-full items-center gap-2 border-b-2 border-transparent whitespace-nowrap text-ink-muted no-underline transition-[color,border-color] duration-120 hover:text-ink focus-visible:text-ink focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-focus aria-[current]:border-brand aria-[current]:text-ink [&>svg]:block [&>svg]:size-[15px] [&>svg]:shrink-0 [&>svg]:transition-colors [&>svg]:duration-120 aria-[current]:[&>svg]:text-brand max-sm:[&>svg]:hidden"
+                className={cn(navigationItem, "max-sm:[&>svg]:hidden")}
                 aria-current={active === s.id ? "location" : undefined}
                 onClick={(event) => {
                   if (
