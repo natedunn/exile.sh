@@ -95,16 +95,15 @@ export function TreePage({ type }: { type: TreeType }) {
       data-slot="tree-page"
       className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
     >
-      <div className="h-17 shrink-0 border-b border-rule-strong">
-        <div className="mx-auto flex h-full max-w-(--shell-max-width) px-(--shell-gutter)">
+      <div className="shrink-0 border-b border-rule-strong">
+        <div className="mx-auto flex max-w-(--shell-max-width) px-(--shell-gutter)">
           <SubNavigation
             aria-label="Tree types"
-            className="h-full max-sm:w-full max-sm:justify-between max-sm:gap-2"
+            className="max-sm:w-full max-sm:justify-between max-sm:gap-2"
           >
             {TREE_PAGES.map((page) => (
               <SubNavigationItem
                 key={page.type}
-                className="max-sm:text-fine"
                 render={
                   <Link
                     to={page.to}

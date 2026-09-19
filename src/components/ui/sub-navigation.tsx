@@ -3,13 +3,13 @@ import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
 
-/* A quiet second-level navigation row. The active destination is marked by
-   the same bronze bottom rule as the site masthead rather than a filled tab. */
+/* Match the masthead's 67px content row (68px including its outer divider).
+   Own the height here so feature toolbars cannot change label/underline spacing. */
 function SubNavigation({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
       data-slot="sub-navigation"
-      className={cn("flex h-10 items-center gap-6", className)}
+      className={cn("flex h-16.75 shrink-0 items-center gap-6", className)}
       {...props}
     />
   )

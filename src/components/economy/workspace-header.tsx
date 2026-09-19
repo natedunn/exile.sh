@@ -38,36 +38,37 @@ export function WorkspaceHeader({
   const link = { ...f, item: "" }
   const item = "max-sm:flex-1 max-sm:justify-center max-sm:gap-1 max-sm:px-2"
   return (
-    <div className="-mx-[var(--shell-gutter)] mt-6 flex items-stretch justify-between gap-4 border-b border-rule-strong px-[var(--shell-gutter)] max-sm:mt-2 max-sm:flex-wrap max-sm:gap-3">
-      <nav aria-label="Economy views" className="flex items-end max-sm:w-full">
-        <SubNavigation className="max-sm:w-full max-sm:justify-between">
-          <SubNavigationItem
-            className={item}
-            render={
-              <Link
-                to="/economy/market"
-                search={link}
-                aria-current={!moversPage ? "page" : undefined}
-              />
-            }
-          >
-            <Gem className="size-3.5" /> Currency market
-          </SubNavigationItem>
-          <SubNavigationItem
-            className={item}
-            render={
-              <Link
-                to="/economy/movers"
-                search={link}
-                aria-current={moversPage ? "page" : undefined}
-              />
-            }
-          >
-            <ArrowUpRight className="size-3.5" /> Market movers
-          </SubNavigationItem>
-        </SubNavigation>
-      </nav>
-      <div className="flex items-end gap-4 pb-4 max-sm:order-first max-sm:w-full max-sm:pb-0">
+    <div className="-mx-[var(--shell-gutter)] flex items-center justify-between gap-x-4 border-b border-rule-strong px-[var(--shell-gutter)] max-sm:flex-wrap">
+      <SubNavigation
+        aria-label="Economy views"
+        className="max-sm:w-full max-sm:justify-between"
+      >
+        <SubNavigationItem
+          className={item}
+          render={
+            <Link
+              to="/economy/market"
+              search={link}
+              aria-current={!moversPage ? "page" : undefined}
+            />
+          }
+        >
+          <Gem className="size-3.5" /> Currency market
+        </SubNavigationItem>
+        <SubNavigationItem
+          className={item}
+          render={
+            <Link
+              to="/economy/movers"
+              search={link}
+              aria-current={moversPage ? "page" : undefined}
+            />
+          }
+        >
+          <ArrowUpRight className="size-3.5" /> Market movers
+        </SubNavigationItem>
+      </SubNavigation>
+      <div className="flex items-end gap-4 max-sm:order-first max-sm:w-full max-sm:py-3">
         {delayNotice && (
           <Tooltip>
             <TooltipTrigger

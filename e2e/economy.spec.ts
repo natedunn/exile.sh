@@ -5,13 +5,48 @@ for (const width of [390, 1440]) {
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 })
+    await page.goto("/trees/passive")
+    const treeTab = page
+      .getByRole("navigation", { name: "Tree types" })
+      .locator('[aria-current="page"]')
+    await expect(treeTab).toBeVisible()
+    const measurements = async (tab: typeof treeTab) =>
+      tab.evaluate((element) => {
+        const style = getComputedStyle(element)
+        return {
+          height: element.getBoundingClientRect().height,
+          fontSize: style.fontSize,
+          lineHeight: style.lineHeight,
+          letterSpacing: style.letterSpacing,
+          borderBottomWidth: style.borderBottomWidth,
+          alignItems: style.alignItems,
+          paddingTop: style.paddingTop,
+          paddingBottom: style.paddingBottom,
+        }
+      })
+    const treeStyle = await measurements(treeTab)
     for (const route of ["market", "movers"]) {
       await page.goto(`/economy/${route}`)
       const nav = page.getByRole("navigation", { name: "Economy views" })
       const active = nav.locator('[aria-current="page"]')
       await expect(active).toBeVisible()
-      // Keep the shared navigation height even when the adjacent fields are taller.
-      await expect(active).toHaveCSS("height", "40px")
+      // Compare to the actual tree navigation, not an isolated hard-coded height.
+      expect(await measurements(active)).toEqual(treeStyle)
+      if (width === 1440) {
+        const mainTab = page
+          .getByRole("navigation", { name: "Main navigation" })
+          .locator('[aria-current="page"]')
+        const mainStyle = await measurements(mainTab)
+        expect((await measurements(active)).height).toBe(mainStyle.height)
+        const extraSpace = await nav.evaluate((element) => {
+          const heading = document.querySelector('[data-slot="page-heading"]')!
+          return (
+            element.getBoundingClientRect().top -
+            heading.getBoundingClientRect().bottom
+          )
+        })
+        expect(extraSpace).toBe(0)
+      }
       const gap = await active.evaluate((element) => {
         const toolbar = element.closest(
           '[aria-label="Economy views"]'
