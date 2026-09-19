@@ -3,7 +3,7 @@ import { Input as InputPrimitive } from "@base-ui/react/input"
 import { cn } from "cn"
 
 export const fieldClassName =
-  "rounded border border-rule-strong bg-surface text-ink transition-none outline-none placeholder:text-ink-faint focus-visible:border-focus focus-visible:ring-3 focus-visible:ring-focus-glow disabled:cursor-not-allowed disabled:opacity-40 aria-invalid:border-negative aria-invalid:focus-visible:ring-error-glow"
+  "rounded border border-rule-strong bg-field text-ink transition-none outline-none placeholder:text-ink-muted focus-visible:border-focus focus-visible:ring-3 focus-visible:ring-focus-glow disabled:cursor-not-allowed disabled:opacity-40 aria-invalid:border-negative aria-invalid:focus-visible:ring-error-glow"
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (

@@ -41,7 +41,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "flex w-fit items-center justify-between gap-2 rounded border border-rule-strong bg-surface pr-2 pl-3 font-mono text-xs whitespace-nowrap text-ink transition-none outline-none select-none hover:not-disabled:border-brand-deep focus-visible:border-focus focus-visible:ring-3 focus-visible:ring-focus-glow disabled:cursor-not-allowed disabled:opacity-40 aria-invalid:border-negative data-placeholder:text-ink-muted data-popup-open:border-focus data-popup-open:ring-3 data-popup-open:ring-focus-glow data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "flex w-fit items-center justify-between gap-2 rounded border border-rule-strong bg-field pr-2 pl-3 font-mono text-xs whitespace-nowrap text-ink transition-none outline-none select-none hover:not-disabled:border-brand-deep focus-visible:border-focus focus-visible:ring-3 focus-visible:ring-focus-glow disabled:cursor-not-allowed disabled:opacity-40 aria-invalid:border-negative data-placeholder:text-ink-muted data-popup-open:border-focus data-popup-open:ring-3 data-popup-open:ring-focus-glow data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}

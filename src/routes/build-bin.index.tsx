@@ -215,6 +215,7 @@ function BuildImport() {
             <Field className="gap-3">
               <FieldLabel
                 htmlFor="pob-source"
+                tone="ink"
                 className="font-mono text-2xs font-normal tracking-normal normal-case"
               >
                 PoB export or pobb.in link

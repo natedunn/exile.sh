@@ -58,7 +58,7 @@ export function SearchField({
         <Search size={16} />
       </InputGroupAddon>
       <InputGroupInput
-        className="h-9 min-w-0 px-0 py-0 font-mono text-xs text-ink placeholder:text-ink-faint"
+        className="h-9 min-w-0 px-0 py-0 font-mono text-xs text-ink"
         {...props}
       />
       {children}
