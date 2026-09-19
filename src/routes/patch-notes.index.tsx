@@ -1,9 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowUpRight, Newspaper } from "lucide-react"
+import { cn } from "cn"
 import { PatchNotesHeading } from "../components/patch-notes-heading"
+import {
+  feedCaption,
+  feedRow,
+  gutter,
+  NewsPage,
+  NewsStatus,
+  PatchFeed,
+  PatchLayout,
+  PatchSidebar,
+  PatchStrip,
+  PatchStripLink,
+  PatchStripTitle,
+} from "../components/patch-notes-layout"
+import { Button } from "../components/ui/button"
+import { EmptyState, EmptyStateText } from "../components/ui/empty-state"
+import { Note } from "../components/ui/note"
 import { day } from "../lib/format"
 import { getPatchNotes, getXUpdates } from "../lib/patch-notes-server"
-import "../news.css"
 
 export const Route = createFileRoute("/patch-notes/")({
   head: () => ({
@@ -22,10 +38,10 @@ export const Route = createFileRoute("/patch-notes/")({
   },
   staleTime: 600_000,
   pendingComponent: () => (
-    <div className="news-page">
+    <NewsPage>
       <PatchNotesHeading title="Patch notes" meta={<Source />} />
-      <p role="status">Loading patch notes…</p>
-    </div>
+      <NewsStatus>Loading patch notes…</NewsStatus>
+    </NewsPage>
   ),
   component: PatchNotesPage,
 })
@@ -48,7 +64,7 @@ function PatchNotesPage() {
   const { items, unavailable, x } = Route.useLoaderData()
   const latest = items.at(0)
   return (
-    <div className="news-page">
+    <NewsPage>
       <PatchNotesHeading
         title="Patch notes"
         meta={
@@ -64,43 +80,56 @@ function PatchNotesPage() {
           </>
         }
       />
-      <div className="patch-layout">
-        <section className="patch-feed" aria-labelledby="patch-feed-title">
-          <header className="patch-strip">
-            <h2 id="patch-feed-title">Patch notes &amp; hotfixes</h2>
+      <PatchLayout>
+        <PatchFeed aria-labelledby="patch-feed-title">
+          <PatchStrip>
+            <PatchStripTitle id="patch-feed-title">
+              Patch notes &amp; hotfixes
+            </PatchStripTitle>
             {items.length > 0 && (
               <span>
                 {items.length} {items.length === 1 ? "post" : "posts"}
               </span>
             )}
-          </header>
+          </PatchStrip>
           {!items.length ? (
-            <div className="empty-state" role="status">
+            <EmptyState role="status">
               <Newspaper size={24} aria-hidden="true" />
-              <h3>
+              <h3 className="display text-section text-ink">
                 {unavailable
                   ? "Patch notes are temporarily unavailable"
                   : "No recent patch notes"}
               </h3>
-              <p>
+              <EmptyStateText>
                 Read the latest patch notes directly from Grinding Gear Games.
-              </p>
-              <a href={FORUM_URL}>
+              </EmptyStateText>
+              <Button
+                variant="outline"
+                render={<a href={FORUM_URL} />}
+                className="h-auto rounded-none px-4.5 py-2.5 font-mono text-xs font-normal whitespace-normal [&_svg]:inline [&_svg]:size-auto [&_svg]:align-[-2px]"
+              >
                 Visit the patch notes forum{" "}
                 <ArrowUpRight size={13} aria-hidden="true" />
-              </a>
-            </div>
+              </Button>
+            </EmptyState>
           ) : (
-            <ol className="patch-index">
+            <ol className="m-0 list-none p-0">
               {items.map((item) => (
                 <li key={item.id}>
                   <Link
-                    className="patch-index-row"
+                    className={cn(
+                      feedRow,
+                      gutter,
+                      "flex items-baseline justify-between gap-6 py-4 hover:text-brand-ink max-sm:gap-3 max-sm:text-xs"
+                    )}
                     to="/patch-notes/$threadId"
                     params={{ threadId: item.id.replace("forum-", "") }}
                   >
-                    <span>{item.title}</span>
+                    <span className="font-medium wrap-anywhere">
+                      {item.title}
+                    </span>
                     <time
+                      className={cn(feedCaption, "shrink-0")}
                       dateTime={new Date(item.date).toISOString().slice(0, 10)}
                     >
                       {day(item.date)}
@@ -110,24 +139,33 @@ function PatchNotesPage() {
               ))}
             </ol>
           )}
-        </section>
-        <aside className="patch-sidebar" aria-labelledby="patch-x-title">
-          <header className="patch-strip">
-            <h2 id="patch-x-title">On X</h2>
-            <a href="https://x.com/pathofexile">
+        </PatchFeed>
+        <PatchSidebar aria-labelledby="patch-x-title">
+          <PatchStrip>
+            <PatchStripTitle id="patch-x-title">On X</PatchStripTitle>
+            <PatchStripLink href="https://x.com/pathofexile">
               @pathofexile <ArrowUpRight size={13} aria-hidden="true" />
-            </a>
-          </header>
+            </PatchStripLink>
+          </PatchStrip>
           {x.posts.length ? (
-            <ol className="x-feed">
+            <ol className="m-0 list-none p-0">
               {x.posts.map((post) => (
                 <li key={post.id}>
+                  {/* The whole post is the link, lit like a feed row on
+                      hover; the date doubles as the link-out caption. */}
                   <a
-                    className="x-post"
+                    className={cn(feedRow, gutter, "group block py-4")}
                     href={`https://x.com/pathofexile/status/${post.id}`}
                   >
-                    <p>{post.text}</p>
-                    <span className="x-post-meta">
+                    <p className="text-sm leading-[1.65] wrap-anywhere whitespace-pre-wrap">
+                      {post.text}
+                    </p>
+                    <span
+                      className={cn(
+                        feedCaption,
+                        "mt-2 inline-flex items-center gap-1 transition-colors duration-120 group-hover:text-brand"
+                      )}
+                    >
                       <time dateTime={post.date}>
                         {day(Date.parse(post.date))}
                       </time>
@@ -139,21 +177,30 @@ function PatchNotesPage() {
               ))}
             </ol>
           ) : (
-            <p className="x-feed-empty" role="status">
+            <p
+              className={cn(
+                gutter,
+                "py-6 text-sm leading-[1.7] text-ink-muted"
+              )}
+              role="status"
+            >
               {x.unavailable
                 ? "X updates are temporarily unavailable. Read the latest posts on X."
                 : "No recent posts."}
             </p>
           )}
-        </aside>
-      </div>
-      <section className="bottom-note">
+        </PatchSidebar>
+      </PatchLayout>
+      <Note
+        rule="top"
+        className="-mx-[var(--shell-gutter)] px-[var(--shell-gutter)] [&_a]:border-b [&_a]:border-dotted [&_a]:border-brand-deep [&_a]:text-brand-ink [&>svg]:text-brand"
+      >
         <Newspaper size={15} aria-hidden="true" />
-        <p>
+        <span>
           Patch notes and hotfixes come directly from GGG’s official PoE2 forum
           and are checked hourly. <a href={FORUM_URL}>All PoE2 patch notes.</a>
-        </p>
-      </section>
-    </div>
+        </span>
+      </Note>
+    </NewsPage>
   )
 }

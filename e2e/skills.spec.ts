@@ -2,6 +2,32 @@ import { expect, test } from "@playwright/test"
 import { strToU8, zlibSync } from "fflate"
 const xml = `<PathOfBuilding2><Build className="Sorceress" ascendClassName="Stormweaver" level="90" mainSocketGroup="3"/><Skills><Skill source="Thorns"><Gem skillId="ThornsPlayer"/></Skill><Skill label="Other setup"><Gem nameSpec="Other skill" skillId="OtherSkill" level="1" quality="0"/></Skill><Skill label="Spark setup"><Gem nameSpec="Spark" gemId="Metadata/Items/Gems/SkillGemSpark" skillId="SparkPlayer" statSetIndex="nil" level="20" quality="23" corrupted="true" corruptLevel="1"/><Gem nameSpec="Elemental Armament II" gemId="Metadata/Items/Gems/SupportGemPrimalArmamentTwo" skillId="SupportElementalArmamentPlayerTwo" level="1" quality="0" enabled="false"/><Gem nameSpec="Loyalty" skillId="SupportLoyaltyPlayer" statSetIndex="nil" level="1" quality="0"/><Gem nameSpec="Unknown future support" skillId="SupportFuture" level="1" quality="0"/></Skill></Skills></PathOfBuilding2>`
 const code = Buffer.from(zlibSync(strToU8(xml))).toString("base64url")
+
+test("single-effect gem tooltip retains header spacing without a redundant bullet", async ({
+  page,
+}) => {
+  const build =
+    '<PathOfBuilding2><Build className="Witch" ascendClassName="Infernalist" level="90"/><Skills><Skill><Gem nameSpec="Impurity" gemId="Metadata/Items/Gems/SkillGemImpurity" skillId="ImpurityPlayer" level="18" quality="0" corrupted="false"/></Skill></Skills></PathOfBuilding2>'
+  await page.goto("/build-bin")
+  await page
+    .getByLabel("PoB export or pobb.in link")
+    .fill(Buffer.from(zlibSync(strToU8(build))).toString("base64url"))
+  await page
+    .getByRole("button", { name: "Impurity. Show gem details", exact: true })
+    .click()
+  const popup = page.getByRole("dialog", { name: "Impurity", exact: true })
+  const line = popup.locator('[data-slot="gem-effect-lines"] li')
+  await expect(line).toHaveText("Aura grants +27% to Chaos Resistance")
+  await expect(line).toHaveCSS("padding-left", "0px")
+  expect(
+    await line.evaluate((el) => getComputedStyle(el, "::before").content)
+  ).toBe("none")
+  await expect(popup.locator('[data-slot="gem-tags"]')).toHaveCSS(
+    "margin-top",
+    "14px"
+  )
+})
+
 for (const width of [390, 1440])
   test(`vertical gems, art and inspection at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 })
@@ -13,7 +39,7 @@ for (const width of [390, 1440])
     })
     await page.goto("/build-bin")
     await page.getByLabel("PoB export or pobb.in link").fill(code)
-    await expect(page.locator(".build-identity h1")).toContainText(
+    await expect(page.locator("[data-testid=build-identity] h1")).toContainText(
       "Stormweaver"
     )
     await page
@@ -22,17 +48,19 @@ for (const width of [390, 1440])
     await expect(
       page.getByRole("button", { name: "About gem data" })
     ).toHaveCount(0)
-    await expect(page.locator(".build-skills")).not.toContainText(
+    await expect(page.locator('[data-slot="build-skills"]')).not.toContainText(
       "ThornsPlayer"
     )
     const active = page.getByRole("button", {
       name: "Spark. Show gem details",
       exact: true,
     })
-    await expect(page.locator(".build-skill").first()).toContainText("Spark")
-    await expect(page.locator(".build-skill").nth(1)).toContainText(
-      "Other skill"
-    )
+    await expect(
+      page.locator('[data-slot="build-skill"]').first()
+    ).toContainText("Spark")
+    await expect(
+      page.locator('[data-slot="build-skill"]').nth(1)
+    ).toContainText("Other skill")
     const support = page.getByRole("button", {
       name: "Elemental Armament II. Show gem details",
       exact: true,
@@ -59,13 +87,9 @@ for (const width of [390, 1440])
     await expect(
       active.getByRole("img", { name: "Corrupted", exact: true })
     ).toBeVisible()
-    await expect(active.locator(".skill-gem-tag")).toHaveText([
-      "Spell",
-      "Projectile",
-      "Lightning",
-      "Duration",
-      "Repeatable",
-    ])
+    await expect(
+      active.locator('[data-slot="gem-tags"] [data-slot="badge"]')
+    ).toHaveText(["Spell", "Projectile", "Lightning", "Duration", "Repeatable"])
     await expect(
       active.getByRole("img", { name: "Main skill group in PoB" })
     ).toBeVisible()
@@ -76,16 +100,50 @@ for (const width of [390, 1440])
     else await active.click()
     const popup = page.getByRole("dialog", { name: "Spark", exact: true })
     await expect(popup).toBeVisible()
+    const tags = popup.locator('[data-slot="gem-tags"]')
+    await expect(tags).toHaveCSS("margin-top", "14px")
+    expect(
+      await tags.evaluate(
+        (el) =>
+          el.getBoundingClientRect().top -
+          el.previousElementSibling!.getBoundingClientRect().bottom
+      )
+    ).toBeCloseTo(14, 1)
+    const tag = tags.locator('[data-slot="badge"]').first()
+    await expect(tag).toHaveCSS("font-size", "11px")
+    await expect(tag).toHaveCSS("padding", "3px 7px")
+    await expect(tag).toHaveCSS("border-radius", "3px")
+    await expect(tag).toHaveCSS("line-height", "15.4px")
+    await expect(
+      popup.locator('[data-slot="gem-tooltip-heading"] img')
+    ).toHaveCSS("width", "46px")
+    const properties = popup.locator('[data-slot="gem-properties"]')
+    await expect(properties).toHaveCSS("margin", "16px 0px")
+    await expect(properties).toHaveCSS("padding", "12px 0px")
+    await expect(properties.locator(":scope > div").first()).toHaveCSS(
+      "font-size",
+      "13px"
+    )
+    await expect(popup.locator('[data-slot="gem-description"]')).toHaveCSS(
+      "line-height",
+      "19.8px"
+    )
     await expect(popup).toContainText("Main skill group in PoB")
-    await expect(popup.locator(".skill-gem-corrupted-label")).toHaveText(
+    await expect(popup.locator('[data-slot="gem-corrupted"]')).toHaveText(
       "Corrupted"
     )
     await expect(popup).toContainText("Launch a spray of sparking Projectiles")
     await expect(popup).toContainText("23%")
     await expect(popup).not.toContainText("Gem reference:")
-    await expect(popup.locator(".tree-lines li").first()).toBeVisible()
+    await expect(
+      popup.locator('[data-slot="gem-effect-lines"] li').first()
+    ).toBeVisible()
     await expect(popup).toContainText("13 to 242 Lightning Damage")
     await expect(popup).toContainText("34% increased Projectile Speed")
+    const effect = popup.locator('[data-slot="gem-effect-lines"] li').first()
+    await expect(effect).toHaveCSS("font-size", "13px")
+    await expect(effect).toHaveCSS("line-height", "18.85px")
+    await expect(effect).toHaveCSS("padding-left", "14px")
     if (width > 600) {
       await page.mouse.move(0, 0)
       await expect(popup).not.toBeVisible()
@@ -117,6 +175,11 @@ for (const width of [390, 1440])
     await expect(
       page.getByRole("dialog", { name: "Elemental Armament II", exact: true })
     ).toBeVisible()
+    await expect(
+      page
+        .getByRole("dialog", { name: "Elemental Armament II", exact: true })
+        .locator('[data-slot="gem-tooltip-heading"] > span')
+    ).toHaveCSS("width", "48px")
     await page.keyboard.press("Escape")
     const loyalty = page.getByRole("button", {
       name: "Loyalty. Show gem details",
@@ -164,7 +227,7 @@ for (const width of [390, 1440]) {
     await page
       .getByLabel("PoB export or pobb.in link")
       .fill(Buffer.from(zlibSync(strToU8(source))).toString("base64url"))
-    const groups = page.locator(".build-skill")
+    const groups = page.locator('[data-slot="build-skill"]')
     await expect(groups).toHaveCount(3)
     await expect(groups.first()).not.toContainText("Granted by")
     const sourceInfo = groups.first().getByRole("button", {
@@ -178,7 +241,7 @@ for (const width of [390, 1440]) {
     await expect(sourceInfo).toHaveCSS("right", "8px")
     const rowBounds = (await groups
       .first()
-      .locator(".skill-gem-row")
+      .locator('[data-slot="skill-gem-row"]')
       .first()
       .boundingBox())!
     expect(sourceBounds.x).toBeGreaterThan(rowBounds.x + rowBounds.width / 2)
@@ -201,7 +264,7 @@ for (const width of [390, 1440]) {
       "background-color",
       "rgba(0, 0, 0, 0)"
     )
-    await expect(page.locator(".skill-gem-tooltip")).toBeHidden()
+    await expect(page.locator('[data-inspection-tooltip="true"]')).toBeHidden()
     await page.keyboard.press("Escape")
     await page.mouse.move(0, 0)
     await expect(
@@ -229,7 +292,9 @@ for (const width of [390, 1440]) {
     )
     await expect(sourcePopup).toContainText("Weapon set II")
     await page.keyboard.press("Escape")
-    const supports = page.locator('.build-skill[data-support-only="true"]')
+    const supports = page.locator(
+      '[data-slot="build-skill"][data-support-only="true"]'
+    )
     await expect(supports).toContainText(
       "There is no active skill in this group."
     )
@@ -239,7 +304,7 @@ for (const width of [390, 1440]) {
         exact: true,
       })
     ).toHaveCount(1)
-    const rows = supports.locator(".skill-gem-row")
+    const rows = supports.locator('[data-slot="skill-gem-row"]')
     expect(
       await rows.nth(0).evaluate((el) => getComputedStyle(el).paddingLeft)
     ).toBe(await rows.nth(1).evaluate((el) => getComputedStyle(el).paddingLeft))

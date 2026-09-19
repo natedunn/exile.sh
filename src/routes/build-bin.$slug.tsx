@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router"
 import { z } from "zod"
 import { BuildView } from "../components/build-view"
+import { EmptyState, EmptyStateText } from "../components/ui/empty-state"
 import type { BuildSelection } from "../components/build-view"
 import { getSharedBuild } from "../lib/build-server"
 import { buildSkill, displayStat, statValue } from "../../shared/pob"
@@ -47,15 +48,22 @@ export const Route = createFileRoute("/build-bin/$slug")({
   },
   component: SharedBuild,
   pendingComponent: () => (
-    <p className="build-empty" role="status">
+    <EmptyState frame="dashed" role="status">
       Loading build…
-    </p>
+    </EmptyState>
   ),
   notFoundComponent: () => (
-    <section className="build-empty">
-      <h1>Build not found.</h1>
-      <p>This link does not point to a shared build.</p>
-      <a href="/build-bin">Share a build</a>
+    <section className="my-8 flex flex-col items-center gap-0 border border-dashed border-rule-strong px-4 py-12 text-center text-ink-muted [&>svg]:text-brand">
+      <h1 className="mb-3 display text-section text-ink">Build not found.</h1>
+      <EmptyStateText className="max-w-none text-base leading-normal">
+        This link does not point to a shared build.
+      </EmptyStateText>
+      <a
+        href="/build-bin"
+        className="text-brand underline decoration-dotted underline-offset-4"
+      >
+        Share a build
+      </a>
     </section>
   ),
 })

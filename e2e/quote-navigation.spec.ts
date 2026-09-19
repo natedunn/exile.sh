@@ -5,7 +5,7 @@ for (const quote of ["Auto", "Chaos", "Exalted"] as const) {
     page,
   }) => {
     await page.goto("/economy/market?league=Standard")
-    await page.locator(".currency-row").first().waitFor()
+    await page.locator("[data-testid=currency-row]").first().waitFor()
     const picker = page.getByRole("combobox", {
       name: "Quote currency",
       exact: true,
@@ -15,7 +15,10 @@ for (const quote of ["Auto", "Chaos", "Exalted"] as const) {
     await expect(picker).toContainText(quote)
     await page.reload()
     await expect(picker).toContainText(quote)
-    for (const selector of [".wordmark", ".footer-brand"]) {
+    for (const selector of [
+      "[data-testid=wordmark]",
+      "[data-testid=footer-brand]",
+    ]) {
       await page.locator(selector).click()
       await expect(picker).toContainText(quote)
       expect(new URL(page.url()).searchParams.get("quote")).toBe(

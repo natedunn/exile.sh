@@ -31,7 +31,7 @@ for (const width of [390, 1440]) {
     })
     await main.scrollIntoViewIfNeeded()
     expect(loads).toBe(0)
-    const item = page.locator('.equipment-card[data-slot="popover-content"]')
+    const item = page.locator("[data-tooltip-kind=item]")
     if (width === 1440) {
       await main.hover({ position: { x: 4, y: 4 } })
       await expect(item).toBeVisible()
@@ -41,7 +41,7 @@ for (const width of [390, 1440]) {
     })
     if (width === 390) await socket.tap()
     else await socket.hover()
-    const augment = page.locator(".augment-tooltip")
+    const augment = page.locator("[data-tooltip-kind=augment]")
     await expect(augment.getByRole("heading", { name: soulCore })).toBeVisible()
     await expect(augment).toContainText("Soul Core")
     await expect(augment).toContainText("Level 50")
@@ -99,12 +99,12 @@ test("direct rune hover opens the pair, switches augments and responds to a narr
   })
   await rune.scrollIntoViewIfNeeded()
   await rune.hover()
-  const item = page.locator('.equipment-card[data-slot="popover-content"]')
-  const augment = page.locator(".augment-tooltip")
+  const item = page.locator("[data-tooltip-kind=item]")
+  const augment = page.locator("[data-tooltip-kind=augment]")
   await expect(item).toBeVisible()
   await expect(augment).not.toContainText("Bonded")
   await expect(augment).toContainText("Martial Weapons")
-  await expect(augment.locator(".augment-tooltip-bonded")).toHaveCount(0)
+  await expect(augment.locator("[data-slot=augment-bonded]")).toHaveCount(0)
   await page.mouse.move(0, 0)
   await expect(augment).toBeHidden()
   await page
@@ -169,7 +169,7 @@ test("missing augment data keeps the name and does not substitute contextual ite
   })
   await rune.focus()
   await rune.press("Enter")
-  const augment = page.locator(".augment-tooltip")
+  const augment = page.locator("[data-tooltip-kind=augment]")
   await expect(
     augment.getByRole("heading", { name: "Saqawal's Rune of the Sky" })
   ).toBeVisible()
@@ -201,7 +201,7 @@ test("body armour keeps only the latest augment open when moving between socket 
     name: "Body armour: Morior Invictus. Show item details",
     exact: true,
   })
-  const sockets = body.locator("..").locator(".gear-augment-trigger")
+  const sockets = body.locator("..").locator("[data-slot=gear-augment-trigger]")
   await expect(sockets).toHaveCount(5)
   await sockets.first().scrollIntoViewIfNeeded()
   const positions = await sockets.evaluateAll((elements) =>
@@ -213,7 +213,7 @@ test("body armour keeps only the latest augment open when moving between socket 
   for (const index of [0, 1, 0, 1, 2, 3, 4, 0]) {
     const point = positions[index]
     await page.mouse.move(point.x, point.y)
-    const popup = page.locator(".augment-tooltip:visible")
+    const popup = page.locator("[data-tooltip-kind=augment]:visible")
     await expect(popup).toHaveCount(1)
     const name = (await sockets.nth(index).getAttribute("aria-label"))!.replace(
       ". Show augment details",
@@ -231,5 +231,7 @@ test("body armour keeps only the latest augment open when moving between socket 
     expect(currentPositions).toEqual(positions)
   }
   await page.mouse.move(0, 0)
-  await expect(page.locator(".augment-tooltip:visible")).toHaveCount(0)
+  await expect(page.locator("[data-tooltip-kind=augment]:visible")).toHaveCount(
+    0
+  )
 })

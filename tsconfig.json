@@ -8,7 +8,8 @@
     "types": ["vite/client", "node"],
     "paths": {
       "@/*": ["./src/*"],
-      "@convex/*": ["./convex/shared/*"]
+      "@convex/*": ["./convex/shared/*"],
+      "cn": ["./src/lib/cn.ts"]
     },
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

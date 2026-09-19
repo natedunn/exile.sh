@@ -13,6 +13,8 @@ import { Popover, PopoverTrigger, PopoverTitle } from "./ui/popover"
 import { InspectionTooltipContent } from "./tooltip-pins"
 import { useInspectionTooltip } from "./use-inspection-tooltip"
 import { useBondedModifiers } from "./item-display-settings-provider"
+import { cn } from "cn"
+import { augmentSocket, itemCard, jewelCard, socket } from "./equipment-classes"
 
 const AUGMENT_WIDTH = 330
 const GAP = 14
@@ -34,7 +36,7 @@ function AugmentDetails({ name, image }: { name: string; image?: string }) {
   const reference = findAugment(catalogue.data, name)
   return (
     <>
-      <header className="augment-tooltip-heading">
+      <header className="mb-3 flex items-start gap-2.5 [&_img]:shrink-0 [&_img]:object-contain [&_p]:text-ink-muted">
         {image && <img src={image} alt="" width={40} height={40} />}
         <div>
           <PopoverTitle>{name}</PopoverTitle>
@@ -44,7 +46,7 @@ function AugmentDetails({ name, image }: { name: string; image?: string }) {
       {reference ? (
         <>
           {(reference.level || reference.limit) && (
-            <dl className="augment-tooltip-properties">
+            <dl className="mb-3 [&_dt]:text-ink-muted [&_dt]:after:content-[':'] [&>div]:flex [&>div]:gap-1">
               {!!reference.limit && (
                 <div>
                   <dt>Limited to</dt>
@@ -59,7 +61,7 @@ function AugmentDetails({ name, image }: { name: string; image?: string }) {
               )}
             </dl>
           )}
-          <div className="augment-tooltip-applications">
+          <div className="[&_h3]:font-medium [&_h3]:text-ink [&_h4]:font-medium [&_h4]:text-ink [&_p]:text-item-modifier [&>section]:border-t [&>section]:border-rule-strong [&>section]:pt-2.5 [&>section+section]:mt-2.5">
             {augmentApplications(reference)
               .filter(
                 ({ lines, bonded }) =>
@@ -72,7 +74,7 @@ function AugmentDetails({ name, image }: { name: string; image?: string }) {
                     <p key={i}>{line}</p>
                   ))}
                   {showBonded && bonded.length > 0 && (
-                    <div className="augment-tooltip-bonded">
+                    <div data-slot="augment-bonded" className="mt-1.5">
                       <h4>Bonded</h4>
                       {bonded.map((line, i) => (
                         <p key={i}>{line}</p>
@@ -172,6 +174,7 @@ export function AugmentSocket({
       }}
     >
       <PopoverTrigger
+        data-slot="gear-augment-trigger"
         {...inspection.triggerProps}
         delay={0}
         closeDelay={0}
@@ -189,7 +192,7 @@ export function AugmentSocket({
             setKeyboardOpened(true)
           inspection.triggerProps.onKeyDown?.(event)
         }}
-        className="gear-socket gear-augment-trigger"
+        className={cn(socket, augmentSocket)}
         aria-label={`${name}. Show ${jewel ? "jewel" : "augment"} details`}
       >
         {image ? (
@@ -199,13 +202,16 @@ export function AugmentSocket({
         )}
       </PopoverTrigger>
       <InspectionTooltipContent
+        data-tooltip-kind={jewel ? "jewel" : "augment"}
         {...inspection.contentProps}
         initialFocus={keyboardOpened}
         finalFocus={keyboardOpened}
         pinningEnabled={false}
         pinLabel={name}
         className={
-          jewel ? "equipment-card build-jewel-card" : "augment-tooltip"
+          jewel
+            ? cn(itemCard, jewelCard, "gap-0 p-0")
+            : "font-sans text-xs leading-[1.65] [--inspection-width:330px]"
         }
         data-rarity={jewel?.rarity.toUpperCase()}
         style={{ maxHeight: availableHeight }}

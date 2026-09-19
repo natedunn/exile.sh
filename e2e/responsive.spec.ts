@@ -35,9 +35,13 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
     page.on("pageerror", (error) => errors.push(error.message))
     await page.setViewportSize({ width, height: 900 })
     await page.goto("/economy/market")
-    await expect(page.locator(".currency-row").first()).toBeVisible()
+    await expect(
+      page.locator("[data-testid=currency-row]").first()
+    ).toBeVisible()
     await withinViewport(page)
-    for (const th of await page.locator(".currency-table th").all())
+    for (const th of await page
+      .locator("[data-testid=currency-table] th")
+      .all())
       await expect(th).toBeVisible()
     await scrollTable(
       page.getByRole("region", { name: /^Currency market, scroll/ })
@@ -50,9 +54,9 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
       await category.click()
       await expect(page.getByRole("listbox")).toBeVisible()
       await page.getByRole("option", { name: "Essences", exact: true }).click()
-      await expect(page.locator(".currency-row").first()).toContainText(
-        "Essence"
-      )
+      await expect(
+        page.locator("[data-testid=currency-row]").first()
+      ).toContainText("Essence")
       await page.reload()
       await expect(category).toContainText("Essences")
       await category.click()
@@ -110,13 +114,13 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
       path: `test-results/responsive-market-${width}.png`,
     })
     await page.goto("/economy/movers")
-    await expect(page.locator(".mover-row").first()).toBeVisible()
+    await expect(page.locator("[data-testid=mover-row]").first()).toBeVisible()
     await withinViewport(page)
     await page.screenshot({
       path: `test-results/responsive-movers-${width}.png`,
     })
-    await page.locator(".mover-row").first().click()
-    await expect(page.locator(".chart-wrap")).toBeVisible()
+    await page.locator("[data-testid=mover-row]").first().click()
+    await expect(page.locator("[data-testid=chart-wrap]")).toBeVisible()
     await withinViewport(page)
     await scrollTable(
       page.getByRole("region", { name: /^Exchange pairs, scroll/ })
@@ -124,18 +128,22 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
     await page
       .getByRole("button", { name: "View chart data", exact: true })
       .click()
-    await expect(page.locator(".history-data tbody tr").first()).toBeVisible()
+    await expect(
+      page.locator("[data-testid=history-data] tbody tr").first()
+    ).toBeVisible()
     await scrollTable(
       page.getByRole("region", { name: /^Price history data, scroll/ })
     )
-    const historyBounds = await page.locator(".history-data").evaluate((el) => {
-      const table = el.querySelector('[data-slot="table-container"]')!
-      const next = el.nextElementSibling!
-      return {
-        tableBottom: table.getBoundingClientRect().bottom,
-        nextTop: next.getBoundingClientRect().top,
-      }
-    })
+    const historyBounds = await page
+      .locator("[data-testid=history-data]")
+      .evaluate((el) => {
+        const table = el.querySelector('[data-slot="table-container"]')!
+        const next = el.nextElementSibling!
+        return {
+          tableBottom: table.getBoundingClientRect().bottom,
+          nextTop: next.getBoundingClientRect().top,
+        }
+      })
     expect(historyBounds.tableBottom).toBeLessThanOrEqual(historyBounds.nextTop)
     await page.evaluate(() => {
       ;(document.activeElement as HTMLElement)?.blur()

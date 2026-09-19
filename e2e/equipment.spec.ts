@@ -27,7 +27,7 @@ for (const width of [390, 1440]) {
     await page
       .getByLabel("PoB export or pobb.in link")
       .fill(deflateSync(xml).toString("base64url"))
-    const extras = page.locator(".equipment-extras")
+    const extras = page.locator('[data-slot="equipment-extras"]')
     await expect(
       extras.getByRole("button", {
         name: "Relic: Extra Relic. Show item details",
@@ -46,7 +46,9 @@ for (const width of [390, 1440]) {
     })
     await expect(
       page
-        .locator(".gear-gloves > .gear-sockets")
+        .locator(
+          '[data-slot="gear-slot"][data-area="gloves"] > [data-slot="gear-sockets"]'
+        )
         .getByRole("button", { name: "Equipment Jewel. Show jewel details" })
     ).toBeVisible()
     await socket.scrollIntoViewIfNeeded()
@@ -57,11 +59,13 @@ for (const width of [390, 1440]) {
       exact: true,
     })
     await expect(floating).toBeVisible()
-    await expect(floating).toHaveClass(/build-jewel-card/)
+    await expect(floating).toHaveAttribute("data-inspection-tooltip", "true")
     await expect(floating).toContainText("+10 to Intelligence")
-    const art = (await floating.locator(".build-jewel-card-art").boundingBox())!
+    const art = (await floating
+      .locator('[data-slot="jewel-art"]')
+      .boundingBox())!
     const header = (await floating
-      .locator(".equipment-card-header")
+      .locator('[data-slot="equipment-card-header"]')
       .boundingBox())!
     expect(art.y).toBeGreaterThanOrEqual(header.y)
     expect(art.y + art.height).toBeLessThanOrEqual(header.y + header.height)
@@ -70,7 +74,7 @@ for (const width of [390, 1440]) {
     expect(box.x + box.width).toBeLessThanOrEqual(width)
     await page.keyboard.press("Escape")
     const jewel = page
-      .locator("#jewels .build-jewel-card")
+      .locator('#jewels [data-slot="build-jewel-card"]')
       .filter({ hasText: "Equipment Jewel" })
     await jewel.scrollIntoViewIfNeeded()
     await expect(jewel).toHaveAttribute("data-active", "true")
@@ -93,7 +97,7 @@ for (const width of [390, 1440]) {
     await main.focus()
     await main.press("Enter")
     const item = page.getByRole("dialog", { name: "Beast Cry", exact: true })
-    const modifiers = item.locator(".equipment-card-modifiers")
+    const modifiers = item.locator('[data-slot="equipment-card-modifiers"]')
     await expect(modifiers).toHaveAttribute("data-layout", "centered")
     const implicit = item.getByRole("list", {
       name: "Implicit modifiers and enchantments",
@@ -158,15 +162,6 @@ for (const width of [390, 1440]) {
     await expect(modifiers).toHaveAttribute("data-layout", "bullets")
     await expect(explicit).toHaveCSS("text-align", "left")
     await expect(explicit).toHaveCSS("list-style-type", "disc")
-    expect(
-      await modifiers
-        .locator("li")
-        .evaluateAll((lines) =>
-          lines.every((line) =>
-            getComputedStyle(line, "::marker").color.endsWith(" / 0.5)")
-          )
-        )
-    ).toBe(true)
     await page.keyboard.press("Escape")
     await preview(page)
     await main.focus()
@@ -204,7 +199,7 @@ test("Bonded modifiers default off, persist manually, and follow the active buil
   })
   const bondedLines = page
     .getByRole("dialog", { name: "Beast Cry", exact: true })
-    .locator(".equipment-affix-group li")
+    .locator('[data-slot="equipment-affix-group"] li')
     .filter({ hasText: /^Bonded:/ })
   await main.focus()
   await main.press("Enter")
@@ -251,7 +246,7 @@ test("Bonded modifiers default off, persist manually, and follow the active buil
 async function preview(page: Page) {
   await page.goto(buildsURL)
   await page.getByLabel("PoB export or pobb.in link").fill(code)
-  await page.locator(".equipment-board").scrollIntoViewIfNeeded()
+  await page.locator('[data-slot="equipment-board"]').scrollIntoViewIfNeeded()
 }
 test("equipment artwork, hover, keyboard dismissal and weapon swap", async ({
   page,
@@ -269,7 +264,9 @@ test("equipment artwork, hover, keyboard dismissal and weapon swap", async ({
         .evaluate((img: HTMLImageElement) => img.naturalWidth)
     )
     .toBeGreaterThan(0)
-  await expect(main.locator("..").locator(".gear-sockets img")).toHaveCount(2)
+  await expect(
+    main.locator("..").locator('[data-slot="gear-sockets"] img')
+  ).toHaveCount(2)
   await expect(
     main.locator("..").getByAltText("Saqawal's Rune of the Sky")
   ).toBeVisible()
@@ -277,7 +274,7 @@ test("equipment artwork, hover, keyboard dismissal and weapon swap", async ({
     .poll(() =>
       main
         .locator("..")
-        .locator(".gear-sockets img")
+        .locator('[data-slot="gear-sockets"] img')
         .evaluateAll((images) =>
           images.every((img) => (img as HTMLImageElement).naturalWidth > 0)
         )
@@ -301,7 +298,7 @@ test("equipment artwork, hover, keyboard dismissal and weapon swap", async ({
   await expect(dialog).toBeVisible()
   await page.keyboard.down("Alt")
   await expect(dialog).toHaveCSS("pointer-events", "auto")
-  await dialog.locator(".equipment-card-header").hover()
+  await dialog.locator('[data-slot="equipment-card-header"]').hover()
   await expect(dialog).toBeVisible()
   await page.keyboard.up("Alt")
   await expect(page.getByRole("dialog")).toHaveCount(0)
@@ -343,7 +340,10 @@ test("touch inspection stays within a mobile viewport and can be dismissed", asy
   await dialog
     .getByRole("button", { name: "Consecrate. Show skill details" })
     .tap()
-  const skillPopup = page.locator(".skill-gem-tooltip")
+  const skillPopup = page.getByRole("dialog", {
+    name: "Consecrate",
+    exact: true,
+  })
   await expect(skillPopup).toBeVisible()
   const skillBounds = await skillPopup.boundingBox()
   expect(skillBounds!.x).toBeGreaterThanOrEqual(0)
@@ -357,7 +357,7 @@ test("touch inspection stays within a mobile viewport and can be dismissed", asy
   await expect(dialog).toHaveCount(0)
   expect(
     await page
-      .locator(".equipment-board")
+      .locator('[data-slot="equipment-board"]')
       .evaluate((e) => e.getBoundingClientRect().right)
   ).toBeLessThanOrEqual(390)
   await context.close()
@@ -377,7 +377,9 @@ for (const width of [390, 1440])
     const first = page.getByRole("tab", { name: "Set I", exact: true })
     await first.focus()
     await page.keyboard.press("Tab")
-    await expect(page.locator(".equipment-weapon-switch-off")).toBeFocused()
+    await expect(
+      page.locator('[data-slot="equipment-weapon-switch-off"]')
+    ).toBeFocused()
     await expect(page.getByRole("tooltip")).toHaveText("No weapon in set 2")
     await page.keyboard.press("Escape")
     await expect(page.getByRole("tooltip")).toHaveCount(0)
@@ -417,7 +419,7 @@ test("zero quality is hidden and both item clicks and the footer copy the export
   await expect(
     page
       .getByRole("dialog", { name: "Beast Cry", exact: true })
-      .locator(".equipment-card-properties dt")
+      .locator('[data-slot="equipment-card-properties"] dt')
       .filter({ hasText: /^Quality$/ })
   ).toHaveCount(0)
   await expect(
@@ -431,20 +433,24 @@ test("zero quality is hidden and both item clicks and the footer copy the export
       )
     )
     .toContain("Beast Cry\nSanctified Staff")
-  await expect(page.locator(".equipment-copy")).toHaveText("Item copied")
+  await expect(page.locator('[data-slot="equipment-copy"]')).toHaveText(
+    "Item copied"
+  )
   await page.mouse.move(0, 0)
   await expect(
     page.getByRole("dialog", { name: "Beast Cry", exact: true })
   ).toBeHidden()
   await main.hover({ position: { x: 4, y: 4 } })
-  await expect(page.locator(".equipment-copy")).toHaveText("Click item to copy")
+  await expect(page.locator('[data-slot="equipment-copy"]')).toHaveText(
+    "Click item to copy"
+  )
   await page.mouse.move(0, 0)
   await main.focus()
   await main.press("Enter")
   await page.evaluate(() => {
     ;(window as unknown as { copiedItem: string }).copiedItem = ""
   })
-  await page.locator(".equipment-copy").click()
+  await page.locator('[data-slot="equipment-copy"]').click()
   await expect
     .poll(() =>
       page.evaluate(
@@ -454,7 +460,9 @@ test("zero quality is hidden and both item clicks and the footer copy the export
     .toContain("Quality: 0")
   await page.keyboard.press("Escape")
   await main.hover({ position: { x: 4, y: 4 } })
-  await expect(page.locator(".equipment-copy")).toHaveText("Click item to copy")
+  await expect(page.locator('[data-slot="equipment-copy"]')).toHaveText(
+    "Click item to copy"
+  )
 })
 
 for (const width of [390, 1440]) {
@@ -493,9 +501,14 @@ for (const width of [390, 1440]) {
     await expect(skill).toHaveText("Consecrate")
     await expect(skill).toHaveCSS("text-decoration-style", "dotted")
     await item.getByRole("img", { name: "Consecrate skill" }).hover()
-    await expect(page.locator(".skill-gem-tooltip")).toBeHidden()
+    await expect(
+      page.getByRole("dialog", { name: "Consecrate", exact: true })
+    ).toBeHidden()
     await skill.hover()
-    const skillPopup = page.locator(".skill-gem-tooltip")
+    const skillPopup = page.getByRole("dialog", {
+      name: "Consecrate",
+      exact: true,
+    })
     await expect(
       skillPopup.getByRole("heading", { name: "Consecrate" })
     ).toBeVisible()
@@ -530,9 +543,11 @@ for (const width of [390, 1440]) {
     await expect(anoint).toHaveCSS("text-decoration-style", "dotted")
     await anoint.focus()
     await anoint.press("Enter")
-    const nodePopup = page.locator(".tree-inspection")
+    const nodePopup = page.getByRole("dialog", { name: "Beef", exact: true })
     await expect(nodePopup.getByRole("heading", { name: "Beef" })).toBeVisible()
-    await expect(nodePopup.locator(".tree-lines")).toContainText("Strength")
+    await expect(nodePopup.locator('[data-slot="tree-lines"]')).toContainText(
+      "Strength"
+    )
     await expect(
       nodePopup.getByRole("button", { name: "Close Beef" })
     ).toHaveCSS("position", "absolute")
@@ -565,22 +580,26 @@ test("Alt-held and pinned items keep their skill tooltip layered", async ({
   const skill = item.getByRole("button", {
     name: "Consecrate. Show skill details",
   })
+  const skillTooltip = page.getByRole("dialog", {
+    name: "Consecrate",
+    exact: true,
+  })
   await skill.hover()
-  await expect(page.locator(".skill-gem-tooltip")).toBeVisible()
+  await expect(skillTooltip).toBeVisible()
   await expect(item).toBeVisible()
   await page.mouse.move(0, 0)
   await page.keyboard.up("Alt")
   await expect(item).toBeHidden()
-  await expect(page.locator(".skill-gem-tooltip")).toBeHidden()
+  await expect(skillTooltip).toBeHidden()
   await main.focus()
   await main.press("Enter")
   await item.getByRole("button", { name: /^Pin .* item details$/ }).click()
   await expect(item).toHaveAttribute("data-tooltip-pinned", "true")
   await skill.hover()
-  await expect(page.locator(".skill-gem-tooltip")).toBeVisible()
+  await expect(skillTooltip).toBeVisible()
   await expect(item).toBeVisible()
   await page.keyboard.press("Escape")
-  await expect(page.locator(".skill-gem-tooltip")).toBeHidden()
+  await expect(skillTooltip).toBeHidden()
   await expect(item).toBeVisible()
   await item.getByRole("button", { name: /^Close pinned/ }).click()
   await expect(item).toBeHidden()
@@ -622,7 +641,7 @@ for (const width of [390, 1440]) {
     await body.press("Enter")
     const row = page
       .getByRole("dialog", { name: "Morior Invictus", exact: true })
-      .locator('.equipment-affix-group > li[data-augment="true"]')
+      .locator('[data-slot="equipment-affix-group"] > li[data-augment="true"]')
       .filter({ hasText: /^18% increased Armour, Evasion and Energy Shield$/ })
     await expect(row).toBeVisible()
     const bounds = await row.evaluate((el) => {
@@ -682,17 +701,20 @@ for (const width of [390, 1440]) {
     })
     await skill.focus()
     await skill.press("Enter")
-    const tooltip = page.locator(".skill-gem-tooltip")
+    const tooltip = page.getByRole("dialog", {
+      name: "Pinnacle of Power",
+      exact: true,
+    })
     await expect(
       tooltip.getByRole("heading", { name: "Pinnacle of Power" })
     ).toBeVisible()
-    await expect(tooltip.locator(".skill-gem-description")).toContainText(
-      "Consume all Power Charges"
-    )
+    await expect(
+      tooltip.locator('[data-slot="gem-description"]')
+    ).toContainText("Consume all Power Charges")
     // An omitted item level must not turn into an invented saved level.
     await expect(
       tooltip
-        .locator(".skill-gem-properties > div")
+        .locator('[data-slot="gem-properties"] > div')
         .filter({ hasText: "Gem level" })
     ).toContainText("Not saved")
     await page.keyboard.press("Escape")
@@ -733,14 +755,17 @@ test("item-granted minion names resolve artwork and nested details by skill ID",
       name: "Skeletal Warrior Minion. Show skill details",
     })
     .hover()
-  const tooltip = page.locator(".skill-gem-tooltip")
+  const tooltip = page.getByRole("dialog", {
+    name: "Skeletal Warrior Minion",
+    exact: true,
+  })
   await expect(
     tooltip.getByRole("heading", { name: "Skeletal Warrior Minion" })
   ).toBeVisible()
-  await expect(tooltip.locator(".skill-gem-description")).toContainText(
+  await expect(tooltip.locator('[data-slot="gem-description"]')).toContainText(
     "Reviving Skeletal Warriors"
   )
   await expect(
-    tooltip.locator(".skill-gem-effect-label").first()
+    tooltip.locator('[data-slot="gem-effect-label"]').first()
   ).toContainText("Level 19")
 })

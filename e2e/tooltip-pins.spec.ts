@@ -6,7 +6,7 @@ const code = readFileSync(
   "utf8"
 )
 async function selectResult(page: Page, query: string) {
-  await expect(page.locator(".tree-search").last()).toBeVisible()
+  await expect(page.locator("[data-tree-search]").last()).toBeVisible()
   const open = page.getByRole("button", { name: "Search tree", exact: true })
   if (await open.isVisible()) await open.click()
   await page.getByRole("textbox", { name: "Search nodes" }).fill(query)
@@ -43,7 +43,7 @@ test("Alt offers Pin instead of Close; explicit pins follow their node without d
   await selectResult(page, "heavy ammunition")
   await page.getByRole("button", { name: "Zoom in", exact: true }).click()
   const node = page
-    .locator(".tree-viewport [data-node]")
+    .locator("[data-slot=tree-viewport] [data-node]")
     .filter({ visible: true })
   const id = await node.evaluateAll((elements) =>
     elements
@@ -55,15 +55,17 @@ test("Alt offers Pin instead of Close; explicit pins follow their node without d
   )
   expect(id).toBeTruthy()
   await page.locator(`[data-node="${id}"]`).hover()
-  await expect(page.locator(".tree-inspection")).toBeVisible()
+  await expect(page.locator("[data-inspection-tooltip]")).toBeVisible()
   await page.keyboard.down("Alt")
   await expect(
-    page.locator(".tree-inspection .tooltip-pin-control")
+    page.locator("[data-inspection-tooltip] button[aria-label^=Pin]")
   ).toBeVisible()
   await expect(
     page.getByRole("button", { name: "Close node details" })
   ).toHaveCount(0)
-  await page.locator(".tree-inspection .tooltip-pin-control").click()
+  await page
+    .locator("[data-inspection-tooltip] button[aria-label^=Pin]")
+    .click()
   await page.keyboard.up("Alt")
   const pin = page.locator('[data-tooltip-pinned="true"]')
   await expect(pin).toBeVisible()
@@ -91,7 +93,7 @@ for (const width of [1440, 390]) {
       "mana",
     ].entries()) {
       const popup = await selectResult(page, query)
-      await popup.locator(".tooltip-pin-control").click()
+      await popup.locator("button[aria-label^=Pin]").click()
       await expect(page.locator('[data-tooltip-pinned="true"]')).toHaveCount(
         Math.min(index + 1, width < 768 ? 1 : 5)
       )
@@ -111,7 +113,9 @@ test("Build Bin pins one item or gem and scrolls it with the page", async ({
   await item.scrollIntoViewIfNeeded()
   await item.hover({ position: { x: 4, y: 4 } })
   await page.keyboard.down("Alt")
-  await page.locator(".equipment-card .tooltip-pin-control").click()
+  await page
+    .locator("[data-inspection-tooltip] button[aria-label^=Pin]")
+    .click()
   await page.keyboard.up("Alt")
   const pin = page.locator('[data-tooltip-pinned="true"]')
   await expect(pin).toHaveCount(1)
@@ -129,14 +133,16 @@ test("Build Bin pins one item or gem and scrolls it with the page", async ({
         (await page.evaluate(() => window.scrollY))
     )
     .toBeCloseTo(before.y + scrollBefore, 0)
-  const gem = page.locator(".skill-gem-row").first()
+  const gem = page.locator("[data-slot=skill-gem-row]").first()
   await gem.scrollIntoViewIfNeeded()
   await gem.hover()
   await page.keyboard.down("Alt")
-  await page.locator(".skill-gem-tooltip .tooltip-pin-control").click()
+  await page
+    .locator("[data-inspection-tooltip] button[aria-label^=Pin]")
+    .click()
   await page.keyboard.up("Alt")
   await expect(pin).toHaveCount(1)
-  await expect(pin).toHaveClass(/skill-gem-tooltip/)
+  await expect(pin.locator("[data-slot=gem-properties]")).toBeVisible()
 })
 test("a fullscreen tree pin is interactive and closes with its view", async ({
   page,
@@ -145,14 +151,16 @@ test("a fullscreen tree pin is interactive and closes with its view", async ({
   await page.getByLabel("PoB export or pobb.in link").fill(code)
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
   const popup = await selectResult(page, "heavy ammunition")
-  await popup.locator(".tooltip-pin-control").click()
+  await popup.locator("button[aria-label^=Pin]").click()
   const pin = page.locator('[data-tooltip-pinned="true"]')
   await expect(pin).toBeVisible()
   await pin.getByRole("button", { name: /^Close pinned/ }).click()
   await expect(pin).toHaveCount(0)
   const second = await selectResult(page, "heavy ammunition")
-  await second.locator(".tooltip-pin-control").click()
-  await page.locator('.tree-fullscreen [data-slot="dialog-close"]').click()
+  await second.locator("button[aria-label^=Pin]").click()
+  await page
+    .locator('[data-tree-fullscreen] [data-slot="dialog-close"]')
+    .click()
   await expect(pin).toHaveCount(0)
 })
 
@@ -161,7 +169,7 @@ test("pinned tooltip grows for wrapped content and stays inside a shorter viewpo
 }) => {
   await page.goto("/trees/passive")
   const popup = await selectResult(page, "at your command")
-  await popup.locator(".tooltip-pin-control").click()
+  await popup.locator("button[aria-label^=Pin]").click()
   const pin = page.locator('[data-tooltip-pinned="true"]')
   await expect(pin).toBeVisible()
   await expect
@@ -189,20 +197,20 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto("/trees/passive")
     const popup = await selectResult(page, "heavy ammunition")
-    await popup.locator(".tooltip-pin-control").click()
+    await popup.locator("button[aria-label^=Pin]").click()
     const count = page.getByRole("button", {
       name: "1 pinned node",
       exact: true,
     })
     await expect(count).toBeVisible()
     await count.click()
-    await expect(page.locator(".tree-search")).toHaveAttribute(
+    await expect(page.locator("[data-tree-search]")).toHaveAttribute(
       "data-open",
       "false"
     )
-    const panel = page.locator(".tree-pins-panel")
+    const panel = page.locator("[data-tree-pins-panel]")
     await expect(panel).toBeVisible()
-    await expect(panel.locator(".tree-search-art img")).toBeVisible()
+    await expect(panel.locator("img")).toBeVisible()
     const row = panel.getByRole("button", { name: /Heavy Ammunition/ })
     await row.click()
     await expect(panel).toHaveCount(0)
@@ -213,6 +221,14 @@ for (const width of [1440, 390]) {
     await expect(row).toBeFocused()
     await page.keyboard.press("Enter")
     await expect(panel).toHaveCount(0)
+    await count.click()
+    await page.locator('[data-slot="tree-viewport"] svg').focus()
+    await page.keyboard.press("f")
+    const searchInput = page.getByRole("textbox", { name: "Search nodes" })
+    await expect(searchInput).toBeFocused()
+    await expect(panel).toHaveCount(0)
+    await page.keyboard.press("Escape")
+    await expect(page.locator('[data-tooltip-pinned="true"]')).toBeVisible()
     await page.getByRole("button", { name: /^Close pinned/ }).click()
     await expect(count).toHaveCount(0)
   })
@@ -223,12 +239,16 @@ test("pinned tooltip tracks every pan frame and hides without jumping offscreen"
 }) => {
   await page.goto("/trees/passive")
   const popup = await selectResult(page, "heavy ammunition")
-  await popup.locator(".tooltip-pin-control").click()
+  await popup.locator("button[aria-label^=Pin]").click()
   const pin = page.locator('[data-tooltip-pinned="true"]')
   await expect(pin).toBeVisible()
   const report = await pin.evaluate(async (element) => {
-    const svg = document.querySelector<SVGSVGElement>(".tree-viewport svg")!
-    const positioner = element.closest<HTMLElement>(".tree-pinned-positioner")!
+    const svg = document.querySelector<SVGSVGElement>(
+      "[data-slot=tree-viewport] svg"
+    )!
+    const positioner = element.closest<HTMLElement>(
+      "[data-slot=popover-positioner]:has(>[data-tooltip-pinned=true])"
+    )!
     const initial = svg.getAttribute("viewBox")!
     const values = initial.split(/\s+/).map(Number)
     const box = element.getBoundingClientRect()
@@ -293,13 +313,13 @@ test("pinned nodes suppress hover and Clear all pins restores it", async ({
 }) => {
   await page.goto("/trees/passive")
   const popup = await selectResult(page, "heavy ammunition")
-  await popup.locator(".tooltip-pin-control").click()
+  await popup.locator("button[aria-label^=Pin]").click()
   const pin = page.locator('[data-tooltip-pinned="true"]')
   await expect(pin).toBeVisible()
   const box = (await pin.boundingBox())!
   await page.mouse.move(box.x + box.width / 2, box.y + box.height + 28)
   await expect(
-    page.locator('.tree-inspection:not([data-tooltip-pinned="true"])')
+    page.locator('[data-inspection-tooltip]:not([data-tooltip-pinned="true"])')
   ).toHaveCount(0)
   const count = page.getByRole("button", { name: "1 pinned node", exact: true })
   const control = (await count.boundingBox())!
@@ -309,7 +329,7 @@ test("pinned nodes suppress hover and Clear all pins restores it", async ({
   expect(control.y).toBeCloseTo(zoom.y, 0)
   await count.click()
   await expect(
-    page.locator('.tree-pins-heading [data-slot="popover-title"] svg')
+    page.locator('[data-tree-pins-panel] [data-slot="popover-title"] svg')
   ).toBeVisible()
   await page
     .getByRole("button", { name: "Clear all pins", exact: true })
@@ -318,7 +338,7 @@ test("pinned nodes suppress hover and Clear all pins restores it", async ({
   await expect(count).toHaveCount(0)
   await page.mouse.move(box.x + box.width / 2, box.y + box.height + 28)
   await expect(
-    page.locator('.tree-inspection:not([data-tooltip-pinned="true"])')
+    page.locator('[data-inspection-tooltip]:not([data-tooltip-pinned="true"])')
   ).toBeVisible()
 })
 
@@ -327,17 +347,19 @@ test("pinned pointer matches the border and stays aimed at its node", async ({
 }) => {
   await page.goto("/trees/passive")
   const popup = await selectResult(page, "heavy ammunition")
-  await popup.locator(".tooltip-pin-control").click()
+  await popup.locator("button[aria-label^=Pin]").click()
   const pin = page.locator('[data-tooltip-pinned="true"]')
   await expect(pin).toBeVisible()
-  const arrow = page.locator(".tree-pin-pointer polygon")
+  const arrow = page.locator("[data-slot=tree-pin-pointer] polygon")
   await expect(arrow).toHaveAttribute("points", /\S+/)
   await expect(
-    page.locator(".tree-pinned-positioner .tree-pointer-base")
+    page.locator(
+      "[data-slot=popover-positioner]:has(>[data-tooltip-pinned=true]) stop[offset='0%']"
+    )
   ).toHaveCSS("stop-color", "rgb(58, 52, 44)")
   await expect(pin).toHaveCSS("border-top-color", "rgb(58, 52, 44)")
   const before = await arrow.getAttribute("points")
-  const svg = page.locator(".tree-viewport svg")
+  const svg = page.locator("[data-slot=tree-viewport] svg")
   await svg.evaluate((element) => {
     const box = element.viewBox.baseVal
     element.setAttribute(
@@ -362,15 +384,17 @@ test("hover and pinned pointers are visible above the shadow without a pinning j
 }) => {
   await page.goto("/trees/passive")
   const popup = await selectResult(page, "scarred faith")
-  const positioner = page.locator(".tree-node-positioner")
-  const arrow = positioner.locator(".tree-pin-pointer")
+  const positioner = page.locator(
+    "[data-slot=popover-positioner]:has(>[data-inspection-tooltip]:not([data-tooltip-pinned=true]))"
+  )
+  const arrow = positioner.locator("[data-slot=tree-pin-pointer]")
   await expect(arrow.locator("polygon")).toHaveAttribute("points", /\S+/)
   await expect(arrow).toHaveCSS("z-index", "51")
   await expect(popup).not.toHaveAttribute("data-attention", "true", {
     timeout: 5000,
   })
   const before = (await popup.boundingBox())!
-  await popup.locator(".tooltip-pin-control").click()
+  await popup.locator("button[aria-label^=Pin]").click()
   const pin = page.locator('[data-tooltip-pinned="true"]')
   await expect(pin).toBeVisible()
   await expect
@@ -380,7 +404,9 @@ test("hover and pinned pointers are visible above the shadow without a pinning j
     })
     .toBeLessThan(2)
   await expect(
-    page.locator(".tree-pinned-positioner .tree-pin-pointer")
+    page.locator(
+      "[data-slot=popover-positioner]:has(>[data-tooltip-pinned=true]) [data-slot=tree-pin-pointer]"
+    )
   ).toHaveCSS("z-index", "51")
   await page.screenshot({ path: "/tmp/exile-pointer-corrected.png" })
 })
@@ -390,12 +416,14 @@ test("pointer is shorter, gradients toward its tip and shares the search glow", 
 }) => {
   await page.goto("/trees/passive")
   await selectResult(page, "heavy ammunition")
-  const pointer = page.locator(".tree-node-positioner .tree-pin-pointer")
+  const pointer = page.locator(
+    "[data-slot=popover-positioner]:has(>[data-inspection-tooltip]:not([data-tooltip-pinned=true])) [data-slot=tree-pin-pointer]"
+  )
   await expect(pointer.locator("polygon")).toHaveCSS(
     "animation-name",
     "tree-pointer-attention"
   )
-  await expect(pointer.locator(".tree-pointer-base")).toHaveCSS(
+  await expect(pointer.locator("stop[offset='0%']")).toHaveCSS(
     "animation-name",
     "tree-pointer-border-attention"
   )
@@ -407,14 +435,14 @@ test("pointer is shorter, gradients toward its tip and shares the search glow", 
     )
   })
   expect(length).toBeCloseTo(12, 1)
-  await expect(pointer.locator(".tree-pointer-tip")).toHaveCSS(
+  await expect(pointer.locator("stop[offset='100%']")).toHaveCSS(
     "stop-color",
     "rgb(184, 164, 139)"
   )
   await expect(pointer.locator("polygon")).toHaveCSS("animation-name", "none", {
     timeout: 5000,
   })
-  await expect(pointer.locator(".tree-pointer-base")).toHaveCSS(
+  await expect(pointer.locator("stop[offset='0%']")).toHaveCSS(
     "stop-color",
     "rgb(58, 52, 44)"
   )
@@ -428,14 +456,16 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 })
     await page.goto("/trees/passive")
     const popup = await selectResult(page, "heavy ammunition")
-    await popup.locator(".tooltip-pin-control").click()
+    await popup.locator("button[aria-label^=Pin]").click()
     const pin = page.locator('[data-tooltip-pinned="true"]')
     await expect(pin).toBeVisible()
     const states = await pin.evaluate(async (element) => {
-      const svg = document.querySelector<SVGSVGElement>(".tree-viewport svg")!
+      const svg = document.querySelector<SVGSVGElement>(
+        "[data-slot=tree-viewport] svg"
+      )!
       const initial = svg.getAttribute("viewBox")!
       const positioner = element.closest<HTMLElement>(
-        ".tree-pinned-positioner"
+        "[data-slot=popover-positioner]:has(>[data-tooltip-pinned=true])"
       )!
       const button = element.querySelector("button")!
       const box = svg.viewBox.baseVal
@@ -450,7 +480,7 @@ for (const width of [1440, 390]) {
         pin: positioner.dataset.treePinVisible,
         button: getComputedStyle(button).visibility,
         pointer: getComputedStyle(
-          positioner.querySelector(".tree-pin-pointer")!
+          positioner.querySelector("[data-slot=tree-pin-pointer]")!
         ).visibility,
       }
       svg.setAttribute("viewBox", initial)
@@ -473,11 +503,11 @@ test("changing Paths Not Taken clears pins from the previous tree data", async (
 }) => {
   await page.goto("/trees/passive?section=Oracle")
   const popup = await selectResult(page, "heavy ammunition")
-  await popup.locator(".tooltip-pin-control").click()
+  await popup.locator("button[aria-label^=Pin]").click()
   await expect(page.locator('[data-tooltip-pinned="true"]')).toHaveCount(1)
   await page.getByRole("checkbox", { name: "Paths Not Taken" }).check()
   await expect(page.locator('[data-tooltip-pinned="true"]')).toHaveCount(0)
-  await expect(page.locator(".tree-pins > button")).toHaveCount(0)
+  await expect(page.locator("[data-tree-pins] > button")).toHaveCount(0)
 })
 
 test("hovering a different node replaces a search callout", async ({
@@ -486,7 +516,7 @@ test("hovering a different node replaces a search callout", async ({
   await page.goto("/trees/passive")
   await selectResult(page, "heavy ammunition")
   const target = await page
-    .locator(".tree-viewport [data-node]")
+    .locator("[data-slot=tree-viewport] [data-node]")
     .evaluateAll((elements) => {
       const popup = document
         .querySelector('[data-search-callout="true"]')!
@@ -513,9 +543,9 @@ test("hovering a different node replaces a search callout", async ({
   await page.mouse.move(target!.x, target!.y)
   await expect(page.locator('[data-search-callout="true"]')).toHaveCount(0)
   await expect(
-    page.locator('.tree-inspection:not([data-tooltip-pinned="true"])')
+    page.locator('[data-inspection-tooltip]:not([data-tooltip-pinned="true"])')
   ).toBeVisible()
-  await expect(page.locator(".tree-inspection h2")).not.toHaveText(
+  await expect(page.locator("[data-inspection-tooltip] h2")).not.toHaveText(
     "Heavy Ammunition"
   )
 })
@@ -531,33 +561,41 @@ test("an empty touch does not leave desktop hover in touch-inspection mode", asy
   const page = await context.newPage()
   await page.goto("/trees/passive")
   await selectResult(page, "heavy ammunition")
-  const positions = await page.locator(".tree-viewport svg").evaluate((svg) => {
-    const nodes = [...svg.querySelectorAll("[data-node]")]
-    const target = nodes
-      .map((node) => node.getBoundingClientRect())
-      .find((box) => box.x > 300 && box.x < 800 && box.y > 550 && box.y < 750)!
-    for (let y = 650; y < 780; y += 15) {
-      for (let x = 350; x < 800; x += 15) {
-        const element = document.elementFromPoint(x, y)
-        if (element && svg.contains(element) && !element.closest("[data-node]"))
-          return {
-            empty: { x, y },
-            target: {
-              x: target.x + target.width / 2,
-              y: target.y + target.height / 2,
-            },
-          }
+  const positions = await page
+    .locator("[data-slot=tree-viewport] svg")
+    .evaluate((svg) => {
+      const nodes = [...svg.querySelectorAll("[data-node]")]
+      const target = nodes
+        .map((node) => node.getBoundingClientRect())
+        .find(
+          (box) => box.x > 300 && box.x < 800 && box.y > 550 && box.y < 750
+        )!
+      for (let y = 650; y < 780; y += 15) {
+        for (let x = 350; x < 800; x += 15) {
+          const element = document.elementFromPoint(x, y)
+          if (
+            element &&
+            svg.contains(element) &&
+            !element.closest("[data-node]")
+          )
+            return {
+              empty: { x, y },
+              target: {
+                x: target.x + target.width / 2,
+                y: target.y + target.height / 2,
+              },
+            }
+        }
       }
-    }
-    return null
-  })
+      return null
+    })
   expect(positions).toBeTruthy()
   await page.touchscreen.tap(positions!.empty.x, positions!.empty.y)
   await page.mouse.move(positions!.target.x, positions!.target.y)
   const popup = page.locator(
-    '.tree-inspection:not([data-tooltip-pinned="true"])'
+    '[data-inspection-tooltip]:not([data-tooltip-pinned="true"])'
   )
   await expect(popup).toBeVisible()
-  await expect(popup.locator(".tooltip-pin-control")).toHaveCount(0)
+  await expect(popup.locator("button[aria-label^=Pin]")).toHaveCount(0)
   await context.close()
 })

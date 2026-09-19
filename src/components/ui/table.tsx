@@ -26,8 +26,8 @@ function Table({
     return () => observer.disconnect()
   }, [])
   return (
-    <div className="table-frame">
-      <p className="table-scroll-hint">
+    <div className="max-w-full min-w-0">
+      <p className="mb-2 hidden mono-label text-ink-muted">
         Scroll horizontally to see all columns →
       </p>
       <div
@@ -36,7 +36,7 @@ function Table({
         role="region"
         aria-label={scrollLabel}
         tabIndex={overflows ? 0 : undefined}
-        className="relative w-full overflow-x-auto"
+        className="relative w-full max-w-full [scrollbar-color:var(--color-rule-strong)_var(--color-paper)] overflow-x-auto overscroll-x-contain focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
         <table
           data-slot="table"
@@ -83,7 +83,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+        "border-b transition-colors hover:bg-hover/50 has-aria-expanded:bg-hover/50 data-[state=selected]:bg-hover",
         className
       )}
       {...props}
@@ -96,7 +96,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0",
+        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-ink [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}
@@ -124,7 +124,7 @@ function TableCaption({
   return (
     <caption
       data-slot="table-caption"
-      className={cn("mt-4 text-sm text-muted-foreground", className)}
+      className={cn("mt-4 text-sm text-ink-muted", className)}
       {...props}
     />
   )

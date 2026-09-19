@@ -20,11 +20,13 @@ for (const width of [390, 1440])
       page.getByRole("heading", { name: "Ready to share?" })
     ).toBeVisible()
     await page.keyboard.press("Escape")
-    await expect(page.locator(".build-identity h1")).toContainText("Level 90")
+    await expect(page.locator("[data-testid=build-identity] h1")).toContainText(
+      "Level 90"
+    )
     // Each section's content column outweighs its stats column on wide
     // screens; on phones the two stack, so the content spans the section.
     const section = (await page.locator("#equipment").boundingBox())!.width
-    const main = page.locator("#equipment .build-section-main")
+    const main = page.locator("#equipment [data-slot=build-section-main]")
     expect((await main.boundingBox())!.width).toBeGreaterThan(section * 0.6)
     const nav = page.getByRole("navigation", { name: "Build sections" })
     await expect(nav.getByRole("list").getByRole("link")).toHaveText([
@@ -52,15 +54,17 @@ for (const width of [390, 1440])
     await expect(
       page.getByRole("img", { name: /mapped saved passive nodes/ }).first()
     ).toBeVisible()
-    const keystones = page.locator(".tree-key-passives")
-    const attributes = page.locator(".tree-attributes")
+    const keystones = page.locator('[data-slot="tree-key-passives"]')
+    const attributes = page.locator('[data-slot="tree-attributes"]')
     const keystonesBox = (await keystones.boundingBox())!
     expect((await attributes.boundingBox())!.y).toBeGreaterThan(keystonesBox.y)
     // Jewels have a section of their own below the trees, with the stats
     // they add up to beside them.
     const jewels = page.locator("#jewels")
     await expect(jewels).toContainText("Prism of Belief")
-    await expect(jewels.locator(".gear-slot img").first()).toBeVisible()
+    await expect(
+      jewels.locator('[data-slot="jewel-art"] img').first()
+    ).toBeVisible()
     await expect(jewels).toContainText("49% increased Presence Area of Effect")
     expect((await jewels.boundingBox())!.y).toBeGreaterThan(
       (await page.locator("#tree").boundingBox())!.y
@@ -98,7 +102,9 @@ for (const width of [390, 1440])
     await backToTop.press("Enter")
     await expect(page).toHaveURL((url) => url.hash === "")
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
-    await expect(page.locator(".build-identity h1")).toBeInViewport()
+    await expect(
+      page.locator("[data-testid=build-identity] h1")
+    ).toBeInViewport()
     await page.screenshot({
       path: `/tmp/exile-build-${width}.png`,
       fullPage: true,
@@ -124,7 +130,9 @@ test("valid pasted exports auto-preview and incomplete input stays editable", as
   await expect(input).toBeVisible()
   await expect(page.getByRole("alert")).toHaveCount(0)
   await input.fill(code)
-  await expect(page.locator(".build-identity h1")).toContainText("Level 90")
+  await expect(page.locator("[data-testid=build-identity] h1")).toContainText(
+    "Level 90"
+  )
   await page.getByRole("button", { name: "Share", exact: true }).click()
   await page.getByRole("button", { name: "Change export", exact: true }).click()
   await page.waitForTimeout(650)
@@ -135,7 +143,7 @@ test("auto-preview shows checking and loading feedback without resizing the butt
   page,
 }) => {
   await page.goto(buildsURL)
-  const button = page.locator(".build-import-submit")
+  const button = page.locator("[data-testid=build-import-submit]")
   const originalWidth = (await button.boundingBox())!.width
   await button.evaluate((element) => {
     const states: {
@@ -161,7 +169,9 @@ test("auto-preview shows checking and loading feedback without resizing the butt
     })
   })
   await page.getByLabel("PoB export or pobb.in link").fill(code)
-  await expect(page.locator(".build-identity h1")).toContainText("Level 90")
+  await expect(page.locator("[data-testid=build-identity] h1")).toContainText(
+    "Level 90"
+  )
   const states = await page.evaluate(
     () =>
       (
@@ -202,7 +212,9 @@ test("legacy /builds links redirect to the Build Bin", async ({ page }) => {
 test("a shared build keeps its selected sets in the URL", async ({ page }) => {
   await page.goto(buildsURL)
   await page.getByLabel("PoB export or pobb.in link").fill(code)
-  await expect(page.locator(".build-identity h1")).toContainText("Level 90")
+  await expect(page.locator("[data-testid=build-identity] h1")).toContainText(
+    "Level 90"
+  )
   // The unsaved preview keeps its selection to itself.
   await page.getByRole("tab", { name: "Set II", exact: true }).click()
   expect(new URL(page.url()).search).toBe("")
@@ -210,7 +222,9 @@ test("a shared build keeps its selected sets in the URL", async ({ page }) => {
   await page.getByRole("button", { name: "Create share link" }).click()
   await expect(page).toHaveURL(/\/build-bin\/[0-9a-f-]{36}$/)
   const shared = new URL(page.url()).pathname
-  await expect(page.locator(".build-identity h1")).toContainText("Level 90")
+  await expect(page.locator("[data-testid=build-identity] h1")).toContainText(
+    "Level 90"
+  )
   const setTwo = page.getByRole("tab", { name: "Set II", exact: true })
   const tree = page.getByRole("combobox", {
     name: "Tree specification",
@@ -283,15 +297,14 @@ for (const width of [390, 1440])
     const equipment = nav.getByRole("link", { name: "Equipment", exact: true })
     await equipment.click()
     await expect(nav).toHaveAttribute("data-pinned", "true")
-    await expect(nav.locator(".build-nav-identity-reveal")).toHaveCSS(
-      "opacity",
-      "1"
-    )
+    await expect(
+      nav.locator("[data-testid=build-nav-identity-reveal]")
+    ).toHaveCSS("opacity", "1")
     // Finish the reveal before comparing link positions across section jumps.
     await expect
       .poll(() =>
         nav
-          .locator(".build-nav-identity-reveal")
+          .locator("[data-testid=build-nav-identity-reveal]")
           .evaluate((el) => getComputedStyle(el).transform)
       )
       .toBe("matrix(1, 0, 0, 1, 0, 0)")
@@ -363,8 +376,7 @@ for (const width of [390, 1440])
     await nav.getByRole("link", { name: "Go to top", exact: true }).click()
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
     await expect(nav).not.toHaveAttribute("data-pinned")
-    await expect(nav.locator(".build-nav-identity-reveal")).toHaveCSS(
-      "opacity",
-      "0"
-    )
+    await expect(
+      nav.locator("[data-testid=build-nav-identity-reveal]")
+    ).toHaveCSS("opacity", "0")
   })

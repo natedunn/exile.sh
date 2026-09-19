@@ -1,4 +1,6 @@
 import { Button } from "../components/ui/button"
+import { EmptyState, EmptyStateText } from "../components/ui/empty-state"
+import { cn } from "cn"
 import {
   HeadContent,
   Outlet,
@@ -8,8 +10,7 @@ import {
 } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { Providers } from "../components/providers"
-import { SiteLayout } from "../components/site-layout"
-import { ViewerLayout } from "../components/viewer-layout"
+import { SiteLayout, ViewerLayout } from "../components/shell"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -46,28 +47,47 @@ export const Route = createRootRoute({
   // Missing pages render inside the layout's outlet; the error boundary
   // replaces the layout, so it brings its own.
   notFoundComponent: () => (
-    <div className="empty-state">
-      <h1>Lost in Wraeclast.</h1>
-      <p>This page does not exist.</p>
-      <a href="/economy">Return to the economy</a>
-    </div>
+    <EmptyState>
+      <h1 className="display text-section text-ink">Lost in Wraeclast.</h1>
+      <EmptyStateText>This page does not exist.</EmptyStateText>
+      <Button
+        variant="outline"
+        className={emptyStateAction}
+        render={<a href="/economy" />}
+      >
+        Return to the economy
+      </Button>
+    </EmptyState>
   ),
   errorComponent: ({ reset }) => (
     <SiteLayout>
-      <div className="empty-state">
-        <h1>The market is out of reach.</h1>
-        <p>Something went wrong loading this page.</p>
-        <Button onClick={reset}>Try again</Button>
-      </div>
+      <EmptyState>
+        <h1 className="display text-section text-ink">
+          The market is out of reach.
+        </h1>
+        <EmptyStateText>Something went wrong loading this page.</EmptyStateText>
+        <Button variant="outline" className={emptyStateAction} onClick={reset}>
+          Try again
+        </Button>
+      </EmptyState>
     </SiteLayout>
   ),
   shellComponent: RootDocument,
 })
-function RootLayout() {
-  const isViewer = useLocation({
+/* Bordered surface action under an empty state's copy. */
+const emptyStateAction = "h-auto px-4.5 py-2.5 font-mono text-xs"
+
+/* Interactive viewers own the viewport: only their camera moves, never the
+   document. */
+function useIsViewer() {
+  return useLocation({
     select: (location) =>
       location.pathname === "/trees" || location.pathname.startsWith("/trees/"),
   })
+}
+
+function RootLayout() {
+  const isViewer = useIsViewer()
   const Layout = isViewer ? ViewerLayout : SiteLayout
   return (
     <Layout>
@@ -77,6 +97,8 @@ function RootLayout() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const isViewer = useIsViewer()
+  const viewerDocument = cn(isViewer && "overflow-hidden overscroll-none")
   useEffect(() => {
     if (!import.meta.env.PROD || !("serviceWorker" in navigator)) return
 
@@ -86,12 +108,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <html lang="en">
+    <html lang="en" className={viewerDocument || undefined}>
       <head>
         <HeadContent />
       </head>
-      <body>
-        <a className="skip-link" href="#main">
+      <body className={viewerDocument || undefined}>
+        <a
+          className="fixed -top-25 left-2.5 z-100 bg-brand px-3.5 py-2.5 font-mono text-xs text-paper focus:top-2.5"
+          href="#main"
+        >
           Skip to content
         </a>
         <Providers>{children}</Providers>

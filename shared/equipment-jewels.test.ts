@@ -65,10 +65,11 @@ for (const state of ["absent", "unsupported", "loading", "failed"] as const) {
       await waitFor(() => {
         expect(view.getByText("Equipment Jewel")).toBeTruthy()
         expect(
-          view.container.querySelector(".build-jewel-stats")?.textContent
+          view.container.querySelector('[data-slot="build-jewel-stats"]')
+            ?.textContent
         ).toContain("10 to Intelligence")
         expect(
-          view.container.querySelectorAll(".build-jewel-card")
+          view.container.querySelectorAll('[data-slot="build-jewel-card"]')
         ).toHaveLength(1)
         if (mixed && spec) {
           const text =

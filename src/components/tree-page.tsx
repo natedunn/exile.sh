@@ -10,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select"
+import { Field, FieldLabel } from "./ui/field"
+import { SubNavigation, SubNavigationItem } from "./ui/sub-navigation"
 
 const TREE_PAGES = [
   { type: "passive", to: "/trees/passive", label: "Passive Tree" },
@@ -58,8 +60,8 @@ export function TreePage({ type }: { type: TreeType }) {
   }
   const versions =
     type === "atlas" ? null : (
-      <div className="tree-setting">
-        <span className="tree-setting-label">Version</span>
+      <Field>
+        <FieldLabel>Version</FieldLabel>
         <Select
           value={version}
           items={TREE_VERSIONS}
@@ -86,24 +88,35 @@ export function TreePage({ type }: { type: TreeType }) {
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </Field>
     )
   return (
-    <section className="standalone-tree">
-      <div className="standalone-tree-heading">
-        <div className="tree-navigation-container">
-          <nav className="tree-type-navigation" aria-label="Tree types">
+    <section
+      data-slot="tree-page"
+      className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+    >
+      <div className="h-17 shrink-0 border-b border-rule-strong">
+        <div className="mx-auto flex h-full max-w-(--shell-max-width) px-(--shell-gutter)">
+          <SubNavigation
+            aria-label="Tree types"
+            className="h-full max-sm:w-full max-sm:justify-between max-sm:gap-2"
+          >
             {TREE_PAGES.map((page) => (
-              <Link
+              <SubNavigationItem
                 key={page.type}
-                to={page.to}
-                search={{ version, unseen, section }}
-                aria-current={type === page.type ? "page" : undefined}
+                className="max-sm:text-fine"
+                render={
+                  <Link
+                    to={page.to}
+                    search={{ version, unseen, section }}
+                    aria-current={type === page.type ? "page" : undefined}
+                  />
+                }
               >
                 {page.label}
-              </Link>
+              </SubNavigationItem>
             ))}
-          </nav>
+          </SubNavigation>
         </div>
       </div>
       <TreeExplorer

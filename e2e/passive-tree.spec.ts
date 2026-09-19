@@ -58,12 +58,14 @@ test("tree preserves geometry and supports inspection, zoom, pan and dismissal",
     .getByRole("link", { name: "Trees", exact: true })
     .click()
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
-  const map = page.locator(".tree-fullscreen .tree-viewport svg")
+  const map = page.locator(
+    '[data-tree-fullscreen] [data-slot="tree-viewport"] svg'
+  )
   await expect(map).toBeVisible()
   await map.scrollIntoViewIfNeeded()
   const mapWidth = (await map.boundingBox())!.width
   expect(mapWidth).toBeGreaterThan(1400)
-  expect(await map.locator(".tree-passive-art").count()).toBe(0)
+  expect(await map.locator("[data-tree-art-region] image").count()).toBe(0)
   const original = await map.getAttribute("viewBox")
   await map.focus()
   await page.keyboard.press("ArrowLeft")
@@ -84,7 +86,7 @@ test("tree preserves geometry and supports inspection, zoom, pan and dismissal",
   ).toBeLessThanOrEqual(11)
   const node = map.locator("[data-node]").nth(100)
   await node.hover()
-  await expect(page.locator(".tree-inspection")).toBeVisible()
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toBeVisible()
   // Switch anchors without closing the popup: its position must follow its content.
   const candidates = await map.locator("[data-node]").evaluateAll((elements) =>
     elements
@@ -111,33 +113,35 @@ test("tree preserves geometry and supports inspection, zoom, pan and dismissal",
     await map.locator('[data-node="' + candidate.id + '"]').hover()
     await expect
       .poll(async () => {
-        const box = await page.locator(".tree-inspection").boundingBox()
+        const box = await page
+          .locator('[data-inspection-tooltip="true"]')
+          .boundingBox()
         return Math.abs(box!.x + box!.width / 2 - candidate.x)
       })
       .toBeLessThan(3)
   }
   await node.hover()
-  await expect(page.locator(".tree-inspection")).toHaveCSS(
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toHaveCSS(
     "pointer-events",
     "none"
   )
-  await expect(page.locator(".tree-inspection")).toHaveCSS(
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toHaveCSS(
     "user-select",
     "none"
   )
   await page.keyboard.down("Alt")
   await page.mouse.move(0, 0)
-  await expect(page.locator(".tree-inspection")).toBeVisible()
-  await expect(page.locator(".tree-inspection")).toHaveCSS(
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toBeVisible()
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toHaveCSS(
     "pointer-events",
     "auto"
   )
-  await expect(page.locator(".tree-inspection")).toHaveCSS(
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toHaveCSS(
     "user-select",
     "text"
   )
   await page.keyboard.up("Alt")
-  await expect(page.locator(".tree-inspection")).toHaveCount(0)
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toHaveCount(0)
   const rect = (await map.boundingBox())!
   await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2)
   await page.mouse.wheel(0, -300)
@@ -151,12 +155,11 @@ test("tree preserves geometry and supports inspection, zoom, pan and dismissal",
     .first()
     .click()
   await expect
-    .poll(() => map.locator(".tree-passive-art").count())
+    .poll(() => map.locator("[data-tree-art-region] image").count())
     .toBeGreaterThan(0)
-  await expect(map.locator(".tree-passive-art").first()).toHaveAttribute(
-    "clip-path",
-    /url\(#.+\)/
-  )
+  await expect(
+    map.locator("[data-tree-art-region] image").first()
+  ).toHaveAttribute("clip-path", /url\(#.+\)/)
   await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2)
   const zoomed = await map.getAttribute("viewBox")
   await page.mouse.down()
@@ -169,11 +172,11 @@ test("tree preserves geometry and supports inspection, zoom, pan and dismissal",
   await expect(map).not.toHaveAttribute("viewBox", zoomed!)
   await map.focus()
   await page.keyboard.press("Enter")
-  await expect(page.locator(".tree-inspection")).toBeVisible()
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toBeVisible()
   await page.mouse.move(0, 0)
   await map.press("Escape")
-  await expect(page.locator(".tree-inspection")).toHaveCount(0)
-  await expect(page.locator(".tree-fullscreen")).toHaveCount(0)
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toHaveCount(0)
+  await expect(page.locator("[data-tree-fullscreen]")).toHaveCount(0)
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
   await page.getByRole("button", { name: "Reset", exact: true }).first().click()
   await expect(map).toHaveAttribute("viewBox", original!)
@@ -192,15 +195,19 @@ test("tree node tap works at mobile widths", async ({ browser }) => {
     .getByRole("link", { name: "Trees", exact: true })
     .click()
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
-  const map = page.locator(".tree-fullscreen .tree-viewport svg")
+  const map = page.locator(
+    '[data-tree-fullscreen] [data-slot="tree-viewport"] svg'
+  )
   await expect(map).toBeVisible()
   await map.locator("[data-node]").nth(100).tap()
-  await expect(page.locator(".tree-inspection")).toBeVisible()
-  const card = (await page.locator(".tree-inspection").boundingBox())!
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toBeVisible()
+  const card = (await page
+    .locator('[data-inspection-tooltip="true"]')
+    .boundingBox())!
   expect(card.x).toBeGreaterThanOrEqual(0)
   expect(card.x + card.width).toBeLessThanOrEqual(390)
   await map.tap({ position: { x: 8, y: 8 } })
-  await expect(page.locator(".tree-inspection")).toHaveCount(0)
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toHaveCount(0)
   await context.close()
 })
 
@@ -223,19 +230,21 @@ test("From Nothing radius and socketed jewel details render from a real export",
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
   // Weapon set passives remain marked; the Build Bin hides the palette picker.
   await expect(
-    page.locator('.tree-fullscreen [data-node][data-weapon-set="1"]')
+    page.locator('[data-tree-fullscreen] [data-node][data-weapon-set="1"]')
   ).toHaveCount(24)
   await expect(
-    page.locator('.tree-fullscreen [data-node][data-weapon-set="2"]')
+    page.locator('[data-tree-fullscreen] [data-node][data-weapon-set="2"]')
   ).toHaveCount(22)
   const palette = page.getByRole("combobox", { name: "Color vision" })
   await expect(
-    page.locator(".tree-fullscreen .passive-tree")
+    page.locator("[data-tree-fullscreen] [data-passive-tree]")
   ).not.toHaveAttribute("data-palette", /./)
   await expect(palette).toHaveCount(0)
-  await page.locator('.tree-fullscreen [data-node="61419"]').hover()
-  await expect(page.locator(".tree-inspection")).toContainText("From Nothing")
-  await expect(page.locator(".tree-inspection")).toContainText(
+  await page.locator('[data-tree-fullscreen] [data-node="61419"]').hover()
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toContainText(
+    "From Nothing"
+  )
+  await expect(page.locator('[data-inspection-tooltip="true"]')).toContainText(
     "Eldritch Battery"
   )
   await page.keyboard.press("Escape")
@@ -250,7 +259,9 @@ test("compact tree overview and share dialog preserve page ergonomics", async ({
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.goto("/build-bin")
   await page.getByLabel("PoB export or pobb.in link").fill(code)
-  await expect(page.locator(".build-identity h1")).toContainText("Level")
+  await expect(page.locator("[data-testid=build-identity] h1")).toContainText(
+    "Level"
+  )
   await expect(
     page.getByRole("heading", { name: "Ready to share?" })
   ).toHaveCount(0)
@@ -264,10 +275,12 @@ test("compact tree overview and share dialog preserve page ergonomics", async ({
     .getByRole("navigation", { name: "Build sections" })
     .getByRole("link", { name: "Trees", exact: true })
     .click()
-  const preview = page.locator(".tree-preview svg")
+  const preview = page.locator('[data-slot="tree-preview"] svg')
   await expect(preview).toBeVisible()
   const box = (await preview.boundingBox())!
-  const passives = (await page.locator(".tree-key-passives").boundingBox())!
+  const passives = (await page
+    .locator('[data-slot="tree-key-passives"]')
+    .boundingBox())!
   expect(passives.x).toBeGreaterThan(box.x + box.width)
   const initial = await preview.getAttribute("viewBox")
   const open = page.getByRole("button", { name: "Open tree", exact: true })
@@ -275,11 +288,13 @@ test("compact tree overview and share dialog preserve page ergonomics", async ({
   await page.mouse.wheel(0, 120)
   await expect(preview).toHaveAttribute("viewBox", initial!)
   await open.click()
-  await expect(page.locator(".tree-fullscreen")).toBeVisible()
+  await expect(page.locator("[data-tree-fullscreen]")).toBeVisible()
   await page.getByRole("button", { name: "Close", exact: true }).click()
   await expect(open).toBeFocused()
   await expect(
-    page.locator('[data-mode="ascendancy"] .tree-passive-art').first()
+    page
+      .locator('[data-mode="ascendancy"] [data-tree-art-region] image')
+      .first()
   ).toBeVisible()
   await expect(
     page
@@ -292,7 +307,7 @@ test("compact tree overview and share dialog preserve page ergonomics", async ({
   ).toHaveCount(0)
   const mobilePreview = (await preview.boundingBox())!
   const mobilePassives = (await page
-    .locator(".tree-key-passives")
+    .locator('[data-slot="tree-key-passives"]')
     .boundingBox())!
   expect(mobilePassives.y).toBeGreaterThan(
     mobilePreview.y + mobilePreview.height
@@ -305,6 +320,8 @@ test("compact tree overview and share dialog preserve page ergonomics", async ({
 test("saved palettes recolor shared and weapon nodes with the Build Bin picker hidden", async ({
   page,
 }) => {
+  // Re-import and render the complete build for each of the five palettes.
+  test.setTimeout(90_000)
   await page.setViewportSize({ width: 390, height: 844 })
   const source = readFileSync(
     new URL("../shared/fixtures/pob/Mu3PxErdMKiE.txt", import.meta.url),
@@ -320,7 +337,7 @@ test("saved palettes recolor shared and weapon nodes with the Build Bin picker h
     await page.getByRole("button", { name: "Open tree", exact: true }).click()
   }
   await openBuild()
-  const map = page.locator(".tree-fullscreen .passive-tree")
+  const map = page.locator("[data-tree-fullscreen] [data-passive-tree]")
   const picker = page.getByRole("combobox", { name: "Color vision" })
   let standard = ""
   for (const [value] of [
@@ -342,16 +359,16 @@ test("saved palettes recolor shared and weapon nodes with the Build Bin picker h
       const second = element.querySelector('[data-node-fill="weapon-2"]')!
       return {
         nodes: [shared, first, second].map((n) => getComputedStyle(n).fill),
-        legend: [...element.querySelectorAll(".tree-legend li")].map(
-          (n) => getComputedStyle(n, "::before").backgroundColor
-        ),
+        legend: [
+          ...element.querySelectorAll('[data-slot="tree-legend"] li'),
+        ].map((n) => getComputedStyle(n, "::before").backgroundColor),
       }
     })
     expect(colors.nodes).toEqual(colors.legend)
     expect(new Set(colors.nodes).size).toBe(3)
     if (value === "default") standard = colors.nodes[0]
     else expect(colors.nodes[0]).not.toBe(standard)
-    await expect(map.locator(".tree-legend")).toBeVisible()
+    await expect(map.locator('[data-slot="tree-legend"]')).toBeVisible()
     await expect
       .poll(() =>
         page.evaluate(() => localStorage.getItem("exile.tree.palette"))
@@ -359,10 +376,9 @@ test("saved palettes recolor shared and weapon nodes with the Build Bin picker h
       .toBe(value)
   }
   await page.getByRole("button", { name: "Close", exact: true }).click()
-  await expect(page.locator(".tree-preview .passive-tree")).toHaveAttribute(
-    "data-palette",
-    "achroma"
-  )
+  await expect(
+    page.locator('[data-slot="tree-preview"] [data-passive-tree]')
+  ).toHaveAttribute("data-palette", "achroma")
   await openBuild()
   await expect(map).toHaveAttribute("data-palette", "achroma")
   await expect(picker).toHaveCount(0)
@@ -393,13 +409,15 @@ test("Build Bin embeds its fixed ascendancy and retains center allocations", asy
     .getByRole("link", { name: "Trees", exact: true })
     .click()
   await expect(
-    page.locator('.tree-preview [data-node^="center:"]').first()
+    page.locator('[data-slot="tree-preview"] [data-node^="center:"]').first()
   ).toBeAttached()
   await expect(page.getByRole("combobox", { name: /ascendancy/i })).toHaveCount(
     0
   )
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
-  const map = page.locator(".tree-fullscreen .tree-viewport svg")
+  const map = page.locator(
+    '[data-tree-fullscreen] [data-slot="tree-viewport"] svg'
+  )
   await expect(map.locator('[data-node^="center:"]')).toHaveCount(
     ascendancy.nodes.filter((node) => !node.start).length
   )
@@ -412,9 +430,9 @@ test("Build Bin embeds its fixed ascendancy and retains center allocations", asy
     await page.getByRole("button", { name: "Zoom in", exact: true }).click()
   await expect(background).toHaveCount(1)
   await map.locator(`[data-node="center:${allocated.id}"]`).hover()
-  await expect(page.locator(".tree-inspection .tree-status")).toHaveText(
-    "Allocated"
-  )
+  await expect(
+    page.locator('[data-inspection-tooltip="true"] [data-slot="tree-status"]')
+  ).toHaveText("Allocated")
   await page.getByRole("button", { name: "Reset", exact: true }).click()
   await expect(background).toHaveCount(0)
   expect(
@@ -430,7 +448,7 @@ for (const width of [390, 1440])
     await page.goto(process.env.BUILD_TEST_URL || "/build-bin")
     await page.getByLabel("PoB export or pobb.in link").fill(code)
     const card = page
-      .locator(".tree-keystone-card")
+      .locator('[data-slot="tree-keystone-card"]')
       .filter({ hasText: "Blood Magic" })
     const open = card.getByRole("button", {
       name: "Show Blood Magic in passive tree",
@@ -439,7 +457,9 @@ for (const width of [390, 1440])
     await expect(
       card.getByRole("heading", { name: "Blood Magic" })
     ).toBeVisible()
-    await expect(card.locator(".tree-status")).toHaveText("Allocated")
+    await expect(card.locator('[data-slot="tree-status"]')).toHaveText(
+      "Allocated"
+    )
     await expect(card.locator("img")).toBeVisible()
     const bounds = (await card.boundingBox())!
     expect(bounds.x).toBeGreaterThanOrEqual(0)
@@ -455,17 +475,19 @@ for (const width of [390, 1440])
       } else await open.click()
       await expect(dialog).toBeVisible()
       const callout = page.locator(
-        '.tree-inspection[data-search-callout="true"]'
+        '[data-inspection-tooltip="true"][data-search-callout="true"]'
       )
       await expect(callout).toBeVisible()
       await expect(
         callout.getByRole("heading", { name: "Blood Magic", exact: true })
       ).toBeVisible()
       await expect(callout).toHaveAttribute("data-attention", "true")
-      await expect(callout.locator(".tree-status")).toHaveText("Allocated")
+      await expect(callout.locator('[data-slot="tree-status"]')).toHaveText(
+        "Allocated"
+      )
       const node = dialog.locator('circle[data-node="51749"]')
       await expect(node).toBeInViewport()
-      await expect(dialog.locator(".tree-search-highlights")).toHaveAttribute(
+      await expect(dialog.locator("[data-search-match-count]")).toHaveAttribute(
         "data-search-match-count",
         "1"
       )

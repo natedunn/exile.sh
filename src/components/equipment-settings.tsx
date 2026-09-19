@@ -28,14 +28,17 @@ export function EquipmentSettings() {
           <Button
             variant="ghost"
             size="icon"
-            className="equipment-settings-trigger"
+            className="absolute top-4 right-4 z-1"
           />
         }
         aria-label="Equipment settings"
       >
         <Settings aria-hidden="true" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="equipment-settings-menu">
+      <DropdownMenuContent
+        align="end"
+        className="w-65 max-w-[calc(100vw-24px)]"
+      >
         <DropdownMenuGroup>
           <DropdownMenuLabel>Item affixes</DropdownMenuLabel>
           <DropdownMenuRadioGroup
@@ -61,7 +64,7 @@ export function EquipmentSettings() {
             Show Bonded modifiers
           </DropdownMenuCheckboxItem>
           {bonded.automatic && (
-            <p className="equipment-settings-note">
+            <p className="mx-2 mt-1 mb-2 text-2xs leading-normal text-ink-muted">
               Enabled by Wisdom of the Maji in this build.
             </p>
           )}

@@ -53,7 +53,9 @@ test("waits for node names before displaying item-granted allocations and totals
       .getAllByRole("status")
       .every((el) => el.textContent.includes("Loading tree data"))
   ).toBe(true)
-  expect(view.container.querySelector(".build-jewel-stats")).toBeNull()
+  expect(
+    view.container.querySelector('[data-slot="build-jewel-stats"]')
+  ).toBeNull()
   expect(screen.queryByText("Socket not allocated")).toBeNull()
   resolve(
     new Response(
@@ -62,7 +64,9 @@ test("waits for node names before displaying item-granted allocations and totals
   )
   await waitFor(() => expect(screen.queryAllByRole("status")).toHaveLength(0))
   expect(screen.getByText("(Zarokh's Gift)")).toBeTruthy()
-  expect(view.container.querySelector(".build-jewel-stats")).not.toBeNull()
+  expect(
+    view.container.querySelector('[data-slot="build-jewel-stats"]')
+  ).not.toBeNull()
 })
 test("failed tree requests do not present partial jewel totals", async () => {
   vi.stubGlobal(
@@ -77,7 +81,9 @@ test("failed tree requests do not present partial jewel totals", async () => {
         .every((el) => el.textContent.includes("could not be loaded"))
     ).toBe(true)
   )
-  expect(view.container.querySelector(".build-jewel-stats")).toBeNull()
+  expect(
+    view.container.querySelector('[data-slot="build-jewel-stats"]')
+  ).toBeNull()
   expect(screen.queryByText("Socket not allocated")).toBeNull()
 })
 test("unsupported tree versions explain why allocations and totals are unavailable", () => {
@@ -91,6 +97,8 @@ test("unsupported tree versions explain why allocations and totals are unavailab
         el.textContent.includes("unavailable for this tree version")
       )
   ).toBe(true)
-  expect(view.container.querySelector(".build-jewel-stats")).toBeNull()
+  expect(
+    view.container.querySelector('[data-slot="build-jewel-stats"]')
+  ).toBeNull()
   expect(fetch).not.toHaveBeenCalled()
 })

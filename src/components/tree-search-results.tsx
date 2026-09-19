@@ -85,7 +85,8 @@ export const TreeSearchResults = memo(function TreeSearchResults({
   return (
     <ul
       ref={list}
-      className="tree-search-results"
+      data-slot="tree-results"
+      className="relative -mx-1 my-0 min-h-0 list-none overflow-y-auto overscroll-contain p-1"
       aria-label={label}
       data-result-count={results.length}
     >
@@ -119,11 +120,12 @@ export const TreeSearchResults = memo(function TreeSearchResults({
           >
             <Button
               variant="ghost"
+              className="group/result h-auto w-full items-start justify-start gap-2.5 border border-transparent py-2.5 pr-1 pl-2.5 text-left whitespace-normal hover:border-brand-deep hover:bg-notice-strong hover:text-brand-ink focus-visible:border-brand-deep focus-visible:bg-notice-strong focus-visible:text-brand-ink"
               data-result-index={row.index}
               onFocus={() => setActive(row.index)}
               onClick={() => onSelect(node)}
             >
-              <span className="tree-search-art">
+              <span className="grid size-9 shrink-0 place-items-center overflow-hidden bg-surface text-ink-faint [&_img]:size-9 [&_img]:object-contain">
                 {artwork?.[node.icon] ? (
                   <img
                     src={artwork[node.icon]}
@@ -137,9 +139,14 @@ export const TreeSearchResults = memo(function TreeSearchResults({
                   <Diamond aria-hidden="true" />
                 )}
               </span>
-              <span className="tree-search-result-text">
-                <strong>{node.name}</strong>
-                <span className="tree-search-result-description" role="list">
+              <span className="min-w-0 wrap-anywhere">
+                <strong className="block text-sm leading-[1.2] font-bold text-ink">
+                  {node.name}
+                </strong>
+                <span
+                  className="mt-1.5 grid gap-1 text-2xs text-ink-muted group-hover/result:text-ink group-focus-visible/result:text-ink empty:hidden"
+                  role="list"
+                >
                   {(node.stats.length ? node.stats : (node.options ?? []))
                     .flatMap((line) => line.split("\n"))
                     .filter((line) => line.trim())
@@ -147,7 +154,7 @@ export const TreeSearchResults = memo(function TreeSearchResults({
                       <span
                         key={index}
                         role="listitem"
-                        className="tree-search-result-stat"
+                        className="relative block pl-3.5 leading-[1.45]"
                       >
                         {line}
                       </span>

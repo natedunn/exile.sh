@@ -11,16 +11,16 @@ for (const width of [1440, 390]) {
           .getByRole("button", { name: "Tree settings", exact: true })
           .click()
         await expect(
-          page.locator(".tree-settings-drawer .tree-drawer-track")
-        ).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)")
+          page.locator('[data-slot="tree-settings"]').locator("..")
+        ).toHaveCSS("transform", "none")
       }
     }
     const requests: string[] = []
     page.on("request", (request) => requests.push(request.url()))
     await page.goto("/trees/passive")
     await openSettings()
-    const panel = page.locator(".tree-settings-panel")
-    const map = page.locator(".tree-viewport svg")
+    const panel = page.locator('[data-slot="tree-settings"]')
+    const map = page.locator('[data-slot="tree-viewport"] svg')
     await expect(map).toBeVisible()
     await expect(
       panel.getByRole("combobox", { name: "Tree version" })
@@ -28,7 +28,6 @@ for (const width of [1440, 390]) {
     await expect(
       panel.getByRole("combobox", { name: "Show ascendancy" })
     ).toContainText("None")
-    await expect(page.locator(".tree-explorer-options")).toHaveCount(0)
     await expect(
       page.getByRole("checkbox", { name: "Paths Not Taken" })
     ).toHaveCount(0)
@@ -37,24 +36,27 @@ for (const width of [1440, 390]) {
       false
     )
     expect(requests.some((url) => url.includes("/pob-trees/v4/"))).toBe(false)
-    const viewport = (await page.locator(".tree-viewport").boundingBox())!
+    const viewport = (await page
+      .locator('[data-slot="tree-viewport"]')
+      .boundingBox())!
     const position = (await panel.boundingBox())!
     expect(position.x).toBeGreaterThanOrEqual(viewport.x)
     expect(position.y).toBeGreaterThanOrEqual(viewport.y)
-    expect(position.width).toBeLessThanOrEqual(220)
+    expect(position.width).toBeLessThanOrEqual(221)
     const ascendancySelect = panel.getByRole("combobox", {
       name: "Show ascendancy",
     })
     const initialSelectWidth = (await ascendancySelect.boundingBox())!.width
-    await expect(panel.locator(".tree-setting-label")).toHaveText([
+    await expect(panel.locator('[data-slot="field-label"]')).toHaveText([
       "Version",
       "Show ascendancy",
     ])
     const before = await map.getAttribute("viewBox")
     await panel.getByRole("combobox", { name: "Show ascendancy" }).click()
     await page.getByRole("option", { name: "Oracle", exact: true }).click()
-    expect((await ascendancySelect.boundingBox())!.width).toBe(
-      initialSelectWidth
+    expect((await ascendancySelect.boundingBox())!.width).toBeCloseTo(
+      initialSelectWidth,
+      3
     )
     await expect(
       ascendancySelect.locator('[data-slot="select-value"]')

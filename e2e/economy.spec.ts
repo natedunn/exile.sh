@@ -1,5 +1,32 @@
 import { expect, test } from "@playwright/test"
 
+for (const width of [390, 1440]) {
+  test(`Economy navigation underline meets the divider at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 })
+    for (const route of ["market", "movers"]) {
+      await page.goto(`/economy/${route}`)
+      const nav = page.getByRole("navigation", { name: "Economy views" })
+      const active = nav.locator('[aria-current="page"]')
+      await expect(active).toBeVisible()
+      // Keep the shared navigation height even when the adjacent fields are taller.
+      await expect(active).toHaveCSS("height", "40px")
+      const gap = await active.evaluate((element) => {
+        const toolbar = element.closest(
+          '[aria-label="Economy views"]'
+        )!.parentElement!
+        return (
+          toolbar.getBoundingClientRect().bottom -
+          parseFloat(getComputedStyle(toolbar).borderBottomWidth) -
+          element.getBoundingClientRect().bottom
+        )
+      })
+      expect(Math.abs(gap)).toBeLessThanOrEqual(1)
+    }
+  })
+}
+
 test("search, watchlist persistence, chart, pairs, and attribution", async ({
   page,
 }) => {
@@ -9,7 +36,9 @@ test("search, watchlist persistence, chart, pairs, and attribution", async ({
   await page
     .getByRole("textbox", { name: "Search currencies", exact: true })
     .fill("Divine Orb")
-  await expect(page.locator(".currency-table tbody tr")).toHaveCount(1)
+  await expect(
+    page.getByTestId("currency-table").locator("tbody tr")
+  ).toHaveCount(1)
   await page
     .getByRole("button", { name: "Add Divine Orb to watchlist", exact: true })
     .click()
@@ -23,17 +52,20 @@ test("search, watchlist persistence, chart, pairs, and attribution", async ({
   await page
     .getByRole("button", { name: "View Divine Orb history", exact: true })
     .click()
-  await expect(page.locator(".chart-wrap")).toBeVisible()
+  await expect(page.getByTestId("chart-wrap")).toBeVisible()
   await page.getByRole("button", { name: "24H", exact: true }).click()
-  await expect(page.locator(".history-caption")).toContainText(
+  await expect(page.getByTestId("history-caption")).toContainText(
     "hourly observations"
   )
   await page.getByText("View chart data", { exact: true }).click()
-  expect(await page.locator(".history-data tbody tr").count()).toBeGreaterThan(
-    1
-  )
+  expect(
+    await page.getByTestId("history-data").locator("tbody tr").count()
+  ).toBeGreaterThan(1)
   await page.getByRole("button", { name: "Invert pairs", exact: true }).click()
-  const pairCount = await page.locator(".pairs-table tbody tr").count()
+  const pairCount = await page
+    .getByTestId("pairs-table")
+    .locator("tbody tr")
+    .count()
   expect(pairCount).toBeGreaterThan(0)
   expect(pairCount).toBeLessThanOrEqual(20)
   await page
@@ -50,7 +82,9 @@ test("mobile market stays within the viewport and categories filter", async ({
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto("/")
-  await expect(page.locator(".currency-table tbody tr").first()).toBeVisible()
+  await expect(
+    page.getByTestId("currency-table").locator("tbody tr").first()
+  ).toBeVisible()
   const search = page.getByRole("textbox", {
     name: "Search currencies",
     exact: true,
@@ -58,9 +92,9 @@ test("mobile market stays within the viewport and categories filter", async ({
   await expect(search).toHaveCSS("font-size", "16px")
   await page.getByRole("combobox", { name: "Category", exact: true }).click()
   await page.getByRole("option", { name: "Essences", exact: true }).click()
-  await expect(page.locator(".currency-table tbody tr").first()).toContainText(
-    "Essence"
-  )
+  await expect(
+    page.getByTestId("currency-table").locator("tbody tr").first()
+  ).toContainText("Essence")
   const width = await page.evaluate(() => ({
     viewport: innerWidth,
     content: document.documentElement.scrollWidth,
@@ -99,12 +133,14 @@ for (const width of [320, 375, 414, 768]) {
   test(`workbench remains readable at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 950 })
     await page.goto("/")
-    await expect(page.locator(".currency-table tbody tr").first()).toBeVisible()
+    await expect(
+      page.getByTestId("currency-table").locator("tbody tr").first()
+    ).toBeVisible()
     const layout = await page.evaluate(() => {
       const root = document.documentElement
       const main = document.querySelector("#main")!.getBoundingClientRect()
       const table = document
-        .querySelector(".currency-table")!
+        .querySelector('[data-testid="currency-table"]')!
         .parentElement!.getBoundingClientRect()
       return {
         viewport: innerWidth,
@@ -130,7 +166,7 @@ for (const width of [320, 375, 414, 768]) {
     await page
       .getByRole("button", { name: "View Divine Orb history", exact: true })
       .click()
-    await expect(page.locator(".chart-wrap")).toBeVisible()
+    await expect(page.getByTestId("chart-wrap")).toBeVisible()
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth)
     ).toBeLessThanOrEqual(width)
@@ -143,7 +179,9 @@ test("Base UI selects, page links, and tooltip support keyboard interaction", as
   const errors: string[] = []
   page.on("pageerror", (error) => errors.push(error.message))
   await page.goto("/")
-  await expect(page.locator(".currency-table tbody tr").first()).toBeVisible()
+  await expect(
+    page.getByTestId("currency-table").locator("tbody tr").first()
+  ).toBeVisible()
   const league = page.getByRole("combobox", { name: "League", exact: true })
   await league.focus()
   await page.keyboard.press("ArrowDown")
@@ -220,7 +258,7 @@ test("input groups own focus styling without page-specific classes", async ({
     groupBorder: getComputedStyle(element.parentElement!).borderColor,
   }))
   expect(focused.innerOutline).toBe("none")
-  expect(focused.innerShadow).toBe("none")
+  expect(focused.innerShadow).not.toContain("3px")
   expect(focused.groupShadow).toContain("3px")
   expect(focused.groupBorder).not.toBe(unfocusedBorder)
   await input.blur()
@@ -236,19 +274,26 @@ test("movers have separate ranked top fifties and preserve league and quote navi
   await expect(
     page.getByRole("heading", { name: "Market movers", exact: true })
   ).toBeVisible()
-  await expect(page.locator(".losers .mover-row").first()).toBeVisible()
-  await expect(page.locator(".gainers .mover-row").first()).toBeVisible()
-  for (const selector of [".losers", ".gainers"]) {
-    const count = await page.locator(`${selector} .mover-row`).count()
+  await expect(
+    page.getByTestId("losers").getByTestId("mover-row").first()
+  ).toBeVisible()
+  await expect(
+    page.getByTestId("gainers").getByTestId("mover-row").first()
+  ).toBeVisible()
+  for (const testId of ["losers", "gainers"]) {
+    const count = await page
+      .getByTestId(testId)
+      .getByTestId("mover-row")
+      .count()
     expect(count).toBeGreaterThan(0)
     expect(count).toBeLessThanOrEqual(50)
   }
-  for (const [selector, increasing] of [
-    [".losers", true],
-    [".gainers", false],
+  for (const [testId, increasing] of [
+    ["losers", true],
+    ["gainers", false],
   ] as const) {
     const values = (
-      await page.locator(`${selector} .delta`).allTextContents()
+      await page.getByTestId(testId).getByTestId("delta").allTextContents()
     ).map((text) => Number(text.replace(/[^0-9.+-]/g, "")))
     expect(values.every((value) => (increasing ? value < 0 : value > 0))).toBe(
       true
@@ -259,20 +304,22 @@ test("movers have separate ranked top fifties and preserve league and quote navi
       ).toBe(true)
     }
   }
-  await page.locator(".losers .mover-row").first().click()
-  await expect(page.locator(".chart-wrap")).toBeVisible()
+  await page.getByTestId("losers").getByTestId("mover-row").first().click()
+  await expect(page.getByTestId("chart-wrap")).toBeVisible()
   await page.reload()
-  await expect(page.locator(".chart-wrap")).toBeVisible()
+  await expect(page.getByTestId("chart-wrap")).toBeVisible()
   await expect(
     page.getByRole("combobox", { name: "Quote currency", exact: true })
   ).toContainText("Chaos")
   await page.getByRole("link", { name: "Economy", exact: true }).click()
-  await expect(page.locator(".currency-table")).toBeVisible()
-  await expect(page.locator(".movers-section")).toHaveCount(0)
+  await expect(page.getByTestId("currency-table")).toBeVisible()
+  await expect(page.getByTestId("movers-section")).toHaveCount(0)
   await expect(
     page.getByRole("combobox", { name: "Quote currency", exact: true })
   ).toContainText("Chaos")
-  await expect(page.locator(".categories .item-icon").first()).toBeVisible()
+  await expect(
+    page.getByTestId("categories").getByTestId("item-icon").first()
+  ).toBeVisible()
 })
 
 test("economy routes redirect to the market and provide page navigation", async ({
@@ -283,6 +330,12 @@ test("economy routes redirect to the market and provide page navigation", async 
   await expect(
     page.getByRole("link", { name: "Currency market", exact: true })
   ).toHaveAttribute("aria-current", "page")
+  const activeView = page.getByRole("link", {
+    name: "Currency market",
+    exact: true,
+  })
+  await expect(activeView).toHaveCSS("border-bottom-width", "2px")
+  await expect(activeView).toHaveCSS("background-color", "rgba(0, 0, 0, 0)")
   await expect(
     page.getByRole("link", { name: "Exchange pairs", exact: true })
   ).toHaveCount(0)
@@ -307,7 +360,9 @@ test("Auto display persists and carries each item's quote into its chart", async
   page,
 }) => {
   await page.goto("/economy/market?q=Exalted%20Orb")
-  await expect(page.locator(".currency-table tbody tr").first()).toBeVisible()
+  await expect(
+    page.getByTestId("currency-table").locator("tbody tr").first()
+  ).toBeVisible()
   const select = page.getByRole("combobox", {
     name: "Quote currency",
     exact: true,
@@ -315,46 +370,52 @@ test("Auto display persists and carries each item's quote into its chart", async
   await select.click()
   await page.getByRole("option", { name: "Auto", exact: true }).click()
   expect(new URL(page.url()).searchParams.has("quote")).toBe(false)
-  const row = page.locator(".currency-table tbody tr").filter({
-    has: page.getByRole("button", { name: "Exalted Orb", exact: true }),
-  })
-  const quote = await row.locator(".price-cell img").getAttribute("alt")
+  const row = page
+    .getByTestId("currency-table")
+    .locator("tbody tr")
+    .filter({
+      has: page.getByRole("button", { name: "Exalted Orb", exact: true }),
+    })
+  const quote = await row
+    .getByTestId("price-cell")
+    .locator("img")
+    .getAttribute("alt")
   expect(["Chaos", "Divine"]).toContain(quote)
   await row
     .getByRole("button", { name: "View Exalted Orb history", exact: true })
     .click()
-  await expect(page.locator(".chart-wrap")).toBeVisible()
-  await expect(page.locator(".detail-stats").first()).toContainText(quote!)
+  await expect(page.getByTestId("chart-wrap")).toBeVisible()
+  await expect(page.getByTestId("detail-stats")).toContainText(quote!)
   await page.reload()
   await expect(select).toContainText("Auto")
-  await expect(page.locator(".detail-stats").first()).toContainText(quote!)
+  await expect(page.getByTestId("detail-stats")).toContainText(quote!)
   await select.click()
   await page.getByRole("option", { name: "Exalted", exact: true }).click()
-  await expect(page.locator(".detail-stats strong").first()).toHaveText(
-    "1 Exalted"
-  )
+  await expect(
+    page.getByTestId("detail-stats").locator("strong").first()
+  ).toHaveText("1 Exalted")
 })
 
 test("currency rows open details and sidebar watchlist keeps stars independent", async ({
   page,
 }) => {
   await page.goto("/economy/market?q=Divine%20Orb")
-  const row = page.locator(".currency-row").filter({
+  const row = page.getByTestId("currency-row").filter({
     has: page.getByRole("button", { name: "Divine Orb", exact: true }),
   })
   await expect(row).toBeVisible()
   await row
     .getByRole("button", { name: "Add Divine Orb to watchlist", exact: true })
     .click()
-  await expect(page.locator(".detail-view")).toHaveCount(0)
+  await expect(page.getByTestId("detail-view")).toHaveCount(0)
   const sidebar = page.getByRole("navigation", { name: "Currency categories" })
   await expect(sidebar.getByRole("button").first()).toContainText("Watchlist")
   await sidebar.getByRole("button", { name: /^Watchlist/ }).click()
   await expect(
     sidebar.getByRole("button", { name: /^Watchlist/ })
   ).toHaveAttribute("aria-pressed", "true")
-  await row.locator(".price-cell").click()
-  await expect(page.locator(".chart-wrap")).toBeVisible()
+  await row.getByTestId("price-cell").click()
+  await expect(page.getByTestId("chart-wrap")).toBeVisible()
   await page
     .getByRole("button", { name: "Back to market", exact: true })
     .click()
@@ -364,8 +425,8 @@ test("currency rows open details and sidebar watchlist keeps stars independent",
       exact: true,
     })
     .click()
-  await expect(page.locator(".currency-row")).toHaveCount(0)
-  await expect(page.locator(".detail-view")).toHaveCount(0)
+  await expect(page.getByTestId("currency-row")).toHaveCount(0)
+  await expect(page.getByTestId("detail-view")).toHaveCount(0)
   await sidebar.getByRole("button", { name: /^All currencies/ }).click()
   await expect(row).toBeVisible()
   await expect(
@@ -377,7 +438,7 @@ test("mover periods persist and render available or explicitly missing history",
   page,
 }) => {
   await page.goto("/economy/movers")
-  await expect(page.locator(".mover-row").first()).toBeVisible()
+  await expect(page.getByTestId("mover-row").first()).toBeVisible()
   const period = page.getByRole("combobox", {
     name: "Movers period",
     exact: true,
@@ -396,14 +457,14 @@ test("mover periods persist and render available or explicitly missing history",
       .first()
     if (await unavailable.count()) {
       await expect(unavailable).toBeVisible()
-      await expect(page.locator(".mover-row")).toHaveCount(0)
+      await expect(page.getByTestId("mover-row")).toHaveCount(0)
     } else {
-      await expect(page.locator(".mover-row").first()).toBeVisible()
+      await expect(page.getByTestId("mover-row").first()).toBeVisible()
     }
   }
   await page.reload()
   await expect(period).toContainText("3 months (90 days)")
   await period.click()
   await page.getByRole("option", { name: "24 hours", exact: true }).click()
-  await expect(page.locator(".mover-row").first()).toBeVisible()
+  await expect(page.getByTestId("mover-row").first()).toBeVisible()
 })

@@ -19,6 +19,13 @@ import {
   DialogDescription,
 } from "./ui/dialog"
 import {
+  StatsBody,
+  StatsHeading,
+  StatsList,
+  StatsRow,
+  StatsSection,
+} from "./build/stats-ledger"
+import {
   formattedStat,
   statCategory,
   statLabel,
@@ -36,7 +43,7 @@ function FullDpsNotice() {
           <Button
             variant="ghost"
             size="icon-xs"
-            className="build-stat-alert"
+            className="text-brand hover:bg-notice hover:text-brand-ink [&_svg:not([class*='size-'])]:size-[15px]"
             aria-label="Why is Full DPS zero?"
           />
         }
@@ -45,7 +52,7 @@ function FullDpsNotice() {
       </PopoverTrigger>
       <PopoverContent
         side="left"
-        className="build-stat-alert-content"
+        className="w-75 gap-0 p-3 font-sans text-xs leading-relaxed"
         aria-label="About zero Full DPS"
       >
         Full DPS may be 0 because no skills were selected for “Include in Full
@@ -103,16 +110,21 @@ export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
           <Button
             variant="outline"
             size="sm"
-            className="build-expanded-trigger"
+            className="col-span-full h-auto min-h-10 w-full px-3 py-2 font-mono text-xs font-medium"
           />
         }
       >
         View all stats
       </DialogTrigger>
-      <DialogContent className="build-expanded-dialog popup-corners">
-        <DialogHeader>
-          <DialogTitle>Expanded stats</DialogTitle>
-          <DialogDescription>
+      {/* The dialog is the inspection tooltip's shell at page scale: a
+          bronze dither wash from the top edge on the deep paper, with the
+          bracketed corners of every floating surface. */}
+      <DialogContent className="popup-corners h-[min(660px,calc(100dvh-2rem))] max-h-[calc(100dvh-2rem)] w-[min(760px,calc(100vw-2rem))] max-w-[min(760px,calc(100vw-2rem))] grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden rounded border-rule-strong bg-paper-deep p-0 text-ink shadow-popup before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-64 before:bg-brand before:[mask-image:var(--dither-fade-y)] before:[mask-repeat:repeat-x] before:opacity-7 before:content-[''] sm:max-w-[min(760px,calc(100vw-2rem))]">
+        <DialogHeader className="relative border-b border-rule-strong pt-6 pr-12 pb-4 pl-6 max-[641px]:pl-4">
+          <DialogTitle className="font-display text-3xl leading-[1.1] font-medium text-brand">
+            Expanded stats
+          </DialogTitle>
+          <DialogDescription className="text-xs leading-relaxed text-ink-muted">
             Saved PoB values, grouped by purpose. Changing equipment or skills
             does not recalculate these values. Missing stats were not included
             in the export.
@@ -122,20 +134,24 @@ export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
           <Tabs
             value={active}
             onValueChange={(value) => setCategory(String(value))}
-            className="build-expanded-tabs"
+            className="relative flex min-h-0 flex-col gap-0"
           >
             <TabsList
               variant="line"
-              className="build-expanded-nav"
+              className="flex h-12! w-full shrink-0 justify-start gap-6 rounded-none border-0 border-b border-rule-strong bg-transparent p-0 px-6 max-[641px]:hidden"
               aria-label="Stat categories"
             >
               {available.map(({ title }) => (
-                <TabsTrigger key={title} value={title}>
+                <TabsTrigger
+                  key={title}
+                  value={title}
+                  className="h-full flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent p-0 mono-label leading-none text-ink-muted after:hidden hover:text-ink data-active:border-brand data-active:bg-transparent data-active:text-ink"
+                >
                   {navigationLabels[title]}
                 </TabsTrigger>
               ))}
             </TabsList>
-            <div className="build-expanded-select">
+            <div className="hidden border-b border-rule-strong px-6 py-3 max-[641px]:block max-[641px]:p-4">
               <Select
                 value={active}
                 onValueChange={(value) => {
@@ -146,7 +162,10 @@ export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
                   label: title,
                 }))}
               >
-                <SelectTrigger aria-label="Stat category">
+                <SelectTrigger
+                  aria-label="Stat category"
+                  className="min-h-10 w-full"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent alignItemWithTrigger={false}>
@@ -162,46 +181,52 @@ export function BuildExpandedStats({ build }: { build: BuildSnapshot }) {
               <TabsContent
                 key={title}
                 value={title}
-                className="build-expanded-scroll"
+                className="min-h-0 overflow-y-auto overscroll-contain p-6 max-[641px]:p-4"
               >
-                <div className="build-stats-body build-expanded-grid">
-                  <section>
-                    <h3>{title}</h3>
-                    <dl>
+                <StatsBody layout="expanded">
+                  <StatsSection>
+                    <StatsHeading layout="expanded">{title}</StatsHeading>
+                    <StatsList>
                       {stats.map((stat, index) => (
-                        <div key={`${stat.name}-${index}`}>
-                          <dt>{statLabel(stat.name)}</dt>
-                          <dd>
-                            <span className="build-stat-value">
-                              {stat.name === "FullDPS" &&
-                                stat.value.trim() !== "" &&
-                                Number(stat.value) === 0 && <FullDpsNotice />}
-                              {formattedStat(stat.name, stat.value)}
-                            </span>
-                          </dd>
-                        </div>
+                        <StatsRow
+                          key={`${stat.name}-${index}`}
+                          label={statLabel(stat.name)}
+                          wrap
+                        >
+                          <span className="inline-flex items-center gap-2">
+                            {stat.name === "FullDPS" &&
+                              stat.value.trim() !== "" &&
+                              Number(stat.value) === 0 && <FullDpsNotice />}
+                            {formattedStat(stat.name, stat.value)}
+                          </span>
+                        </StatsRow>
                       ))}
-                    </dl>
-                  </section>
+                    </StatsList>
+                  </StatsSection>
                   {title === "Offence & skills" && build.fullDps.length > 0 && (
-                    <section>
-                      <h3>Full DPS breakdown</h3>
-                      <dl>
+                    <StatsSection>
+                      <StatsHeading layout="expanded">
+                        Full DPS breakdown
+                      </StatsHeading>
+                      <StatsList>
                         {build.fullDps.map((skill, index) => (
-                          <div key={`${skill.name}-${index}`}>
-                            <dt>{skill.name}</dt>
-                            <dd>{displayStat(skill.value)}</dd>
-                          </div>
+                          <StatsRow
+                            key={`${skill.name}-${index}`}
+                            label={skill.name}
+                            wrap
+                          >
+                            {displayStat(skill.value)}
+                          </StatsRow>
                         ))}
-                      </dl>
-                    </section>
+                      </StatsList>
+                    </StatsSection>
                   )}
-                </div>
+                </StatsBody>
               </TabsContent>
             ))}
           </Tabs>
         ) : (
-          <p className="build-expanded-empty">
+          <p className="p-6 text-sm text-ink-muted">
             No stats were included in this export.
           </p>
         )}

@@ -1,7 +1,0 @@
-/* Keep the CLI's layout and interactions; the workbench skin lives in
-   src/styles.css. Focus treatment stays with field.css. */
-html body [data-slot="select-trigger"]:focus-visible {
-  outline: revert-layer;
-  outline-offset: revert-layer;
-  border-color: var(--color-focus);
-}
