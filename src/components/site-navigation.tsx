@@ -17,7 +17,10 @@ import type { Filters } from "../lib/economy-filters"
 export function SiteNavigation({ filters }: { filters: Filters }) {
   const [open, setOpen] = useState(false)
   useEffect(() => {
-    const desktop = window.matchMedia("(min-width: 1024px)")
+    const breakpoint = getComputedStyle(document.documentElement)
+      .getPropertyValue("--breakpoint-lg")
+      .trim()
+    const desktop = window.matchMedia(`(min-width: ${breakpoint})`)
     const closeOnDesktop = () => {
       if (desktop.matches) setOpen(false)
     }

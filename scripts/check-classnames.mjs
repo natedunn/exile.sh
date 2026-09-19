@@ -2,10 +2,12 @@
 // utility. Guards against semantic class names returning after the migration.
 // Class lists are read from className="…", className={…} string parts, and
 // every string literal inside cn(…) / cva(…) / *Variants(…) calls.
+// Variable-backed lists are resolved through TypeScript, including imports.
 // Usage: node scripts/check-classnames.mjs [--list]
 import { compile } from "@tailwindcss/node"
 import fs from "node:fs"
 import path from "node:path"
+import { referencedClassLists } from "./classname-references.mjs"
 
 const root = process.cwd()
 const files = []
@@ -67,6 +69,8 @@ for (const file of files) {
       seen(s, file)
   }
 }
+
+for (const { value, file } of referencedClassLists(files)) seen(value, file)
 
 const css = fs
   .readFileSync(path.join(root, "src/styles.css"), "utf8")
