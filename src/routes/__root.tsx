@@ -13,17 +13,25 @@ import { Providers } from "../components/providers"
 import { SiteLayout, ViewerLayout } from "../components/shell"
 import appCss from "../styles.css?url"
 
+const siteTitle = "exile.sh — Tools for Path of Exile 2"
+const siteDescription =
+  "A collection of tools for Path of Exile 2. Explore passive trees, share builds, follow patch notes, and track the economy."
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "exile.sh — The economy of Wraeclast" },
+      { title: siteTitle },
       {
         name: "description",
-        content:
-          "Follow the Path of Exile 2 currency economy. Historical exchange prices, market movements, and currencies worth watching.",
+        content: siteDescription,
       },
+      { property: "og:site_name", content: "exile.sh" },
+      { property: "og:title", content: siteTitle },
+      { property: "og:description", content: siteDescription },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "theme-color", content: "#111412" },
       { name: "color-scheme", content: "dark" },
       { name: "application-name", content: "exile.sh" },
