@@ -13,7 +13,11 @@ import {
   GemKeywordProvider,
   GemKeywordText,
 } from "../components/gem-keyword-text"
-import { effectIncreaseParts, effectRangeLine } from "../lib/gem-display"
+import {
+  effectIncreaseParts,
+  effectRangeLine,
+  gemTags,
+} from "../lib/gem-display"
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
 import { EmptyState } from "../components/ui/empty-state"
@@ -41,6 +45,8 @@ import {
 } from "../components/ui/page-heading"
 import { gemEffectsQueryOptions } from "../lib/gem-effects"
 import { useGemCatalogue } from "../lib/use-gem-catalogue"
+import { getGemMeta } from "../lib/gem-meta"
+import { shareMeta } from "../lib/share-meta"
 
 export const Route = createFileRoute("/gems/$gem")({
   validateSearch: (search) => ({
@@ -69,7 +75,21 @@ export const Route = createFileRoute("/gems/$gem")({
       .catch(undefined)
       .parse(search.advancedQuality),
   }),
-  head: () => ({ meta: [{ title: "Gem details · exile.sh" }] }),
+  // Resolved on the server so the first HTML carries the gem's share tags.
+  // A failed lookup only costs the tags; the page loads its data itself.
+  loader: ({ params }) =>
+    getGemMeta({ data: { slug: params.gem } }).catch(() => null),
+  head: ({ loaderData }) =>
+    loaderData
+      ? shareMeta({
+          title: `${loaderData.name} · Gems`,
+          description:
+            loaderData.description ||
+            `${loaderData.name}, a Path of Exile 2 ${loaderData.support ? "support" : "skill"} gem: effects, requirements and compatible gems.`,
+          path: `/gems/${loaderData.slug}`,
+          image: `/og/gems/${loaderData.slug}`,
+        })
+      : { meta: [{ title: "Gem details · exile.sh" }] },
   component: GemDetailPage,
 })
 
@@ -231,18 +251,7 @@ function GemDetailPage() {
   const currentLevel =
     catalogue.data?.headers?.skills[skillId]?.[String(level ?? 1)]
   const selectedLevel = level === null ? firstLevel : currentLevel
-  const tags = reference
-    ? [
-        ...new Set(
-          [
-            reference.type || (reference.support ? "Support" : "Skill"),
-            ...reference.tags.split(","),
-          ]
-            .map((tag) => tag.trim())
-            .filter(Boolean)
-        ),
-      ]
-    : []
+  const tags = reference ? gemTags(reference) : []
 
   const rangeValue = (start: number | undefined, end: number | undefined) =>
     start === undefined

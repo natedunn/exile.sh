@@ -4,6 +4,7 @@ import { BuildView } from "../components/build-view"
 import { EmptyState, EmptyStateText } from "../components/ui/empty-state"
 import type { BuildSelection } from "../components/build-view"
 import { getSharedBuild } from "../lib/build-server"
+import { shareMeta } from "../lib/share-meta"
 import { buildSkill, displayStat, statValue } from "../../shared/pob"
 
 // The selected sets live in the URL so a shared link opens on the same view.
@@ -26,25 +27,12 @@ export const Route = createFileRoute("/build-bin/$slug")({
     if (!loaderData) return { meta: [{ title: "Build not found · exile.sh" }] }
     const b = loaderData.snapshot
     const description = `Level ${b.level} ${b.ascendancy || b.className} · ${buildSkill(b)} · ${displayStat(statValue(b, "Life"))} life · ${displayStat(statValue(b, "EnergyShield"))} energy shield. Explore equipment, stats, skills, passives and notes.`
-    const site = (import.meta.env.VITE_SITE_URL || "https://exile.sh").replace(
-      /\/$/,
-      ""
-    )
-    return {
-      meta: [
-        { title: `${loaderData.title} · exile.sh` },
-        { name: "description", content: description },
-        { property: "og:title", content: loaderData.title },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { property: "og:url", content: `${site}/build-bin/${loaderData.slug}` },
-        { property: "og:image", content: `${site}/build-share.png` },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-      links: [
-        { rel: "canonical", href: `${site}/build-bin/${loaderData.slug}` },
-      ],
-    }
+    return shareMeta({
+      title: loaderData.title,
+      description,
+      path: `/build-bin/${loaderData.slug}`,
+      image: "/build-share.png",
+    })
   },
   component: SharedBuild,
   pendingComponent: () => (

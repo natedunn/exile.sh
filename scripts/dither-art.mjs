@@ -9,6 +9,8 @@ const ORB_SOURCE =
   "https://repoe-fork.github.io/poe2/Art/2DItems/Currency/CurrencyModValues.webp"
 const GEM_SOURCE =
   "https://repoe-fork.github.io/poe2/Art/2DItems/Gems/UncutSkillGem.webp"
+const SUPPORT_GEM_SOURCE =
+  "https://repoe-fork.github.io/poe2/Art/2DItems/Gems/UncutSupportGem.webp"
 const PORTRAIT_SOURCE = new URL("./art/patch-notes-source.png", import.meta.url)
 const OUT = new URL("../public/art/", import.meta.url)
 
@@ -265,4 +267,54 @@ await writeFile(
     return Math.max(0, 1 - d) ** 1.8
   })
 )
-console.log("wrote public/art")
+// Share card for /gems pages, 1200 × 630: the paper ground with the site's
+// faint dot grid, and the uncut gem dissolving into it on the right. Built
+// at half size and doubled, so dither cells stay crisp without relying on
+// the renderer's scaling. Text is drawn over it by src/lib/og.tsx.
+const PAPER = [12, 10, 7, 255]
+const GRID = [39, 35, 30, 255]
+async function ogCard(art) {
+  const width = 600,
+    height = 315
+  const ground = Buffer.alloc(width * height * 4)
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++)
+      ground.set(
+        x % 14 === 6 && y % 14 === 6 ? GRID : PAPER,
+        (y * width + x) * 4
+      )
+  const card = await sharp(ground, { raw: { width, height, channels: 4 } })
+    .composite([{ input: art, left: width - 330, top: 0 }])
+    .png()
+    .toBuffer()
+  return sharp(card)
+    .resize(width * 2, height * 2, { kernel: "nearest" })
+    .png({ palette: true })
+    .toBuffer()
+}
+await mkdir(new URL("../public/og/", import.meta.url), { recursive: true })
+// Skill and support gems each get their uncut gem.
+const supportGem = Buffer.from(
+  await fetch(SUPPORT_GEM_SOURCE).then((r) => r.arrayBuffer())
+)
+for (const [name, source] of [
+  ["gems-card.png", gem],
+  ["support-gems-card.png", supportGem],
+])
+  await writeFile(
+    new URL(`../public/og/${name}`, import.meta.url),
+    await ogCard(
+      await mastheadArt(source, {
+        width: 330,
+        height: 315,
+        size: [290, 290],
+        left: 40,
+        top: 12,
+        focus: [0.55, 0.5],
+        hold: 0.35,
+        gamma: 0.75,
+        halo: 0.6,
+      })
+    )
+  )
+console.log("wrote public/art and public/og")

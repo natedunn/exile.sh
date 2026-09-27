@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { shareMeta } from "../lib/share-meta"
 import { gemSlug } from "../../shared/gem-slug"
 import { useDeferredValue, useMemo } from "react"
 import { GemResult } from "../components/gem-result"
@@ -21,7 +22,14 @@ import { useGemSearchIndex } from "../lib/use-gem-search-index"
 import type { GemSearch } from "./gems"
 
 export const Route = createFileRoute("/gems/")({
-  head: () => ({ meta: [{ title: "Gems · exile.sh" }] }),
+  head: () =>
+    shareMeta({
+      title: "Gems",
+      description:
+        "Every Path of Exile 2 skill and support gem: level and quality ranges, effects, requirements and compatible supports.",
+      path: "/gems",
+      image: "/og/gems",
+    }),
   component: GemsPage,
 })
 

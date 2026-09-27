@@ -5,5 +5,8 @@
   "compatibility_date": "2026-09-10",
   "compatibility_flags": ["nodejs_compat"],
   "preview_urls": true,
+  // Server code reads its own static files (share card fonts, art and gem
+  // data) through this binding rather than fetching its public URL.
+  "assets": { "binding": "ASSETS" },
   "observability": { "enabled": true, "head_sampling_rate": 0.1 },
 }

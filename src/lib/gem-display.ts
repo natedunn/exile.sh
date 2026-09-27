@@ -1,3 +1,19 @@
+import type { GemReference } from "../../shared/gems"
+
+/** The gem's type followed by its tags, without repeats: the header badges. */
+export function gemTags(reference: GemReference) {
+  return [
+    ...new Set(
+      [
+        reference.type || (reference.support ? "Support" : "Skill"),
+        ...reference.tags.split(","),
+      ]
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+    ),
+  ]
+}
+
 /** Keep matching effect text in place and show only the values that change. */
 export function effectRangeLine(start: string, end: string) {
   if (start === end) return start
