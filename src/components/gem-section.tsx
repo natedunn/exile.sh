@@ -22,7 +22,7 @@ function GemSectionTitle({ className, ...props }: React.ComponentProps<"h2">) {
     <h2
       data-slot="gem-section-title"
       className={cn(
-        "px-[var(--shell-gutter)] font-display text-xl leading-tight text-brand",
+        "px-[var(--shell-gutter)] font-mono text-xs leading-tight font-medium tracking-label text-brand uppercase",
         className
       )}
       {...props}

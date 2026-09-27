@@ -559,7 +559,7 @@ function GemDetailPage() {
                         data-slot="gem-effect-set"
                         className="mt-8 first-of-type:mt-4"
                       >
-                        <h3 className="font-display text-lg leading-tight text-ink">
+                        <h3 className="font-display text-xl leading-tight text-ink">
                           {set.label}
                           {!reference.support && (
                             <span className="ml-1 mono-label text-ink-muted">
