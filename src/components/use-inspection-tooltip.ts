@@ -10,6 +10,7 @@ export function useInspectionTooltip({
   const [open, setOpen] = useState(false)
   const [held, setHeld] = useState(false)
   const [hoverOnly, setHoverOnly] = useState(false)
+  const hoverOnlyRef = useRef(false)
   const hovering = useRef(false)
   const holding = useRef(false)
   const sticky = useRef(false)
@@ -21,7 +22,7 @@ export function useInspectionTooltip({
     const releaseHold = () => {
       holding.current = false
       setHeld(sticky.current)
-      if (hoverOnly && !hovering.current) setOpen(false)
+      if (hoverOnlyRef.current && !hovering.current) setOpen(false)
     }
     const down = (event: KeyboardEvent) => {
       if (
@@ -39,7 +40,8 @@ export function useInspectionTooltip({
         event.preventDefault()
         sticky.current = !sticky.current
         holding.current = sticky.current
-        setHoverOnly(!sticky.current)
+        hoverOnlyRef.current = !sticky.current
+        setHoverOnly(hoverOnlyRef.current)
         setHeld(sticky.current)
         if (!sticky.current && !hovering.current) setOpen(false)
       }
@@ -64,16 +66,26 @@ export function useInspectionTooltip({
       window.removeEventListener("blur", blur)
       holding.current = false
     }
-  }, [open, hoverOnly, stickyShortcut])
+  }, [open, stickyShortcut])
 
   const close = () => {
     setOpen(false)
     setHeld(false)
   }
+  const openInteractive = () => {
+    hoverOnlyRef.current = false
+    setHoverOnly(false)
+    setHeld(false)
+    setOpen(true)
+  }
   const popoverProps: ComponentProps<typeof Popover> = {
     open,
     onOpenChange: (next, change) => {
-      if (change.reason === "trigger-press" && hoverOnly && hovering.current) {
+      if (
+        change.reason === "trigger-press" &&
+        hoverOnlyRef.current &&
+        hovering.current
+      ) {
         setOpen(true)
         return
       }
@@ -91,6 +103,7 @@ export function useInspectionTooltip({
       if (event.altKey && !nested) return
       // A hover is only ever a hover: no focus, no close control. Touch,
       // Enter and Space opt into the interactive form below.
+      hoverOnlyRef.current = true
       setHoverOnly(true)
       setHeld(false)
       setOpen(true)
@@ -99,17 +112,24 @@ export function useInspectionTooltip({
       if (event.pointerType === "touch") return
       hovering.current = false
       if (nested) return
-      if (!holding.current && hoverOnly) setOpen(false)
+      if (!holding.current && hoverOnlyRef.current) setOpen(false)
     },
     onPointerDown: (event) => {
-      if (event.pointerType === "touch") setHoverOnly(false)
+      if (event.pointerType === "touch") {
+        hoverOnlyRef.current = false
+        setHoverOnly(false)
+      }
     },
     onKeyDown: (event) => {
-      if (event.key === "Enter" || event.key === " ") setHoverOnly(false)
+      if (event.key === "Enter" || event.key === " ") {
+        hoverOnlyRef.current = false
+        setHoverOnly(false)
+      }
     },
   }
   return {
     open,
+    openInteractive,
     popoverProps,
     triggerProps,
     contentProps: {

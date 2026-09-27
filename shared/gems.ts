@@ -21,12 +21,67 @@ export type GemReference = {
 export type GemCatalogue = {
   version: string
   gems: Record<string, GemReference>
+  headers?: GemHeaders
 }
+export type GemHeaderLevel = {
+  levelRequirement?: number
+  attackSpeedMultiplier?: number
+  baseMultiplier?: number
+  critChance?: number
+  manaMultiplier?: number
+  cost?: Record<string, number>
+}
+export type GemHeaders = {
+  gems: Record<
+    string,
+    {
+      tier?: number
+      naturalMaxLevel?: number
+      strength?: number
+      dexterity?: number
+      intelligence?: number
+      weapon?: string
+    }
+  >
+  skills: Record<string, Record<string, GemHeaderLevel>>
+}
+type GemLookup = {
+  refs: GemReference[]
+  byGameId: Map<string, GemReference[]>
+  bySkillId: Map<string, GemReference>
+  byName: Map<string, GemReference[]>
+}
+const gemLookups = new WeakMap<GemCatalogue, GemLookup>()
+
+function gemLookup(catalogue: GemCatalogue): GemLookup {
+  const cached = gemLookups.get(catalogue)
+  if (cached) return cached
+  const lookup: GemLookup = {
+    refs: Object.values(catalogue.gems),
+    byGameId: new Map(),
+    bySkillId: new Map(),
+    byName: new Map(),
+  }
+  for (const ref of lookup.refs) {
+    const gameMatches = lookup.byGameId.get(ref.gameId) ?? []
+    gameMatches.push(ref)
+    lookup.byGameId.set(ref.gameId, gameMatches)
+    if (!lookup.bySkillId.has(ref.skillId))
+      lookup.bySkillId.set(ref.skillId, ref)
+    const name = ref.name.toLowerCase()
+    const nameMatches = lookup.byName.get(name) ?? []
+    nameMatches.push(ref)
+    lookup.byName.set(name, nameMatches)
+  }
+  gemLookups.set(catalogue, lookup)
+  return lookup
+}
+
 export function findGem(catalogue: GemCatalogue | undefined, gem: SavedGem) {
   if (!catalogue) return undefined
-  const refs = Object.values(catalogue.gems)
+  const lookup = gemLookup(catalogue)
   if (gem.gemId) {
-    const matches = refs.filter((ref) => ref.gameId === gem.gemId)
+    const matches = lookup.byGameId.get(gem.gemId) ?? []
     const variant = matches.find((ref) => ref.variantId === gem.variantId)
     if (variant) return variant
     if (matches.length === 1) return matches[0]
@@ -34,7 +89,7 @@ export function findGem(catalogue: GemCatalogue | undefined, gem: SavedGem) {
       return catalogue.gems[gem.gemId]
   }
   if (gem.skillId) {
-    const match = refs.find((ref) => ref.skillId === gem.skillId)
+    const match = lookup.bySkillId.get(gem.skillId)
     if (match) return match
   }
   return findNamedGem(catalogue, gem.name, gem.support)
@@ -45,17 +100,17 @@ export function findNamedGem(
   name: string,
   support = false
 ) {
-  const refs = Object.values(catalogue?.gems ?? {})
-  const matches = refs.filter(
-    (ref) =>
-      ref.name.toLowerCase() === name.toLowerCase() && ref.support === support
+  if (!catalogue) return undefined
+  const lookup = gemLookup(catalogue)
+  const matches = (lookup.byName.get(name.toLowerCase()) ?? []).filter(
+    (ref) => ref.support === support
   )
   if (matches.length) return matches.length === 1 ? matches[0] : undefined
   // Item exports use the underlying skill name, which can differ from its gem
   // name. Resolve only source-declared aliases, never fuzzy/suffix matches.
   const skillIds = aliases[name.toLowerCase()]
   if (!skillIds) return undefined
-  const alternate = refs.filter(
+  const alternate = lookup.refs.filter(
     (ref) => skillIds.includes(ref.skillId) && ref.support === support
   )
   return alternate.length === 1 ? alternate[0] : undefined
@@ -69,6 +124,7 @@ export type GemEffects = {
       label: string
       levels: Record<string, GemEffectLines>
       quality: Record<string, GemEffectLines>
+      gemlingQuality?: Record<string, GemEffectLines>
     }
   >
 }
@@ -90,6 +146,10 @@ export function gemEffectValues(
     quality:
       gem.quality && Number.isInteger(quality) && quality > 0
         ? set?.quality[String(quality)]
+        : undefined,
+    gemlingQuality:
+      gem.quality && Number.isInteger(quality) && quality > 0
+        ? set?.gemlingQuality?.[String(quality)]
         : undefined,
     missingQuality:
       !gem.quality ||

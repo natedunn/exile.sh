@@ -1706,7 +1706,8 @@ function TreeMapRenderer({
                   </p>
                   <Lines
                     items={radiusBenefits(jewel, node)}
-                    className="mt-1 ml-3.5 list-none p-0 [&>li]:relative [&>li]:pl-3.5 [&>li]:text-xs [&>li]:leading-[1.45] [&>li]:before:absolute [&>li]:before:top-[0.58em] [&>li]:before:left-px [&>li]:before:size-1.25 [&>li]:before:rotate-45 [&>li]:before:bg-brand [&>li]:before:content-[''] [&>li+li]:mt-0.75"
+                    hideSingleMarker={false}
+                    className="mt-1 ml-3.5"
                   />
                 </Fragment>
               ))}

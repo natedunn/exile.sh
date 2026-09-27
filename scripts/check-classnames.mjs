@@ -72,6 +72,21 @@ for (const file of files) {
 
 for (const { value, file } of referencedClassLists(files)) seen(value, file)
 
+// Tooltips must never switch the pointer to the question-mark help cursor.
+const helpCursor = [...classLists.keys()].filter((token) =>
+  /(?:^|:)cursor-(?:help|\[help\])$/.test(token)
+)
+const cursorStyles = [...files, path.join(root, "src/styles.css"), path.join(root, "src/tokens.css")]
+  .filter((file) => fs.existsSync(file))
+  .filter((file) => /\bcursor\s*:\s*["']?help\b/.test(fs.readFileSync(file, "utf8")))
+if (helpCursor.length || cursorStyles.length) {
+  for (const token of helpCursor)
+    console.error(`Forbidden help cursor: ${token} (${path.relative(root, classLists.get(token))})`)
+  for (const file of cursorStyles)
+    console.error(`Forbidden help cursor style: ${path.relative(root, file)}`)
+  process.exit(1)
+}
+
 const css = fs
   .readFileSync(path.join(root, "src/styles.css"), "utf8")
   .replace(/@import "@fontsource[^"]*";\n/g, "")

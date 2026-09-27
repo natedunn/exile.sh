@@ -1,10 +1,13 @@
 import { useGemCatalogue } from "../lib/use-gem-catalogue"
+import { pointerAnchor } from "../lib/pointer-anchor"
+import { gemEffectsQueryOptions } from "../lib/gem-effects"
 import { useInspectionTooltip } from "./use-inspection-tooltip"
 import { InspectionTooltipContent, TooltipPinScope } from "./tooltip-pins"
 import type { TooltipPinOptions } from "./tooltip-pins"
 import type { ComponentProps } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { flushSync } from "react-dom"
 import { Diamond, Droplet, Info, Star, TriangleAlert } from "lucide-react"
 import {
   findGem,
@@ -12,28 +15,16 @@ import {
   skillGroupLabels,
   displaySkillGroups,
 } from "../../shared/gems"
-import type {
-  GemCatalogue,
-  GemReference,
-  SavedGem,
-  GemEffects,
-} from "../../shared/gems"
+import type { GemCatalogue, GemReference, SavedGem } from "../../shared/gems"
 import type { BuildSnapshot } from "../../shared/pob"
 import { Button } from "./ui/button"
 import { Tooltip, TooltipTrigger, TooltipContent } from "./ui/tooltip"
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverTitle,
-  PopoverDescription,
-} from "./ui/popover"
+import { Popover, PopoverTitle, PopoverDescription } from "./ui/popover"
 import { cn } from "cn"
 import { Badge } from "./ui/badge"
 import { EmptyState } from "./ui/empty-state"
 import { Note } from "./ui/note"
-
-const effectLines =
-  "m-0 list-none p-0 text-item-magic [&>li]:relative [&>li]:pl-3.5 [&>li]:text-xs [&>li]:leading-[1.45] [&>li+li]:mt-0.75 [&>li]:before:absolute [&>li]:before:top-[0.58em] [&>li]:before:left-px [&>li]:before:size-1.25 [&>li]:before:rotate-45 [&>li]:before:bg-brand [&>li]:before:opacity-50 [&>li]:before:content-[''] [&>li:only-child]:pl-0 [&>li:only-child]:before:content-none"
+import { EffectList } from "./effect-list"
 
 function SkillSourceInfo({ name, labels }: { name: string; labels: string[] }) {
   const [open, setOpen] = useState(false)
@@ -102,25 +93,34 @@ function GemArt({
     </span>
   )
 }
-function GemRow({
+const GemRow = memo(function GemRow({
   gem,
   catalogue,
+  inspectionRef,
+  activate,
+  moveHover,
   main = false,
-  side = "right",
   context = [],
   leading = false,
 }: {
   gem: SavedGem
   catalogue?: GemCatalogue
-  /** Which way the card opens, away from the neighbouring column. */
-  side?: "left" | "right"
+  inspectionRef: { current: ReturnType<typeof useInspectionTooltip> }
+  activate: (
+    anchor: HTMLElement,
+    interactive?: boolean,
+    collapse?: () => void,
+    pointer?: { x: number; y: number }
+  ) => void
+  moveHover: (anchor: HTMLElement, x: number, y: number) => void
   main?: boolean
   context?: string[]
   leading?: boolean
 }) {
   const ref = findGem(catalogue, gem)
   const tagRow = <GemTags reference={ref} support={gem.support} />
-  const inspection = useInspectionTooltip()
+  const [expanded, setExpanded] = useState(false)
+  const collapse = useCallback(() => setExpanded(false), [])
   return (
     <li
       data-slot="skill-gem-row"
@@ -129,68 +129,105 @@ function GemRow({
       data-leading={leading}
       data-context={context.length > 0 || undefined}
     >
-      <Popover {...inspection.popoverProps}>
-        <PopoverTrigger
-          {...inspection.triggerProps}
-          className={cn(
-            "relative grid w-full cursor-pointer grid-cols-[48px_minmax(0,1fr)] items-start gap-4 rounded-none border-0 bg-transparent px-4 py-3 text-left text-ink transition-colors duration-120 group-data-[context=true]/gem:pr-12 group-data-[leading=false]/gem:pl-10 group-data-[support=true]/gem:grid-cols-[40px_minmax(0,1fr)] hover:bg-skill-hover group-data-[support=true]/gem:hover:bg-support-hover focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand data-popup-open:bg-skill-hover group-data-[support=true]/gem:data-popup-open:bg-support-hover @max-[600px]:grid-cols-[40px_minmax(0,1fr)] @max-[600px]:gap-x-3 @max-[600px]:gap-y-2 @max-[600px]:p-3 @max-[600px]:group-data-[leading=false]/gem:pl-7 @max-[600px]:group-data-[support=true]/gem:grid-cols-[34px_minmax(0,1fr)]",
-            leading &&
-              !gem.support &&
-              "dither-fade isolate bg-skill-heading [--dither-opacity:0.11] before:mask-center [&_[data-slot=gem-name]>strong]:text-lg @max-[600px]:[&_[data-slot=gem-name]>strong]:text-gem-title"
-          )}
-          data-disabled={!gem.enabled}
-          data-color={ref?.color}
-          data-corrupted={gem.corrupted}
-          aria-label={`${gem.name}. Show gem details`}
+      <Button
+        variant="ghost"
+        size="bare"
+        onPointerEnter={(event) => {
+          if (
+            event.pointerType !== "touch" &&
+            !inspectionRef.current.contentProps.freeze
+          ) {
+            setExpanded(true)
+            activate(event.currentTarget, false, collapse, {
+              x: event.clientX,
+              y: event.clientY,
+            })
+          }
+          inspectionRef.current.triggerProps.onPointerEnter?.(event)
+        }}
+        onPointerMove={(event) => {
+          if (
+            event.pointerType === "touch" ||
+            !inspectionRef.current.contentProps["data-hover-only"] ||
+            inspectionRef.current.contentProps.freeze
+          )
+            return
+          moveHover(event.currentTarget, event.clientX, event.clientY)
+        }}
+        onPointerLeave={(event) => {
+          setExpanded(false)
+          if (
+            event.relatedTarget instanceof Element &&
+            event.relatedTarget.closest('[data-slot="skill-gem-row"]')
+          )
+            return
+          inspectionRef.current.triggerProps.onPointerLeave?.(event)
+        }}
+        onPointerDown={(event) => {
+          setExpanded(true)
+          activate(event.currentTarget, event.pointerType === "touch", collapse)
+          inspectionRef.current.triggerProps.onPointerDown?.(event)
+        }}
+        onClick={(event) => {
+          setExpanded(true)
+          activate(event.currentTarget, true, collapse)
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            setExpanded(true)
+            activate(event.currentTarget, true, collapse)
+          }
+          if (event.key === "Escape") setExpanded(false)
+          inspectionRef.current.triggerProps.onKeyDown?.(event)
+        }}
+        onBlur={() => setExpanded(false)}
+        className={cn(
+          "relative grid w-full cursor-pointer grid-cols-[48px_minmax(0,1fr)] items-start gap-4 rounded-none border-0 bg-transparent px-4 py-3 text-left text-ink transition-colors duration-120 group-data-[context=true]/gem:pr-12 group-data-[leading=false]/gem:pl-10 group-data-[support=true]/gem:grid-cols-[40px_minmax(0,1fr)] hover:bg-skill-hover group-data-[support=true]/gem:hover:bg-support-hover focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand aria-expanded:bg-skill-hover group-data-[support=true]/gem:aria-expanded:bg-support-hover @max-[600px]:grid-cols-[40px_minmax(0,1fr)] @max-[600px]:gap-x-3 @max-[600px]:gap-y-2 @max-[600px]:p-3 @max-[600px]:group-data-[leading=false]/gem:pl-7 @max-[600px]:group-data-[support=true]/gem:grid-cols-[34px_minmax(0,1fr)]",
+          leading &&
+            !gem.support &&
+            "dither-fade isolate bg-skill-heading [--dither-opacity:0.11] before:mask-center [&_[data-slot=gem-name]>strong]:text-lg @max-[600px]:[&_[data-slot=gem-name]>strong]:text-gem-title"
+        )}
+        data-disabled={!gem.enabled}
+        data-color={ref?.color}
+        data-corrupted={gem.corrupted}
+        aria-label={`${gem.name}. Show gem details`}
+        aria-haspopup="dialog"
+        aria-expanded={expanded}
+      >
+        <GemArt key={ref?.image} image={ref?.image} support={gem.support} />
+        <span
+          data-slot="gem-name"
+          className="flex min-w-0 flex-col gap-1.5 [&_strong]:text-base [&_strong]:font-medium [&_strong]:wrap-anywhere @max-[600px]:[&_strong]:text-sm [&>span]:font-mono [&>span]:text-label [&>span]:text-ink-muted"
         >
-          <GemArt key={ref?.image} image={ref?.image} support={gem.support} />
-          <span
-            data-slot="gem-name"
-            className="flex min-w-0 flex-col gap-1.5 [&_strong]:text-base [&_strong]:font-medium [&_strong]:wrap-anywhere @max-[600px]:[&_strong]:text-sm [&>span]:font-mono [&>span]:text-label [&>span]:text-ink-muted"
-          >
-            <strong>
-              {gem.name}
-              {main && (
-                <Star
-                  className="ml-2 inline-block fill-brand/20 align-[-2px] text-brand"
-                  size={14}
-                  role="img"
-                  aria-label="Main skill group in PoB"
-                />
-              )}
-              {gem.corrupted && (
-                <Droplet
-                  className="ml-2 inline-block fill-negative/20 align-[-2px] text-negative"
-                  size={14}
-                  role="img"
-                  aria-label="Corrupted"
-                />
-              )}
-            </strong>
-            {!gem.enabled && <span>Disabled</span>}
-            {tagRow}
-          </span>
-        </PopoverTrigger>
-        <InspectionTooltipContent
-          {...inspection.contentProps}
-          showPin={inspection.contentProps.showPin}
-          pinLabel={`${gem.name} gem details`}
-          className="[--inspection-width:330px] max-sm:[--inspection-padding:16px]"
-          side={side}
-          align="start"
-          sideOffset={14}
-          collisionPadding={12}
-          collisionAvoidance={{ side: "flip", align: "shift" }}
-        >
-          <GemTooltipContent gem={gem} catalogue={catalogue} main={main} />
-        </InspectionTooltipContent>
-      </Popover>
+          <strong>
+            {gem.name}
+            {main && (
+              <Star
+                className="ml-2 inline-block fill-brand/20 align-[-2px] text-brand"
+                size={14}
+                role="img"
+                aria-label="Main skill group in PoB"
+              />
+            )}
+            {gem.corrupted && (
+              <Droplet
+                className="ml-2 inline-block fill-negative/20 align-[-2px] text-negative"
+                size={14}
+                role="img"
+                aria-label="Corrupted"
+              />
+            )}
+          </strong>
+          {!gem.enabled && <span>Disabled</span>}
+          {tagRow}
+        </span>
+      </Button>
       {context.length > 0 && (
         <SkillSourceInfo name={gem.name} labels={context} />
       )}
     </li>
   )
-}
+})
 export function SkillGems(
   props: ComponentProps<typeof SkillGemsContent> & TooltipPinOptions
 ) {
@@ -203,6 +240,96 @@ export function SkillGems(
     </TooltipPinScope>
   )
 }
+type ActiveGem = {
+  gem: SavedGem
+  main: boolean
+  side: "left" | "right"
+  anchor: HTMLElement
+  hoverAnchor?: ReturnType<typeof pointerAnchor>
+  collapse?: () => void
+}
+
+const SkillSections = memo(function SkillSections({
+  groups,
+  catalogue,
+  inspectionRef,
+  activate,
+  moveHover,
+}: {
+  groups: ReturnType<typeof displaySkillGroups>
+  catalogue?: GemCatalogue
+  inspectionRef: { current: ReturnType<typeof useInspectionTooltip> }
+  activate: (gem: ActiveGem, interactive?: boolean) => void
+  moveHover: (anchor: HTMLElement, x: number, y: number) => void
+}) {
+  return [...groups]
+    .sort((a, b) => Number(b.main) - Number(a.main))
+    .map(({ skill, i, main, grants }, position) => {
+      const labels = [
+        ...skillGroupLabels(skill),
+        ...grants.flatMap(skillGroupLabels),
+      ]
+      const supportOnly =
+        skill.gems.length > 0 &&
+        skill.gems.every(
+          (gem) => findGem(catalogue, gem)?.support ?? gem.support
+        )
+      const mainIndex = skill.gems.findIndex(
+        (gem) => !gem.support && gem.enabled
+      )
+      return (
+        <section
+          key={i}
+          data-slot="build-skill"
+          className="[container-type:inline-size] flow-root min-w-0 break-inside-avoid border border-rule-strong bg-surface data-[disabled=true]:opacity-55"
+          data-disabled={!skill.enabled}
+          data-support-only={supportOnly || undefined}
+        >
+          {supportOnly && (
+            <div className="border-b border-rule-strong p-3">
+              <p className="flex items-center gap-2 text-xs text-negative">
+                <TriangleAlert size={16} aria-hidden="true" />
+                <span>There is no active skill in this group.</span>
+              </p>
+            </div>
+          )}
+          <ul className="m-0 flex list-none flex-col p-0">
+            {skill.gems.map((gem, j) => {
+              const isMain = main && j === mainIndex
+              return (
+                <GemRow
+                  key={`${j}-${gem.name}`}
+                  gem={gem}
+                  catalogue={catalogue}
+                  inspectionRef={inspectionRef}
+                  activate={(anchor, interactive, collapse, pointer) =>
+                    activate(
+                      {
+                        gem,
+                        main: isMain,
+                        side: position % 2 === 0 ? "left" : "right",
+                        anchor,
+                        hoverAnchor: pointer
+                          ? pointerAnchor(pointer.x, pointer.y)
+                          : undefined,
+                        collapse,
+                      },
+                      interactive
+                    )
+                  }
+                  moveHover={moveHover}
+                  context={j === 0 ? labels : undefined}
+                  leading={j === 0}
+                  main={isMain}
+                />
+              )
+            })}
+          </ul>
+        </section>
+      )
+    })
+})
+
 function SkillGemsContent({
   skills,
   mainSocketGroup,
@@ -211,68 +338,113 @@ function SkillGemsContent({
   mainSocketGroup: number
 }) {
   const catalogue = useGemCatalogue()
-  const groups = displaySkillGroups(skills, mainSocketGroup)
+  const queryClient = useQueryClient()
+  const inspection = useInspectionTooltip()
+  const inspectionRef = useRef(inspection)
+  inspectionRef.current = inspection
+  const [active, setActive] = useState<ActiveGem>()
+  const activate = useCallback((gem: ActiveGem, interactive = false) => {
+    if (interactive) setActive(gem)
+    else flushSync(() => setActive(gem))
+    if (interactive) inspectionRef.current.openInteractive()
+  }, [])
+  const moveHover = useCallback((anchor: HTMLElement, x: number, y: number) => {
+    setActive((current) => {
+      if (!current || current.anchor !== anchor) return current
+      const point = current.hoverAnchor?.getBoundingClientRect()
+      if (point && Math.abs(point.x - x) < 48 && Math.abs(point.y - y) < 48)
+        return current
+      return { ...current, hoverAnchor: pointerAnchor(x, y) }
+    })
+  }, [])
+  useEffect(() => {
+    if (!inspection.open) active?.collapse?.()
+  }, [inspection.open, active])
+  const groups = useMemo(
+    () => displaySkillGroups(skills, mainSocketGroup),
+    [skills, mainSocketGroup]
+  )
+  const skillIds = useMemo(
+    () => [
+      ...new Set(
+        groups.flatMap(({ skill }) =>
+          skill.gems.flatMap((gem) => {
+            const skillId = findGem(catalogue.data, gem)?.skillId
+            return skillId ? [skillId] : []
+          })
+        )
+      ),
+    ],
+    [groups, catalogue.data]
+  )
+  useEffect(() => {
+    if (!skillIds.length) return
+    let cancelled = false
+    const timer = window.setTimeout(() => {
+      let next = 0
+      const prefetch = async () => {
+        while (!cancelled && next < skillIds.length) {
+          const skillId = skillIds[next++]
+          await queryClient.prefetchQuery(gemEffectsQueryOptions(skillId))
+        }
+      }
+      void Promise.all(
+        Array.from({ length: Math.min(3, skillIds.length) }, prefetch)
+      )
+    }, 0)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [queryClient, skillIds, groups])
   if (!groups.length)
     return <EmptyState frame="dashed">No skills saved in this set.</EmptyState>
   return (
-    <div
-      data-slot="build-skills"
-      className="grid grid-cols-2 items-stretch gap-4 max-sm:grid-cols-1"
-    >
-      {catalogue.isError && (
-        <Note className="col-span-full" role="status">
-          Gem artwork and reference details could not be loaded. Saved values
-          remain available.
-        </Note>
-      )}
-      {groups
-        .sort((a, b) => Number(b.main) - Number(a.main))
-        .map(({ skill, i, main, grants }, position) => {
-          const labels = [
-            ...skillGroupLabels(skill),
-            ...grants.flatMap(skillGroupLabels),
-          ]
-          const supportOnly =
-            skill.gems.length > 0 &&
-            skill.gems.every(
-              (gem) => findGem(catalogue.data, gem)?.support ?? gem.support
-            )
-          return (
-            <section
-              key={i}
-              data-slot="build-skill"
-              className="[container-type:inline-size] flow-root min-w-0 break-inside-avoid border border-rule-strong bg-surface data-[disabled=true]:opacity-55"
-              data-disabled={!skill.enabled}
-              data-support-only={supportOnly || undefined}
-            >
-              {supportOnly && (
-                <div className="border-b border-rule-strong p-3">
-                  <p className="flex items-center gap-2 text-xs text-negative">
-                    <TriangleAlert size={16} aria-hidden="true" />
-                    <span>There is no active skill in this group.</span>
-                  </p>
-                </div>
-              )}
-              <ul className="m-0 flex list-none flex-col p-0">
-                {skill.gems.map((gem, j) => (
-                  <GemRow
-                    key={`${j}-${gem.name}`}
-                    gem={gem}
-                    catalogue={catalogue.data}
-                    context={j === 0 ? labels : undefined}
-                    leading={j === 0}
-                    main={
-                      main &&
-                      j === skill.gems.findIndex((g) => !g.support && g.enabled)
-                    }
-                    side={position % 2 === 0 ? "left" : "right"}
-                  />
-                ))}
-              </ul>
-            </section>
-          )
-        })}
-    </div>
+    <>
+      <div
+        data-slot="build-skills"
+        className="grid grid-cols-2 items-stretch gap-4 max-sm:grid-cols-1"
+      >
+        {catalogue.isError && (
+          <Note className="col-span-full" role="status">
+            Gem artwork and reference details could not be loaded. Saved values
+            remain available.
+          </Note>
+        )}
+        <SkillSections
+          groups={groups}
+          catalogue={catalogue.data}
+          inspectionRef={inspectionRef}
+          activate={activate}
+          moveHover={moveHover}
+        />
+      </div>
+      <Popover {...inspection.popoverProps}>
+        {active && (
+          <InspectionTooltipContent
+            {...inspection.contentProps}
+            pinLabel={`${active.gem.name} gem details`}
+            className="[--inspection-width:330px] max-sm:[--inspection-padding:16px]"
+            side={active.side}
+            anchor={
+              inspection.contentProps["data-hover-only"]
+                ? (active.hoverAnchor ?? active.anchor)
+                : active.anchor
+            }
+            align="start"
+            sideOffset={14}
+            collisionPadding={12}
+            collisionAvoidance={{ side: "flip", align: "shift" }}
+          >
+            <GemTooltipContent
+              gem={active.gem}
+              catalogue={catalogue.data}
+              main={active.main}
+            />
+          </InspectionTooltipContent>
+        )}
+      </Popover>
+    </>
   )
 }
 
@@ -329,21 +501,51 @@ export function GemTooltipContent({
 }) {
   const ref = findGem(catalogue, gem)
   const tagRow = <GemTags reference={ref} support={gem.support} tooltip />
-  const effects = useQuery<GemEffects>({
-    queryKey: ["gem-effects", "v1", ref?.skillId],
+  const effects = useQuery({
+    ...gemEffectsQueryOptions(ref?.skillId ?? ""),
     enabled: !!ref?.skillId,
-    queryFn: async () => {
-      const response = await fetch(
-        `/gems/effects-v1/${encodeURIComponent(ref!.skillId)}.json`
-      )
-      if (!response.ok) throw new Error("Gem effects unavailable")
-      return response.json()
-    },
-    staleTime: Infinity,
-    gcTime: 60 * 60 * 1000,
-    retry: false,
   })
   const values = gemEffectValues(effects.data, gem)
+  const header = ref?.gameId ? catalogue?.headers?.gems[ref.gameId] : undefined
+  const levelData = ref?.skillId
+    ? catalogue?.headers?.skills[ref.skillId]?.[String(values.level)]
+    : undefined
+  const attributeRequirement = (level: number | undefined, weight: number) =>
+    level === undefined
+      ? undefined
+      : Math.round((5 + (level - 3) * 1.7) * (weight / 100) ** 0.9) + 4
+  const requiredLevel = levelData?.levelRequirement
+  const requirements = [
+    !gem.support && requiredLevel !== undefined
+      ? `Level ${Math.max(1, requiredLevel)}`
+      : "",
+    ...(
+      [
+        ["strength", "Str"],
+        ["dexterity", "Dex"],
+        ["intelligence", "Int"],
+      ] as const
+    ).map(([attribute, label]) => {
+      const weight = header?.[attribute] ?? 0
+      if (gem.support || !weight || requiredLevel === undefined) return ""
+      return `${attributeRequirement(requiredLevel, weight)} ${label}`
+    }),
+    header?.weapon ?? "",
+  ].filter(Boolean)
+  const costs = Object.entries(levelData?.cost ?? {}).map(
+    ([resource, amount]) => `${amount} ${resource}`
+  )
+  const showQuality = !gem.quality || Number(gem.quality) !== 0
+  const showCorruptLevel =
+    gem.corrupted && gem.corruptLevel && gem.corruptLevel !== "0"
+  const showProperties =
+    !gem.support ||
+    showQuality ||
+    showCorruptLevel ||
+    ref?.castTime !== undefined ||
+    !!header?.tier ||
+    !!levelData ||
+    requirements.length > 0
   return (
     <>
       <div data-slot="gem-tooltip-heading" className="flex items-start gap-3">
@@ -370,45 +572,86 @@ export function GemTooltipContent({
         </div>
       </div>
       {tagRow}
-      <dl
-        data-slot="gem-properties"
-        className="my-4 border-y border-rule-strong py-3 [&_[data-corrupted=true]]:text-negative [&_dd]:m-0 [&_dd]:text-right [&_dd]:font-mono [&_dt]:text-ink-muted [&>div]:flex [&>div]:justify-between [&>div]:gap-3 [&>div]:py-0.75 [&>div]:text-xs"
-      >
-        <div>
-          <dt>Gem level</dt>
-          <dd>{gem.level || "Not saved"}</dd>
-        </div>
-        <div>
-          <dt>Quality</dt>
-          <dd>{gem.quality ? `${gem.quality}%` : "Not saved"}</dd>
-        </div>
-        {!gem.corrupted && (
-          <div>
-            <dt>Corruption</dt>
-            <dd data-corrupted={gem.corrupted}>
-              {gem.corrupted === false ? "Uncorrupted" : "Not saved"}
-            </dd>
-          </div>
-        )}
-        {gem.corrupted && gem.corruptLevel && gem.corruptLevel !== "0" && (
-          <div>
-            <dt>Corruption level modifier</dt>
-            <dd>
-              {Number(gem.corruptLevel) > 0 ? "+" : ""}
-              {gem.corruptLevel}
-            </dd>
-          </div>
-        )}
-        {ref?.castTime !== undefined && (
-          <div>
-            <dt>Base cast time</dt>
-            <dd>{ref.castTime}s</dd>
-          </div>
-        )}
-      </dl>
+      {showProperties && (
+        <dl
+          data-slot="gem-properties"
+          className="my-4 border-y border-rule-strong py-3 [&_[data-corrupted=true]]:text-negative [&_dd]:m-0 [&_dd]:text-right [&_dd]:font-mono [&_dt]:text-ink-muted [&>div]:flex [&>div]:justify-between [&>div]:gap-3 [&>div]:py-0.75 [&>div]:text-xs"
+        >
+          {!gem.support && (
+            <div>
+              <dt>Gem level</dt>
+              <dd>{gem.level || "Not saved"}</dd>
+            </div>
+          )}
+          {!!header?.tier && (
+            <div>
+              <dt>Tier</dt>
+              <dd>{header.tier}</dd>
+            </div>
+          )}
+          {showQuality && (
+            <div>
+              <dt>Quality</dt>
+              <dd>{gem.quality ? `${gem.quality}%` : "Not saved"}</dd>
+            </div>
+          )}
+          {showCorruptLevel && (
+            <div>
+              <dt>Corruption level modifier</dt>
+              <dd>
+                {Number(gem.corruptLevel) > 0 ? "+" : ""}
+                {gem.corruptLevel}
+              </dd>
+            </div>
+          )}
+          {costs.length > 0 && (
+            <div>
+              <dt>Cost</dt>
+              <dd>{costs.join(", ")}</dd>
+            </div>
+          )}
+          {levelData?.manaMultiplier !== undefined && (
+            <div>
+              <dt>Mana multiplier</dt>
+              <dd>{100 + levelData.manaMultiplier}%</dd>
+            </div>
+          )}
+          {levelData?.attackSpeedMultiplier !== undefined && (
+            <div>
+              <dt>Attack speed</dt>
+              <dd>{100 + levelData.attackSpeedMultiplier}% of base</dd>
+            </div>
+          )}
+          {levelData?.baseMultiplier !== undefined &&
+            ref?.type === "Attack" && (
+              <div>
+                <dt>Attack damage</dt>
+                <dd>{Math.round(levelData.baseMultiplier * 100)}% of base</dd>
+              </div>
+            )}
+          {levelData?.critChance !== undefined && (
+            <div>
+              <dt>Critical hit chance</dt>
+              <dd>{levelData.critChance}%</dd>
+            </div>
+          )}
+          {ref?.castTime !== undefined && ref.type !== "Attack" && (
+            <div>
+              <dt>Base cast time</dt>
+              <dd>{ref.castTime}s</dd>
+            </div>
+          )}
+          {requirements.length > 0 && (
+            <div>
+              <dt>Requires</dt>
+              <dd>{requirements.join(", ")}</dd>
+            </div>
+          )}
+        </dl>
+      )}
       <PopoverDescription
         data-slot="gem-description"
-        className="m-0 text-2xs leading-[1.65]"
+        className={cn("m-0 text-2xs leading-[1.65]", !showProperties && "mt-4")}
       >
         {ref?.description ||
           "Reference details are unavailable for this gem. Saved gem values are shown above."}
@@ -423,14 +666,19 @@ export function GemTooltipContent({
               data-slot="gem-effect-label"
               className="mb-2.5 font-mono text-label leading-[1.6] text-ink-muted"
             >
-              {values.label || gem.name} · Level {values.level}
+              {values.label || gem.name}
+              {!gem.support && ` · Level ${values.level}`}
             </p>
             {values.base.lines.length > 0 && (
-              <ul data-slot="gem-effect-lines" className={effectLines}>
+              <EffectList
+                data-slot="gem-effect-lines"
+                hideSingleMarker
+                className="text-item-magic [&>li]:text-xs [&>li]:leading-[1.45]! [&>li+li]:mt-0.75"
+              >
                 {values.base.lines.map((line, i) => (
                   <li key={i}>{line}</li>
                 ))}
-              </ul>
+              </EffectList>
             )}
             {values.quality && values.quality.lines.length > 0 && (
               <>
@@ -440,11 +688,14 @@ export function GemTooltipContent({
                 >
                   From {gem.quality}% quality
                 </p>
-                <ul className={effectLines}>
+                <EffectList
+                  hideSingleMarker
+                  className="text-item-magic [&>li]:text-xs [&>li]:leading-[1.45]! [&>li+li]:mt-0.75"
+                >
                   {values.quality.lines.map((line, i) => (
                     <li key={i}>{line}</li>
                   ))}
-                </ul>
+                </EffectList>
               </>
             )}
             {(values.base.partial ||

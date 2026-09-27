@@ -21,23 +21,19 @@ export function PatchNotesHeading({
 }) {
   return (
     <PageHeading className="-mx-[var(--shell-gutter)] px-[var(--shell-gutter)]">
-      {/* The masthead portrait, shown at twice its pixels and placed so the
-          face sits beside the title and the shoulders dissolve into the
-          rule; a dithered bronze glow sits behind it. */}
-      <div
-        className="pointer-events-none absolute -top-1.5 right-2 z-0 h-[254px] w-[276px] select-none before:absolute before:-inset-20 before:bg-brand before:[mask-image:var(--dither-glow)] before:[mask-size:auto] before:[mask-position:center] before:[mask-repeat:no-repeat] before:opacity-[0.07] before:content-[''] max-lg:-right-7.5 max-sm:-right-17.5"
+      {/* The masthead portrait, baked to the heading's window and dissolved
+          radially toward every edge (scripts/dither-art.mjs), shown at twice
+          its pixels. */}
+      <img
+        src="/art/patch-notes-masthead.png"
+        alt=""
         aria-hidden="true"
-      >
-        <img
-          className="absolute inset-0 size-full opacity-90 [image-rendering:pixelated] max-lg:opacity-60 max-sm:opacity-45"
-          src="/art/patch-notes-dither.png"
-          alt=""
-          width="138"
-          height="127"
-          decoding="async"
-          fetchPriority="high"
-        />
-      </div>
+        width="170"
+        height="100"
+        decoding="async"
+        fetchPriority="high"
+        className="pointer-events-none absolute top-0 right-0 z-0 h-full max-h-50 w-auto opacity-90 select-none [image-rendering:pixelated] max-lg:opacity-60 max-sm:opacity-45"
+      />
       <PageHeadingCopy
         className={cn(
           wrap && "max-w-[min(100%-220px,900px)] max-sm:max-w-none"
