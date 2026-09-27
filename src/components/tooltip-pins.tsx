@@ -286,19 +286,29 @@ function drawTreePointer(
   }
 }
 
-function TreePointer({ ref }: { ref?: Ref<SVGSVGElement> }) {
+/* The pointer carries the search glow flag itself: an `in-has-[>…]` variant
+   compiles to `:where(:has(…))`, which makes every ancestor up to <html> a
+   :has() candidate and restyles the whole document on each hover. */
+function TreePointer({
+  ref,
+  attention = false,
+}: {
+  ref?: Ref<SVGSVGElement>
+  attention?: boolean
+}) {
   const gradient = useId()
   return (
     <svg
       ref={ref}
       data-slot="tree-pin-pointer"
+      data-attention={attention || undefined}
       className="pointer-events-none absolute inset-0 z-51 size-full translate-y-px overflow-visible fill-(--tree-pin-border)"
       aria-hidden="true"
     >
       <defs>
         <linearGradient id={gradient} gradientUnits="userSpaceOnUse">
           <stop
-            className="[stop-color:var(--tree-pin-border)] in-has-[>[data-attention=true]]:animate-tree-pointer-border-attention motion-reduce:in-has-[>[data-attention=true]]:animate-none motion-reduce:in-has-[>[data-attention=true]]:[stop-color:var(--color-focus)]"
+            className="[stop-color:var(--tree-pin-border)] in-data-[attention=true]:animate-tree-pointer-border-attention motion-reduce:in-data-[attention=true]:animate-none motion-reduce:in-data-[attention=true]:[stop-color:var(--color-focus)]"
             offset="0%"
           />
           <stop
@@ -308,14 +318,20 @@ function TreePointer({ ref }: { ref?: Ref<SVGSVGElement> }) {
         </linearGradient>
       </defs>
       <polygon
-        className="in-has-[>[data-attention=true]]:animate-tree-pointer-attention motion-reduce:in-has-[>[data-attention=true]]:animate-none motion-reduce:in-has-[>[data-attention=true]]:drop-shadow-tree-attention"
+        className="in-data-[attention=true]:animate-tree-pointer-attention motion-reduce:in-data-[attention=true]:animate-none motion-reduce:in-data-[attention=true]:drop-shadow-tree-attention"
         fill={`url(#${gradient})`}
       />
     </svg>
   )
 }
 
-function HoverTreePointer({ target }: { target: TreePinTarget }) {
+function HoverTreePointer({
+  target,
+  attention,
+}: {
+  target: TreePinTarget
+  attention: boolean
+}) {
   const svg = useRef<SVGSVGElement>(null)
   useLayoutEffect(() => {
     const positioner = svg.current?.parentElement
@@ -359,7 +375,7 @@ function HoverTreePointer({ target }: { target: TreePinTarget }) {
       document.removeEventListener("scroll", update, true)
     }
   }, [target])
-  return <TreePointer ref={svg} />
+  return <TreePointer ref={svg} attention={attention} />
 }
 
 function PinnedWindow({
@@ -610,7 +626,12 @@ export function InspectionTooltipContent({
       )}
       positionerAdornment={
         treeTarget ? (
-          <HoverTreePointer target={treeTarget} />
+          <HoverTreePointer
+            target={treeTarget}
+            attention={Boolean(
+              (props as Record<string, unknown>)["data-attention"]
+            )}
+          />
         ) : (
           props.positionerAdornment
         )
