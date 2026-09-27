@@ -1,5 +1,5 @@
-// Generates the dithered art assets in public/art: the Divine Orb for the
-// economy masthead and the patch notes portrait. Run with
+// Generates the dithered art assets in public/art: the masthead art for the
+// economy, gems and patch notes headings, the Divine Orb, and CSS masks. Run with
 // `node scripts/dither-art.mjs`. Output is committed; this only needs to run
 // again when the palette or the source artwork changes.
 import { mkdir, readFile, writeFile } from "node:fs/promises"
@@ -83,35 +83,94 @@ async function ditheredOrb(size) {
   })
 }
 
-async function ditheredGem(size) {
-  const source = await fetch(GEM_SOURCE).then((r) => r.arrayBuffer())
-  return dithered(Buffer.from(source), size, size, {
-    gamma: 0.75,
-    shape: (nx, ny) => {
-      const rim = Math.min(1, Math.max(0, (1 - Math.hypot(nx, ny) * 1.8) * 2.5))
-      const fade = ny < 0.12 ? 1 : Math.max(0, 1 - ((ny - 0.12) / 0.38) ** 1.3)
-      return rim * fade
-    },
-  })
+// 0 at `edge`, 1 at 0, easing between; used to thin dither density.
+const ease = (edge, v) => {
+  const t = Math.min(1, Math.max(0, v / edge))
+  return 1 - t * t * (3 - 2 * t)
 }
 
-// The portrait dissolves at its left edge, where it meets the masthead copy,
-// and from the chin down, so the shoulders are gone before the masthead
-// rule. Its rendered highlights are brighter than the orb's, so its midtones
-// are held rather than lifted. Sized to show at exactly twice its pixels.
-async function ditheredPortrait() {
-  // Crop the render's empty margins so the figure fills the frame.
-  const source = await sharp(await readFile(PORTRAIT_SOURCE))
-    .extract({ left: 72, top: 0, width: 184, height: 169 })
+// Distance from a focus point, scaled separately toward each edge of a
+// w × h window so it reaches 1 exactly at every edge: an off-centre ellipse
+// that fills the window.
+function edgeRadius(x, y, w, h, fx, fy) {
+  const cx = fx * (w - 1),
+    cy = fy * (h - 1)
+  const dx = (x - cx) / (x < cx ? cx : w - 1 - cx)
+  const dy = (y - cy) / (y < cy ? cy : h - 1 - cy)
+  return Math.hypot(dx, dy)
+}
+
+// Masthead art. The source is placed where the header shows it and cropped
+// to that window, then dissolved radially from `focus` to nothing at every
+// edge before quantization, so the dither thins out instead of the header
+// clipping a flat edge. A faint halo is dithered underneath in the same
+// falloff. Served at exactly twice its pixels.
+const HALO = [176, 138, 82, 44]
+async function mastheadArt(
+  input,
+  {
+    width,
+    height,
+    size,
+    left,
+    top,
+    focus = [0.6, 0.5],
+    hold = 0.3,
+    gamma,
+    halo = 0.5,
+  }
+) {
+  // Pad the resized source so the window may reach past its edges.
+  const pad = Math.max(width, height)
+  const padded = await sharp(input)
+    .resize(size[0], size[1], {
+      kernel: "lanczos3",
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .ensureAlpha()
+    .extend({
+      top: pad,
+      bottom: pad,
+      left: pad,
+      right: pad,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png()
     .toBuffer()
-  return dithered(source, 138, 127, {
-    gamma: 1.05,
-    shape: (nx, ny) => {
-      const left = Math.min(1, Math.max(0, (nx + 0.5) / 0.3))
-      const fade = ny < 0.05 ? 1 : Math.max(0, 1 - ((ny - 0.05) / 0.32) ** 1.4)
-      return left * fade
-    },
-  })
+  const placed = await sharp(padded)
+    .extract({ left: pad - left, top: pad - top, width, height })
+    .raw()
+    .toBuffer()
+  const out = Buffer.alloc(width * height * 4)
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4
+      const d = edgeRadius(x, y, width, height, focus[0], focus[1])
+      // Full strength inside `hold`, easing to zero at the window's edge.
+      const fade = d <= hold ? 1 : ease(1 - hold, d - hold)
+      const a = placed[i + 3] / 255
+      const lum =
+        ((0.2126 * placed[i] +
+          0.7152 * placed[i + 1] +
+          0.0722 * placed[i + 2]) /
+          255) *
+        a *
+        fade
+      const tone = Math.pow(lum, gamma) * (PALETTE.length - 1)
+      const level = Math.min(PALETTE.length - 1, Math.floor(tone + bayer(x, y)))
+      const colour =
+        level > 0
+          ? PALETTE[level]
+          : halo * ease(1, d) ** 1.6 > bayer(x + 3, y + 5)
+            ? HALO
+            : PALETTE[0]
+      out.set(colour, i)
+    }
+  }
+  return sharp(out, { raw: { width, height, channels: 4 } })
+    .png({ palette: true })
+    .toBuffer()
 }
 
 // 1-bit dither ramps used as CSS masks. `dot` is the size of each dither cell.
@@ -134,20 +193,69 @@ function ramp(width, height, dot, value) {
 }
 
 await mkdir(OUT, { recursive: true })
+// Masthead windows are 190 × 100 (380 × 200 CSS px, the heading's height).
+const orb = Buffer.from(await fetch(ORB_SOURCE).then((r) => r.arrayBuffer()))
+const gem = Buffer.from(await fetch(GEM_SOURCE).then((r) => r.arrayBuffer()))
+await writeFile(
+  new URL("economy-masthead.png", OUT),
+  await mastheadArt(orb, {
+    width: 190,
+    height: 100,
+    size: [170, 170],
+    left: 28,
+    top: -38,
+    focus: [0.62, 0.45],
+    gamma: 0.8,
+  })
+)
+await writeFile(
+  new URL("gems-masthead.png", OUT),
+  await mastheadArt(gem, {
+    width: 190,
+    height: 100,
+    size: [170, 170],
+    left: 28,
+    top: -38,
+    focus: [0.62, 0.5],
+    gamma: 0.75,
+  })
+)
+// The portrait keeps its native pixels; the face sits right of centre.
+const portrait = await sharp(await readFile(PORTRAIT_SOURCE))
+  .extract({ left: 72, top: 0, width: 184, height: 169 })
+  .toBuffer()
+await writeFile(
+  new URL("patch-notes-masthead.png", OUT),
+  await mastheadArt(portrait, {
+    width: 170,
+    height: 100,
+    size: [138, 127],
+    left: 28,
+    top: -3,
+    focus: [0.58, 0.42],
+    hold: 0.25,
+    gamma: 1.05,
+  })
+)
 // Art is served at its native size or an integer multiple with
 // image-rendering: pixelated so the dither cells stay crisp.
 await writeFile(new URL("divine-dither.png", OUT), await ditheredOrb(176))
-await writeFile(new URL("uncut-gem-dither.png", OUT), await ditheredGem(176))
-await writeFile(
-  new URL("patch-notes-dither.png", OUT),
-  await ditheredPortrait()
-)
 // Masks are used at their native size (mask-size: auto) so the dither cells
 // stay crisp; elements that use them are sized to match.
 // Top-to-bottom fade, 256px tall, tiled horizontally.
 await writeFile(
   new URL("fade-y.png", OUT),
   await ramp(16, 256, 2, (_x, y) => (1 - y) ** 1.3)
+)
+// Masthead glow for art that is not baked, 640 × 200: densest right of
+// centre and thinning to nothing at every edge.
+await writeFile(
+  new URL("glow-masthead.png", OUT),
+  await ramp(640, 200, 2, (x, y) => {
+    // ramp() passes 0–1 coordinates: a 2 × 2 window maps them 1:1.
+    const d = edgeRadius(x, y, 2, 2, 0.68, 0.5)
+    return ease(1, d) ** 1.3
+  })
 )
 // Radial glow, 640px, brightest at the centre.
 await writeFile(

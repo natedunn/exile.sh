@@ -62,20 +62,16 @@ function GemsPage() {
             <span>Skills &amp; supports</span>
           </PageMeta>
         </PageHeadingCopy>
-        <div
+        <img
+          src="/art/gems-masthead.png"
+          alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute -top-19 -right-4 z-0 size-85 select-none before:absolute before:-inset-20 before:bg-brand before:[mask-image:var(--dither-glow)] before:[mask-position:center] before:[mask-repeat:no-repeat] before:opacity-10 before:content-[''] max-xl:-top-12.5 max-xl:size-75 max-sm:-top-5 max-sm:-right-17.5 max-sm:size-50 max-sm:before:hidden"
-        >
-          <img
-            src="/art/uncut-gem-dither.png"
-            alt=""
-            width="176"
-            height="176"
-            decoding="async"
-            fetchPriority="high"
-            className="absolute inset-0 size-full object-contain opacity-85 [image-rendering:pixelated] max-sm:opacity-45"
-          />
-        </div>
+          width="190"
+          height="100"
+          decoding="async"
+          fetchPriority="high"
+          className="pointer-events-none absolute top-0 right-0 z-0 h-full max-h-50 w-auto opacity-85 select-none [image-rendering:pixelated] max-sm:opacity-45"
+        />
       </PageHeading>
       <div className="-mx-[var(--shell-gutter)] flex flex-wrap items-end gap-4 border-b border-rule-strong px-[var(--shell-gutter)] py-5">
         <GemSearchField

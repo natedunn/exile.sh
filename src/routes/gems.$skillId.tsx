@@ -451,9 +451,11 @@ function GemDetailPage() {
           )}
         </PageHeadingCopy>
         {reference && (
+          // Gem art cannot be pre-baked, so one dithered radial mask thins the
+          // art and dot screen out toward every edge of the heading.
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-0 w-1/2 overflow-hidden opacity-70 max-sm:w-2/3 max-sm:opacity-35"
+            className="pointer-events-none absolute inset-y-0 right-0 w-1/2 overflow-hidden [mask-image:var(--dither-glow-masthead)] [mask-size:100%_100%] [mask-repeat:no-repeat] opacity-70 max-sm:w-2/3 max-sm:opacity-35"
           >
             {skillId === "LightningArrowPlayer" ? (
               <img
@@ -461,16 +463,16 @@ function GemDetailPage() {
                 alt=""
                 width="699"
                 height="369"
-                className="size-full [mask-image:linear-gradient(to_right,transparent,black_35%)] object-cover object-top"
+                className="size-full object-cover object-top"
               />
             ) : reference.image && !reference.support ? (
               <img
                 src={reference.image}
                 alt=""
-                className="ml-auto size-full [mask-image:var(--dither-glow)] object-contain object-right opacity-50 [image-rendering:pixelated]"
+                className="ml-auto size-full object-contain object-right opacity-50 [image-rendering:pixelated]"
               />
             ) : null}
-            <div className="absolute inset-0 dot-screen [mask-image:var(--dither-fade-y)] text-brand/15" />
+            <div className="absolute inset-0 dot-screen text-brand/15" />
           </div>
         )}
         {reference && (
