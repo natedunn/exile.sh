@@ -532,7 +532,7 @@ function GemDetailPage() {
                 <TooltipProvider delay={0}>
                   <p
                     data-slot="gem-description"
-                    className="mt-4 px-[var(--shell-gutter)] font-display text-xl leading-relaxed text-ink-soft"
+                    className="mt-2 px-[var(--shell-gutter)] font-display text-xl leading-relaxed text-ink-soft"
                   >
                     <GemKeywordText
                       sourceSkillId={skillId}
@@ -557,7 +557,7 @@ function GemDetailPage() {
                       <div
                         key={set.id}
                         data-slot="gem-effect-set"
-                        className="mt-8 first:mt-4"
+                        className="mt-8 first-of-type:mt-4"
                       >
                         <h3 className="font-display text-lg leading-tight text-ink">
                           {set.label}
@@ -679,7 +679,7 @@ function GemDetailPage() {
                   </GemSectionTitle>
                   <div
                     data-slot="gem-controls"
-                    className="mt-5 grid grid-cols-[auto_auto] justify-start justify-items-start gap-x-6 gap-y-5 px-[var(--shell-gutter)] max-sm:gap-x-4"
+                    className="mt-3 grid grid-cols-[auto_auto] justify-start justify-items-start gap-x-6 gap-y-5 px-[var(--shell-gutter)] max-sm:gap-x-4"
                   >
                     <Field>
                       <div className="flex items-center justify-between gap-2">
@@ -767,7 +767,7 @@ function GemDetailPage() {
                 <TooltipProvider delay={0}>
                   <StatsBody
                     data-slot="gem-properties"
-                    className="mt-4 px-[var(--shell-gutter)]"
+                    className="mt-3 px-[var(--shell-gutter)]"
                   >
                     {(
                       [

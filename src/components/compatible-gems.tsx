@@ -111,7 +111,7 @@ export function CompatibleGems({
             setQuery(value)
             setPage(1)
           }}
-          className="mt-5"
+          className="mt-3"
         />
       </div>
       {compatibility.isError ? (
