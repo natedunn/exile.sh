@@ -122,9 +122,7 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
     await page.locator("[data-testid=mover-row]").first().click()
     await expect(page.locator("[data-testid=chart-wrap]")).toBeVisible()
     await withinViewport(page)
-    await scrollTable(
-      page.getByRole("region", { name: /^Exchange pairs, scroll/ })
-    )
+    await expect(page.getByTestId("pair-row").first()).toBeVisible()
     await page
       .getByRole("button", { name: "View chart data", exact: true })
       .click()
@@ -138,10 +136,10 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
       .locator("[data-testid=history-data]")
       .evaluate((el) => {
         const table = el.querySelector('[data-slot="table-container"]')!
-        const next = el.nextElementSibling!
+        const section = el.closest("section")!
         return {
           tableBottom: table.getBoundingClientRect().bottom,
-          nextTop: next.getBoundingClientRect().top,
+          nextTop: section.getBoundingClientRect().bottom,
         }
       })
     expect(historyBounds.tableBottom).toBeLessThanOrEqual(historyBounds.nextTop)

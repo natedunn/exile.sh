@@ -76,11 +76,6 @@ export function gemSlug(catalogue: GemCatalogue, reference: GemReference) {
   )
 }
 
-/** Resolves a slug, or a legacy skill id so older links still open. */
 export function gemBySlug(catalogue: GemCatalogue, slug: string) {
-  const index = slugIndex(catalogue)
-  const bySlug = index.bySlug.get(slug)
-  if (bySlug) return bySlug
-  const legacy = index.bySkillId.get(slug)
-  return legacy ? index.bySlug.get(legacy) : undefined
+  return slugIndex(catalogue).bySlug.get(slug)
 }

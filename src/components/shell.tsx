@@ -14,7 +14,7 @@ import {
    loses the reader's league or display currency. */
 export function useShellFilters() {
   const search = useSearch({ strict: false })
-  return { ...filters.parse(search), item: "" }
+  return filters.parse(search)
 }
 
 /* Gutter and column width for every page; features consume them through
@@ -59,8 +59,10 @@ function Masthead({ className }: { className?: string }) {
    the colophon. */
 export function SiteLayout({ children }: { children: ReactNode }) {
   const f = useShellFilters()
-  const isGemDetail = useLocation({
-    select: (location) => /^\/gems\/[^/]+\/?$/.test(location.pathname),
+  // Detail pages run their sidebar divider down to the footer.
+  const isDetail = useLocation({
+    select: (location) =>
+      /^\/(gems|currency)\/[^/]+\/?$/.test(location.pathname),
   })
   return (
     <div
@@ -84,7 +86,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         id="main"
         className={cn(
           "min-w-0 flex-1 px-(--shell-gutter)",
-          isGemDetail && "flex flex-col"
+          isDetail && "flex flex-col"
         )}
       >
         {children}
@@ -92,7 +94,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <footer
         className={cn(
           "relative flex shrink-0 items-center gap-6 border-t border-rule-strong px-(--shell-gutter) pt-6 pb-8 font-mono text-label tracking-[0.06em] text-ink-muted before:pointer-events-none before:absolute before:inset-x-0 before:-top-px before:h-[3px] before:dot-screen before:[mask-image:linear-gradient(to_left,black_10%,transparent_80%)] before:bg-[size:3px_3px] before:text-brand before:opacity-70 before:content-[''] max-sm:flex-col max-sm:items-start max-sm:gap-3",
-          isGemDetail ? "mt-0" : "mt-6"
+          isDetail ? "mt-0" : "mt-6"
         )}
       >
         <Link

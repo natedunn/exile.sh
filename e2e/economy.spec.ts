@@ -55,14 +55,25 @@ for (const width of [390, 768, 1440]) {
           .locator('[aria-current="page"]')
         const mainStyle = await measurements(mainTab)
         expect((await measurements(active)).height).toBe(mainStyle.height)
-        const extraSpace = await nav.evaluate((element) => {
-          const heading = document.querySelector('[data-slot="page-heading"]')!
-          return (
-            element.getBoundingClientRect().top -
-            heading.getBoundingClientRect().bottom
-          )
+        // The selects set the row's height with equal room above and
+        // below; the navigation keeps its own height at the bottom.
+        const selectSpace = await nav.evaluate((element) => {
+          const toolbar = element.parentElement!
+          const selects = element.nextElementSibling!.querySelector(
+            '[data-slot="field"]'
+          )!
+          const row = toolbar.getBoundingClientRect()
+          const fields = selects.getBoundingClientRect()
+          const border = parseFloat(getComputedStyle(toolbar).borderBottomWidth)
+          return {
+            above: fields.top - row.top,
+            below: row.bottom - border - fields.bottom,
+          }
         })
-        expect(extraSpace).toBe(0)
+        expect(selectSpace.above).toBeGreaterThan(0)
+        expect(
+          Math.abs(selectSpace.above - selectSpace.below)
+        ).toBeLessThanOrEqual(1)
       }
       const gap = await active.evaluate((element) => {
         const toolbar = element.closest(
@@ -102,8 +113,9 @@ test("search, watchlist persistence, chart, pairs, and attribution", async ({
     })
   ).toBeVisible()
   await page
-    .getByRole("button", { name: "View Divine Orb history", exact: true })
+    .getByRole("link", { name: "View Divine Orb history", exact: true })
     .click()
+  await expect(page).toHaveURL(/\/currency\/divine-orb/)
   await expect(page.getByTestId("chart-wrap")).toBeVisible()
   await page.getByRole("button", { name: "24H", exact: true }).click()
   await expect(page.getByTestId("history-caption")).toContainText(
@@ -113,13 +125,9 @@ test("search, watchlist persistence, chart, pairs, and attribution", async ({
   expect(
     await page.getByTestId("history-data").locator("tbody tr").count()
   ).toBeGreaterThan(1)
-  await page.getByRole("button", { name: "Invert pairs", exact: true }).click()
-  const pairCount = await page
-    .getByTestId("pairs-table")
-    .locator("tbody tr")
-    .count()
+  const pairCount = await page.getByTestId("pair-row").count()
   expect(pairCount).toBeGreaterThan(0)
-  expect(pairCount).toBeLessThanOrEqual(20)
+  expect(pairCount).toBeLessThanOrEqual(8)
   await page
     .getByRole("link", { name: "Data & attribution", exact: true })
     .click()
@@ -216,7 +224,7 @@ for (const width of [320, 375, 414, 768]) {
       .getByRole("textbox", { name: "Search currencies", exact: true })
       .fill("Divine Orb")
     await page
-      .getByRole("button", { name: "View Divine Orb history", exact: true })
+      .getByRole("link", { name: "View Divine Orb history", exact: true })
       .click()
     await expect(page.getByTestId("chart-wrap")).toBeVisible()
     expect(
@@ -426,7 +434,7 @@ test("Auto display persists and carries each item's quote into its chart", async
     .getByTestId("currency-table")
     .locator("tbody tr")
     .filter({
-      has: page.getByRole("button", { name: "Exalted Orb", exact: true }),
+      has: page.getByRole("link", { name: "Exalted Orb", exact: true }),
     })
   const quote = await row
     .getByTestId("price-cell")
@@ -434,7 +442,7 @@ test("Auto display persists and carries each item's quote into its chart", async
     .getAttribute("alt")
   expect(["Chaos", "Divine"]).toContain(quote)
   await row
-    .getByRole("button", { name: "View Exalted Orb history", exact: true })
+    .getByRole("link", { name: "View Exalted Orb history", exact: true })
     .click()
   await expect(page.getByTestId("chart-wrap")).toBeVisible()
   await expect(page.getByTestId("detail-stats")).toContainText(quote!)
@@ -445,7 +453,8 @@ test("Auto display persists and carries each item's quote into its chart", async
   await page.getByRole("option", { name: "Exalted", exact: true }).click()
   await expect(
     page.getByTestId("detail-stats").locator("strong").first()
-  ).toHaveText("1 Exalted")
+  ).toHaveText("1")
+  await expect(page.getByTestId("detail-stats")).toContainText("Exalted")
 })
 
 test("currency rows open details and sidebar watchlist keeps stars independent", async ({
@@ -453,7 +462,7 @@ test("currency rows open details and sidebar watchlist keeps stars independent",
 }) => {
   await page.goto("/economy/market?q=Divine%20Orb")
   const row = page.getByTestId("currency-row").filter({
-    has: page.getByRole("button", { name: "Divine Orb", exact: true }),
+    has: page.getByRole("link", { name: "Divine Orb", exact: true }),
   })
   await expect(row).toBeVisible()
   await row
@@ -468,9 +477,9 @@ test("currency rows open details and sidebar watchlist keeps stars independent",
   ).toHaveAttribute("aria-pressed", "true")
   await row.getByTestId("price-cell").click()
   await expect(page.getByTestId("chart-wrap")).toBeVisible()
-  await page
-    .getByRole("button", { name: "Back to market", exact: true })
-    .click()
+  await expect(page).toHaveURL(/\/currency\/divine-orb/)
+  await page.goBack()
+  await expect(page).toHaveURL(/\/economy\/market/)
   await row
     .getByRole("button", {
       name: "Remove Divine Orb from watchlist",

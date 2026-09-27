@@ -20,9 +20,10 @@ export const iconFrame = cva(
         category: "size-6.5 [&>img]:size-6.5",
         pair: "size-7 [&>img]:size-7",
         mover: "size-8.5 [&>img]:size-8.5",
-        /* The detail masthead: a dot-screen halo behind a larger image. */
+        /* The detail masthead: a dithered bronze glow behind a larger
+           image. The glow box matches the native 184px of its mask. */
         large:
-          "size-18 before:absolute before:-inset-[45%] before:-z-1 before:dot-screen before:mask-[radial-gradient(circle_closest-side,black_25%,transparent_100%)] before:text-brand before:opacity-55 before:content-[''] [&>img]:size-15",
+          "size-24 before:absolute before:top-1/2 before:left-1/2 before:-z-1 before:size-46 before:-translate-x-1/2 before:-translate-y-1/2 before:bg-brand before:mask-(--dither-glow-icon) before:mask-center before:mask-no-repeat before:opacity-20 before:content-[''] [&>img]:size-20",
       },
     },
     defaultVariants: { size: "default" },
@@ -64,14 +65,14 @@ export function Icon({
           onError={() => setBroken(true)}
           alt=""
           loading="lazy"
-          width={large ? 58 : 32}
-          height={large ? 58 : 32}
+          width={large ? 80 : 32}
+          height={large ? 80 : 32}
           className={cn(
             glow && "group-focus-within/row:scale-105 group-hover/row:scale-105"
           )}
         />
       ) : (
-        <Gem size={large ? 30 : 19} />
+        <Gem size={large ? 40 : 19} />
       )}
     </span>
   )

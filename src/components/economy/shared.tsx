@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router"
 import { cn } from "cn"
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
 import type { ReactNode } from "react"
@@ -7,6 +8,8 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { currencySlug } from "../../../shared/currency-slug"
+import type { Filters } from "../../lib/economy-filters"
 
 /* Owns the container query for the Table's overflow hint: the hint paragraph
    the ui Table renders shows once the frame is narrower than the table.
@@ -171,5 +174,24 @@ export function SectionHeading({
 }: React.ComponentProps<"h2">) {
   return (
     <h2 className={cn("display text-section text-ink", className)} {...props} />
+  )
+}
+
+/* A link to a currency's page, carrying the list filters along. */
+export function CurrencyLink({
+  id,
+  f,
+  ...props
+}: Omit<React.ComponentProps<typeof Link>, "to" | "params" | "search"> & {
+  id: string
+  f: Filters
+}) {
+  return (
+    <Link
+      to="/currency/$slug"
+      params={{ slug: currencySlug(id) }}
+      search={f}
+      {...props}
+    />
   )
 }

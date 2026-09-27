@@ -347,18 +347,6 @@ test("ascendancy links survive reload, version changes and history", async ({
   await expect(page.locator('[data-slot="tree-viewport"] svg')).toBeVisible()
 })
 
-for (const [legacy, target] of [
-  ["/trees?section=atlas", "/trees/atlas"],
-  ["/trees?section=Oracle", "/trees/ascendancies"],
-  ["/passive-tree?version=0_4&unseen=true", "/trees/passive"],
-]) {
-  test(`legacy tree link ${legacy} redirects`, async ({ page }) => {
-    await page.goto(legacy)
-    await expect(page).toHaveURL(new RegExp(target))
-    await expect(page.locator('[data-slot="tree-viewport"] svg')).toBeVisible()
-  })
-}
-
 test("ascendancies load independently and keep the selector inside the viewer", async ({
   page,
 }) => {

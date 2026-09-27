@@ -26,9 +26,23 @@ test("gem pages point crawlers at their share cards", async ({ request }) => {
   expect(gem.title).toBe("Lightning Arrow · Gems · exile.sh")
   expect(gem.image).toMatch(/\/og\/gems\/lightning-arrow$/)
   expect(gem.canonical).toMatch(/\/gems\/lightning-arrow$/)
-  // Old skill-id links share and canonicalise to the readable slug.
-  expect((await meta("/gems/LightningArrowPlayer")).canonical).toMatch(
-    /\/gems\/lightning-arrow$/
-  )
   expect((await meta("/gems")).image).toMatch(/\/og\/gems$/)
+})
+
+test("currency pages share their own cards", async ({ request }) => {
+  const card = await request.get("/og/currency/chaos-orb")
+  expect(card.status()).toBe(200)
+  expect(card.headers()["content-type"]).toBe("image/png")
+  expect(size(await card.body())).toEqual([1200, 630])
+  expect((await request.get("/og/currency/not-a-currency")).status()).toBe(404)
+  const html = await (await request.get("/currency/chaos-orb")).text()
+  expect(/<title>([^<]*)<\/title>/.exec(html)?.[1]).toBe(
+    "Chaos Orb · Economy · exile.sh"
+  )
+  expect(/property="og:image" content="([^"]*)"/.exec(html)?.[1]).toMatch(
+    /\/og\/currency\/chaos-orb$/
+  )
+  expect(/rel="canonical" href="([^"]*)"/.exec(html)?.[1]).toMatch(
+    /\/currency\/chaos-orb$/
+  )
 })

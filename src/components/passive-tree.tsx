@@ -98,7 +98,6 @@ const PALETTES = [
 ] as const
 type Palette = (typeof PALETTES)[number]["value"]
 const PALETTE_KEY = "exile.tree.palette"
-const LEGACY_COLORBLIND_KEY = "exile.tree.colorblind"
 const isPalette = (value: unknown): value is Palette =>
   PALETTES.some((p) => p.value === value)
 const Connections = memo(function Connections({
@@ -1768,8 +1767,6 @@ function PassiveTreeContent({
     try {
       const stored = localStorage.getItem(PALETTE_KEY)
       if (isPalette(stored)) setPalette(stored)
-      else if (localStorage.getItem(LEGACY_COLORBLIND_KEY) === "1")
-        setPalette("deutan")
     } catch {
       /* storage unavailable */
     }
@@ -1778,7 +1775,6 @@ function PassiveTreeContent({
     setPalette(value)
     try {
       localStorage.setItem(PALETTE_KEY, value)
-      localStorage.removeItem(LEGACY_COLORBLIND_KEY)
     } catch {
       /* storage unavailable */
     }
