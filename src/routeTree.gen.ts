@@ -34,6 +34,8 @@ import { Route as TreesAscendanciesRouteImport } from './routes/trees.ascendanci
 import { Route as TreesAtlasRouteImport } from './routes/trees.atlas'
 import { Route as TreesPassiveRouteImport } from './routes/trees.passive'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as OgGemsIndexRouteImport } from './routes/og.gems.index'
+import { Route as OgGemsGemRouteImport } from './routes/og.gems.$gem'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -160,6 +162,16 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OgGemsIndexRoute = OgGemsIndexRouteImport.update({
+  id: '/og/gems/',
+  path: '/og/gems/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OgGemsGemRoute = OgGemsGemRouteImport.update({
+  id: '/og/gems/$gem',
+  path: '/og/gems/$gem',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -187,6 +199,8 @@ export interface FileRoutesByFullPath {
   '/patch-notes/': typeof PatchNotesIndexRoute
   '/trees/': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/og/gems/$gem': typeof OgGemsGemRoute
+  '/og/gems/': typeof OgGemsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -211,6 +225,8 @@ export interface FileRoutesByTo {
   '/patch-notes': typeof PatchNotesIndexRoute
   '/trees': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/og/gems/$gem': typeof OgGemsGemRoute
+  '/og/gems': typeof OgGemsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -239,6 +255,8 @@ export interface FileRoutesById {
   '/patch-notes/': typeof PatchNotesIndexRoute
   '/trees/': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/og/gems/$gem': typeof OgGemsGemRoute
+  '/og/gems/': typeof OgGemsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -268,6 +286,8 @@ export interface FileRouteTypes {
     | '/patch-notes/'
     | '/trees/'
     | '/api/auth/$'
+    | '/og/gems/$gem'
+    | '/og/gems/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -292,6 +312,8 @@ export interface FileRouteTypes {
     | '/patch-notes'
     | '/trees'
     | '/api/auth/$'
+    | '/og/gems/$gem'
+    | '/og/gems'
   id:
     | '__root__'
     | '/'
@@ -319,6 +341,8 @@ export interface FileRouteTypes {
     | '/patch-notes/'
     | '/trees/'
     | '/api/auth/$'
+    | '/og/gems/$gem'
+    | '/og/gems/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -338,6 +362,8 @@ export interface RootRouteChildren {
   BuildsIndexRoute: typeof BuildsIndexRoute
   PatchNotesIndexRoute: typeof PatchNotesIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  OgGemsGemRoute: typeof OgGemsGemRoute
+  OgGemsIndexRoute: typeof OgGemsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -517,6 +543,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/og/gems/': {
+      id: '/og/gems/'
+      path: '/og/gems'
+      fullPath: '/og/gems/'
+      preLoaderRoute: typeof OgGemsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/og/gems/$gem': {
+      id: '/og/gems/$gem'
+      path: '/og/gems/$gem'
+      fullPath: '/og/gems/$gem'
+      preLoaderRoute: typeof OgGemsGemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -580,6 +620,8 @@ const rootRouteChildren: RootRouteChildren = {
   BuildsIndexRoute: BuildsIndexRoute,
   PatchNotesIndexRoute: PatchNotesIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  OgGemsGemRoute: OgGemsGemRoute,
+  OgGemsIndexRoute: OgGemsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
