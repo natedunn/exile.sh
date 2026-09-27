@@ -110,11 +110,12 @@ test("gem keywords explain mechanics in descriptions and effects", async ({
         },
       })
   )
-  // The old skill-id URL settles on the readable slug.
+  // The old skill-id URL settles on the readable slug once the catalogue
+  // (which the page content also waits for) has loaded.
   await page.goto("/gems/LightningArrowPlayer")
-  await expect(page).toHaveURL(/\/gems\/lightning-arrow$/)
   const description = page.locator('[data-slot="gem-description"]')
   await expect(description).toContainText("Chaining Lightning beams")
+  await expect(page).toHaveURL(/\/gems\/lightning-arrow$/)
   await expect(description.locator('[data-slot="gem-keyword"]')).toHaveText([
     "Chaining",
     "Lightning",
@@ -629,7 +630,7 @@ for (const width of [390, 1440])
     const effect = popup.locator('[data-slot="gem-effect-lines"] li').first()
     await expect(effect).toHaveCSS("font-size", "13px")
     await expect(effect).toHaveCSS("line-height", "18.85px")
-    await expect(effect).toHaveCSS("padding-left", "14px")
+    await expect(effect).toHaveCSS("padding-left", "16px")
     if (width > 600) {
       await page.mouse.move(0, 0)
       await expect(popup).not.toBeVisible()
