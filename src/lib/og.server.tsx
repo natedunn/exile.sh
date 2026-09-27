@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import type { GemReference } from "../../shared/gems"
 import { assetBytes } from "./assets.server"
 import { gemTags } from "./gem-display"
+import { clipText } from "./share-meta"
 
 /* Share cards (1200 × 630) for the gem pages, drawn with satori over the
  * dithered background from scripts/dither-art.mjs. Colours are the sRGB
@@ -51,18 +52,6 @@ const mono = {
   letterSpacing: "0.12em",
   textTransform: "uppercase",
 } as const
-
-/** Shortens to `limit` characters, ending on a sentence where one fits
- * and otherwise on a whole word. Line breaks become spaces, since satori
- * drops them without one. */
-function clip(text: string, limit: number) {
-  const flat = text.replace(/\s+/g, " ").trim()
-  if (flat.length <= limit) return flat
-  const cut = flat.slice(0, limit)
-  const sentence = cut.lastIndexOf(". ")
-  if (sentence > limit * 0.5) return cut.slice(0, sentence + 1)
-  return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:.]$/, "")}…`
-}
 
 function Card({
   image,
@@ -226,7 +215,7 @@ export async function gemCard(gem: GemReference, slug: string) {
       // A wrapped title leaves room for about two lines of description.
       body={
         gem.description
-          ? clip(
+          ? clipText(
               gem.description,
               titleLines(gem.name, titleSize(gem.name)) > 1 ? 95 : 145
             )

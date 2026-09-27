@@ -29,6 +29,8 @@ export const Route = createRootRoute({
       { name: "theme-color", content: "#111412" },
       { name: "color-scheme", content: "dark" },
       { name: "application-name", content: "exile.sh" },
+      // Discord and others show this above a shared page's title.
+      { property: "og:site_name", content: "exile.sh" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "exile.sh" },
