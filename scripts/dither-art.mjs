@@ -9,6 +9,8 @@ const ORB_SOURCE =
   "https://repoe-fork.github.io/poe2/Art/2DItems/Currency/CurrencyModValues.webp"
 const GEM_SOURCE =
   "https://repoe-fork.github.io/poe2/Art/2DItems/Gems/UncutSkillGem.webp"
+const SUPPORT_GEM_SOURCE =
+  "https://repoe-fork.github.io/poe2/Art/2DItems/Gems/UncutSupportGem.webp"
 const PORTRAIT_SOURCE = new URL("./art/patch-notes-source.png", import.meta.url)
 const OUT = new URL("../public/art/", import.meta.url)
 
@@ -291,20 +293,28 @@ async function ogCard(art) {
     .toBuffer()
 }
 await mkdir(new URL("../public/og/", import.meta.url), { recursive: true })
-await writeFile(
-  new URL("../public/og/gems-card.png", import.meta.url),
-  await ogCard(
-    await mastheadArt(gem, {
-      width: 330,
-      height: 315,
-      size: [290, 290],
-      left: 40,
-      top: 12,
-      focus: [0.55, 0.5],
-      hold: 0.35,
-      gamma: 0.75,
-      halo: 0.6,
-    })
-  )
+// Skill and support gems each get their uncut gem.
+const supportGem = Buffer.from(
+  await fetch(SUPPORT_GEM_SOURCE).then((r) => r.arrayBuffer())
 )
+for (const [name, source] of [
+  ["gems-card.png", gem],
+  ["support-gems-card.png", supportGem],
+])
+  await writeFile(
+    new URL(`../public/og/${name}`, import.meta.url),
+    await ogCard(
+      await mastheadArt(source, {
+        width: 330,
+        height: 315,
+        size: [290, 290],
+        left: 40,
+        top: 12,
+        focus: [0.55, 0.5],
+        hold: 0.35,
+        gamma: 0.75,
+        halo: 0.6,
+      })
+    )
+  )
 console.log("wrote public/art and public/og")

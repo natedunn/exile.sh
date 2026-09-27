@@ -33,8 +33,12 @@ async function fonts() {
   ] as const
 }
 
-async function background() {
-  const bytes = new Uint8Array(await assetBytes("/og/gems-card.png"))
+async function background(support = false) {
+  const bytes = new Uint8Array(
+    await assetBytes(
+      support ? "/og/support-gems-card.png" : "/og/gems-card.png"
+    )
+  )
   let binary = ""
   for (let i = 0; i < bytes.length; i += 0x8000)
     binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
@@ -214,7 +218,7 @@ async function render(node: ReactNode) {
 export async function gemCard(gem: GemReference, slug: string) {
   return render(
     <Card
-      image={await background()}
+      image={await background(gem.support)}
       label={gem.support ? "Support gem" : "Skill gem"}
       title={gem.name.replace(/:?\s*\{\d+\}/g, "")}
       titleSize={titleSize(gem.name)}
