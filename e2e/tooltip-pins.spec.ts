@@ -144,6 +144,31 @@ test("Build Bin pins one item or gem and scrolls it with the page", async ({
   await expect(pin).toHaveCount(1)
   await expect(pin.locator("[data-slot=gem-properties]")).toBeVisible()
 })
+for (const width of [390, 1440])
+  test(`Build Bin fullscreen tree keeps the tree pin limit at ${width}px`, async ({
+    page,
+  }) => {
+    // The page allows one item or gem pin; its fullscreen tree must not
+    // inherit that limit.
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto("/build-bin")
+    await page.getByLabel("PoB export or pobb.in link").fill(code)
+    await page.getByRole("button", { name: "Open tree", exact: true }).click()
+    for (const [index, query] of [
+      "heavy ammunition",
+      "versatile arms",
+      "brutal",
+      "relentless",
+      "life",
+      "mana",
+    ].entries()) {
+      const popup = await selectResult(page, query)
+      await popup.locator("button[aria-label^=Pin]").click()
+      await expect(page.locator('[data-tooltip-pinned="true"]')).toHaveCount(
+        Math.min(index + 1, width < 768 ? 1 : 5)
+      )
+    }
+  })
 test("a fullscreen tree pin is interactive and closes with its view", async ({
   page,
 }) => {

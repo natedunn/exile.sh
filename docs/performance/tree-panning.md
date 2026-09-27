@@ -1,5 +1,7 @@
 # Passive-tree panning measurements
 
+Wheel and pinch zoom are covered separately in [tree-zoom.md](tree-zoom.md).
+
 Measured locally in Chrome through Playwright against the Vite development server, at 1440 × 900. Each scenario uses three runs, with warmed artwork, 120 pointer moves along the same curve, and zoom fixed at 3.375× or 7.59375×. Before and final-after measurements ran without concurrent browser tests. This is a development-browser comparison, not a production FPS guarantee.
 
 | Metric (median of three runs) | 3.375× before | 3.375× after | 7.594× before | 7.594× after |

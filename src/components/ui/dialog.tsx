@@ -51,7 +51,13 @@ function DialogContent({
 }) {
   return (
     <DialogPortal>
-      <DialogOverlay />
+      {/* Nothing shows through a fullscreen dialog, and an unseen backdrop
+          blur is still recomputed every frame its content repaints. */}
+      <DialogOverlay
+        className={
+          fullscreen ? "supports-backdrop-filter:backdrop-blur-none" : undefined
+        }
+      />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(

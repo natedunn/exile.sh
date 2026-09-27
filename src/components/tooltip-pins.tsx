@@ -36,6 +36,8 @@ type PinnedTooltip = Point & {
   children: ReactNode
   className?: ComponentProps<typeof PopoverContent>["className"]
   outlet: string
+  /** Set by an isolated scope: capped within its outlet, not the host limit. */
+  limit?: number
   rarity?: string
   label: string
 }
@@ -67,19 +69,27 @@ export function useClearTreePins() {
   }
 }
 
-/** Nested components share the limit but render pins in their own dialog context. */
+/** Nested components share the limit but render pins in their own dialog
+    context. An isolated nested scope keeps its own limit instead, for views
+    such as a fullscreen tree that should not inherit a page's single pin. */
 export function TooltipPinScope({
   children,
   pinningEnabled = true,
   maxPinnedTooltips = 5,
   resetKey,
-}: TooltipPinOptions & { children: ReactNode; resetKey?: string }) {
+  isolated = false,
+}: TooltipPinOptions & {
+  children: ReactNode
+  resetKey?: string
+  isolated?: boolean
+}) {
   const parent = useContext(Context)
   return parent ? (
     <InheritedScope
       parent={parent}
       enabled={pinningEnabled}
       resetKey={resetKey}
+      limit={isolated ? maxPinnedTooltips : undefined}
     >
       {children}
     </InheritedScope>
@@ -97,11 +107,13 @@ function InheritedScope({
   parent,
   enabled,
   resetKey,
+  limit,
   children,
 }: {
   parent: PinContext
   enabled: boolean
   resetKey?: string
+  limit?: number
   children: ReactNode
 }) {
   const outlet = useId()
@@ -111,8 +123,16 @@ function InheritedScope({
     return () => removeOutlet(outlet)
   }, [outlet, removeOutlet, resetKey, enabled])
   const context = useMemo(
-    () => ({ ...parent, outlet, enabled: parent.enabled && enabled }),
-    [parent, outlet, enabled]
+    () => ({
+      ...parent,
+      outlet,
+      enabled: parent.enabled && enabled,
+      add:
+        limit === undefined
+          ? parent.add
+          : (pin: PinnedTooltip) => parent.add({ ...pin, limit }),
+    }),
+    [parent, outlet, enabled, limit]
   )
   return (
     <Context.Provider value={context}>
@@ -158,35 +178,46 @@ function PinHost({
       ),
     []
   )
-  const limit = useCallback(
-    () =>
-      window.matchMedia("(max-width: 767px)").matches
-        ? 1
-        : Math.max(
-            1,
-            Number.isFinite(maxPinnedTooltips)
-              ? Math.floor(maxPinnedTooltips)
-              : 5
-          ),
+  // Keeps the newest pins: isolated pins per outlet, the rest under the host
+  // limit. Phones always allow one of each.
+  const cap = useCallback(
+    (current: PinnedTooltip[]) => {
+      const phone = window.matchMedia("(max-width: 767px)").matches
+      const allowed = (value: number) =>
+        phone ? 1 : Math.max(1, Number.isFinite(value) ? Math.floor(value) : 5)
+      const counts = new Map<string, number>()
+      const kept = new Set<string>()
+      for (const pin of [...current].reverse()) {
+        const group = pin.limit === undefined ? "" : pin.outlet
+        const count = counts.get(group) ?? 0
+        if (count < allowed(pin.limit ?? maxPinnedTooltips)) {
+          counts.set(group, count + 1)
+          kept.add(pin.id)
+        }
+      }
+      return kept.size === current.length
+        ? current
+        : current.filter((pin) => kept.has(pin.id))
+    },
     [maxPinnedTooltips]
   )
   const add = useCallback(
     (pin: PinnedTooltip) => {
       setPins((current) =>
-        [...current.filter((item) => item.id !== pin.id), pin].slice(-limit())
+        cap([...current.filter((item) => item.id !== pin.id), pin])
       )
     },
-    [limit]
+    [cap]
   )
   useEffect(() => {
     setPins([])
   }, [resetKey, pinningEnabled])
   useEffect(() => {
-    const resize = () => setPins((current) => current.slice(-limit()))
+    const resize = () => setPins(cap)
     window.addEventListener("resize", resize)
     resize()
     return () => window.removeEventListener("resize", resize)
-  }, [limit])
+  }, [cap])
   const context = useMemo(
     () => ({
       enabled: pinningEnabled,

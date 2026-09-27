@@ -4,14 +4,37 @@
 // TREE_PERF_BUILD to a local PoB export file. TREE_PERF_ZOOM_CLICKS=0,3 compares
 // the overview and artwork views. pointerDownMaxMs measures press handling;
 // the frame metrics also include the camera commit on release.
+// TREE_PERF_GESTURE=zoom replaces the drag with 120 trackpad-sized wheel steps
+// (60 in, then 60 out) at the viewport centre, starting from each zoom level.
+// reactCommits counts React commits during the gesture in either mode.
 import { chromium, expect } from "@playwright/test"
 import { readFileSync, writeFileSync } from "node:fs"
+const gesture = process.env.TREE_PERF_GESTURE === "zoom" ? "zoom" : "pan"
 const browser = await chromium.launch({ channel: "chrome" })
 const results = []
 try {
   const page = await browser.newPage({
     viewport: { width: 1440, height: 900 },
     deviceScaleFactor: Number(process.env.TREE_PERF_DPR || 1),
+  })
+  // A minimal DevTools hook: React reports each commit to it.
+  await page.addInitScript(() => {
+    window.reactCommits = 0
+    window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+      supportsFiber: true,
+      renderers: new Map(),
+      inject(renderer) {
+        this.renderers.set(this.renderers.size + 1, renderer)
+        return this.renderers.size
+      },
+      onCommitFiberRoot() {
+        window.reactCommits++
+      },
+      onCommitFiberUnmount() {},
+      onPostCommitFiberRoot() {},
+      onScheduleFiberRoot() {},
+      checkDCE() {},
+    }
   })
   await page.goto(
     process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:4173/trees/passive"
@@ -28,10 +51,15 @@ try {
     await page.getByRole("button", { name: "Open tree", exact: true }).click()
   }
   const svg = page.locator(
-    build ? ".tree-fullscreen .tree-viewport svg" : ".tree-viewport svg"
+    build
+      ? "[data-tree-fullscreen] [data-slot=tree-viewport] svg"
+      : "[data-slot=tree-viewport] svg"
   )
   await expect(svg).toBeVisible()
-  for (const zoomClicks of (process.env.TREE_PERF_ZOOM_CLICKS || "3,5")
+  const defaultZoomClicks = gesture === "zoom" ? "0" : "3,5"
+  for (const zoomClicks of (
+    process.env.TREE_PERF_ZOOM_CLICKS || defaultZoomClicks
+  )
     .split(",")
     .map(Number)) {
     for (let run = 0; run < Number(process.env.TREE_PERF_RUNS || 3); run++) {
@@ -39,7 +67,9 @@ try {
       for (let i = 0; i < zoomClicks; i++)
         await page.getByRole("button", { name: "Zoom in", exact: true }).click()
       if (zoomClicks >= 3)
-        await expect(svg.locator(".tree-passive-art").first()).toBeAttached()
+        await expect(
+          svg.locator("[data-tree-art-region]").first()
+        ).toBeAttached()
       await page.waitForTimeout(400)
       const cdp = await page.context().newCDPSession(page)
       await cdp.send("Emulation.setCPUThrottlingRate", {
@@ -65,16 +95,26 @@ try {
       })
       const box = await svg.boundingBox()
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+      const commitsBefore = await page.evaluate(() => window.reactCommits)
       const start = performance.now()
-      await page.mouse.down()
-      for (let i = 0; i < 120; i++)
-        await page.mouse.move(
-          box.x +
-            box.width / 2 +
-            Math.sin(i / 20) * Number(process.env.TREE_PERF_DISTANCE || 280),
-          box.y + box.height / 2 + Math.cos(i / 20) * 100
-        )
-      await page.mouse.up()
+      if (gesture === "zoom") {
+        for (let i = 0; i < 120; i++) {
+          await page.mouse.wheel(0, i < 60 ? -14 : 14)
+          await page.waitForTimeout(8)
+        }
+        // Include the commit made once the gesture settles.
+        await page.waitForTimeout(250)
+      } else {
+        await page.mouse.down()
+        for (let i = 0; i < 120; i++)
+          await page.mouse.move(
+            box.x +
+              box.width / 2 +
+              Math.sin(i / 20) * Number(process.env.TREE_PERF_DISTANCE || 280),
+            box.y + box.height / 2 + Math.cos(i / 20) * 100
+          )
+        await page.mouse.up()
+      }
       await page.evaluate(
         () =>
           new Promise((resolve) =>
@@ -82,6 +122,8 @@ try {
           )
       )
       const elapsed = performance.now() - start
+      const reactCommits =
+        (await page.evaluate(() => window.reactCommits)) - commitsBefore
       const frames = await page.evaluate(() => {
         window.panRunning = false
         return window.panFrames.slice(1).sort((a, b) => a - b)
@@ -96,6 +138,8 @@ try {
         if (e.ph === "X" && e.dur)
           totals[e.name] = (totals[e.name] || 0) + e.dur / 1000
       results.push({
+        gesture,
+        reactCommits,
         panDistance: Number(process.env.TREE_PERF_DISTANCE || 280),
         deviceScaleFactor: Number(process.env.TREE_PERF_DPR || 1),
         cpuThrottle: Number(process.env.TREE_PERF_CPU || 1),

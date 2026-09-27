@@ -11,6 +11,7 @@ import {
 } from "./tooltip-pins"
 import type { TooltipPinOptions } from "./tooltip-pins"
 import { TreeSettings } from "./tree-settings"
+import { TreePaletteScope, TreePaletteSelect } from "./tree-palette"
 import { TreeNodeSearch } from "./tree-node-search"
 import type { TreeSearchOptions } from "./tree-search"
 import {
@@ -30,6 +31,7 @@ import {
   treeRenderRect,
   treeNodeRegions,
 } from "../../shared/tree-visibility"
+import type { TreeRect } from "../../shared/tree-visibility"
 import ascendancyTrees from "../../shared/generated/ascendancy-trees.json"
 import {
   centerAscendancy,
@@ -88,18 +90,6 @@ type WeaponSet = 0 | 1 | 2
 type WeaponSets = Map<string, WeaponSet>
 const weaponColor = (set: WeaponSet) =>
   set ? `var(--color-weapon-${set})` : "var(--color-tree-allocated)"
-// Colour-vision palettes for the weapon set pair; keys match tokens.css.
-const PALETTES = [
-  { value: "default", label: "Standard colours" },
-  { value: "deutan", label: "Deuteranopia (green-weak)" },
-  { value: "protan", label: "Protanopia (red-weak)" },
-  { value: "tritan", label: "Tritanopia (blue-weak)" },
-  { value: "achroma", label: "Achromatopsia (no colour)" },
-] as const
-type Palette = (typeof PALETTES)[number]["value"]
-const PALETTE_KEY = "exile.tree.palette"
-const isPalette = (value: unknown): value is Palette =>
-  PALETTES.some((p) => p.value === value)
 const Connections = memo(function Connections({
   edges,
   selected,
@@ -371,6 +361,54 @@ const Artwork = memo(function Artwork({
   )
 })
 
+/* Crossing the artwork zoom mounts thousands of images. Mounting the regions
+   nearest the camera first, a few per frame, spreads that across frames;
+   progress re-renders only this layer, and mounted regions stay memoized. */
+const ARTWORK_REGIONS_PER_FRAME = 4
+function ArtworkLayer({
+  regions,
+  centerX,
+  centerY,
+  ...artwork
+}: Omit<ComponentProps<typeof Artwork>, "id" | "nodes"> & {
+  regions: { id: string; nodes: TreeNode[]; bounds: TreeRect }[]
+  centerX: number
+  centerY: number
+}) {
+  const [mounted, setMounted] = useState<ReadonlySet<string>>(new Set())
+  const pending = useMemo(
+    () => regions.filter((region) => !mounted.has(region.id)),
+    [regions, mounted]
+  )
+  useEffect(() => {
+    if (!pending.length) return
+    const frame = requestAnimationFrame(() => {
+      const distance = ({ bounds }: (typeof pending)[number]) =>
+        Math.hypot(
+          (bounds.minX + bounds.maxX) / 2 - centerX,
+          (bounds.minY + bounds.maxY) / 2 - centerY
+        )
+      const next = [...pending]
+        .sort((a, b) => distance(a) - distance(b))
+        .slice(0, ARTWORK_REGIONS_PER_FRAME)
+      setMounted(
+        (current) => new Set([...current, ...next.map((region) => region.id)])
+      )
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [pending, centerX, centerY])
+  return regions
+    .filter((region) => mounted.has(region.id))
+    .map((region) => (
+      <Artwork
+        key={region.id}
+        id={region.id}
+        nodes={region.nodes}
+        {...artwork}
+      />
+    ))
+}
+
 const SearchHighlights = memo(function SearchHighlights({
   nodes,
   matches,
@@ -427,14 +465,17 @@ const SearchHighlights = memo(function SearchHighlights({
 type TreeMapProps = ComponentProps<typeof TreeMapRenderer> & {
   /** Embed this ascendancy without exposing a selector or using device preferences. */
   defaultAscendancy?: string
+  /** Keep this tree's own pin limit inside a page that allows fewer. */
+  isolatedPins?: boolean
 }
 
-function TreeMap({ defaultAscendancy, ...props }: TreeMapProps) {
+function TreeMap({ defaultAscendancy, isolatedPins, ...props }: TreeMapProps) {
   return (
     <TooltipPinScope
       pinningEnabled={props.pinningEnabled}
       maxPinnedTooltips={props.maxPinnedTooltips ?? 5}
       resetKey={`${props.version}:${props.label}`}
+      isolated={isolatedPins}
     >
       {defaultAscendancy ? (
         <TreeMapWithAscendancy
@@ -583,8 +624,6 @@ function TreeMapRenderer({
   version,
   jewels,
   weaponSets,
-  palette,
-  onPaletteChange,
   panel,
   showPaletteSelector = true,
   centerCircle = false,
@@ -613,8 +652,6 @@ function TreeMapRenderer({
     label: string
     version: string
     weaponSets: WeaponSets
-    palette: Palette
-    onPaletteChange?: (value: Palette) => void
     panel?: ReactNode
     showPaletteSelector?: boolean
     centerCircle?: boolean
@@ -723,6 +760,8 @@ function TreeMapRenderer({
   )
   const renderRectRef = useRef(renderRect)
   renderRectRef.current = renderRect
+  const committedCamera = useRef(camera)
+  committedCamera.current = camera
   const edgeBounds = useMemo(
     () => data.edges.map((edge) => treeEdgeBounds(edge.path)),
     [data.edges]
@@ -902,6 +941,19 @@ function TreeMapRenderer({
   const panFrame = useRef<number | null>(null)
   const panDelta = useRef({ x: 0, y: 0 })
   const dragRect = useRef({ width: 1, height: 1 })
+  const writeViewBox = (
+    next: TreeCamera,
+    extent: { width: number; height: number }
+  ) =>
+    svg.current?.setAttribute(
+      "viewBox",
+      [
+        next.x - extent.width / 2,
+        next.y - extent.height / 2,
+        extent.width,
+        extent.height,
+      ].join(" ")
+    )
   const flushPan = () => {
     if (panFrame.current !== null) cancelAnimationFrame(panFrame.current)
     panFrame.current = null
@@ -921,15 +973,7 @@ function TreeMapRenderer({
       constraintNodes
     )
     cameraRef.current = next
-    svg.current?.setAttribute(
-      "viewBox",
-      [
-        next.x - extent.width / 2,
-        next.y - extent.height / 2,
-        extent.width,
-        extent.height,
-      ].join(" ")
-    )
+    writeViewBox(next, extent)
     if (
       !containsTreeView(
         renderRectRef.current,
@@ -945,9 +989,74 @@ function TreeMapRenderer({
     flushPan()
     setCameraState(cameraRef.current)
   }
+  // Wheel and pinch zoom batch like panning: one viewBox write per frame, with
+  // a React commit only when the view outgrows the rendered buffer, crosses a
+  // zoom-dependent rendering step, or the gesture settles.
+  const zoomFrame = useRef<number | null>(null)
+  const zoomSettle = useRef<number | undefined>(undefined)
+  const zoomLabel = useRef<HTMLSpanElement>(null)
+  const screenPattern = useRef<SVGPatternElement>(null)
+  // Halftone cell of 6 screen pixels, expressed in tree units for a view.
+  const screenCell = (viewWidth: number) =>
+    pixelWidth ? (viewWidth / pixelWidth) * 6 : 1
+  // Mirrors the pattern markup so the halftone keeps its screen size between
+  // zoom commits; React rewrites the same attributes when it next commits.
+  const writeScreenCell = (cell: number) => {
+    const pattern = screenPattern.current
+    if (!pattern) return
+    for (const element of [pattern, pattern.querySelector("rect")]) {
+      element?.setAttribute("width", String(cell))
+      element?.setAttribute("height", String(cell))
+    }
+    const dot = pattern.querySelector("circle")
+    dot?.setAttribute("cx", String(cell / 2))
+    dot?.setAttribute("cy", String(cell / 2))
+    dot?.setAttribute("r", String(cell * 0.22))
+  }
+  const zoomSteps = (zoom: number) =>
+    [zoom > 1, zoom >= artworkZoomThreshold].join()
+  const flushZoom = () => {
+    zoomFrame.current = null
+    const next = cameraRef.current
+    const extent = treeViewport(bounds.size / next.zoom, aspect)
+    writeViewBox(next, extent)
+    writeScreenCell(screenCell(extent.width))
+    // React owns this text node and overwrites it on the next commit.
+    const zoomText = zoomLabel.current?.firstChild
+    if (zoomText) zoomText.nodeValue = next.zoom.toFixed(1) + "×"
+    if (
+      !containsTreeView(
+        renderRectRef.current,
+        next.x,
+        next.y,
+        extent.width,
+        extent.height
+      ) ||
+      zoomSteps(next.zoom) !== zoomSteps(committedCamera.current.zoom)
+    )
+      setCameraState(next)
+    clearTimeout(zoomSettle.current)
+    zoomSettle.current = window.setTimeout(
+      () => setCameraState(cameraRef.current),
+      150
+    )
+  }
+  const scheduleZoom = (next: TreeCamera) => {
+    cameraRef.current = constrainTreeCamera(
+      next,
+      bounds,
+      aspect,
+      constraintNodes
+    )
+    zoomFrame.current ??= requestAnimationFrame(flushZoom)
+  }
+  const scheduleZoomRef = useRef(scheduleZoom)
+  scheduleZoomRef.current = scheduleZoom
   useEffect(
     () => () => {
       if (panFrame.current !== null) cancelAnimationFrame(panFrame.current)
+      if (zoomFrame.current !== null) cancelAnimationFrame(zoomFrame.current)
+      clearTimeout(zoomSettle.current)
     },
     []
   )
@@ -970,7 +1079,7 @@ function TreeMapRenderer({
       const dx = (event.clientX - rect.left) / rect.width - 0.5
       const dy = (event.clientY - rect.top) / rect.height - 0.5
       const extent = treeViewport(bounds.size, aspect)
-      setCamera({
+      scheduleZoomRef.current({
         ...c,
         zoom,
         x: c.x + dx * extent.width * (1 / c.zoom - 1 / zoom),
@@ -979,7 +1088,7 @@ function TreeMapRenderer({
     }
     element.addEventListener("wheel", wheel, { passive: false })
     return () => element.removeEventListener("wheel", wheel)
-  }, [bounds.size, setCamera, mode, aspect])
+  }, [bounds.size, mode, aspect])
   const selectTreeNode = useCallback(
     (match: TreeNode, showCallout = true) => {
       showCallout = showCallout && !pinnedIds.has(match.id)
@@ -1031,11 +1140,20 @@ function TreeMapRenderer({
   )
   const size = bounds.size / camera.zoom
   const view = treeViewport(size, aspect)
-  // Halftone cell of 6 screen pixels, expressed in tree units for this zoom.
-  const screen = pixelWidth ? (view.width / pixelWidth) * 6 : 1
+  const screen = screenCell(view.width)
   const socketed = useMemo(
     () => new Map(jewels.map((jewel) => [jewel.origin.id, jewel])),
     [jewels]
+  )
+  // Tree units per screen pixel at the widest view each layer is drawn at.
+  // Regions only use it to keep non-scaling strokes out of overlap checks, so
+  // this upper bound stays correct at every zoom and changes only on resize,
+  // sparing every region a re-render as the camera zooms.
+  const strokeScaleAt = (zoom: number) =>
+    treeViewport(bounds.size / zoom, aspect).width / Math.max(pixelWidth, 1)
+  const regionStrokeScale = strokeScaleAt(1)
+  const artworkStrokeScale = strokeScaleAt(
+    isAscendancyTree || mode === "ascendancy" ? 1 : artworkZoomThreshold
   )
   const showArt =
     (isAscendancyTree ||
@@ -1056,49 +1174,33 @@ function TreeMapRenderer({
       ? target.closest("[data-node]")?.getAttribute("data-node") || null
       : null
   }
+  const showPalette = showPaletteSelector && nodes.length > 0
+  const legend = hasWeaponSets && (
+    <ul
+      data-slot="tree-legend"
+      className={cn(
+        "flex list-none gap-3.5 p-0 font-mono text-label text-ink-muted [&_li]:flex [&_li]:items-center [&_li]:gap-1.5 [&_li]:before:size-2 [&_li]:before:rounded-full [&_li]:before:bg-tree-allocated [&_li]:before:content-[''] [&_li[data-weapon-set='1']]:before:bg-weapon-1 [&_li[data-weapon-set='2']]:before:bg-weapon-2",
+        overlayControls
+          ? "m-0 min-h-11.5 max-w-full flex-wrap items-center gap-y-1 border border-rule-strong bg-paper px-3.5 py-2 shadow-popup"
+          : "ml-3.5 max-md:order-1 max-md:mt-1 max-md:ml-0 max-md:w-full max-md:flex-wrap"
+      )}
+      aria-label="Weapon set passives"
+    >
+      <li>Both sets</li>
+      <li data-weapon-set="1">Weapon set 1</li>
+      <li data-weapon-set="2">Weapon set 2</li>
+    </ul>
+  )
   return (
-    <div
+    <TreePaletteScope
       data-passive-tree=""
-      className="relative min-w-0 data-[mode=interactive]:flex data-[mode=interactive]:h-full data-[mode=interactive]:min-h-0 data-[mode=interactive]:w-full data-[mode=interactive]:flex-1 data-[mode=interactive]:flex-col data-[mode=interactive]:overflow-hidden data-[palette]:[--color-tree-allocated-ring:var(--color-tree-allocated-neutral-ring)] data-[palette]:[--color-tree-allocated:var(--color-tree-allocated-neutral)] data-[palette=achroma]:[--color-tree-allocated-ring:var(--color-tree-allocated-achroma-ring)] data-[palette=achroma]:[--color-tree-allocated:var(--color-tree-allocated-achroma)] data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-achroma)] data-[palette=achroma]:[--color-weapon-1:var(--color-weapon-1-achroma)] data-[palette=achroma]:[--color-weapon-2:var(--color-weapon-2-achroma)] data-[palette=deutan]:[--color-weapon-1:var(--color-weapon-1-deutan)] data-[palette=deutan]:[--color-weapon-2:var(--color-weapon-2-deutan)] data-[palette=protan]:[--color-weapon-1:var(--color-weapon-1-protan)] data-[palette=protan]:[--color-weapon-2:var(--color-weapon-2-protan)] data-[palette=tritan]:[--color-weapon-1:var(--color-weapon-1-tritan)] data-[palette=tritan]:[--color-weapon-2:var(--color-weapon-2-tritan)] data-[tree-type=ascendancy]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)] data-[tree-type=atlas]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)]"
+      className="relative min-w-0 has-data-[slot=tree-search-panel]:[--field-corner-tr:0px] has-data-[slot=tree-settings]:[--field-corner-tl:0px] data-[mode=interactive]:flex data-[mode=interactive]:h-full data-[mode=interactive]:min-h-0 data-[mode=interactive]:w-full data-[mode=interactive]:flex-1 data-[mode=interactive]:flex-col data-[mode=interactive]:overflow-hidden data-[overlay-controls]:[--field-corner-br:0px] data-[palette]:[--color-tree-allocated-ring:var(--color-tree-allocated-neutral-ring)] data-[palette]:[--color-tree-allocated:var(--color-tree-allocated-neutral)] data-[palette=achroma]:[--color-tree-allocated-ring:var(--color-tree-allocated-achroma-ring)] data-[palette=achroma]:[--color-tree-allocated:var(--color-tree-allocated-achroma)] data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-achroma)] data-[palette=achroma]:[--color-weapon-1:var(--color-weapon-1-achroma)] data-[palette=achroma]:[--color-weapon-2:var(--color-weapon-2-achroma)] data-[palette=deutan]:[--color-weapon-1:var(--color-weapon-1-deutan)] data-[palette=deutan]:[--color-weapon-2:var(--color-weapon-2-deutan)] data-[palette=protan]:[--color-weapon-1:var(--color-weapon-1-protan)] data-[palette=protan]:[--color-weapon-2:var(--color-weapon-2-protan)] data-[palette=tritan]:[--color-weapon-1:var(--color-weapon-1-tritan)] data-[palette=tritan]:[--color-weapon-2:var(--color-weapon-2-tritan)] data-[tree-type=ascendancy]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)] data-[tree-type=atlas]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)] md:has-data-[slot=tree-key]:[--field-corner-bl:0px]"
       data-mode={mode}
       data-tree-type={isAscendancyTree ? "ascendancy" : treeType}
       data-overlay-controls={overlayControls || undefined}
       data-art-visible={showArt ? true : undefined}
-      data-palette={palette === "default" ? undefined : palette}
     >
-      {mode === "interactive" &&
-        (panel ||
-          (showPaletteSelector && nodes.length > 0 && onPaletteChange)) && (
-          <TreeSettings>
-            {panel}
-            {showPaletteSelector && nodes.length > 0 && onPaletteChange && (
-              <Field>
-                <FieldLabel>Color vision</FieldLabel>
-                <Select
-                  value={palette}
-                  items={PALETTES}
-                  onValueChange={(value) => {
-                    if (isPalette(value)) onPaletteChange(value)
-                  }}
-                >
-                  <SelectTrigger
-                    aria-label="Color vision"
-                    optionLabels={PALETTES.map((p) => p.label)}
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PALETTES.map((p) => (
-                      <SelectItem key={p.value} value={p.value}>
-                        {p.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-            )}
-          </TreeSettings>
-        )}
+      {mode === "interactive" && panel && <TreeSettings>{panel}</TreeSettings>}
       {mode === "interactive" && (
         <div
           data-slot="tree-controls"
@@ -1134,29 +1236,27 @@ function TreeMapRenderer({
             Reset
           </Button>
           <span
+            ref={zoomLabel}
             data-slot="tree-zoom"
-            className="ml-1.5 min-w-[4ch] font-mono text-label text-brand tabular-nums"
+            className="mx-2 min-w-[4ch] text-center font-mono text-label text-brand tabular-nums"
           >
-            {camera.zoom.toFixed(1)}×
+            {camera.zoom.toFixed(1) + "×"}
           </span>
-          {hasWeaponSets && (
-            <>
-              <ul
-                data-slot="tree-legend"
-                className="ml-3.5 flex list-none gap-3.5 p-0 font-mono text-label text-ink-muted max-md:order-1 max-md:mt-1 max-md:ml-0 max-md:w-full max-md:flex-wrap [&_li]:flex [&_li]:items-center [&_li]:gap-1.5 [&_li]:before:size-2 [&_li]:before:rounded-full [&_li]:before:bg-tree-allocated [&_li]:before:content-[''] [&_li[data-weapon-set='1']]:before:bg-weapon-1 [&_li[data-weapon-set='2']]:before:bg-weapon-2"
-                aria-label="Weapon set passives"
-              >
-                <li>Both sets</li>
-                <li data-weapon-set="1">Weapon set 1</li>
-                <li data-weapon-set="2">Weapon set 2</li>
-              </ul>
-            </>
-          )}
+          {!overlayControls && legend}
           {!overlayControls && (
             <span className="ml-auto font-mono text-label text-ink-faint max-md:hidden">
               Drag to pan · Scroll to zoom · Hover or tap to inspect
             </span>
           )}
+        </div>
+      )}
+      {mode === "interactive" && overlayControls && (showPalette || legend) && (
+        <div
+          data-slot="tree-key"
+          className="absolute bottom-3.5 left-3.5 z-2 flex max-w-[calc(100%-28px)] flex-col items-start gap-1.5 max-md:bottom-16.5"
+        >
+          {showPalette && <TreePaletteSelect />}
+          {legend}
         </div>
       )}
       {searchable && mode !== "preview" && (
@@ -1310,7 +1410,7 @@ function TreeMapRenderer({
                   })
                   const from = midpoint(before),
                     to = midpoint(after)
-                  setCamera({
+                  scheduleZoom({
                     ...c,
                     zoom,
                     x: c.x + extent.width * (from.x / c.zoom - to.x / zoom),
@@ -1394,6 +1494,7 @@ function TreeMapRenderer({
               <circle cx=".5" cy=".5" r=".5" />
             </clipPath>
             <pattern
+              ref={screenPattern}
               id={screenId}
               patternUnits="userSpaceOnUse"
               width={screen}
@@ -1500,7 +1601,7 @@ function TreeMapRenderer({
               key={region.id}
               id={region.id}
               nodes={region.nodes}
-              strokeScale={view.width / Math.max(pixelWidth, 1)}
+              strokeScale={regionStrokeScale}
               selected={selected}
               weaponSets={weaponSets}
             />
@@ -1547,20 +1648,19 @@ function TreeMapRenderer({
               ))}
             </g>
           )}
-          {showArt &&
-            visibleRegions.map((region) => (
-              <Artwork
-                key={region.id}
-                id={region.id}
-                nodes={region.nodes}
-                artwork={showArt}
-                socketed={socketed}
-                allocated={allocatedArtwork}
-                weaponSets={weaponSets}
-                clipId={clipId}
-                strokeScale={view.width / Math.max(pixelWidth, 1)}
-              />
-            ))}
+          {showArt && (
+            <ArtworkLayer
+              regions={visibleRegions}
+              centerX={camera.x}
+              centerY={camera.y}
+              artwork={showArt}
+              socketed={socketed}
+              allocated={allocatedArtwork}
+              weaponSets={weaponSets}
+              clipId={clipId}
+              strokeScale={artworkStrokeScale}
+            />
+          )}
           {/* Keep the tooltip anchor independent of culled geometry so a held
               inspection survives panning beyond the visibility buffer. */}
           <circle
@@ -1660,7 +1760,7 @@ function TreeMapRenderer({
               }}
               data-search-callout={Boolean(attention) || undefined}
               data-attention={attention?.glowing || undefined}
-              className="[--inspection-max-height:min(400px,var(--available-height))] data-[attention=true]:border-focus data-[attention=true]:shadow-attention [&>p]:mt-1.5 [&>p]:text-xs [&>p]:leading-normal [&>p]:text-ink-muted"
+              className="[--inspection-max-height:min(400px,var(--available-height))] data-[attention=true]:border-focus data-[attention=true]:shadow-attention [&_[data-slot=popover-title]]:text-tooltip-heading [&_[data-slot=popover-title]]:leading-[1.1] [&_[data-slot=tree-lines]>li]:text-sm [&_ol]:text-sm [&_section_p]:text-sm [&>p]:mt-1.5 [&>p]:text-xs [&>p]:leading-normal [&>p]:text-ink-muted"
               data-held={held || Boolean(attention) || touchInspect}
               data-hover-only={!held && !attention && !touchInspect}
               positionerClassName="[--tree-pin-border:var(--color-tree-pin-border)] [--inspection-border:var(--tree-pin-border)]"
@@ -1714,7 +1814,7 @@ function TreeMapRenderer({
           )}
         </Popover>
       </div>
-    </div>
+    </TreePaletteScope>
   )
 }
 
@@ -1738,7 +1838,7 @@ function PassiveTreeContent({
   items = [],
   weaponSets: weaponSetLists = [[], []],
   ascendancy,
-  showPaletteSelector = false,
+  showPaletteSelector = true,
   ...searchOptions
 }: TreeSearchOptions &
   TooltipPinOptions & {
@@ -1761,24 +1861,6 @@ function PassiveTreeContent({
       ]),
     [weaponSetLists]
   )
-  // The palette choice is a device preference, restored after hydration.
-  const [palette, setPalette] = useState<Palette>("default")
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(PALETTE_KEY)
-      if (isPalette(stored)) setPalette(stored)
-    } catch {
-      /* storage unavailable */
-    }
-  }, [])
-  const changePalette = (value: Palette) => {
-    setPalette(value)
-    try {
-      localStorage.setItem(PALETTE_KEY, value)
-    } catch {
-      /* storage unavailable */
-    }
-  }
   const tree = useQuery({
     queryKey: ["passive-tree-v4", version],
     enabled: isTreeVersion(version),
@@ -1913,7 +1995,6 @@ function PassiveTreeContent({
                   nodes={nodes}
                   version={version}
                   weaponSets={weaponSets}
-                  palette={palette}
                   showSelector={false}
                 />
               </>
@@ -1934,7 +2015,6 @@ function PassiveTreeContent({
                     version={version}
                     jewels={jewels}
                     weaponSets={weaponSets}
-                    palette={palette}
                     mode="preview"
                   />
                   <DialogTrigger
@@ -1964,10 +2044,9 @@ function PassiveTreeContent({
                     version={version}
                     jewels={jewels}
                     weaponSets={weaponSets}
-                    palette={palette}
-                    onPaletteChange={changePalette}
                     showPaletteSelector={showPaletteSelector}
                     overlayControls
+                    isolatedPins
                   />
                 </DialogContent>
               </>
@@ -2241,15 +2320,6 @@ function PassiveAtlasExplorer({
       return (await response.json()) as Record<string, string>
     },
   })
-  const [palette, setPalette] = useState<Palette>("default")
-  useEffect(() => {
-    try {
-      const value = localStorage.getItem(PALETTE_KEY)
-      if (isPalette(value)) setPalette(value)
-    } catch {
-      /* storage unavailable */
-    }
-  }, [])
   const centeredTree = useMemo(() => {
     if (!center.data || !selectedAscendancy || type !== "passive")
       return undefined
@@ -2419,20 +2489,11 @@ function PassiveAtlasExplorer({
           }
           extraArtwork={centerArt.data}
           showPaletteSelector={showPanel && showPaletteSelector}
-          onPaletteChange={(value) => {
-            setPalette(value)
-            try {
-              localStorage.setItem(PALETTE_KEY, value)
-            } catch {
-              /* storage unavailable */
-            }
-          }}
           nodes={allocatedNodes}
           label={isAtlas ? "Atlas Passive Tree" : "Passive tree"}
           version={version}
           jewels={[]}
           weaponSets={new Map()}
-          palette={palette}
           artworkUrl={isAtlas ? "/atlas-trees/v2/art.json" : undefined}
           overlayControls
         />
@@ -2463,7 +2524,6 @@ function AscendancyTreeContent({
   showSelector = true,
   nodes = [],
   weaponSets = new Map(),
-  palette = "default",
   ...searchOptions
 }: TreeSearchOptions &
   TooltipPinOptions & {
@@ -2474,7 +2534,6 @@ function AscendancyTreeContent({
     showSelector?: boolean
     nodes?: string[]
     weaponSets?: WeaponSets
-    palette?: Palette
   }) {
   const choices = isTreeVersion(version) ? ascendancyTrees[version] : []
   const current =
@@ -2516,7 +2575,10 @@ function AscendancyTreeContent({
     return mapped
   }, [tree.data, weaponSets])
   return (
-    <div data-ascendancy-tree="" className="relative min-h-0 flex-1">
+    <div
+      data-ascendancy-tree=""
+      className="relative min-h-0 flex-1 has-data-[slot=tree-search-panel]:[--field-corner-tr:0px] has-data-[slot=tree-settings]:[--field-corner-tl:0px]"
+    >
       {(options || showSelector) && (
         <TreeSettings>
           {options}
@@ -2576,7 +2638,6 @@ function AscendancyTreeContent({
           version={version}
           jewels={[]}
           weaponSets={remappedWeaponSets}
-          palette={palette}
           mode="ascendancy"
           artworkUrl={selected.art}
         />
