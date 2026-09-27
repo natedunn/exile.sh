@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { gemSlug } from "../../shared/gem-slug"
 import { useDeferredValue, useMemo } from "react"
 import { GemResult } from "../components/gem-result"
 import { GemSearchField } from "../components/gem-search-field"
@@ -142,6 +143,7 @@ function GemsPage() {
                       match={match}
                       level={level}
                       quality={quality}
+                      slug={gemSlug(catalogue.data, reference)}
                       headers={catalogue.data.headers}
                       search={search}
                     />

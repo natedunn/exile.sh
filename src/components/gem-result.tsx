@@ -11,6 +11,7 @@ import type { GemSearch } from "../routes/gems"
 
 export function GemResult({
   reference,
+  slug,
   match,
   level,
   quality,
@@ -18,6 +19,8 @@ export function GemResult({
   search,
 }: {
   reference: GemReference
+  /** The gem's readable URL slug (shared/gem-slug). */
+  slug: string
   match?: string
   level: string
   quality: string
@@ -47,8 +50,8 @@ export function GemResult({
           nativeButton={false}
           render={
             <Link
-              to="/gems/$skillId"
-              params={{ skillId: reference.skillId }}
+              to="/gems/$gem"
+              params={{ gem: slug }}
               search={{
                 ...search,
                 advancedQuality: undefined,

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useDeferredValue, useMemo, useState } from "react"
 import type { GemCatalogue, GemReference } from "../../shared/gems"
 import type { GemSearch } from "../routes/gems"
+import { gemSlug } from "../../shared/gem-slug"
 import { findGems } from "../lib/gem-search"
 import { useGemSearchIndex } from "../lib/use-gem-search-index"
 import { Button } from "./ui/button"
@@ -148,6 +149,7 @@ export function CompatibleGems({
                       match={match}
                       level={String(search.level)}
                       quality={String(search.quality)}
+                      slug={gemSlug(catalogue, reference)}
                       headers={catalogue.headers}
                       search={search}
                     />

@@ -18,7 +18,7 @@ test("gem search settings survive sharing and returning from details", async ({
   await page
     .getByRole("link", { name: "Lightning Arrow. View level 16 gem details" })
     .click()
-  await expect(page).toHaveURL(/\/gems\/LightningArrowPlayer\?/)
+  await expect(page).toHaveURL(/\/gems\/lightning-arrow\?/)
   await expect(page.getByRole("spinbutton", { name: "Gem level" })).toHaveValue(
     "16"
   )
@@ -110,7 +110,9 @@ test("gem keywords explain mechanics in descriptions and effects", async ({
         },
       })
   )
+  // The old skill-id URL settles on the readable slug.
   await page.goto("/gems/LightningArrowPlayer")
+  await expect(page).toHaveURL(/\/gems\/lightning-arrow$/)
   const description = page.locator('[data-slot="gem-description"]')
   await expect(description).toContainText("Chaining Lightning beams")
   await expect(description.locator('[data-slot="gem-keyword"]')).toHaveText([
@@ -147,7 +149,7 @@ test("gem keyword definitions fall back to the mirrored game data", async ({
     "https://repoe-fork.github.io/poe2/keywords.min.json",
     (route) => route.abort()
   )
-  await page.goto("/gems/LightningArrowPlayer")
+  await page.goto("/gems/lightning-arrow")
   const shock = page
     .locator('[data-slot="gem-quality-effects"] [data-slot="gem-keyword"]', {
       hasText: "Shock",
@@ -171,7 +173,7 @@ test("gem details show ranges, selected values and level effects inline", async 
   await page
     .getByRole("link", { name: "Lightning Arrow. View level 1 gem details" })
     .click()
-  await expect(page).toHaveURL(/\/gems\/LightningArrowPlayer\?/)
+  await expect(page).toHaveURL(/\/gems\/lightning-arrow\?/)
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Lightning Arrow"
   )
@@ -321,7 +323,7 @@ test("gem details show ranges, selected values and level effects inline", async 
 test("support gem page lists and searches compatible skill gems", async ({
   page,
 }) => {
-  await page.goto("/gems/SupportLoyaltyPlayer?gemQuality=28")
+  await page.goto("/gems/loyalty?gemQuality=28")
   await expect(
     page.getByRole("spinbutton", { name: "Gem quality" })
   ).toHaveCount(0)
@@ -364,12 +366,12 @@ test("support gem page lists and searches compatible skill gems", async ({
   await compatible
     .getByRole("link", { name: "Wolf Pack. View level 1 gem details" })
     .click()
-  await expect(page).toHaveURL(/\/gems\/WolfPackPlayer/)
+  await expect(page).toHaveURL(/\/gems\/wolf-pack/)
 })
 
 test("gem detail toolbar copies selected settings", async ({ page }) => {
   await page.goto(
-    "/gems/LightningArrowPlayer?gemLevel=16&gemQuality=20&advancedQuality=1"
+    "/gems/lightning-arrow?gemLevel=16&gemQuality=20&advancedQuality=1"
   )
   const advancedQuality = page.getByRole("button", {
     name: "Advanced Thaumaturgy",
@@ -417,7 +419,7 @@ test("gem detail toolbar copies selected settings", async ({ page }) => {
 test("skill gem page lists and searches compatible support gems", async ({
   page,
 }) => {
-  await page.goto("/gems/LightningArrowPlayer?q=lightning")
+  await page.goto("/gems/lightning-arrow?q=lightning")
   const compatible = page.getByRole("region", {
     name: "Compatible support gems",
   })
@@ -435,7 +437,7 @@ test("skill gem page lists and searches compatible support gems", async ({
   await compatible
     .getByRole("link", { name: "Pinpoint Critical. View gem details" })
     .click()
-  await expect(page).toHaveURL(/\/gems\/SupportPinpointCriticalPlayer/)
+  await expect(page).toHaveURL(/\/gems\/pinpoint-critical/)
   await expect(
     page.getByRole("region", { name: "Compatible skill gems" })
   ).toBeVisible()
@@ -445,7 +447,7 @@ test("skill gems whose catalogue key differs from their game id list supports", 
   page,
 }) => {
   // Entangle's catalogue key is .../Gems/SkillGemEntangle; its game id is .../Gem/...
-  await page.goto("/gems/EntanglePlayer")
+  await page.goto("/gems/entangle")
   const compatible = page.getByRole("region", {
     name: "Compatible support gems",
   })

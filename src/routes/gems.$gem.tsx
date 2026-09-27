@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
-import { Fragment, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { Check, Copy, Square } from "lucide-react"
 import { z } from "zod"
 import type { GemReference, SavedGem } from "../../shared/gems"
 import { gemEffectValues } from "../../shared/gems"
+import { gemBySlug, gemSlug } from "../../shared/gem-slug"
 import { CompatibleGems } from "../components/compatible-gems"
 import { EffectList } from "../components/effect-list"
 import { GemSection, GemSectionTitle } from "../components/gem-section"
@@ -41,7 +42,7 @@ import {
 import { gemEffectsQueryOptions } from "../lib/gem-effects"
 import { useGemCatalogue } from "../lib/use-gem-catalogue"
 
-export const Route = createFileRoute("/gems/$skillId")({
+export const Route = createFileRoute("/gems/$gem")({
   validateSearch: (search) => ({
     gemLevel: z.coerce
       .number()
@@ -139,7 +140,7 @@ function GemLevelDelta({
 }
 
 function GemDetailPage() {
-  const { skillId } = Route.useParams()
+  const { gem: slug } = Route.useParams()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">(
@@ -152,9 +153,20 @@ function GemDetailPage() {
     page: search.page,
   }
   const catalogue = useGemCatalogue()
-  const reference = Object.values(catalogue.data?.gems ?? {}).find(
-    (gem) => gem.gameId && gem.skillId === skillId
-  )
+  const reference = catalogue.data ? gemBySlug(catalogue.data, slug) : undefined
+  const skillId = reference?.skillId ?? ""
+  const canonical =
+    catalogue.data && reference ? gemSlug(catalogue.data, reference) : slug
+  // Links by skill id (the old URL shape) settle on the readable slug.
+  useEffect(() => {
+    if (canonical !== slug)
+      void navigate({
+        params: { gem: canonical },
+        search: (previous) => previous,
+        replace: true,
+        resetScroll: false,
+      })
+  }, [canonical, slug, navigate])
   const effects = useQuery({
     ...gemEffectsQueryOptions(reference?.skillId ?? ""),
     enabled: !!reference?.skillId,

@@ -26,7 +26,7 @@ import { Route as EconomyIndexRouteImport } from './routes/economy.index'
 import { Route as EconomyMarketRouteImport } from './routes/economy.market'
 import { Route as EconomyMoversRouteImport } from './routes/economy.movers'
 import { Route as GemsIndexRouteImport } from './routes/gems.index'
-import { Route as GemsSkillIdRouteImport } from './routes/gems.$skillId'
+import { Route as GemsGemRouteImport } from './routes/gems.$gem'
 import { Route as PatchNotesIndexRouteImport } from './routes/patch-notes.index'
 import { Route as PatchNotesThreadIdRouteImport } from './routes/patch-notes.$threadId'
 import { Route as TreesIndexRouteImport } from './routes/trees.index'
@@ -120,9 +120,9 @@ const GemsIndexRoute = GemsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => GemsRoute,
 } as any)
-const GemsSkillIdRoute = GemsSkillIdRouteImport.update({
-  id: '/$skillId',
-  path: '/$skillId',
+const GemsGemRoute = GemsGemRouteImport.update({
+  id: '/$gem',
+  path: '/$gem',
   getParentRoute: () => GemsRoute,
 } as any)
 const PatchNotesIndexRoute = PatchNotesIndexRouteImport.update({
@@ -175,7 +175,7 @@ export interface FileRoutesByFullPath {
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
-  '/gems/$skillId': typeof GemsSkillIdRoute
+  '/gems/$gem': typeof GemsGemRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
@@ -199,7 +199,7 @@ export interface FileRoutesByTo {
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
-  '/gems/$skillId': typeof GemsSkillIdRoute
+  '/gems/$gem': typeof GemsGemRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
@@ -227,7 +227,7 @@ export interface FileRoutesById {
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
-  '/gems/$skillId': typeof GemsSkillIdRoute
+  '/gems/$gem': typeof GemsGemRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
@@ -256,7 +256,7 @@ export interface FileRouteTypes {
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
-    | '/gems/$skillId'
+    | '/gems/$gem'
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
@@ -280,7 +280,7 @@ export interface FileRouteTypes {
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
-    | '/gems/$skillId'
+    | '/gems/$gem'
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
@@ -307,7 +307,7 @@ export interface FileRouteTypes {
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
-    | '/gems/$skillId'
+    | '/gems/$gem'
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
@@ -461,11 +461,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GemsIndexRouteImport
       parentRoute: typeof GemsRoute
     }
-    '/gems/$skillId': {
-      id: '/gems/$skillId'
-      path: '/$skillId'
-      fullPath: '/gems/$skillId'
-      preLoaderRoute: typeof GemsSkillIdRouteImport
+    '/gems/$gem': {
+      id: '/gems/$gem'
+      path: '/$gem'
+      fullPath: '/gems/$gem'
+      preLoaderRoute: typeof GemsGemRouteImport
       parentRoute: typeof GemsRoute
     }
     '/patch-notes/': {
@@ -536,12 +536,12 @@ const EconomyRouteWithChildren =
   EconomyRoute._addFileChildren(EconomyRouteChildren)
 
 interface GemsRouteChildren {
-  GemsSkillIdRoute: typeof GemsSkillIdRoute
+  GemsGemRoute: typeof GemsGemRoute
   GemsIndexRoute: typeof GemsIndexRoute
 }
 
 const GemsRouteChildren: GemsRouteChildren = {
-  GemsSkillIdRoute: GemsSkillIdRoute,
+  GemsGemRoute: GemsGemRoute,
   GemsIndexRoute: GemsIndexRoute,
 }
 
