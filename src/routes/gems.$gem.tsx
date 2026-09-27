@@ -569,7 +569,7 @@ function GemDetailPage() {
                         </h3>
                         {/* A set's lines and quality belong to it: an
                             indent groups them under its heading. */}
-                        <div className="mt-3 pl-5">
+                        <div className="mt-3 pl-3.5">
                           {set.lines.length > 0 && (
                             <EffectList
                               data-slot="gem-effect-lines"

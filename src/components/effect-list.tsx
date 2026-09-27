@@ -12,7 +12,7 @@ export function EffectList({
   return (
     <ul
       className={cn(
-        "m-0 list-none p-0 font-display [&>li]:pl-3.5 [&>li]:before:mr-2 [&>li]:before:-ml-3.25 [&>li]:before:inline-block [&>li]:before:size-1.25 [&>li]:before:rotate-45 [&>li]:before:bg-brand [&>li]:before:align-middle [&>li]:before:content-['']",
+        "m-0 list-none p-0 font-display [&>li]:pl-4 [&>li]:before:mr-2.5 [&>li]:before:-ml-3.75 [&>li]:before:inline-block [&>li]:before:size-1.25 [&>li]:before:rotate-45 [&>li]:before:bg-brand [&>li]:before:align-middle [&>li]:before:content-['']",
         hideSingleMarker &&
           "[&>li:only-child]:pl-0 [&>li:only-child]:before:content-none",
         className
