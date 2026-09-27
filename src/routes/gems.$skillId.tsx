@@ -469,7 +469,7 @@ function GemDetailPage() {
               <img
                 src={reference.image}
                 alt=""
-                className="ml-auto size-full object-contain object-right opacity-50 [image-rendering:pixelated]"
+                className="absolute top-0 left-[68%] aspect-square h-full -translate-x-1/2 [mask-image:radial-gradient(closest-side,black_45%,transparent)] brightness-125 contrast-125 grayscale saturate-200 sepia [image-rendering:pixelated]"
               />
             ) : null}
             <div className="absolute inset-0 dot-screen text-brand/15" />
