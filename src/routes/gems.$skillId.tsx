@@ -463,7 +463,7 @@ function GemDetailPage() {
                 height="369"
                 className="size-full [mask-image:linear-gradient(to_right,transparent,black_35%)] object-cover object-top"
               />
-            ) : reference.image ? (
+            ) : reference.image && !reference.support ? (
               <img
                 src={reference.image}
                 alt=""
