@@ -7,6 +7,8 @@ import sharp from "sharp"
 
 const ORB_SOURCE =
   "https://repoe-fork.github.io/poe2/Art/2DItems/Currency/CurrencyModValues.webp"
+const GEM_SOURCE =
+  "https://repoe-fork.github.io/poe2/Art/2DItems/Gems/UncutSkillGem.webp"
 const PORTRAIT_SOURCE = new URL("./art/patch-notes-source.png", import.meta.url)
 const OUT = new URL("../public/art/", import.meta.url)
 
@@ -81,6 +83,18 @@ async function ditheredOrb(size) {
   })
 }
 
+async function ditheredGem(size) {
+  const source = await fetch(GEM_SOURCE).then((r) => r.arrayBuffer())
+  return dithered(Buffer.from(source), size, size, {
+    gamma: 0.75,
+    shape: (nx, ny) => {
+      const rim = Math.min(1, Math.max(0, (1 - Math.hypot(nx, ny) * 1.8) * 2.5))
+      const fade = ny < 0.12 ? 1 : Math.max(0, 1 - ((ny - 0.12) / 0.38) ** 1.3)
+      return rim * fade
+    },
+  })
+}
+
 // The portrait dissolves at its left edge, where it meets the masthead copy,
 // and from the chin down, so the shoulders are gone before the masthead
 // rule. Its rendered highlights are brighter than the orb's, so its midtones
@@ -123,6 +137,7 @@ await mkdir(OUT, { recursive: true })
 // Art is served at its native size or an integer multiple with
 // image-rendering: pixelated so the dither cells stay crisp.
 await writeFile(new URL("divine-dither.png", OUT), await ditheredOrb(176))
+await writeFile(new URL("uncut-gem-dither.png", OUT), await ditheredGem(176))
 await writeFile(
   new URL("patch-notes-dither.png", OUT),
   await ditheredPortrait()

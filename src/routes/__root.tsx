@@ -12,6 +12,8 @@ import { useEffect } from "react"
 import { Providers } from "../components/providers"
 import { SiteLayout, ViewerLayout } from "../components/shell"
 import appCss from "../styles.css?url"
+import fontinItalic from "../assets/fonts/fontin-italic.woff2?url"
+import fontinRegular from "../assets/fonts/fontin-regular.woff2?url"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -34,6 +36,14 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      // Titles set in Fontin sit above the fold; fetch them with the CSS.
+      ...[fontinItalic, fontinRegular].map((href) => ({
+        rel: "preload",
+        href,
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous" as const,
+      })),
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       {

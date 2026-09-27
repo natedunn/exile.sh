@@ -4,9 +4,10 @@ Build-time dependencies: lupa (Lua 5.1). No Lua runs in the app or on user input
 Uses PoB's StatDescriber (MIT, public/pob-trees/LICENSE-PoB.txt) with its generated
 GGG stat descriptions. Combat mod constructors are inert: we only read literal gem
 stats. Actor-level interpolation and build-specific quality bonuses are not guessed.
-Quality contributions are displayed separately from base effects.
+Quality contributions, including Gemling Legionnaire's Advanced Thaumaturgy,
+are displayed separately from base effects.
 """
-import hashlib, json, math, pathlib, re, tempfile, urllib.request
+import hashlib, json, math, pathlib, re, sys, tempfile, urllib.request
 from lupa.lua51 import LuaRuntime
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 REV = 'ce566eac45ea8a86477f513c7ee65a1ebe60014e'
@@ -15,7 +16,9 @@ DEST = ROOT / 'public/gems/effects-v1'
 CACHE = pathlib.Path(tempfile.gettempdir()) / ('exile-gem-effects-' + REV)
 CACHE.mkdir(exist_ok=True); DEST.mkdir(parents=True, exist_ok=True)
 if (DEST / 'source.json').exists():
-    raise SystemExit('Published effects exist; use a new revision to update them.')
+    existing = json.loads((DEST / 'source.json').read_text())
+    if '--refresh' not in sys.argv or existing['revision'] != REV:
+        raise SystemExit('Published effects exist; use --refresh for the same revision or a new revision to update them.')
 hashes = {}
 failures = {}
 def fetch(path):
@@ -101,9 +104,17 @@ for effect in required:
                 for stat in quality_stats: stats[stat[1]]=stats.get(stat[1],0)+math.trunc(stat[2]*quality)
                 rendered,failed=lines(stats,scope,True)
                 compiled['quality'][str(quality)]={'lines':rendered,'partial':failed}
+        gemling_stats = [s for s in values(skill['altQualityStats']) if not values(s[3]) or index-1 in values(s[3])]
+        if gemling_stats:
+            compiled['gemlingQuality']={}
+            for quality in range(1,101):
+                stats={}
+                for stat in gemling_stats: stats[stat[1]]=stats.get(stat[1],0)+math.trunc(stat[2]*quality)
+                rendered,failed=lines(stats,scope,True)
+                compiled['gemlingQuality'][str(quality)]={'lines':rendered,'partial':failed}
         result['sets'][str(index)]=compiled
     (DEST/(effect+'.json')).write_text(json.dumps(result,separators=(',',':'),ensure_ascii=False)+'\n')
     count+=1
     if count%100==0:print(count,'skills compiled',flush=True)
-(DEST/'source.json').write_text(json.dumps({'source':SOURCE,'revision':REV,'sha256':hashes,'artworkOwner':'Grinding Gear Games','qualityRange':[1,100],'limitations':['Actor-level interpolated values are omitted and marked partial.','Quality effects are separate; equipment, passive and alternate-quality bonuses are not applied.'],'diagnostics':sorted(set(diagnostics))},indent=2)+'\n')
+(DEST/'source.json').write_text(json.dumps({'source':SOURCE,'revision':REV,'sha256':hashes,'artworkOwner':'Grinding Gear Games','qualityRange':[1,100],'limitations':['Actor-level interpolated values are omitted and marked partial.','Standard and Advanced Thaumaturgy quality effects are separate; equipment and other passive bonuses are not applied.'],'diagnostics':sorted(set(diagnostics))},indent=2)+'\n')
 print('Compiled',count,'skills;',len(set(diagnostics)),'unique translation diagnostics',flush=True)

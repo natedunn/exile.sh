@@ -260,9 +260,7 @@ function SectionNav({
       className={cn(
         "group/nav sticky top-0 z-5 min-w-0 border-b border-rule-strong bg-paper transition-shadow duration-220 ease-out",
         buildNavHeightClass,
-        /* Only the stuck navigation sits above tooltip layers; modal views
-           cover the page, including its otherwise raised navigation. */
-        "data-pinned:z-60 data-pinned:shadow-nav-pinned [body:has([data-slot=dialog-content][data-open])_&]:z-5!"
+        "data-pinned:z-50 data-pinned:shadow-nav-pinned"
       )}
       aria-label="Build sections"
       data-pinned={pinned || undefined}

@@ -1,4 +1,4 @@
-import { Link, useSearch } from "@tanstack/react-router"
+import { Link, useLocation, useSearch } from "@tanstack/react-router"
 import { ExternalLink } from "lucide-react"
 import type { ReactNode } from "react"
 import { cn } from "cn"
@@ -59,6 +59,9 @@ function Masthead({ className }: { className?: string }) {
    the colophon. */
 export function SiteLayout({ children }: { children: ReactNode }) {
   const f = useShellFilters()
+  const isGemDetail = useLocation({
+    select: (location) => /^\/gems\/[^/]+\/?$/.test(location.pathname),
+  })
   return (
     <div
       data-shell="site"
@@ -77,10 +80,21 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       >
         <Masthead className="h-full" />
       </header>
-      <main id="main" className="min-w-0 flex-1 px-(--shell-gutter)">
+      <main
+        id="main"
+        className={cn(
+          "min-w-0 flex-1 px-(--shell-gutter)",
+          isGemDetail && "flex flex-col"
+        )}
+      >
         {children}
       </main>
-      <footer className="relative mt-6 flex shrink-0 items-center gap-6 border-t border-rule-strong px-(--shell-gutter) pt-6 pb-8 font-mono text-label tracking-[0.06em] text-ink-muted before:pointer-events-none before:absolute before:inset-x-0 before:-top-px before:h-[3px] before:dot-screen before:[mask-image:linear-gradient(to_left,black_10%,transparent_80%)] before:bg-[size:3px_3px] before:text-brand before:opacity-70 before:content-[''] max-sm:flex-col max-sm:items-start max-sm:gap-3">
+      <footer
+        className={cn(
+          "relative flex shrink-0 items-center gap-6 border-t border-rule-strong px-(--shell-gutter) pt-6 pb-8 font-mono text-label tracking-[0.06em] text-ink-muted before:pointer-events-none before:absolute before:inset-x-0 before:-top-px before:h-[3px] before:dot-screen before:[mask-image:linear-gradient(to_left,black_10%,transparent_80%)] before:bg-[size:3px_3px] before:text-brand before:opacity-70 before:content-[''] max-sm:flex-col max-sm:items-start max-sm:gap-3",
+          isGemDetail ? "mt-0" : "mt-6"
+        )}
+      >
         <Link
           data-testid="footer-brand"
           className="display text-2xl whitespace-nowrap text-ink hover:text-ink"

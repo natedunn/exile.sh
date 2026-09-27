@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EconomyRouteImport } from './routes/economy'
+import { Route as GemsRouteImport } from './routes/gems'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as MoversRouteImport } from './routes/movers'
 import { Route as NewsRouteImport } from './routes/news'
@@ -24,6 +25,8 @@ import { Route as BuildsSlugRouteImport } from './routes/builds.$slug'
 import { Route as EconomyIndexRouteImport } from './routes/economy.index'
 import { Route as EconomyMarketRouteImport } from './routes/economy.market'
 import { Route as EconomyMoversRouteImport } from './routes/economy.movers'
+import { Route as GemsIndexRouteImport } from './routes/gems.index'
+import { Route as GemsSkillIdRouteImport } from './routes/gems.$skillId'
 import { Route as PatchNotesIndexRouteImport } from './routes/patch-notes.index'
 import { Route as PatchNotesThreadIdRouteImport } from './routes/patch-notes.$threadId'
 import { Route as TreesIndexRouteImport } from './routes/trees.index'
@@ -45,6 +48,11 @@ const AuthRoute = AuthRouteImport.update({
 const EconomyRoute = EconomyRouteImport.update({
   id: '/economy',
   path: '/economy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GemsRoute = GemsRouteImport.update({
+  id: '/gems',
+  path: '/gems',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodologyRoute = MethodologyRouteImport.update({
@@ -107,6 +115,16 @@ const EconomyMoversRoute = EconomyMoversRouteImport.update({
   path: '/movers',
   getParentRoute: () => EconomyRoute,
 } as any)
+const GemsIndexRoute = GemsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GemsRoute,
+} as any)
+const GemsSkillIdRoute = GemsSkillIdRouteImport.update({
+  id: '/$skillId',
+  path: '/$skillId',
+  getParentRoute: () => GemsRoute,
+} as any)
 const PatchNotesIndexRoute = PatchNotesIndexRouteImport.update({
   id: '/patch-notes/',
   path: '/patch-notes/',
@@ -147,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/economy': typeof EconomyRouteWithChildren
+  '/gems': typeof GemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
   '/news': typeof NewsRoute
@@ -156,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
+  '/gems/$skillId': typeof GemsSkillIdRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
@@ -163,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/build-bin/': typeof BuildBinIndexRoute
   '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
+  '/gems/': typeof GemsIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
   '/trees/': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -178,6 +199,7 @@ export interface FileRoutesByTo {
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
+  '/gems/$skillId': typeof GemsSkillIdRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
@@ -185,6 +207,7 @@ export interface FileRoutesByTo {
   '/build-bin': typeof BuildBinIndexRoute
   '/builds': typeof BuildsIndexRoute
   '/economy': typeof EconomyIndexRoute
+  '/gems': typeof GemsIndexRoute
   '/patch-notes': typeof PatchNotesIndexRoute
   '/trees': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -194,6 +217,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/economy': typeof EconomyRouteWithChildren
+  '/gems': typeof GemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/movers': typeof MoversRoute
   '/news': typeof NewsRoute
@@ -203,6 +227,7 @@ export interface FileRoutesById {
   '/builds/$slug': typeof BuildsSlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
+  '/gems/$skillId': typeof GemsSkillIdRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
@@ -210,6 +235,7 @@ export interface FileRoutesById {
   '/build-bin/': typeof BuildBinIndexRoute
   '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
+  '/gems/': typeof GemsIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
   '/trees/': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -220,6 +246,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/economy'
+    | '/gems'
     | '/methodology'
     | '/movers'
     | '/news'
@@ -229,6 +256,7 @@ export interface FileRouteTypes {
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
+    | '/gems/$skillId'
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
@@ -236,6 +264,7 @@ export interface FileRouteTypes {
     | '/build-bin/'
     | '/builds/'
     | '/economy/'
+    | '/gems/'
     | '/patch-notes/'
     | '/trees/'
     | '/api/auth/$'
@@ -251,6 +280,7 @@ export interface FileRouteTypes {
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
+    | '/gems/$skillId'
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
@@ -258,6 +288,7 @@ export interface FileRouteTypes {
     | '/build-bin'
     | '/builds'
     | '/economy'
+    | '/gems'
     | '/patch-notes'
     | '/trees'
     | '/api/auth/$'
@@ -266,6 +297,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/economy'
+    | '/gems'
     | '/methodology'
     | '/movers'
     | '/news'
@@ -275,6 +307,7 @@ export interface FileRouteTypes {
     | '/builds/$slug'
     | '/economy/market'
     | '/economy/movers'
+    | '/gems/$skillId'
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
@@ -282,6 +315,7 @@ export interface FileRouteTypes {
     | '/build-bin/'
     | '/builds/'
     | '/economy/'
+    | '/gems/'
     | '/patch-notes/'
     | '/trees/'
     | '/api/auth/$'
@@ -291,6 +325,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   EconomyRoute: typeof EconomyRouteWithChildren
+  GemsRoute: typeof GemsRouteWithChildren
   MethodologyRoute: typeof MethodologyRoute
   MoversRoute: typeof MoversRoute
   NewsRoute: typeof NewsRoute
@@ -326,6 +361,13 @@ declare module '@tanstack/react-router' {
       path: '/economy'
       fullPath: '/economy'
       preLoaderRoute: typeof EconomyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gems': {
+      id: '/gems'
+      path: '/gems'
+      fullPath: '/gems'
+      preLoaderRoute: typeof GemsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/methodology': {
@@ -412,6 +454,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EconomyMoversRouteImport
       parentRoute: typeof EconomyRoute
     }
+    '/gems/': {
+      id: '/gems/'
+      path: '/'
+      fullPath: '/gems/'
+      preLoaderRoute: typeof GemsIndexRouteImport
+      parentRoute: typeof GemsRoute
+    }
+    '/gems/$skillId': {
+      id: '/gems/$skillId'
+      path: '/$skillId'
+      fullPath: '/gems/$skillId'
+      preLoaderRoute: typeof GemsSkillIdRouteImport
+      parentRoute: typeof GemsRoute
+    }
     '/patch-notes/': {
       id: '/patch-notes/'
       path: '/patch-notes'
@@ -479,6 +535,18 @@ const EconomyRouteChildren: EconomyRouteChildren = {
 const EconomyRouteWithChildren =
   EconomyRoute._addFileChildren(EconomyRouteChildren)
 
+interface GemsRouteChildren {
+  GemsSkillIdRoute: typeof GemsSkillIdRoute
+  GemsIndexRoute: typeof GemsIndexRoute
+}
+
+const GemsRouteChildren: GemsRouteChildren = {
+  GemsSkillIdRoute: GemsSkillIdRoute,
+  GemsIndexRoute: GemsIndexRoute,
+}
+
+const GemsRouteWithChildren = GemsRoute._addFileChildren(GemsRouteChildren)
+
 interface TreesRouteChildren {
   TreesAscendanciesRoute: typeof TreesAscendanciesRoute
   TreesAtlasRoute: typeof TreesAtlasRoute
@@ -499,6 +567,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   EconomyRoute: EconomyRouteWithChildren,
+  GemsRoute: GemsRouteWithChildren,
   MethodologyRoute: MethodologyRoute,
   MoversRoute: MoversRoute,
   NewsRoute: NewsRoute,

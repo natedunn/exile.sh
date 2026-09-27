@@ -171,10 +171,13 @@ function Methodology() {
       <P>
         Numerical effects use PoB’s stat descriptions at the saved gem level,
         including its saved corruption level modifier. Quality contributions are
-        listed separately. Equipment, passive bonuses, and alternate quality
-        bonuses are not applied. Values requiring actor-level interpolation are
-        omitted and flagged as incomplete. These references load on demand and
-        are cached separately for each skill.{" "}
+        listed separately. The gem details page also previews Gemling
+        Legionnaire’s Advanced Thaumaturgy quality effect where the pinned
+        source provides one; this conditional effect is not applied to Build Bin
+        gems. Equipment and other passive bonuses are not applied. Values
+        requiring actor-level interpolation are omitted and flagged as
+        incomplete. These references load on demand and are cached separately
+        for each skill.{" "}
         <a href="/gems/effects-v1/source.json">Gem effects source manifest</a>.
       </P>
       <P>
@@ -187,6 +190,17 @@ function Methodology() {
         versioned paths and content hashes.{" "}
         <a href="/gems/v1/source.json">Gem source manifest</a>. Unmatched gems
         retain their saved values and a fallback icon.
+      </P>
+      <P>
+        Gem keyword explanations use the{" "}
+        <a href="https://repoe-fork.github.io/poe2/keywords.min.json">
+          RePoE PoE2 keyword export
+        </a>
+        , which is extracted from game data. The gem page checks for updated
+        definitions and keeps a local snapshot for when the source is
+        unavailable. Linked terms in gem descriptions come from RePoE’s skill
+        data. RePoE is a community source, so updates may arrive after a game
+        patch.
       </P>
       <H2>Names, artwork, and ownership</H2>
       <P>
@@ -218,6 +232,11 @@ function Methodology() {
         and tree image filenames include content hashes so unchanged files can
         be reused from cache. Source revisions and metadata hashes are recorded
         alongside our asset catalogues.
+      </P>
+      <P>
+        The Lightning Arrow gem page uses the in-game skill preview shown on{" "}
+        <a href="https://poe2db.tw/us/Lightning_Arrow">PoE2DB</a>. Other gem
+        pages use their gem icons when a skill preview is unavailable.
       </P>
       <P>
         Path of Exile, its game data, and artwork belong to Grinding Gear Games.

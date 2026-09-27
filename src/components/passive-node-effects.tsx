@@ -1,20 +1,31 @@
+import { cn } from "cn"
+import { EffectList } from "./effect-list"
 import type { TreeNode } from "../../shared/tree-render-model"
 import { displayLine } from "../../shared/tree-jewels"
 
 export function PassiveLines({
   items,
-  className = "m-0 list-none p-0 [&>li]:relative [&>li]:pl-3.5 [&>li]:text-xs [&>li]:leading-[1.45] [&>li+li]:mt-0.75 [&>li]:before:absolute [&>li]:before:top-[0.58em] [&>li]:before:left-px [&>li]:before:size-1.25 [&>li]:before:rotate-45 [&>li]:before:bg-brand [&>li]:before:content-[''] [&>li:only-child]:pl-0 [&>li:only-child]:before:hidden",
+  hideSingleMarker = true,
+  className,
 }: {
   items: string[]
+  hideSingleMarker?: boolean
   className?: string
 }) {
   if (!items.length) return null
   return (
-    <ul data-slot="tree-lines" className={className}>
+    <EffectList
+      data-slot="tree-lines"
+      hideSingleMarker={hideSingleMarker}
+      className={cn(
+        "[&>li]:text-xs [&>li]:leading-[1.45] [&>li+li]:mt-0.75",
+        className
+      )}
+    >
       {items.map((line, index) => (
         <li key={index}>{displayLine(line)}</li>
       ))}
-    </ul>
+    </EffectList>
   )
 }
 
@@ -39,7 +50,7 @@ export function PassiveNodeEffects({
       )}
       {!!node.options?.length && (
         <ol
-          className="mt-2 list-decimal pl-4 text-xs leading-[1.45] [&_li]:pl-1 [&_li]:whitespace-pre-line [&_li+li]:mt-1.5 [&_li::marker]:text-brand"
+          className="mt-2 list-decimal pl-4 font-display text-xs leading-[1.45] [&_li]:pl-1 [&_li]:whitespace-pre-line [&_li+li]:mt-1.5 [&_li::marker]:text-brand"
           aria-label="Available options"
         >
           {node.options.map((option) => (

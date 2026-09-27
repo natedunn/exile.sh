@@ -513,7 +513,7 @@
   ],
   "limitations": [
     "Actor-level interpolated values are omitted and marked partial.",
-    "Quality effects are separate; equipment, passive and alternate-quality bonuses are not applied."
+    "Standard and Advanced Thaumaturgy quality effects are separate; equipment and other passive bonuses are not applied."
   ],
   "diagnostics": []
 }
