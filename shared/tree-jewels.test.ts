@@ -6,6 +6,7 @@ import {
   jewelLines,
   radiusBenefits,
   displayLine,
+  entwinedRealities,
 } from "./tree-jewels"
 
 const fixture = (name: string) =>
@@ -192,4 +193,40 @@ test("radius grants resolve per node by small or notable scope", () => {
   expect(displayLine("{desecrated}Gain 1 Rage when Hit")).toBe(
     "Gain 1 Rage when Hit"
   )
+})
+
+test("Entwined Realities marks allocated passives placed without a path", () => {
+  const node = (id: string, x: number, extra = {}) => ({
+    id,
+    name: id,
+    x,
+    y: 0,
+    notable: false,
+    ascendancy: "",
+    start: false,
+    ...extra,
+  })
+  const tree = [
+    node("start", 0),
+    node("path", 500),
+    node("keystone", 1000, { keystone: true }),
+    node("near", 1800),
+    node("island", 2200),
+    node("far", 4000),
+    node("Entwined Realities", 9000, { ascendancy: "Oracle" }),
+  ]
+  const edges = [
+    { from: "start", to: "path" },
+    { from: "path", to: "keystone" },
+    { from: "keystone", to: "near" },
+    { from: "near", to: "island" },
+  ]
+  const allocated = ["start", "path", "keystone", "island", "far"]
+  expect(entwinedRealities(tree, edges, allocated).placed).toEqual(new Set())
+  const entwined = entwinedRealities(tree, edges, [
+    ...allocated,
+    "Entwined Realities",
+  ])
+  expect(entwined.placed).toEqual(new Set(["island"]))
+  expect(entwined.centers).toEqual(new Set(["keystone"]))
 })
