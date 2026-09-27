@@ -42,8 +42,12 @@ import ascendancyBackgrounds from "../../shared/generated/ascendancy-backgrounds
 import unseenTreeNodes from "../../shared/generated/tree-unseen.json"
 import { Checkbox } from "./ui/checkbox"
 import { isTreeVersion } from "../../shared/tree-versions"
-import { radiusBenefits, treeJewels } from "../../shared/tree-jewels"
-import type { TreeJewel } from "../../shared/tree-jewels"
+import {
+  entwinedRealities,
+  radiusBenefits,
+  treeJewels,
+} from "../../shared/tree-jewels"
+import type { EntwinedRealities, TreeJewel } from "../../shared/tree-jewels"
 import type { BuildSnapshot } from "../../shared/pob"
 import { treeAttributes } from "../../shared/tree-attributes"
 import type { AttributeOverrides } from "../../shared/tree-attributes"
@@ -623,6 +627,7 @@ function TreeMapRenderer({
   label,
   version,
   jewels,
+  entwined,
   weaponSets,
   panel,
   showPaletteSelector = true,
@@ -647,6 +652,8 @@ function TreeMapRenderer({
     artworkUrl?: string
     overlayControls?: boolean
     jewels: TreeJewel[]
+    /** Passives placed off-tree through Entwined Realities, and their keystones. */
+    entwined?: EntwinedRealities
     data: TreeData
     nodes: string[]
     label: string
@@ -1568,6 +1575,26 @@ function TreeMapRenderer({
             </g>
           )}
           <g pointerEvents="none">
+            {[...(entwined?.centers ?? [])].map((id) => {
+              const keystone = all.get(id)
+              return (
+                keystone && (
+                  <circle
+                    key={id}
+                    data-entwined-realities=""
+                    cx={keystone.x}
+                    cy={keystone.y}
+                    r={entwined!.radius}
+                    fill="var(--color-tree-unseen)"
+                    fillOpacity={0.08}
+                    stroke="var(--color-tree-unseen)"
+                    strokeOpacity={0.55}
+                    strokeWidth={1}
+                    vectorEffect="non-scaling-stroke"
+                  />
+                )
+              )
+            })}
             {jewels.flatMap((jewel) =>
               jewel.areas.map((area, index) => {
                 const { x, y, outer, inner } = area
@@ -1810,6 +1837,14 @@ function TreeMapRenderer({
                   />
                 </Fragment>
               ))}
+              {entwined?.placed.has(node.id) && (
+                <p className="relative pl-3.5 [&_svg]:absolute [&_svg]:top-[0.32em] [&_svg]:-left-px [&_svg]:size-2.5">
+                  <span className="text-tree-unseen">
+                    <Radius aria-hidden="true" />
+                    Within radius of an Entwined Realities keystone
+                  </span>
+                </p>
+              )}
             </InspectionTooltipContent>
           )}
         </Popover>
@@ -1874,6 +1909,13 @@ function PassiveTreeContent({
   const jewels = useMemo(
     () => (tree.data ? treeJewels(tree.data.nodes, sockets, items, nodes) : []),
     [tree.data, sockets, items, nodes]
+  )
+  const entwined = useMemo(
+    () =>
+      tree.data
+        ? entwinedRealities(tree.data.nodes, tree.data.edges, nodes)
+        : undefined,
+    [tree.data, nodes]
   )
   const maps = useMemo(() => {
     if (!tree.data) return []
@@ -2014,6 +2056,7 @@ function PassiveTreeContent({
                     label="Passive tree preview"
                     version={version}
                     jewels={jewels}
+                    entwined={entwined}
                     weaponSets={weaponSets}
                     mode="preview"
                   />
@@ -2043,6 +2086,7 @@ function PassiveTreeContent({
                     label="Passive tree"
                     version={version}
                     jewels={jewels}
+                    entwined={entwined}
                     weaponSets={weaponSets}
                     showPaletteSelector={showPaletteSelector}
                     overlayControls

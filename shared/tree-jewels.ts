@@ -187,3 +187,55 @@ export function radiusBenefits(
     )
     .map((grant) => grant.effect)
 }
+// Oracle's Entwined Realities lets non-keystone passives in Medium radius of
+// an allocated keystone be taken without a path. Returns the allocated passives
+// that only make sense through it (in such a radius and cut off from the main
+// tree) and the keystones whose radius they sit in. Render edges omit class
+// starts, so the main tree is the largest connected group of allocated passives.
+export function entwinedRealities(
+  tree: Node[],
+  edges: { from: string; to: string }[],
+  allocated: string[]
+) {
+  const selected = new Set(allocated)
+  const radius = radii.Medium * 1.2
+  const placed = new Set<string>()
+  const centers = new Set<string>()
+  const result = { radius, placed, centers }
+  if (!tree.some((n) => n.name === "Entwined Realities" && selected.has(n.id)))
+    return result
+  const keystones = tree.filter((n) => n.keystone && selected.has(n.id))
+  if (!keystones.length) return result
+  const neighbours = new Map<string, string[]>()
+  for (const { from, to } of edges)
+    if (selected.has(from) && selected.has(to)) {
+      neighbours.set(from, [...(neighbours.get(from) ?? []), to])
+      neighbours.set(to, [...(neighbours.get(to) ?? []), from])
+    }
+  const passives = tree.filter((n) => selected.has(n.id) && !n.ascendancy)
+  const seen = new Set<string>()
+  let main: string[] = []
+  for (const passive of passives) {
+    if (seen.has(passive.id)) continue
+    const group = [passive.id]
+    seen.add(passive.id)
+    for (const id of group)
+      for (const next of neighbours.get(id) ?? [])
+        if (!seen.has(next)) {
+          seen.add(next)
+          group.push(next)
+        }
+    if (group.length > main.length) main = group
+  }
+  const connected = new Set(main)
+  for (const n of passives) {
+    if (connected.has(n.id) || n.keystone) continue
+    for (const k of keystones)
+      if (Math.hypot(n.x - k.x, n.y - k.y) <= radius) {
+        placed.add(n.id)
+        centers.add(k.id)
+      }
+  }
+  return result
+}
+export type EntwinedRealities = ReturnType<typeof entwinedRealities>
