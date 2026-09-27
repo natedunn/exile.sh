@@ -228,18 +228,18 @@ test("From Nothing radius and socketed jewel details render from a real export",
     1
   )
   await page.getByRole("button", { name: "Open tree", exact: true }).click()
-  // Weapon set passives remain marked; the Build Bin hides the palette picker.
+  // Weapon set passives remain marked beside the palette picker.
   await expect(
     page.locator('[data-tree-fullscreen] [data-node][data-weapon-set="1"]')
   ).toHaveCount(24)
   await expect(
     page.locator('[data-tree-fullscreen] [data-node][data-weapon-set="2"]')
   ).toHaveCount(22)
-  const palette = page.getByRole("combobox", { name: "Color vision" })
+  const palette = page.getByRole("combobox", { name: "Color Blindness Mode" })
   await expect(
     page.locator("[data-tree-fullscreen] [data-passive-tree]")
   ).not.toHaveAttribute("data-palette", /./)
-  await expect(palette).toHaveCount(0)
+  await expect(palette).toBeVisible()
   await page.locator('[data-tree-fullscreen] [data-node="61419"]').hover()
   await expect(page.locator('[data-inspection-tooltip="true"]')).toContainText(
     "From Nothing"
@@ -317,7 +317,7 @@ test("compact tree overview and share dialog preserve page ergonomics", async ({
   ).toBeLessThanOrEqual(390)
 })
 
-test("saved palettes recolor shared and weapon nodes with the Build Bin picker hidden", async ({
+test("saved palettes recolor shared and weapon nodes in the Build Bin", async ({
   page,
 }) => {
   // Re-import and render the complete build for each of the five palettes.
@@ -338,7 +338,7 @@ test("saved palettes recolor shared and weapon nodes with the Build Bin picker h
   }
   await openBuild()
   const map = page.locator("[data-tree-fullscreen] [data-passive-tree]")
-  const picker = page.getByRole("combobox", { name: "Color vision" })
+  const picker = page.getByRole("combobox", { name: "Color Blindness Mode" })
   let standard = ""
   for (const [value] of [
     ["default", "Standard colours"],
@@ -352,7 +352,7 @@ test("saved palettes recolor shared and weapon nodes with the Build Bin picker h
       value
     )
     await openBuild()
-    await expect(picker).toHaveCount(0)
+    await expect(picker).toBeVisible()
     const colors = await map.evaluate((element) => {
       const shared = element.querySelector('[data-node-fill="allocated"]')!
       const first = element.querySelector('[data-node-fill="weapon-1"]')!
@@ -381,7 +381,7 @@ test("saved palettes recolor shared and weapon nodes with the Build Bin picker h
   ).toHaveAttribute("data-palette", "achroma")
   await openBuild()
   await expect(map).toHaveAttribute("data-palette", "achroma")
-  await expect(picker).toHaveCount(0)
+  await expect(picker).toBeVisible()
 })
 
 test("Build Bin embeds its fixed ascendancy and retains center allocations", async ({

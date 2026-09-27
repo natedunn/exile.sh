@@ -29,7 +29,7 @@ export function TreeSettings({ children }: { children: ReactNode }) {
       <div
         className={cn(
           drawerTrack,
-          "right-auto left-3.5 w-[min(220px,calc(100%-82px))] -translate-x-full"
+          "right-auto left-3.5 w-[min(220px,calc(100%-82px))] -translate-x-[calc(100%+6px)]"
         )}
       >
         <Button
@@ -47,7 +47,10 @@ export function TreeSettings({ children }: { children: ReactNode }) {
         <section
           id={id}
           data-slot="tree-settings"
-          className={cn(drawerPanel, "overflow-y-auto overscroll-contain")}
+          className={cn(
+            drawerPanel,
+            "overflow-y-auto overscroll-contain [&_[data-slot=select-trigger]]:w-full [&_[data-slot=select-trigger]]:min-w-0"
+          )}
           aria-label="Tree settings"
           aria-hidden={!open}
           inert={!open}

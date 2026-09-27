@@ -175,7 +175,9 @@
     font-size: 16px !important;
   }
 }
-/* Bracketed dot-screen field shared by equipment and passive-tree viewers. */
+/* Bracketed dot-screen field shared by equipment and passive-tree viewers.
+   An ancestor sets --field-corner-{tl,tr,bl,br} to 0px when an overlay sits
+   in that corner, so the bracket never peeks out from behind it. */
 @utility inspection-field {
   position: relative;
   isolation: isolate;
@@ -195,21 +197,21 @@
     color: var(--color-field-dot);
     background:
       linear-gradient(var(--color-brand-deep), var(--color-brand-deep)) left
-        top / 14px 1px no-repeat,
+        top / var(--field-corner-tl, 14px) 1px no-repeat,
       linear-gradient(var(--color-brand-deep), var(--color-brand-deep)) left
-        top / 1px 14px no-repeat,
+        top / 1px var(--field-corner-tl, 14px) no-repeat,
       linear-gradient(var(--color-brand-deep), var(--color-brand-deep)) right
-        top / 14px 1px no-repeat,
+        top / var(--field-corner-tr, 14px) 1px no-repeat,
       linear-gradient(var(--color-brand-deep), var(--color-brand-deep)) right
-        top / 1px 14px no-repeat,
+        top / 1px var(--field-corner-tr, 14px) no-repeat,
       linear-gradient(var(--color-brand-deep), var(--color-brand-deep)) left
-        bottom / 14px 1px no-repeat,
+        bottom / var(--field-corner-bl, 14px) 1px no-repeat,
       linear-gradient(var(--color-brand-deep), var(--color-brand-deep)) left
-        bottom / 1px 14px no-repeat,
+        bottom / 1px var(--field-corner-bl, 14px) no-repeat,
       linear-gradient(var(--color-brand-deep), var(--color-brand-deep)) right
-        bottom / 14px 1px no-repeat,
+        bottom / var(--field-corner-br, 14px) 1px no-repeat,
       linear-gradient(var(--color-brand-deep), var(--color-brand-deep)) right
-        bottom / 1px 14px no-repeat,
+        bottom / 1px var(--field-corner-br, 14px) no-repeat,
       var(--dot-screen) 0 0 / 5px 5px repeat;
   }
   &::after {
