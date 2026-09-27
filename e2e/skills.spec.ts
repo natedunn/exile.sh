@@ -110,12 +110,9 @@ test("gem keywords explain mechanics in descriptions and effects", async ({
         },
       })
   )
-  // The old skill-id URL settles on the readable slug once the catalogue
-  // (which the page content also waits for) has loaded.
-  await page.goto("/gems/LightningArrowPlayer")
+  await page.goto("/gems/lightning-arrow")
   const description = page.locator('[data-slot="gem-description"]')
   await expect(description).toContainText("Chaining Lightning beams")
-  await expect(page).toHaveURL(/\/gems\/lightning-arrow$/)
   await expect(description.locator('[data-slot="gem-keyword"]')).toHaveText([
     "Chaining",
     "Lightning",

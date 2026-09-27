@@ -23,7 +23,6 @@ export const filters = z.object({
   page: z.coerce.number().int().min(1).max(1000).catch(1),
   favorites: z.boolean().catch(false),
   period: z.enum(MOVER_PERIODS).catch("24h"),
-  item: z.string().max(240).catch(""),
   range: z.enum(CHART_RANGES).catch("7d"),
 })
 export const defaultFilters = filters.parse({})

@@ -35,15 +35,14 @@ export function WorkspaceHeader({
   moversPage: boolean
   delayNotice?: string
 }) {
-  const link = { ...f, item: "" }
   return (
-    <div className="-mx-[var(--shell-gutter)] flex items-center justify-between gap-x-4 border-b border-rule-strong px-[var(--shell-gutter)] max-lg:flex-wrap">
+    <div className="-mx-[var(--shell-gutter)] flex items-end justify-between gap-x-4 border-b border-rule-strong px-[var(--shell-gutter)] max-lg:flex-wrap">
       <SubNavigation aria-label="Economy views" className="max-lg:w-full">
         <SubNavigationItem
           render={
             <Link
               to="/economy/market"
-              search={link}
+              search={f}
               aria-current={!moversPage ? "page" : undefined}
             />
           }
@@ -54,7 +53,7 @@ export function WorkspaceHeader({
           render={
             <Link
               to="/economy/movers"
-              search={link}
+              search={f}
               aria-current={moversPage ? "page" : undefined}
             />
           }
@@ -62,7 +61,7 @@ export function WorkspaceHeader({
           <ArrowUpRight className="size-3.5" /> Market movers
         </SubNavigationItem>
       </SubNavigation>
-      <div className="flex items-end gap-4 max-lg:order-first max-lg:w-full max-lg:py-3">
+      <div className="flex items-end gap-4 py-3 max-lg:order-first max-lg:w-full">
         {delayNotice && (
           <Tooltip>
             <TooltipTrigger
@@ -81,62 +80,95 @@ export function WorkspaceHeader({
             <TooltipContent side="bottom">{delayNotice}</TooltipContent>
           </Tooltip>
         )}
-        <Field className="max-sm:flex-1">
-          <FieldLabel id="league-label">League</FieldLabel>
-          <Select
-            value={f.league}
-            onValueChange={(league) => {
-              if (league) patch({ league, item: "" })
-            }}
-            items={LEAGUES.map((league) => ({ label: league, value: league }))}
-          >
-            <SelectTrigger
-              aria-labelledby="league-label"
-              size="sm"
-              className="max-lg:min-h-11 max-sm:w-full"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="min-w-max">
-              {LEAGUES.map((league) => (
-                <SelectItem key={league} value={league}>
-                  {league}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field className="max-sm:flex-1">
-          <FieldLabel id="quote-label">Display in</FieldLabel>
-          <Select
-            value={f.quote}
-            onValueChange={(quote) => {
-              if (quote) patch({ quote })
-            }}
-            items={DISPLAY_CURRENCIES.map((quote) => ({
-              label: quote,
-              value: quote,
-            }))}
-          >
-            <SelectTrigger
-              aria-label="Quote currency"
-              size="sm"
-              className="max-lg:min-h-11 max-sm:w-full"
-            >
-              <SelectValue>
-                <DisplayCurrencyLabel quote={f.quote} />
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="min-w-max">
-              {DISPLAY_CURRENCIES.map((quote) => (
-                <SelectItem key={quote} value={quote}>
-                  <DisplayCurrencyLabel quote={quote} />
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
+        <LeagueSelect
+          league={f.league}
+          onLeague={(league) => patch({ league })}
+          className="max-sm:flex-1"
+        />
+        <DisplayCurrencySelect
+          quote={f.quote}
+          onQuote={(quote) => patch({ quote })}
+          className="max-sm:flex-1"
+        />
       </div>
     </div>
+  )
+}
+
+export function LeagueSelect({
+  league,
+  onLeague,
+  className,
+}: {
+  league: Filters["league"]
+  onLeague: (league: Filters["league"]) => void
+  className?: string
+}) {
+  return (
+    <Field className={className}>
+      <FieldLabel id="league-label">League</FieldLabel>
+      <Select
+        value={league}
+        onValueChange={(value) => {
+          if (value) onLeague(value)
+        }}
+        items={LEAGUES.map((value) => ({ label: value, value }))}
+      >
+        <SelectTrigger
+          aria-labelledby="league-label"
+          size="sm"
+          className="max-lg:min-h-11 max-sm:w-full"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="min-w-max">
+          {LEAGUES.map((value) => (
+            <SelectItem key={value} value={value}>
+              {value}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </Field>
+  )
+}
+
+export function DisplayCurrencySelect({
+  quote,
+  onQuote,
+  className,
+}: {
+  quote: Filters["quote"]
+  onQuote: (quote: Filters["quote"]) => void
+  className?: string
+}) {
+  return (
+    <Field className={className}>
+      <FieldLabel id="quote-label">Display in</FieldLabel>
+      <Select
+        value={quote}
+        onValueChange={(value) => {
+          if (value) onQuote(value)
+        }}
+        items={DISPLAY_CURRENCIES.map((value) => ({ label: value, value }))}
+      >
+        <SelectTrigger
+          aria-label="Quote currency"
+          size="sm"
+          className="max-lg:min-h-11 max-sm:w-full"
+        >
+          <SelectValue>
+            <DisplayCurrencyLabel quote={quote} />
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent className="min-w-max">
+          {DISPLAY_CURRENCIES.map((value) => (
+            <SelectItem key={value} value={value}>
+              <DisplayCurrencyLabel quote={value} />
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </Field>
   )
 }

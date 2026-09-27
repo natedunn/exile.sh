@@ -36,6 +36,7 @@ import type { Filters } from "../../lib/economy-filters"
 import { compact, number } from "../../lib/format"
 import { Delta, Icon, Sparkline } from "./icon"
 import {
+  CurrencyLink,
   EmptyAction,
   PageButtons,
   Pagination,
@@ -262,7 +263,9 @@ export function CurrencyTable({
                       variant="ghost"
                       size="sm"
                       className="flex h-auto max-w-75 min-w-60 justify-start gap-4 bg-transparent p-0 text-left text-sm font-[450] text-ink hover:bg-transparent hover:text-ink max-xl:max-w-55 max-xl:min-w-50"
-                      onClick={() => openItem(r.id)}
+                      nativeButton={false}
+                      role="link"
+                      render={<CurrencyLink id={r.id} f={f} />}
                     >
                       <Icon id={r.id} glow />
                       <span className="truncate group-focus-within/row:underline group-focus-within/row:decoration-dotted group-focus-within/row:underline-offset-4 group-hover/row:underline group-hover/row:decoration-dotted group-hover/row:underline-offset-4">
@@ -315,7 +318,9 @@ export function CurrencyTable({
                       variant="ghost"
                       size="sm"
                       className="w-5 bg-transparent p-0 text-ink-faint group-hover/row:text-brand hover:bg-transparent"
-                      onClick={() => openItem(r.id)}
+                      nativeButton={false}
+                      role="link"
+                      render={<CurrencyLink id={r.id} f={f} tabIndex={-1} />}
                       aria-label={`View ${name} history`}
                     >
                       <ChevronRight size={15} />

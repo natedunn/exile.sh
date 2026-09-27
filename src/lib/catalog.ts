@@ -13,6 +13,10 @@ export function itemInfo(id: string): CatalogItem {
     }
   )
 }
+/* Catalogue descriptions carry wiki links as [Target|Label] or [Label]. */
+export const plainDescription = (text: string) =>
+  text.replace(/\[(?:[^\]|]*\|)?([^\]]*)\]/g, "$1")
+
 export const CATEGORIES = [
   "All currencies",
   "Currency",

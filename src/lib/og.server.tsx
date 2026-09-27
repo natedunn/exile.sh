@@ -1,11 +1,13 @@
 import { ImageResponse } from "@cf-wasm/og/workerd"
 import type { ReactNode } from "react"
+import type { CatalogItem } from "../../shared/economy"
 import type { GemReference } from "../../shared/gems"
 import { assetBytes } from "./assets.server"
+import { plainDescription } from "./catalog"
 import { gemTags } from "./gem-display"
 import { clipText } from "./share-meta"
 
-/* Share cards (1200 × 630) for the gem pages, drawn with satori over the
+/* Share cards (1200 × 630) for the gem and currency pages, drawn with satori over the
  * dithered background from scripts/dither-art.mjs. Colours are the sRGB
  * values of the tokens in tokens.css; satori cannot read CSS variables. */
 
@@ -34,16 +36,42 @@ async function fonts() {
   ] as const
 }
 
-async function background(support = false) {
-  const bytes = new Uint8Array(
-    await assetBytes(
-      support ? "/og/support-gems-card.png" : "/og/gems-card.png"
-    )
-  )
+function pngDataUrl(buffer: ArrayBuffer) {
+  const bytes = new Uint8Array(buffer)
   let binary = ""
   for (let i = 0; i < bytes.length; i += 0x8000)
     binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
   return `data:image/png;base64,${btoa(binary)}`
+}
+
+async function background(
+  card: "gems-card" | "support-gems-card" | "currency-card"
+) {
+  return pngDataUrl(await assetBytes(`/og/${card}.png`))
+}
+
+/* A currency's icon, placed over the glow baked into currency-card.png
+ * (centred 870px across, 315px down). Icons are small PNGs, mostly
+ * 108px, so they scale by a whole number with hard pixels to sit with the
+ * dithered ground. Null when the art cannot be fetched. */
+type Art = { src: string; width: number; height: number }
+async function currencyArt(icon: string): Promise<Art | null> {
+  try {
+    const response = await fetch(icon.replace(/\.webp$/, ".png"))
+    if (!response.ok) return null
+    const buffer = await response.arrayBuffer()
+    // PNG width and height live at bytes 16–23 of the IHDR chunk.
+    const view = new DataView(buffer)
+    const [width, height] = [view.getUint32(16), view.getUint32(20)]
+    const scale = Math.max(1, Math.floor(340 / Math.max(width, height)))
+    return {
+      src: pngDataUrl(buffer),
+      width: width * scale,
+      height: height * scale,
+    }
+  } catch {
+    return null
+  }
 }
 
 const mono = {
@@ -55,6 +83,7 @@ const mono = {
 
 function Card({
   image,
+  art,
   label,
   title,
   titleSize,
@@ -63,6 +92,7 @@ function Card({
   path,
 }: {
   image: string
+  art?: Art | null
   label: string
   title: string
   titleSize: number
@@ -73,6 +103,7 @@ function Card({
   return (
     <div
       style={{
+        position: "relative",
         display: "flex",
         width: "100%",
         height: "100%",
@@ -178,6 +209,19 @@ function Card({
           {path}
         </div>
       </div>
+      {art && (
+        <img
+          src={art.src}
+          width={art.width}
+          height={art.height}
+          style={{
+            position: "absolute",
+            left: 870 - art.width / 2,
+            top: 315 - art.height / 2,
+            imageRendering: "pixelated",
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -207,7 +251,7 @@ async function render(node: ReactNode) {
 export async function gemCard(gem: GemReference, slug: string) {
   return render(
     <Card
-      image={await background(gem.support)}
+      image={await background(gem.support ? "support-gems-card" : "gems-card")}
       label={gem.support ? "Support gem" : "Skill gem"}
       title={gem.name.replace(/:?\s*\{\d+\}/g, "")}
       titleSize={titleSize(gem.name)}
@@ -229,12 +273,42 @@ export async function gemCard(gem: GemReference, slug: string) {
 export async function gemsCard(skills: number, supports: number) {
   return render(
     <Card
-      image={await background()}
+      image={await background("gems-card")}
       label="Path of Exile 2"
       title="Gems"
       titleSize={132}
       body={`Every skill and support gem: level and quality ranges, effects, requirements and compatible supports. ${skills} skills, ${supports} supports.`}
       path="exile.sh/gems"
+    />
+  )
+}
+
+export async function currencyCard(item: CatalogItem, slug: string) {
+  const [image, art] = await Promise.all([
+    background("currency-card"),
+    currencyArt(item.icon),
+  ])
+  const size = titleSize(item.name)
+  return render(
+    <Card
+      image={image}
+      art={art}
+      label={
+        item.category === "Currency"
+          ? "Currency"
+          : `Currency · ${item.category}`
+      }
+      title={item.name}
+      titleSize={size}
+      body={
+        item.description
+          ? clipText(
+              plainDescription(item.description),
+              titleLines(item.name, size) > 1 ? 95 : 145
+            )
+          : undefined
+      }
+      path={`exile.sh/currency/${slug}`}
     />
   )
 }

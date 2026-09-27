@@ -14,14 +14,10 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as GemsRouteImport } from './routes/gems'
 import { Route as MethodologyRouteImport } from './routes/methodology'
-import { Route as MoversRouteImport } from './routes/movers'
-import { Route as NewsRouteImport } from './routes/news'
-import { Route as PassiveTreeRouteImport } from './routes/passive-tree'
 import { Route as TreesRouteImport } from './routes/trees'
 import { Route as BuildBinIndexRouteImport } from './routes/build-bin.index'
 import { Route as BuildBinSlugRouteImport } from './routes/build-bin.$slug'
-import { Route as BuildsIndexRouteImport } from './routes/builds.index'
-import { Route as BuildsSlugRouteImport } from './routes/builds.$slug'
+import { Route as CurrencySlugRouteImport } from './routes/currency.$slug'
 import { Route as EconomyIndexRouteImport } from './routes/economy.index'
 import { Route as EconomyMarketRouteImport } from './routes/economy.market'
 import { Route as EconomyMoversRouteImport } from './routes/economy.movers'
@@ -34,6 +30,7 @@ import { Route as TreesAscendanciesRouteImport } from './routes/trees.ascendanci
 import { Route as TreesAtlasRouteImport } from './routes/trees.atlas'
 import { Route as TreesPassiveRouteImport } from './routes/trees.passive'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as OgCurrencySlugRouteImport } from './routes/og.currency.$slug'
 import { Route as OgGemsIndexRouteImport } from './routes/og.gems.index'
 import { Route as OgGemsGemRouteImport } from './routes/og.gems.$gem'
 
@@ -62,21 +59,6 @@ const MethodologyRoute = MethodologyRouteImport.update({
   path: '/methodology',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MoversRoute = MoversRouteImport.update({
-  id: '/movers',
-  path: '/movers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NewsRoute = NewsRouteImport.update({
-  id: '/news',
-  path: '/news',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PassiveTreeRoute = PassiveTreeRouteImport.update({
-  id: '/passive-tree',
-  path: '/passive-tree',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TreesRoute = TreesRouteImport.update({
   id: '/trees',
   path: '/trees',
@@ -92,14 +74,9 @@ const BuildBinSlugRoute = BuildBinSlugRouteImport.update({
   path: '/build-bin/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuildsIndexRoute = BuildsIndexRouteImport.update({
-  id: '/builds/',
-  path: '/builds/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BuildsSlugRoute = BuildsSlugRouteImport.update({
-  id: '/builds/$slug',
-  path: '/builds/$slug',
+const CurrencySlugRoute = CurrencySlugRouteImport.update({
+  id: '/currency/$slug',
+  path: '/currency/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EconomyIndexRoute = EconomyIndexRouteImport.update({
@@ -162,6 +139,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OgCurrencySlugRoute = OgCurrencySlugRouteImport.update({
+  id: '/og/currency/$slug',
+  path: '/og/currency/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OgGemsIndexRoute = OgGemsIndexRouteImport.update({
   id: '/og/gems/',
   path: '/og/gems/',
@@ -179,12 +161,9 @@ export interface FileRoutesByFullPath {
   '/economy': typeof EconomyRouteWithChildren
   '/gems': typeof GemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
-  '/movers': typeof MoversRoute
-  '/news': typeof NewsRoute
-  '/passive-tree': typeof PassiveTreeRoute
   '/trees': typeof TreesRouteWithChildren
   '/build-bin/$slug': typeof BuildBinSlugRoute
-  '/builds/$slug': typeof BuildsSlugRoute
+  '/currency/$slug': typeof CurrencySlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/gems/$gem': typeof GemsGemRoute
@@ -193,12 +172,12 @@ export interface FileRoutesByFullPath {
   '/trees/atlas': typeof TreesAtlasRoute
   '/trees/passive': typeof TreesPassiveRoute
   '/build-bin/': typeof BuildBinIndexRoute
-  '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
   '/gems/': typeof GemsIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
   '/trees/': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/og/currency/$slug': typeof OgCurrencySlugRoute
   '/og/gems/$gem': typeof OgGemsGemRoute
   '/og/gems/': typeof OgGemsIndexRoute
 }
@@ -206,11 +185,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/methodology': typeof MethodologyRoute
-  '/movers': typeof MoversRoute
-  '/news': typeof NewsRoute
-  '/passive-tree': typeof PassiveTreeRoute
   '/build-bin/$slug': typeof BuildBinSlugRoute
-  '/builds/$slug': typeof BuildsSlugRoute
+  '/currency/$slug': typeof CurrencySlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/gems/$gem': typeof GemsGemRoute
@@ -219,12 +195,12 @@ export interface FileRoutesByTo {
   '/trees/atlas': typeof TreesAtlasRoute
   '/trees/passive': typeof TreesPassiveRoute
   '/build-bin': typeof BuildBinIndexRoute
-  '/builds': typeof BuildsIndexRoute
   '/economy': typeof EconomyIndexRoute
   '/gems': typeof GemsIndexRoute
   '/patch-notes': typeof PatchNotesIndexRoute
   '/trees': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/og/currency/$slug': typeof OgCurrencySlugRoute
   '/og/gems/$gem': typeof OgGemsGemRoute
   '/og/gems': typeof OgGemsIndexRoute
 }
@@ -235,12 +211,9 @@ export interface FileRoutesById {
   '/economy': typeof EconomyRouteWithChildren
   '/gems': typeof GemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
-  '/movers': typeof MoversRoute
-  '/news': typeof NewsRoute
-  '/passive-tree': typeof PassiveTreeRoute
   '/trees': typeof TreesRouteWithChildren
   '/build-bin/$slug': typeof BuildBinSlugRoute
-  '/builds/$slug': typeof BuildsSlugRoute
+  '/currency/$slug': typeof CurrencySlugRoute
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/gems/$gem': typeof GemsGemRoute
@@ -249,12 +222,12 @@ export interface FileRoutesById {
   '/trees/atlas': typeof TreesAtlasRoute
   '/trees/passive': typeof TreesPassiveRoute
   '/build-bin/': typeof BuildBinIndexRoute
-  '/builds/': typeof BuildsIndexRoute
   '/economy/': typeof EconomyIndexRoute
   '/gems/': typeof GemsIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
   '/trees/': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/og/currency/$slug': typeof OgCurrencySlugRoute
   '/og/gems/$gem': typeof OgGemsGemRoute
   '/og/gems/': typeof OgGemsIndexRoute
 }
@@ -266,12 +239,9 @@ export interface FileRouteTypes {
     | '/economy'
     | '/gems'
     | '/methodology'
-    | '/movers'
-    | '/news'
-    | '/passive-tree'
     | '/trees'
     | '/build-bin/$slug'
-    | '/builds/$slug'
+    | '/currency/$slug'
     | '/economy/market'
     | '/economy/movers'
     | '/gems/$gem'
@@ -280,12 +250,12 @@ export interface FileRouteTypes {
     | '/trees/atlas'
     | '/trees/passive'
     | '/build-bin/'
-    | '/builds/'
     | '/economy/'
     | '/gems/'
     | '/patch-notes/'
     | '/trees/'
     | '/api/auth/$'
+    | '/og/currency/$slug'
     | '/og/gems/$gem'
     | '/og/gems/'
   fileRoutesByTo: FileRoutesByTo
@@ -293,11 +263,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/methodology'
-    | '/movers'
-    | '/news'
-    | '/passive-tree'
     | '/build-bin/$slug'
-    | '/builds/$slug'
+    | '/currency/$slug'
     | '/economy/market'
     | '/economy/movers'
     | '/gems/$gem'
@@ -306,12 +273,12 @@ export interface FileRouteTypes {
     | '/trees/atlas'
     | '/trees/passive'
     | '/build-bin'
-    | '/builds'
     | '/economy'
     | '/gems'
     | '/patch-notes'
     | '/trees'
     | '/api/auth/$'
+    | '/og/currency/$slug'
     | '/og/gems/$gem'
     | '/og/gems'
   id:
@@ -321,12 +288,9 @@ export interface FileRouteTypes {
     | '/economy'
     | '/gems'
     | '/methodology'
-    | '/movers'
-    | '/news'
-    | '/passive-tree'
     | '/trees'
     | '/build-bin/$slug'
-    | '/builds/$slug'
+    | '/currency/$slug'
     | '/economy/market'
     | '/economy/movers'
     | '/gems/$gem'
@@ -335,12 +299,12 @@ export interface FileRouteTypes {
     | '/trees/atlas'
     | '/trees/passive'
     | '/build-bin/'
-    | '/builds/'
     | '/economy/'
     | '/gems/'
     | '/patch-notes/'
     | '/trees/'
     | '/api/auth/$'
+    | '/og/currency/$slug'
     | '/og/gems/$gem'
     | '/og/gems/'
   fileRoutesById: FileRoutesById
@@ -351,17 +315,14 @@ export interface RootRouteChildren {
   EconomyRoute: typeof EconomyRouteWithChildren
   GemsRoute: typeof GemsRouteWithChildren
   MethodologyRoute: typeof MethodologyRoute
-  MoversRoute: typeof MoversRoute
-  NewsRoute: typeof NewsRoute
-  PassiveTreeRoute: typeof PassiveTreeRoute
   TreesRoute: typeof TreesRouteWithChildren
   BuildBinSlugRoute: typeof BuildBinSlugRoute
-  BuildsSlugRoute: typeof BuildsSlugRoute
+  CurrencySlugRoute: typeof CurrencySlugRoute
   PatchNotesThreadIdRoute: typeof PatchNotesThreadIdRoute
   BuildBinIndexRoute: typeof BuildBinIndexRoute
-  BuildsIndexRoute: typeof BuildsIndexRoute
   PatchNotesIndexRoute: typeof PatchNotesIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  OgCurrencySlugRoute: typeof OgCurrencySlugRoute
   OgGemsGemRoute: typeof OgGemsGemRoute
   OgGemsIndexRoute: typeof OgGemsIndexRoute
 }
@@ -403,27 +364,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MethodologyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/movers': {
-      id: '/movers'
-      path: '/movers'
-      fullPath: '/movers'
-      preLoaderRoute: typeof MoversRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/news': {
-      id: '/news'
-      path: '/news'
-      fullPath: '/news'
-      preLoaderRoute: typeof NewsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/passive-tree': {
-      id: '/passive-tree'
-      path: '/passive-tree'
-      fullPath: '/passive-tree'
-      preLoaderRoute: typeof PassiveTreeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/trees': {
       id: '/trees'
       path: '/trees'
@@ -445,18 +385,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuildBinSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/builds/': {
-      id: '/builds/'
-      path: '/builds'
-      fullPath: '/builds/'
-      preLoaderRoute: typeof BuildsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/builds/$slug': {
-      id: '/builds/$slug'
-      path: '/builds/$slug'
-      fullPath: '/builds/$slug'
-      preLoaderRoute: typeof BuildsSlugRouteImport
+    '/currency/$slug': {
+      id: '/currency/$slug'
+      path: '/currency/$slug'
+      fullPath: '/currency/$slug'
+      preLoaderRoute: typeof CurrencySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/economy/': {
@@ -543,6 +476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/og/currency/$slug': {
+      id: '/og/currency/$slug'
+      path: '/og/currency/$slug'
+      fullPath: '/og/currency/$slug'
+      preLoaderRoute: typeof OgCurrencySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/og/gems/': {
       id: '/og/gems/'
       path: '/og/gems'
@@ -609,17 +549,14 @@ const rootRouteChildren: RootRouteChildren = {
   EconomyRoute: EconomyRouteWithChildren,
   GemsRoute: GemsRouteWithChildren,
   MethodologyRoute: MethodologyRoute,
-  MoversRoute: MoversRoute,
-  NewsRoute: NewsRoute,
-  PassiveTreeRoute: PassiveTreeRoute,
   TreesRoute: TreesRouteWithChildren,
   BuildBinSlugRoute: BuildBinSlugRoute,
-  BuildsSlugRoute: BuildsSlugRoute,
+  CurrencySlugRoute: CurrencySlugRoute,
   PatchNotesThreadIdRoute: PatchNotesThreadIdRoute,
   BuildBinIndexRoute: BuildBinIndexRoute,
-  BuildsIndexRoute: BuildsIndexRoute,
   PatchNotesIndexRoute: PatchNotesIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  OgCurrencySlugRoute: OgCurrencySlugRoute,
   OgGemsGemRoute: OgGemsGemRoute,
   OgGemsIndexRoute: OgGemsIndexRoute,
 }

@@ -267,6 +267,15 @@ await writeFile(
     return Math.max(0, 1 - d) ** 1.8
   })
 )
+// Radial glow behind a currency's icon on its page, 184px: the icon's
+// halo box (96px frame, 45% bleed each side), brightest at the centre.
+await writeFile(
+  new URL("glow-icon.png", OUT),
+  await ramp(184, 184, 2, (x, y) => {
+    const d = Math.hypot(x - 0.5, y - 0.5) * 2
+    return Math.max(0, 1 - d) ** 1.4
+  })
+)
 // Share card for /gems pages, 1200 × 630: the paper ground with the site's
 // faint dot grid, and the uncut gem dissolving into it on the right. Built
 // at half size and doubled, so dither cells stay crisp without relying on
@@ -317,4 +326,23 @@ for (const [name, source] of [
       })
     )
   )
+// Currency cards draw the item's own art at request time, so their
+// background carries only a dithered bronze glow for it to sit on.
+function glowArt(width, height, strength) {
+  const out = Buffer.alloc(width * height * 4)
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const d = edgeRadius(x, y, width, height, 0.5, 0.5)
+      const tone = strength * ease(1, d) ** 1.5 * (PALETTE.length - 1)
+      const level = Math.min(PALETTE.length - 1, Math.floor(tone + bayer(x, y)))
+      out.set(PALETTE[level], (y * width + x) * 4)
+    }
+  return sharp(out, { raw: { width, height, channels: 4 } })
+    .png({ palette: true })
+    .toBuffer()
+}
+await writeFile(
+  new URL("../public/og/currency-card.png", import.meta.url),
+  await ogCard(await glowArt(330, 315, 0.5))
+)
 console.log("wrote public/art and public/og")

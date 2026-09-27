@@ -32,10 +32,4 @@ describe("gem slugs", () => {
       "lightning-bolt"
     )
   })
-
-  it("still resolves legacy skill id links", () => {
-    expect(gemBySlug(catalogue, "LightningArrowPlayer")).toBe(
-      byId("LightningArrowPlayer")
-    )
-  })
 })

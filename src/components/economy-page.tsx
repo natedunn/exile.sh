@@ -1,14 +1,12 @@
 import { useQuery } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { CircleHelp, Gem } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { ANCHORS, QUOTES } from "../../shared/economy"
-import type { ItemRow, Quote } from "../../shared/economy"
-import { autoDisplayQuotes } from "../../shared/display-currency"
+import type { ItemRow } from "../../shared/economy"
+import { currencySlug } from "../../shared/currency-slug"
 import { isEconomyStale } from "../../shared/freshness"
 import { CategoryPicker, CategorySidebar } from "./economy/category-sidebar"
 import { CurrencyTable } from "./economy/currency-table"
-import { ItemDetail } from "./economy/market-detail"
 import { MoversSection } from "./economy/movers"
 import { EmptyAction } from "./economy/shared"
 import { WorkspaceHeader } from "./economy/workspace-header"
@@ -27,6 +25,8 @@ import { CATEGORIES, itemInfo } from "../lib/catalog"
 import { useCRPC } from "../lib/convex/crpc"
 import type { Filters } from "../lib/economy-filters"
 import { utc } from "../lib/format"
+import { useMarket } from "../lib/use-market"
+import { useWatchlist } from "../lib/use-watchlist"
 
 export { filters, defaultFilters } from "../lib/economy-filters"
 export type { Filters } from "../lib/economy-filters"
@@ -41,15 +41,13 @@ export function EconomyPage({
   moversPage?: boolean
 }) {
   const crpc = useCRPC()
-  const query = useQuery(
-    crpc.economy.overview.queryOptions({ league: f.league })
-  )
+  const navigate = useNavigate()
+  const { query, rows, displayQuote, quoteIndex, value } = useMarket(f)
   const moverQuery = useQuery({
     ...crpc.economy.movers.queryOptions({ league: f.league, period: f.period }),
-    enabled: moversPage && !f.item,
+    enabled: moversPage,
   })
-  const [favorites, setFavorites] = useState<string[]>([])
-  const [storageError, setStorageError] = useState(false)
+  const { favorites, toggleFavorite, storageError } = useWatchlist()
   const [now, setNow] = useState(0)
   const search = useRef<HTMLInputElement>(null)
 
@@ -73,36 +71,12 @@ export function EconomyPage({
   }, [])
 
   useEffect(() => {
-    try {
-      const saved: unknown = JSON.parse(
-        localStorage.getItem("exile.watchlist") ?? "[]"
-      )
-      if (Array.isArray(saved))
-        setFavorites(
-          saved.filter((value): value is string => typeof value === "string")
-        )
-    } catch {
-      setStorageError(true)
-    }
     setNow(Date.now())
     const timer = window.setInterval(() => setNow(Date.now()), 60_000)
     return () => window.clearInterval(timer)
   }, [])
 
-  const toggleFavorite = (id: string) => {
-    const next = favorites.includes(id)
-      ? favorites.filter((value) => value !== id)
-      : [...favorites, id]
-    setFavorites(next)
-    try {
-      localStorage.setItem("exile.watchlist", JSON.stringify(next))
-    } catch {
-      setStorageError(true)
-    }
-  }
-
   const data = query.data
-  const rows = data?.prices ?? []
   const categoryOptions = CATEGORIES.map((category) => {
     const categoryRows = rows.filter(
       (row) =>
@@ -115,19 +89,6 @@ export function EconomyPage({
     )
     return { category, count: categoryRows.length, mostTraded }
   }).filter(({ category, count }) => count > 0 || category === "All currencies")
-
-  const autoQuotes = autoDisplayQuotes(rows, data?.pairs ?? [])
-  const displayQuote = (id: string): Quote =>
-    f.quote === "Auto" ? (autoQuotes.get(id) ?? "Exalted") : f.quote
-  const quoteIndex = (id: string) => QUOTES.indexOf(displayQuote(id))
-  const rate = (id: string) =>
-    displayQuote(id) === "Exalted"
-      ? 1
-      : rows.find((row) => row.id === ANCHORS[displayQuote(id)])?.price
-  const value = (row: ItemRow) => {
-    const conversion = rate(row.id)
-    return conversion ? row.price / conversion : null
-  }
 
   const visible = rows
     .filter((row) => {
@@ -194,14 +155,16 @@ export function EconomyPage({
     data && stale
       ? `Updates are delayed. Latest available data: ${utc(data.hour)}.`
       : undefined
-  const openItem = (id: string) => patch({ item: id })
+  const openItem = (id: string) =>
+    void navigate({
+      to: "/currency/$slug",
+      params: { slug: currencySlug(id) },
+      search: f,
+    })
 
   return (
     <>
-      <PageHeading
-        compact={Boolean(f.item)}
-        className="-mx-[var(--shell-gutter)] px-[var(--shell-gutter)]"
-      >
+      <PageHeading className="-mx-[var(--shell-gutter)] px-[var(--shell-gutter)]">
         <PageHeadingCopy>
           <PageTitle>
             {moversPage ? "Market movers" : "Exchange economy"}
@@ -219,18 +182,16 @@ export function EconomyPage({
             </span>
           </PageMeta>
         </PageHeadingCopy>
-        {!f.item && (
-          <img
-            src="/art/economy-masthead.png"
-            alt=""
-            aria-hidden="true"
-            width="190"
-            height="100"
-            decoding="async"
-            fetchPriority="high"
-            className="pointer-events-none absolute top-0 right-0 z-0 h-full max-h-50 w-auto opacity-85 select-none [image-rendering:pixelated] max-sm:opacity-45"
-          />
-        )}
+        <img
+          src="/art/economy-masthead.png"
+          alt=""
+          aria-hidden="true"
+          width="190"
+          height="100"
+          decoding="async"
+          fetchPriority="high"
+          className="pointer-events-none absolute top-0 right-0 z-0 h-full max-h-50 w-auto opacity-85 select-none [image-rendering:pixelated] max-sm:opacity-45"
+        />
       </PageHeading>
 
       {storageError && (
@@ -282,27 +243,6 @@ export function EconomyPage({
           </EmptyStateText>
           <Note>Choose another league or return after collection begins.</Note>
         </EmptyState>
-      ) : f.item ? (
-        <ItemDetail
-          id={f.item}
-          league={f.league}
-          quote={displayQuote(f.item)}
-          row={rows.find((row) => row.id === f.item)}
-          price={
-            rate(f.item)
-              ? (rows.find((row) => row.id === f.item)?.price ?? 0) /
-                rate(f.item)!
-              : null
-          }
-          hour={data.hour}
-          pairs={data.pairs}
-          onBack={() => patch({ item: "" })}
-          onItem={openItem}
-          favorite={favorites.includes(f.item)}
-          onFavorite={() => toggleFavorite(f.item)}
-          range={f.range}
-          onRange={(range) => patch({ range, page: f.page })}
-        />
       ) : moversPage ? (
         <MoversSection
           f={f}
@@ -321,7 +261,6 @@ export function EconomyPage({
           value={value}
           displayQuote={displayQuote}
           quoteIndex={quoteIndex}
-          openItem={openItem}
           retry={() => void moverQuery.refetch()}
         />
       ) : (

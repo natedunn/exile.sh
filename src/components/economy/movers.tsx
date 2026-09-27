@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router"
 import { cn } from "cn"
 import { ArrowDownLeft, ArrowUpRight, CircleHelp } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { currencySlug } from "../../../shared/currency-slug"
 import type { ItemRow, Quote } from "../../../shared/economy"
 import { MOVER_PERIOD, MOVER_PERIODS } from "../../../shared/movers"
 import { itemInfo } from "../../lib/catalog"
@@ -35,7 +37,6 @@ export function MoversSection({
   value,
   displayQuote,
   quoteIndex,
-  openItem,
   retry,
 }: {
   f: Filters
@@ -48,7 +49,6 @@ export function MoversSection({
   value: (r: ItemRow) => number | null
   displayQuote: (id: string) => Quote
   quoteIndex: (id: string) => number
-  openItem: (id: string) => void
   retry: () => void
 }) {
   return (
@@ -120,11 +120,12 @@ export function MoversSection({
               rule="top"
               surface="none"
               fade="tint"
-              className={
+              className={cn(
+                "border-x border-x-rule",
                 group.up
                   ? "[--dither-color:var(--color-positive)]"
                   : "[--dither-color:var(--color-negative)]"
-              }
+              )}
             >
               <div className="flex items-baseline justify-between gap-3 border-b border-rule px-3 pt-4 pb-3">
                 <span
@@ -151,13 +152,21 @@ export function MoversSection({
                     size="sm"
                     data-testid="mover-row"
                     className={cn(
-                      "relative flex h-auto min-h-17 w-full items-center justify-start gap-3 rounded-none border-b border-rule bg-transparent px-3 py-2 text-left text-sm hover:bg-surface max-lg:py-3 max-sm:px-2",
+                      "relative flex h-auto min-h-17 w-full items-center justify-start gap-3 rounded-none border-0 border-b border-rule bg-transparent px-3 py-2 text-left text-sm max-lg:py-3 max-sm:px-2",
                       group.up
-                        ? "hover:shadow-[inset_3px_0_0_var(--color-positive)]"
-                        : "hover:shadow-[inset_3px_0_0_var(--color-negative)]"
+                        ? "hover:bg-positive/8 hover:shadow-[inset_3px_0_0_var(--color-positive)]"
+                        : "hover:bg-negative/8 hover:shadow-[inset_3px_0_0_var(--color-negative)]"
                     )}
                     key={r.id}
-                    onClick={() => openItem(r.id)}
+                    nativeButton={false}
+                    role="link"
+                    render={
+                      <Link
+                        to="/currency/$slug"
+                        params={{ slug: currencySlug(r.id) }}
+                        search={f}
+                      />
+                    }
                   >
                     <span
                       className="w-[2ch] font-mono text-label tracking-normal text-ink-faint"
