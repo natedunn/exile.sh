@@ -128,8 +128,8 @@ function Profile() {
           )}
           <p className={cn(copy, "wrap-anywhere")}>@{data.profile.username}</p>
           <p className={copy}>
-            Your Exile.sh profile is ready. Your local data stays on this
-            device.
+            Your Exile.sh profile is ready. Your watchlist is saved to your
+            account and follows you across devices.
           </p>
         </>
       ) : (

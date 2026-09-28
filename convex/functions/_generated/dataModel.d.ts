@@ -740,6 +740,22 @@ export type DataModel = {
     searchIndexes: {};
     vectorIndexes: {};
   };
+  watchlist: {
+    document: {
+      item: string;
+      userId: string;
+      _id: Id<"watchlist">;
+      _creationTime: number;
+    };
+    fieldPaths: "_creationTime" | "_id" | "item" | "userId";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      userId_item: ["userId", "item", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
   xPosts: {
     document: {
       accountId: string;

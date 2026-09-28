@@ -28,6 +28,11 @@ export const api = {
     complete: createApiLeaf<"mutation", typeof import("../functions/profiles").complete>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/profiles").complete>("profiles:complete"), { auth: "required", type: "mutation" }),
     me: createApiLeaf<"query", typeof import("../functions/profiles").me>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/profiles").me>("profiles:me"), { auth: "required", type: "query" }),
   },
+  watchlist: {
+    list: createApiLeaf<"query", typeof import("../functions/watchlist").list>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/watchlist").list>("watchlist:list"), { auth: "required", type: "query" }),
+    merge: createApiLeaf<"mutation", typeof import("../functions/watchlist").merge>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/watchlist").merge>("watchlist:merge"), { auth: "required", type: "mutation" }),
+    set: createApiLeaf<"mutation", typeof import("../functions/watchlist").set>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/watchlist").set>("watchlist:set"), { auth: "required", type: "mutation" }),
+  },
   xStore: {
     latest: createApiLeaf<"query", typeof import("../functions/xStore").latest>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/xStore").latest>("xStore:latest"), { type: "query" }),
   },
