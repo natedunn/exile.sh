@@ -205,6 +205,12 @@ export const ingest = privateAction
       )
       return { status: "complete", hour }
     } catch (error) {
+      // A timeout has no response headers, and parsing/storage errors may follow
+      // a 200 response. Back off every failure before trying this hour again.
+      delay = Math.max(
+        delay,
+        retryDelay(new Headers(), 0, state?.failures ?? 0)
+      )
       const message =
         error instanceof Error
           ? error.message.slice(0, 300)

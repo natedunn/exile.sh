@@ -221,8 +221,8 @@ export function retryDelay(
   status: number,
   failures = 0
 ): number {
-  let delay =
-    status === 429 ? 60_000 : Math.min(3_600_000, 5000 * 2 ** failures)
+  const baseDelay = status === 200 ? 5000 : 60_000
+  let delay = Math.min(3_600_000, baseDelay * 2 ** failures)
   const retry = headers.get("retry-after")
   if (retry) {
     const seconds = Number(retry)
