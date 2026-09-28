@@ -146,3 +146,19 @@ test("end of upstream history waits for the next boundary without advancing or r
     (at + 2 * HOUR) * 1000
   )
 })
+
+test("a timed-out fetch waits a minute before its first retry", async () => {
+  const { t, fetcher } = setup()
+  fetcher.mockRejectedValue(
+    new Error("The operation was aborted due to timeout")
+  )
+  const now = Date.now()
+  expect(await t.action(internal.ingestion.ingest, {})).toMatchObject({
+    status: "error",
+  })
+  expect(fetcher).toHaveBeenCalledTimes(1)
+  expect(await t.query(internal.store.state, {})).toMatchObject({
+    failures: 1,
+    nextAllowedAt: now + 60_000,
+  })
+})

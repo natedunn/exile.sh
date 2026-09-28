@@ -134,5 +134,9 @@ test("all rate rules and Retry-After constrain the next request", () => {
     "X-Rate-Limit-client-State": "2:120:300",
   })
   expect(retryDelay(headers, 429)).toBe(300000)
-  expect(retryDelay(new Headers(), 500, 3)).toBe(40000)
+  expect(retryDelay(new Headers(), 200)).toBe(5000)
+  expect(retryDelay(new Headers(), 0)).toBe(60000)
+  expect(retryDelay(new Headers(), 0, 1)).toBe(120000)
+  expect(retryDelay(new Headers(), 500, 3)).toBe(480000)
+  expect(retryDelay(new Headers(), 0, 10)).toBe(3600000)
 })
