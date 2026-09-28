@@ -100,8 +100,12 @@ export function build(env = process.env, run = command) {
   const result = JSON.parse(
     run(["convex", "run", "ingestion:ingest", "{}"], deployEnv, true)
   )
-  if (result.status === "error")
-    throw new Error(`Initial collection failed: ${result.message}`)
+  if (result.status === "error") {
+    console.warn(
+      `Collector could not import data: ${result.message}. Worker deployment will continue.`
+    )
+    return
+  }
   console.log(
     `Collector: ${result.status}. Remaining history runs in Convex, independently of this build.`
   )
