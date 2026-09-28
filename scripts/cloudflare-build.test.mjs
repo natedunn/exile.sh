@@ -17,7 +17,8 @@ function harness({
   const calls = []
   const run = (args, passedEnv) => {
     calls.push({ args, env: passedEnv })
-    if (args[0] === fail) throw new Error("simulated failure")
+    if (args[0] === fail || (fail === "ingestion" && args[1] === "run"))
+      throw new Error("simulated failure")
     if (args.includes("--names-only")) return names
     if (args[2] === "get") return enabled
     if (args[1] === "run")
@@ -119,7 +120,17 @@ test("preview names are safe and stable for Convex and Worker aliases", () => {
   assert.equal(previewName("---").length, 16)
   assert.equal(previewName("x".repeat(100)).length, 40)
 })
-test("initial collection error fails the build", () => {
+test("collector errors do not block an otherwise successful deployment", () => {
   const h = harness({ status: "error" })
-  assert.throws(() => build(env, h.run), /Initial collection failed/)
+  build(env, h.run)
+  assert.deepEqual(h.calls.at(-1).args, [
+    "convex",
+    "run",
+    "ingestion:ingest",
+    "{}",
+  ])
+})
+test("collector command failures still fail the build", () => {
+  const h = harness({ fail: "ingestion" })
+  assert.throws(() => build(env, h.run), /simulated failure/)
 })
