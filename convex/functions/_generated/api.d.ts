@@ -111,6 +111,21 @@ export declare const api: {
     >;
     me: FunctionReference<"query", "public", {}, any>;
   };
+  watchlist: {
+    list: FunctionReference<"query", "public", {}, any>;
+    merge: FunctionReference<
+      "mutation",
+      "public",
+      { items: Array<string> },
+      any
+    >;
+    set: FunctionReference<
+      "mutation",
+      "public",
+      { item: string; watched: boolean },
+      any
+    >;
+  };
   xStore: {
     latest: FunctionReference<"query", "public", {}, any>;
   };

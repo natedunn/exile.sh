@@ -256,9 +256,12 @@ function Methodology() {
       </P>
       <H2>Your watchlist</H2>
       <P>
-        Favorites are saved in this browser’s local storage. There is no login
-        or account synchronization. Clearing browser storage removes the
-        watchlist. We do not collect a game account or request GGG credentials.
+        Without an account, favorites are saved in this browser’s local storage,
+        and clearing browser storage removes them. Signed in, your watchlist is
+        saved to your exile.sh account and follows you across devices. Favorites
+        you starred in this browser before signing in are added to your account
+        and cleared from local storage. We do not collect a game account or
+        request GGG credentials.
       </P>
       <P>
         Found a problem?{" "}

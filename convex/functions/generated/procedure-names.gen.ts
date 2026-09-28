@@ -9,9 +9,10 @@ export const procedureNames = {
   "ingestion.ts": [{ column: 3, line: 47, name: "ingestion:ingest" }],
   "patchIngestion.ts": [{ column: 3, line: 33, name: "patchIngestion:poll" }, { column: 3, line: 14, name: "patchIngestion:post" }],
   "patchStore.ts": [{ column: 3, line: 67, name: "patchStore:acquire" }, { column: 3, line: 45, name: "patchStore:discover" }, { column: 3, line: 87, name: "patchStore:finish" }, { column: 54, line: 7, name: "patchStore:latest" }, { column: 3, line: 26, name: "patchStore:post" }],
-  "profiles.ts": [{ column: 3, line: 55, name: "profiles:complete" }, { column: 28, line: 27, name: "profiles:me" }],
+  "profiles.ts": [{ column: 3, line: 54, name: "profiles:complete" }, { column: 48, line: 27, name: "profiles:me" }],
   "seed.ts": [{ column: 3, line: 178, name: "seed:local" }],
   "store.ts": [{ column: 3, line: 38, name: "store:acquire" }, { column: 3, line: 121, name: "store:begin" }, { column: 39, line: 297, name: "store:cleanup" }, { column: 3, line: 106, name: "store:imported" }, { column: 3, line: 204, name: "store:publish" }, { column: 3, line: 182, name: "store:recent" }, { column: 3, line: 78, name: "store:release" }, { column: 44, line: 94, name: "store:resetCircuit" }, { column: 34, line: 65, name: "store:state" }, { column: 3, line: 143, name: "store:writeChunk" }],
+  "watchlist.ts": [{ column: 50, line: 19, name: "watchlist:list" }, { column: 3, line: 50, name: "watchlist:merge" }, { column: 3, line: 27, name: "watchlist:set" }],
   "xIngestion.ts": [{ column: 3, line: 9, name: "xIngestion:poll" }],
   "xStore.ts": [{ column: 3, line: 42, name: "xStore:acquire" }, { column: 3, line: 190, name: "xStore:hide" }, { column: 54, line: 15, name: "xStore:latest" }, { column: 3, line: 164, name: "xStore:release" }, { column: 3, line: 69, name: "xStore:rememberAccount" }, { column: 3, line: 90, name: "xStore:savePage" }, { column: 3, line: 36, name: "xStore:state" }],
 };

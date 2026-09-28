@@ -260,8 +260,22 @@ export const profiles = convexTable("profiles", {
   avatar: text(),
 })
 
+// One row per starred item keeps writes small and the list unbounded by
+// document size. `item` is the economy item id the client stores locally.
+export const watchlist = convexTable(
+  "watchlist",
+  {
+    userId: text()
+      .notNull()
+      .references(() => userTable.id),
+    item: text().notNull(),
+  },
+  (t) => [uniqueIndex("userId_item").on(t.userId, t.item)]
+)
+
 export const tables = {
   profiles,
+  watchlist,
   patchThreads,
   patchBodies,
   xPosts,
