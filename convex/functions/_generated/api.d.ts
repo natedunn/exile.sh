@@ -27,6 +27,12 @@ export declare const api: {
       { code: string; slug: string; title: string },
       any
     >;
+    createSaved: FunctionReference<
+      "mutation",
+      "public",
+      { code: string; slug: string; title: string },
+      any
+    >;
     get: FunctionReference<"query", "public", { slug: string }, any>;
     resolve: FunctionReference<"action", "public", { url: string }, string>;
   };
@@ -110,6 +116,16 @@ export declare const api: {
       any
     >;
     me: FunctionReference<"query", "public", {}, any>;
+  };
+  savedBuilds: {
+    list: FunctionReference<"query", "public", {}, any>;
+    set: FunctionReference<
+      "mutation",
+      "public",
+      { saved: boolean; slug: string },
+      any
+    >;
+    status: FunctionReference<"query", "public", { slug: string }, any>;
   };
   watchlist: {
     list: FunctionReference<"query", "public", {}, any>;

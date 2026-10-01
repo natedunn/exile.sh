@@ -2,7 +2,14 @@ import { createBuildImportBudgetCaller } from "./generated/buildImportBudget.run
 import { eq } from "kitcn/orm"
 import { z } from "zod"
 import { CRPCError } from "kitcn/server"
-import { publicAction, publicMutation, publicQuery } from "../lib/crpc"
+import {
+  authMutation,
+  publicAction,
+  publicMutation,
+  publicQuery,
+} from "../lib/crpc"
+import { saveBuildBookmark } from "../lib/saved-builds"
+import type { MutationCtx } from "./generated/server"
 import { builds, buildLimits } from "./schema"
 import {
   MAX_CODE_LENGTH,
@@ -27,59 +34,75 @@ export const get = publicQuery
         }
       : null
   })
-export const create = publicMutation
-  .input(
-    z.object({
-      slug,
-      title: z.string().trim().min(1).max(100),
-      code: z.string().max(MAX_CODE_LENGTH * 2),
+const createInput = z.object({
+  slug,
+  title: z.string().trim().min(1).max(100),
+  code: z.string().max(MAX_CODE_LENGTH * 2),
+})
+
+async function createBuild(
+  ctx: MutationCtx,
+  input: z.infer<typeof createInput>
+) {
+  const existing = await ctx.orm.query.builds.findFirst({
+    where: { slug: input.slug },
+  })
+  if (existing)
+    throw new CRPCError({
+      code: "CONFLICT",
+      message: "This share link already exists. Please try again.",
     })
-  )
-  .mutation(async ({ ctx, input }) => {
-    const existing = await ctx.orm.query.builds.findFirst({
-      where: { slug: input.slug },
+  // A global beta publishing budget is enforced in the same transaction as creation.
+  const window = Math.floor(Date.now() / 60_000)
+  const limit = await ctx.orm.query.buildLimits.findFirst({
+    where: { key: "publish" },
+  })
+  const count = limit?.window === window ? limit.count : 0
+  if (count >= 30)
+    throw new CRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: "Build sharing is busy. Please try again in a minute.",
     })
-    if (existing)
-      throw new CRPCError({
-        code: "CONFLICT",
-        message: "This share link already exists. Please try again.",
-      })
-    // A global beta publishing budget is enforced in the same transaction as creation.
-    const window = Math.floor(Date.now() / 60_000)
-    const limit = await ctx.orm.query.buildLimits.findFirst({
-      where: { key: "publish" },
+  let snapshot
+  let code
+  try {
+    code = normalizeCode(input.code)
+    snapshot = parseBuild(code)
+  } catch (error) {
+    throw new CRPCError({
+      code: "BAD_REQUEST",
+      message: error instanceof Error ? error.message : "Invalid build export.",
     })
-    const count = limit?.window === window ? limit.count : 0
-    if (count >= 30)
-      throw new CRPCError({
-        code: "TOO_MANY_REQUESTS",
-        message: "Build sharing is busy. Please try again in a minute.",
-      })
-    let snapshot
-    let code
-    try {
-      code = normalizeCode(input.code)
-      snapshot = parseBuild(code)
-    } catch (error) {
-      throw new CRPCError({
-        code: "BAD_REQUEST",
-        message:
-          error instanceof Error ? error.message : "Invalid build export.",
-      })
-    }
-    if (limit)
-      await ctx.orm
-        .update(buildLimits)
-        .set({ window, count: count + 1 })
-        .where(eq(buildLimits.key, "publish"))
-    else
-      await ctx.orm
-        .insert(buildLimits)
-        .values({ key: "publish", window, count: 1 })
+  }
+  if (limit)
     await ctx.orm
-      .insert(builds)
-      .values({ slug: input.slug, title: input.title, code, snapshot })
-    return { slug: input.slug }
+      .update(buildLimits)
+      .set({ window, count: count + 1 })
+      .where(eq(buildLimits.key, "publish"))
+  else
+    await ctx.orm
+      .insert(buildLimits)
+      .values({ key: "publish", window, count: 1 })
+  await ctx.orm
+    .insert(builds)
+    .values({ slug: input.slug, title: input.title, code, snapshot })
+  return { slug: input.slug, title: input.title, code, snapshot }
+}
+
+export const create = publicMutation
+  .input(createInput)
+  .mutation(async ({ ctx, input }) => {
+    const build = await createBuild(ctx, input)
+    return { slug: build.slug }
+  })
+
+// Publish and bookmark atomically, so a failed save never leaves a new bin behind.
+export const createSaved = authMutation
+  .input(createInput)
+  .mutation(async ({ ctx, input }) => {
+    const build = await createBuild(ctx, input)
+    await saveBuildBookmark(ctx, ctx.userId, build)
+    return { slug: build.slug }
   })
 
 export const resolve = publicAction

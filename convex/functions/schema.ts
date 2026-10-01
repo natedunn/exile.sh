@@ -273,9 +273,30 @@ export const watchlist = convexTable(
   (t) => [uniqueIndex("userId_item").on(t.userId, t.item)]
 )
 
+// Private bookmarks point to immutable public Build Bin snapshots.
+export const savedBuilds = convexTable(
+  "savedBuilds",
+  {
+    userId: text()
+      .notNull()
+      .references(() => userTable.id),
+    slug: text().notNull(),
+    title: text().notNull(),
+    character: text().notNull(),
+    level: integer().notNull(),
+    skill: text().notNull(),
+    savedAt: integer().notNull(),
+  },
+  (t) => [
+    uniqueIndex("userId_slug").on(t.userId, t.slug),
+    index("userId_savedAt").on(t.userId, t.savedAt),
+  ]
+)
+
 export const tables = {
   profiles,
   watchlist,
+  savedBuilds,
   patchThreads,
   patchBodies,
   xPosts,

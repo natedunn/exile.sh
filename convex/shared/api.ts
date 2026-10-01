@@ -12,6 +12,7 @@ import type { tables } from "../functions/schema";
 export const api = {
   builds: {
     create: createApiLeaf<"mutation", typeof import("../functions/builds").create>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/builds").create>("builds:create"), { type: "mutation" }),
+    createSaved: createApiLeaf<"mutation", typeof import("../functions/builds").createSaved>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/builds").createSaved>("builds:createSaved"), { auth: "required", type: "mutation" }),
     get: createApiLeaf<"query", typeof import("../functions/builds").get>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/builds").get>("builds:get"), { type: "query" }),
     resolve: createApiLeaf<"action", typeof import("../functions/builds").resolve>(createGeneratedFunctionReference<"action", "public", typeof import("../functions/builds").resolve>("builds:resolve"), { type: "action" }),
   },
@@ -27,6 +28,11 @@ export const api = {
   profiles: {
     complete: createApiLeaf<"mutation", typeof import("../functions/profiles").complete>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/profiles").complete>("profiles:complete"), { auth: "required", type: "mutation" }),
     me: createApiLeaf<"query", typeof import("../functions/profiles").me>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/profiles").me>("profiles:me"), { auth: "required", type: "query" }),
+  },
+  savedBuilds: {
+    list: createApiLeaf<"query", typeof import("../functions/savedBuilds").list>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/savedBuilds").list>("savedBuilds:list"), { auth: "required", type: "query" }),
+    set: createApiLeaf<"mutation", typeof import("../functions/savedBuilds").set>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/savedBuilds").set>("savedBuilds:set"), { auth: "required", type: "mutation" }),
+    status: createApiLeaf<"query", typeof import("../functions/savedBuilds").status>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/savedBuilds").status>("savedBuilds:status"), { auth: "required", type: "query" }),
   },
   watchlist: {
     list: createApiLeaf<"query", typeof import("../functions/watchlist").list>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/watchlist").list>("watchlist:list"), { auth: "required", type: "query" }),

@@ -33,6 +33,7 @@ export function useWatchlist() {
   const { isAuthenticated } = useAuth()
   const [local, setLocal] = useState<string[]>([])
   const [storageError, setStorageError] = useState(false)
+  const [retryVersion, setRetryVersion] = useState(0)
 
   useEffect(() => {
     try {
@@ -79,7 +80,7 @@ export function useWatchlist() {
       .finally(() => {
         merging = undefined
       })
-  }, [isAuthenticated, local, mergeAsync])
+  }, [isAuthenticated, local, mergeAsync, retryVersion])
 
   // Until the merge lands, show local stars alongside the account's.
   const favorites = isAuthenticated
@@ -115,6 +116,14 @@ export function useWatchlist() {
 
   return {
     favorites,
+    error: account.error ?? set.error ?? merge.error,
+    isLoading: isAuthenticated && account.isPending,
+    retry: () => {
+      set.reset()
+      merge.reset()
+      setRetryVersion((version) => version + 1)
+      void account.refetch()
+    },
     toggleFavorite,
     storageError: storageError && !isAuthenticated,
   }

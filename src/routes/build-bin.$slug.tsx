@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router"
 import { z } from "zod"
+import { SaveBuildButton } from "../components/save-build-button"
 import { BuildView } from "../components/build-view"
 import { EmptyState, EmptyStateText } from "../components/ui/empty-state"
 import type { BuildSelection } from "../components/build-view"
@@ -66,6 +67,7 @@ function SharedBuild() {
       build={build.snapshot}
       code={build.code}
       shared
+      shareAction={<SaveBuildButton slug={build.slug} />}
       selection={selected}
       onSelect={(patch) => {
         void navigate({
