@@ -1,7 +1,8 @@
 # Tree viewer controls
 
 The passive explorer places its controls in the shared renderer's top-left panel;
-zoom stays bottom-right. The Atlas has neither a version row nor a passive panel.
+zoom stays bottom-right. The Atlas and Genesis Tree have neither a version row
+nor a passive panel.
 
 `TreeExplorer` accepts these optional props:
 

@@ -13,10 +13,17 @@ import {
 import { Field, FieldLabel } from "./ui/field"
 import { SubNavigation, SubNavigationItem } from "./ui/sub-navigation"
 
+/** Small screens drop the suffix so every tab stays within the viewport. */
 const TREE_PAGES = [
-  { type: "passive", to: "/trees/passive", label: "Passive Tree" },
-  { type: "ascendancy", to: "/trees/ascendancies", label: "Ascendancy Trees" },
-  { type: "atlas", to: "/trees/atlas", label: "Atlas Trees" },
+  { type: "passive", to: "/trees/passive", name: "Passive", suffix: "Tree" },
+  {
+    type: "ascendancy",
+    to: "/trees/ascendancies",
+    name: "Ascendancy",
+    suffix: "Trees",
+  },
+  { type: "atlas", to: "/trees/atlas", name: "Atlas", suffix: "Trees" },
+  { type: "genesis", to: "/trees/genesis", name: "Genesis", suffix: "Tree" },
 ] as const
 const treeRoute = getRouteApi("/trees")
 
@@ -59,7 +66,7 @@ export function TreePage({ type }: { type: TreeType }) {
     })
   }
   const versions =
-    type === "atlas" ? null : (
+    type === "atlas" || type === "genesis" ? null : (
       <Field>
         <FieldLabel>Version</FieldLabel>
         <Select
@@ -105,11 +112,13 @@ export function TreePage({ type }: { type: TreeType }) {
                   <Link
                     to={page.to}
                     search={{ version, unseen, section }}
+                    aria-label={`${page.name} ${page.suffix}`}
                     aria-current={type === page.type ? "page" : undefined}
                   />
                 }
               >
-                {page.label}
+                {page.name}
+                <span className="max-sm:hidden">{page.suffix}</span>
               </SubNavigationItem>
             ))}
           </SubNavigation>

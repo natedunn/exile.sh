@@ -1,0 +1,402 @@
+{
+ "source": {
+  "url": "https://poe2db.tw/us/The_Genesis_Tree",
+  "retrievedAt": "2026-10-01",
+  "genesisSha256": "589393d22541ca13dad2a4dca79b2fd202468b527724f8dc1014f8381105c079",
+  "note": "Game option text, grouped by choice. Internal hidden stats without game text are omitted (Ignorant to Power's untranslated minion catalyst option). Game data belongs to Grinding Gear Games."
+ },
+ "nodes": {
+  "1919": {
+   "name": "Beyond the Body",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have 5% chance to be crafted with \"Burdensome\"",
+    "Birthed Items have 5% chance to be crafted with \"of Vastness\""
+   ]
+  },
+  "2945": {
+   "name": "Elude the Storm",
+   "sourceStats": {
+    "brequel_display_cannot_have_modifiers_of_type": 1
+   },
+   "options": [
+    "Birthed Items cannot have Fire Modifiers",
+    "Birthed Items cannot have Cold Modifiers",
+    "Birthed Items cannot have Lightning Modifiers"
+   ]
+  },
+  "3012": {
+   "name": "Inherited Talents",
+   "sourceStats": {
+    "brequel_display_has_modifier_of_type": 1
+   },
+   "options": [
+    "Birthed Items always have a Strength Modifier",
+    "Birthed Items always have a Dexterity Modifier",
+    "Birthed Items always have an Intelligence Modifier"
+   ]
+  },
+  "4849": {
+   "name": "Unrestrained",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have an 5% chance to be crafted with \"of Amplification\"",
+    "Birthed Items have 5% chance to be crafted with \"of Drenching\""
+   ]
+  },
+  "7811": {
+   "name": "Potential Ignored",
+   "sourceStats": {
+    "brequel_display_item_cannot_be_base_type": 1
+   },
+   "options": [
+    "Birthed Items cannot be Amber Amulets",
+    "Birthed Items cannot be Lapis Amulets",
+    "Birthed Items cannot be Jade Amulets",
+    "Birthed Items cannot be Stellar Amulets"
+   ]
+  },
+  "9875": {
+   "name": "Burn the Harvest",
+   "sourceStats": {
+    "brequel_display_item_cannot_be_base_type": 1
+   },
+   "options": [
+    "Birthed Items cannot be Crimson Amulets",
+    "Birthed Items cannot be Azure Amulets",
+    "Birthed Items cannot be Lunar Amulets",
+    "Birthed Items cannot be Bloodstone Amulets"
+   ]
+  },
+  "12330": {
+   "name": "The Greatest Cost",
+   "sourceStats": {
+    "brequel_display_item_cannot_be_base_type": 1
+   },
+   "options": [
+    "Birthed Items cannot be Solar Amulets",
+    "Birthed Items cannot be Gold Amulets"
+   ]
+  },
+  "12401": {
+   "name": "Jewel of the Lords",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have 5% chance to be crafted with \"of Xoph\"",
+    "Birthed Items have 5% chance to be crafted with \"Tul's\"",
+    "Birthed Items have 5% chance to be crafted with \"Uul-Netol's\"",
+    "Birthed Items have 5% chance to be crafted with \"of Esh\""
+   ]
+  },
+  "13596": {
+   "name": "Husk",
+   "sourceStats": {
+    "brequel_display_cannot_have_modifiers_of_type": 1
+   },
+   "options": [
+    "Birthed Items cannot have Life Modifiers",
+    "Birthed Items cannot have Mana Modifiers"
+   ]
+  },
+  "14644": {
+   "name": "Form or Focus",
+   "sourceStats": {
+    "brequel_display_has_modifier_of_type": 1
+   },
+   "options": [
+    "Birthed Items always have a Life Modifier",
+    "Birthed Items always have a Mana Modifier"
+   ]
+  },
+  "17213": {
+   "name": "Arcane Possession",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have 5% chance to be crafted with \"of Exertion\"",
+    "Birthed Items have 5% chance to be crafted with \"Unshackling\""
+   ]
+  },
+  "19095": {
+   "name": "Engorged",
+   "sourceStats": {
+    "brequel_display_base_type_chance_%": 10
+   },
+   "options": [
+    "Birthed Items have 10% chance to be Vitalic Rings",
+    "Birthed Items have 10% chance to be Mnemonic Rings"
+   ]
+  },
+  "23849": {
+   "name": "Beaten to a Pulp",
+   "sourceStats": {
+    "brequel_display_base_type_chance_%": 10
+   },
+   "options": [
+    "Birthed Items have 10% chance to be Kinetic Rings",
+    "Birthed Items have 10% chance to be Oneiric Rings"
+   ]
+  },
+  "24412": {
+   "name": "Strength of the Crypt",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have 5% chance to be crafted with \"Instructor's\"",
+    "Birthed Items have 5% chance to be crafted with \"Monstrous\"",
+    "Birthed Items have 5% chance to be crafted with \"of Scattering\""
+   ]
+  },
+  "25475": {
+   "name": "Sever Inexperience",
+   "sourceStats": {
+    "brequel_display_cannot_have_modifiers_of_type": 1
+   },
+   "options": [
+    "Birthed Items cannot have Strength Modifiers",
+    "Birthed Items cannot have Dexterity Modifiers",
+    "Birthed Items cannot have Intelligence Modifiers"
+   ]
+  },
+  "31021": {
+   "name": "Master of One",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have 5% chance to be crafted with \"Storm Chaser's\"",
+    "Birthed Items have 5% chance to be crafted with \"Fire Breather's\"",
+    "Birthed Items have 5% chance to be crafted with \"Tempest Rider's\""
+   ]
+  },
+  "36020": {
+   "name": "Disciplined Pets",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have an 5% chance to be crafted with \"of Punctuality\"",
+    "Birthed Items have an 5% chance to be crafted with \"of Invigoration\""
+   ]
+  },
+  "36123": {
+   "name": "Cut Off the Lesser",
+   "sourceStats": {
+    "brequel_display_birthed_items_always_greater_or_perfect": 1
+   },
+   "options": [
+    "Birthed Orbs of Transmutation are always Greater or Perfect",
+    "Birthed Orbs of Augmentation are always Greater or Perfect"
+   ]
+  },
+  "38137": {
+   "name": "Rejection of One",
+   "sourceStats": {
+    "brequel_display_item_cannot_be_base_type": 1
+   },
+   "options": [
+    "Cannot Birth Xoph's Catalysts",
+    "Cannot Birth Tul's Catalysts",
+    "Cannot Birth Esh's Catalysts",
+    "Cannot Birth Uul-Netol's Catalysts",
+    "Cannot Birth Chayula's Catalysts"
+   ]
+  },
+  "39819": {
+   "name": "Selective Sustenance",
+   "sourceStats": {
+    "brequel_display_cannot_have_modifiers_of_type": 1
+   },
+   "options": [
+    "Birthed Items cannot have Life Modifiers",
+    "Birthed Items cannot have Mana Modifiers"
+   ]
+  },
+  "42537": {
+   "name": "Hollow Wailing",
+   "sourceStats": {
+    "brequel_display_empty_modifier": 1
+   },
+   "options": [
+    "Birthed Items always have an empty Prefix Modifier",
+    "Birthed Items always have an empty Suffix Modifier"
+   ]
+  },
+  "43407": {
+   "name": "Forgo the Flesh",
+   "sourceStats": {
+    "brequel_display_item_cannot_be_base_type": 1
+   },
+   "options": [
+    "Cannot Birth Flesh Catalysts",
+    "Cannot Birth Neural Catalysts",
+    "Cannot Birth Adaptive Catalysts",
+    "Cannot Birth Carapace Catalysts"
+   ]
+  },
+  "43915": {
+   "name": "Augmented Effigies",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have an 5% chance to be crafted with \"Sacrificial\"",
+    "Birthed Items have an 5% chance to be crafted with \"of the Cabal\""
+   ]
+  },
+  "44042": {
+   "name": "Under Their Skin",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have an 5% chance to be crafted with \"Scratching\"",
+    "Birthed Items have an 5% chance to be crafted with \"Contaminating\""
+   ]
+  },
+  "46997": {
+   "name": "Whimpering Echos",
+   "sourceStats": {
+    "brequel_display_empty_modifier": 1
+   },
+   "options": [
+    "Birthed Items always have an empty Prefix Modifier",
+    "Birthed Items always have an empty Suffix Modifier"
+   ]
+  },
+  "50320": {
+   "name": "Beyond Death",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have 5% chance to have a \"of Unending\"",
+    "Birthed Items have 5% chance to be crafted with \"Underling's\""
+   ]
+  },
+  "51925": {
+   "name": "Shepherd's Touch",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have 5% chance to be crafted with \"of Coherence\"",
+    "Birthed Items have 5% chance to be crafted with \"of Ravaging\"",
+    "Birthed Items have 5% chance to be crafted with \"of Binding\""
+   ]
+  },
+  "52113": {
+   "name": "Selectively Bred",
+   "sourceStats": {
+    "brequel_display_item_cannot_be_base_type": 1
+   },
+   "options": [
+    "Cannot Birth Chaos Orbs",
+    "Cannot Birth Vaal Orbs"
+   ]
+  },
+  "57467": {
+   "name": "Abberant Power",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have an 5% chance to be crafted with \"of Expectation\"",
+    "Birthed Items have 5% chance to be crafted with \"of Imbuing\""
+   ]
+  },
+  "58168": {
+   "name": "Prime Appendages",
+   "sourceStats": {
+    "brequel_display_base_type_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have 5% chance to be Biostatic Rings",
+    "Birthed Items have 5% chance to be Grasping Rings"
+   ]
+  },
+  "59192": {
+   "name": "Evolved Hide",
+   "sourceStats": {
+    "brequel_display_has_modifier_of_type": 1
+   },
+   "options": [
+    "Birthed Items always have an Armour Modifier",
+    "Birthed Items always have an Evasion Modifier",
+    "Birthed Items always have an Energy Shield Modifier"
+   ]
+  },
+  "59284": {
+   "name": "Extract the Elements",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have 5% chance to be crafted with \"Erupting\"",
+    "Birthed Items have 5% chance to be crafted with \"Energising\"",
+    "Birthed Items have 5% chance to be crafted with \"Glacial\""
+   ]
+  },
+  "59626": {
+   "name": "Ignorant to Power",
+   "sourceStats": {
+    "brequel_display_item_cannot_be_base_type": 1
+   },
+   "options": [
+    "Cannot Birth Skittering Catalysts",
+    "Cannot Birth Reaver Catalysts",
+    "Cannot Birth Sibilant Catalysts"
+   ]
+  },
+  "59650": {
+   "name": "Severed Veins",
+   "sourceStats": {
+    "brequel_display_cannot_have_modifiers_of_type": 1
+   },
+   "options": [
+    "Birthed Items cannot have Flask Modifiers",
+    "Birthed Items cannot have Charm Modifiers"
+   ]
+  },
+  "59772": {
+   "name": "Morbid Magic",
+   "sourceStats": {
+    "brequel_display_crafted_modifier_chance_%": 5
+   },
+   "options": [
+    "Birthed Items have 5% chance to be crafted with \"Soul Stealer's\"",
+    "Birthed Items have 5% chance to be crafted with \"of Lancing\""
+   ]
+  },
+  "59852": {
+   "name": "Unfeeling",
+   "sourceStats": {
+    "brequel_display_cannot_have_modifiers_of_type": 1
+   },
+   "options": [
+    "Birthed Items cannot have Fire Modifiers",
+    "Birthed Items cannot have Cold Modifiers",
+    "Birthed Items cannot have Lightning Modifiers"
+   ]
+  },
+  "64529": {
+   "name": "Imbue the Body",
+   "sourceStats": {
+    "brequel_display_has_modifier_of_type": 1
+   },
+   "options": [
+    "Birthed Items always have a Fire Resistance Modifier",
+    "Birthed Items always have a Cold Resistance Modifier",
+    "Birthed Items always have a Lightning Resistance Modifier"
+   ]
+  }
+ }
+}

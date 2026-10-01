@@ -5,6 +5,7 @@ for (const width of [1440, 390, 320]) {
     ["passive", "strength"],
     ["ascendancies", "damage"],
     ["atlas", "waystone"],
+    ["genesis", "catalyst"],
   ]) {
     test(`search ${route} at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 844 })
@@ -21,7 +22,7 @@ for (const width of [1440, 390, 320]) {
       ).toHaveValue("focus check")
       await page.getByRole("button", { name: "Clear search" }).click()
       await page.keyboard.press("Escape")
-      if (width < 768 && route !== "atlas") {
+      if (width < 768 && !["atlas", "genesis"].includes(route)) {
         await expect(
           page.getByRole("button", { name: "Tree settings", exact: true })
         ).toHaveAttribute("aria-expanded", "false")
@@ -36,7 +37,7 @@ for (const width of [1440, 390, 320]) {
       await page.keyboard.press("f")
       const input = page.getByRole("textbox", { name: "Search nodes" })
       await expect(input).toBeFocused()
-      if (width < 768 && route !== "atlas")
+      if (width < 768 && !["atlas", "genesis"].includes(route))
         await expect(
           page.getByRole("button", { name: "Tree settings", exact: true })
         ).toHaveAttribute("aria-expanded", "false")

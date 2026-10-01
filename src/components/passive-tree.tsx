@@ -920,7 +920,7 @@ function TreeMapRenderer({
       window.removeEventListener("blur", blur)
     }
   }, [attention])
-  const artworkZoomThreshold = treeType === "atlas" ? 1.2 : 3
+  const artworkZoomThreshold = treeType in staticTrees ? 1.2 : 3
   const artwork = useQuery({
     queryKey: artworkUrl ? ["tree-art", artworkUrl] : ["tree-art-v2", version],
     enabled:
@@ -1201,7 +1201,7 @@ function TreeMapRenderer({
   return (
     <TreePaletteScope
       data-passive-tree=""
-      className="relative min-w-0 has-data-[slot=tree-search-panel]:[--field-corner-tr:0px] has-data-[slot=tree-settings]:[--field-corner-tl:0px] data-[mode=interactive]:flex data-[mode=interactive]:h-full data-[mode=interactive]:min-h-0 data-[mode=interactive]:w-full data-[mode=interactive]:flex-1 data-[mode=interactive]:flex-col data-[mode=interactive]:overflow-hidden data-[overlay-controls]:[--field-corner-br:0px] data-[palette]:[--color-tree-allocated-ring:var(--color-tree-allocated-neutral-ring)] data-[palette]:[--color-tree-allocated:var(--color-tree-allocated-neutral)] data-[palette=achroma]:[--color-tree-allocated-ring:var(--color-tree-allocated-achroma-ring)] data-[palette=achroma]:[--color-tree-allocated:var(--color-tree-allocated-achroma)] data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-achroma)] data-[palette=achroma]:[--color-weapon-1:var(--color-weapon-1-achroma)] data-[palette=achroma]:[--color-weapon-2:var(--color-weapon-2-achroma)] data-[palette=deutan]:[--color-weapon-1:var(--color-weapon-1-deutan)] data-[palette=deutan]:[--color-weapon-2:var(--color-weapon-2-deutan)] data-[palette=protan]:[--color-weapon-1:var(--color-weapon-1-protan)] data-[palette=protan]:[--color-weapon-2:var(--color-weapon-2-protan)] data-[palette=tritan]:[--color-weapon-1:var(--color-weapon-1-tritan)] data-[palette=tritan]:[--color-weapon-2:var(--color-weapon-2-tritan)] data-[tree-type=ascendancy]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)] data-[tree-type=atlas]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)] md:has-data-[slot=tree-key]:[--field-corner-bl:0px]"
+      className="relative min-w-0 has-data-[slot=tree-search-panel]:[--field-corner-tr:0px] has-data-[slot=tree-settings]:[--field-corner-tl:0px] data-[mode=interactive]:flex data-[mode=interactive]:h-full data-[mode=interactive]:min-h-0 data-[mode=interactive]:w-full data-[mode=interactive]:flex-1 data-[mode=interactive]:flex-col data-[mode=interactive]:overflow-hidden data-[overlay-controls]:[--field-corner-br:0px] data-[palette]:[--color-tree-allocated-ring:var(--color-tree-allocated-neutral-ring)] data-[palette]:[--color-tree-allocated:var(--color-tree-allocated-neutral)] data-[palette=achroma]:[--color-tree-allocated-ring:var(--color-tree-allocated-achroma-ring)] data-[palette=achroma]:[--color-tree-allocated:var(--color-tree-allocated-achroma)] data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-achroma)] data-[palette=achroma]:[--color-weapon-1:var(--color-weapon-1-achroma)] data-[palette=achroma]:[--color-weapon-2:var(--color-weapon-2-achroma)] data-[palette=deutan]:[--color-weapon-1:var(--color-weapon-1-deutan)] data-[palette=deutan]:[--color-weapon-2:var(--color-weapon-2-deutan)] data-[palette=protan]:[--color-weapon-1:var(--color-weapon-1-protan)] data-[palette=protan]:[--color-weapon-2:var(--color-weapon-2-protan)] data-[palette=tritan]:[--color-weapon-1:var(--color-weapon-1-tritan)] data-[palette=tritan]:[--color-weapon-2:var(--color-weapon-2-tritan)] data-[tree-type=ascendancy]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)] data-[tree-type=atlas]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)] data-[tree-type=genesis]:not-data-[palette=achroma]:[--color-tree-unallocated-path:var(--color-tree-unallocated-path-detail)] md:has-data-[slot=tree-key]:[--field-corner-bl:0px]"
       data-mode={mode}
       data-tree-type={isAscendancyTree ? "ascendancy" : treeType}
       data-overlay-controls={overlayControls || undefined}
@@ -2228,7 +2228,24 @@ function PassiveTreeContent({
 }
 
 /** Unallocated explorer, sharing the build renderer and its cached snapshots. */
-export type TreeType = "passive" | "ascendancy" | "atlas"
+export type TreeType = "passive" | "ascendancy" | StaticTreeType
+type StaticTreeType = keyof typeof staticTrees
+
+/** Standalone snapshots with no version history or ascendancy overlay. */
+const staticTrees = {
+  atlas: {
+    data: "/atlas-trees/v2/tree.json",
+    art: "/atlas-trees/v2/art.json",
+    name: "Atlas",
+    label: "Atlas Passive Tree",
+  },
+  genesis: {
+    data: "/genesis-trees/v1/tree.json",
+    art: "/genesis-trees/v1/art.json",
+    name: "Genesis",
+    label: "The Genesis Tree",
+  },
+} as const
 
 export type TreePanelOptions = TreeSearchOptions &
   TooltipPinOptions & {
@@ -2390,7 +2407,7 @@ function PassiveAtlasExplorer({
   )
   const tree = useQuery({
     queryKey: ["passive-explorer-v1", version],
-    enabled: type !== "atlas",
+    enabled: !(type in staticTrees),
     staleTime: Infinity,
     queryFn: async () => {
       const response = await fetch(
@@ -2401,29 +2418,31 @@ function PassiveAtlasExplorer({
     },
   })
   const selectedSection = ""
-  const isAtlas = type === "atlas"
-  const atlas = useQuery({
-    queryKey: ["atlas-tree-v2"],
-    enabled: isAtlas,
+  const staticTree =
+    type === "passive" || type === "ascendancy" ? undefined : staticTrees[type]
+  const isStatic = Boolean(staticTree)
+  const staticQuery = useQuery({
+    queryKey: ["static-tree", staticTree?.data],
+    enabled: isStatic,
     staleTime: Infinity,
     queryFn: async () => {
-      const response = await fetch("/atlas-trees/v2/tree.json")
-      if (!response.ok) throw new Error("Atlas data unavailable")
+      const response = await fetch(staticTree!.data)
+      if (!response.ok) throw new Error(`${staticTree!.name} data unavailable`)
       return (await response.json()) as TreeData
     },
   })
   // Stable full geometry keeps visibility toggles from moving the camera.
   const frameNodes = useMemo(
     () =>
-      isAtlas
-        ? (atlas.data?.nodes ?? [])
+      isStatic
+        ? (staticQuery.data?.nodes ?? [])
         : (tree.data?.nodes.filter(
             (node) => node.ascendancy === selectedSection
           ) ?? []),
-    [isAtlas, atlas.data, tree.data, selectedSection]
+    [isStatic, staticQuery.data, tree.data, selectedSection]
   )
   const data = useMemo(() => {
-    if (isAtlas) return atlas.data
+    if (isStatic) return staticQuery.data
     if (!tree.data) return undefined
     const nodes = frameNodes
       .filter((node) => unseenEnabled || !unseen.has(node.id))
@@ -2441,35 +2460,35 @@ function PassiveAtlasExplorer({
       ],
     }
   }, [
-    isAtlas,
-    atlas.data,
+    isStatic,
+    staticQuery.data,
     tree.data,
     frameNodes,
     unseenEnabled,
     unseen,
     centeredTree,
   ])
-  const activeQuery = isAtlas ? atlas : tree
+  const activeQuery = isStatic ? staticQuery : tree
   return (
     <div className="relative h-full min-h-0 flex-1 overflow-hidden">
       {activeQuery.isError ? (
         <EmptyState frame="dashed" role="alert">
-          {isAtlas ? "Atlas" : "Tree"} data could not be loaded.{" "}
+          {staticTree?.name ?? "Tree"} data could not be loaded.{" "}
           <Button onClick={() => void activeQuery.refetch()}>Retry</Button>
         </EmptyState>
       ) : !data ? (
         <EmptyState frame="dashed" role="status">
-          Loading {isAtlas ? "Atlas" : "passive"} tree…
+          Loading {staticTree?.name ?? "passive"} tree…
         </EmptyState>
       ) : (
         <TreeMap
           {...searchOptions}
-          key={isAtlas ? "atlas-v1" : version + selectedSection}
+          key={isStatic ? type : version + selectedSection}
           data={data}
-          treeType={isAtlas ? "atlas" : "passive"}
+          treeType={isStatic ? type : "passive"}
           frameNodes={frameNodes}
           panel={
-            !isAtlas && showPanel ? (
+            !isStatic && showPanel ? (
               <>
                 {showVersionSelector && options}
                 {showAscendancySelector && defaultAscendancy === undefined && (
@@ -2520,7 +2539,7 @@ function PassiveAtlasExplorer({
               </>
             ) : undefined
           }
-          centerCircle={!isAtlas}
+          centerCircle={!isStatic}
           centerBackground={
             selectedAscendancy && centeredTree && isTreeVersion(version)
               ? (
@@ -2534,11 +2553,11 @@ function PassiveAtlasExplorer({
           extraArtwork={centerArt.data}
           showPaletteSelector={showPanel && showPaletteSelector}
           nodes={allocatedNodes}
-          label={isAtlas ? "Atlas Passive Tree" : "Passive tree"}
+          label={staticTree?.label ?? "Passive tree"}
           version={version}
           jewels={[]}
           weaponSets={new Map()}
-          artworkUrl={isAtlas ? "/atlas-trees/v2/art.json" : undefined}
+          artworkUrl={staticTree?.art}
           overlayControls
         />
       )}

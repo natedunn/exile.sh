@@ -29,6 +29,7 @@ import { Route as PatchNotesThreadIdRouteImport } from './routes/patch-notes.$th
 import { Route as TreesIndexRouteImport } from './routes/trees.index'
 import { Route as TreesAscendanciesRouteImport } from './routes/trees.ascendancies'
 import { Route as TreesAtlasRouteImport } from './routes/trees.atlas'
+import { Route as TreesGenesisRouteImport } from './routes/trees.genesis'
 import { Route as TreesPassiveRouteImport } from './routes/trees.passive'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as OgCurrencySlugRouteImport } from './routes/og.currency.$slug'
@@ -135,6 +136,11 @@ const TreesAtlasRoute = TreesAtlasRouteImport.update({
   path: '/atlas',
   getParentRoute: () => TreesRoute,
 } as any)
+const TreesGenesisRoute = TreesGenesisRouteImport.update({
+  id: '/genesis',
+  path: '/genesis',
+  getParentRoute: () => TreesRoute,
+} as any)
 const TreesPassiveRoute = TreesPassiveRouteImport.update({
   id: '/passive',
   path: '/passive',
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
+  '/trees/genesis': typeof TreesGenesisRoute
   '/trees/passive': typeof TreesPassiveRoute
   '/build-bin/': typeof BuildBinIndexRoute
   '/economy/': typeof EconomyIndexRoute
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
+  '/trees/genesis': typeof TreesGenesisRoute
   '/trees/passive': typeof TreesPassiveRoute
   '/build-bin': typeof BuildBinIndexRoute
   '/economy': typeof EconomyIndexRoute
@@ -229,6 +237,7 @@ export interface FileRoutesById {
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
+  '/trees/genesis': typeof TreesGenesisRoute
   '/trees/passive': typeof TreesPassiveRoute
   '/build-bin/': typeof BuildBinIndexRoute
   '/economy/': typeof EconomyIndexRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
+    | '/trees/genesis'
     | '/trees/passive'
     | '/build-bin/'
     | '/economy/'
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
+    | '/trees/genesis'
     | '/trees/passive'
     | '/build-bin'
     | '/economy'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
+    | '/trees/genesis'
     | '/trees/passive'
     | '/build-bin/'
     | '/economy/'
@@ -482,6 +494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TreesAtlasRouteImport
       parentRoute: typeof TreesRoute
     }
+    '/trees/genesis': {
+      id: '/trees/genesis'
+      path: '/genesis'
+      fullPath: '/trees/genesis'
+      preLoaderRoute: typeof TreesGenesisRouteImport
+      parentRoute: typeof TreesRoute
+    }
     '/trees/passive': {
       id: '/trees/passive'
       path: '/passive'
@@ -550,6 +569,7 @@ const GemsRouteWithChildren = GemsRoute._addFileChildren(GemsRouteChildren)
 interface TreesRouteChildren {
   TreesAscendanciesRoute: typeof TreesAscendanciesRoute
   TreesAtlasRoute: typeof TreesAtlasRoute
+  TreesGenesisRoute: typeof TreesGenesisRoute
   TreesPassiveRoute: typeof TreesPassiveRoute
   TreesIndexRoute: typeof TreesIndexRoute
 }
@@ -557,6 +577,7 @@ interface TreesRouteChildren {
 const TreesRouteChildren: TreesRouteChildren = {
   TreesAscendanciesRoute: TreesAscendanciesRoute,
   TreesAtlasRoute: TreesAtlasRoute,
+  TreesGenesisRoute: TreesGenesisRoute,
   TreesPassiveRoute: TreesPassiveRoute,
   TreesIndexRoute: TreesIndexRoute,
 }
