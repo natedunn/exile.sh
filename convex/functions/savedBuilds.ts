@@ -1,11 +1,11 @@
 import { z } from "zod"
 import { eq } from "kitcn/orm"
 import { CRPCError } from "kitcn/server"
-import { authMutation, authQuery } from "../lib/crpc"
+import { memberMutation, memberQuery } from "../lib/crpc"
 import { saveBuildBookmark, SAVED_BUILD_LIMIT } from "../lib/saved-builds"
 import { savedBuilds } from "./schema"
 
-export const list = authQuery.input(z.object({})).query(async ({ ctx }) => {
+export const list = memberQuery.input(z.object({})).query(async ({ ctx }) => {
   const rows = await ctx.orm.query.savedBuilds.findMany({
     where: { userId: ctx.userId },
     orderBy: { savedAt: "desc" },
@@ -21,7 +21,7 @@ export const list = authQuery.input(z.object({})).query(async ({ ctx }) => {
   }))
 })
 
-export const status = authQuery
+export const status = memberQuery
   .input(z.object({ slug: z.string().uuid() }))
   .query(async ({ ctx, input }) =>
     Boolean(
@@ -31,7 +31,7 @@ export const status = authQuery
     )
   )
 
-export const set = authMutation
+export const set = memberMutation
   .input(z.object({ slug: z.string().uuid(), saved: z.boolean() }))
   .mutation(async ({ ctx, input }) => {
     if (!input.saved) {

@@ -15,6 +15,7 @@ import type { OrmTriggerContext } from 'kitcn/orm';
 
 const procedureRegistry = {
   "complete": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../profiles").complete>("profiles:complete"), () => (require("../profiles") as Record<string, unknown>)["complete"])],
+  "decline": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../profiles").decline>("profiles:decline"), () => (require("../profiles") as Record<string, unknown>)["decline"])],
   "me": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../profiles").me>("profiles:me"), () => (require("../profiles") as Record<string, unknown>)["me"])],
 } as const;
 

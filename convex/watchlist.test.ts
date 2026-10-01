@@ -16,7 +16,11 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllEnvs())
 
-async function signIn(t: ReturnType<typeof convexTest>, email: string) {
+async function signIn(
+  t: ReturnType<typeof convexTest>,
+  email: string,
+  confirmed = true
+) {
   const { userId, sessionId } = await t.run(async (ctx) => {
     const now = Date.now()
     const userId = await ctx.db.insert("user", {
@@ -33,6 +37,11 @@ async function signIn(t: ReturnType<typeof convexTest>, email: string) {
       createdAt: now,
       updatedAt: now,
     })
+    if (confirmed)
+      await ctx.db.insert("profiles", {
+        userId,
+        username: email.split("@")[0],
+      })
     return { userId, sessionId }
   })
   return t.withIdentity({ subject: userId, sessionId })
@@ -49,6 +58,17 @@ test("watchlist endpoints reject anonymous callers", async () => {
   await expect(
     t.mutation(merge.functionRef, { items: ["divine"] })
   ).rejects.toThrow("Sign in")
+})
+
+test("watchlist waits until the account is confirmed", async () => {
+  const t = convexTest(schema, modules)
+  const pending = await signIn(t, "pending@example.com", false)
+  await expect(pending.query(list.functionRef, {})).rejects.toThrow(
+    "Create your exile.sh account"
+  )
+  await expect(
+    pending.mutation(merge.functionRef, { items: ["divine"] })
+  ).rejects.toThrow("Create your exile.sh account")
 })
 
 test("stars are idempotent and private to each account", async () => {

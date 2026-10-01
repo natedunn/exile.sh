@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { CRPCError } from "kitcn/server"
 import { eq } from "kitcn/orm"
-import { authMutation, authQuery } from "../lib/crpc"
+import { memberMutation, memberQuery } from "../lib/crpc"
 import { watchlist } from "./schema"
 import type { QueryCtx } from "./generated/server"
 
@@ -16,7 +16,7 @@ function saved(ctx: QueryCtx, userId: string) {
   })
 }
 
-export const list = authQuery
+export const list = memberQuery
   .input(z.object({}))
   .query(async ({ ctx }) =>
     (await saved(ctx, ctx.userId)).map((row) => row.item)
@@ -24,7 +24,7 @@ export const list = authQuery
 
 /* Idempotent rather than a toggle, so a retried or duplicated request from
    another tab cannot flip the star back. */
-export const set = authMutation
+export const set = memberMutation
   .input(z.object({ item, watched: z.boolean() }))
   .mutation(async ({ ctx, input }) => {
     const existing = await ctx.orm.query.watchlist.findFirst({
@@ -47,7 +47,7 @@ export const set = authMutation
 
 /* Adds a signed-out browser's stars to the account. Union only: an item the
    account already has is kept, and nothing on the account is removed. */
-export const merge = authMutation
+export const merge = memberMutation
   .input(z.object({ items: z.array(item).max(WATCHLIST_LIMIT) }))
   .mutation(async ({ ctx, input }) => {
     const have = new Set((await saved(ctx, ctx.userId)).map((row) => row.item))

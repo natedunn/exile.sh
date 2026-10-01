@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useAuth } from "kitcn/react"
+import { useAccount } from "../lib/use-account"
 import { useMutation } from "@tanstack/react-query"
 import {
   ArrowRight,
@@ -65,7 +65,9 @@ function importError(error: unknown) {
 function BuildImport() {
   const crpc = useCRPC(),
     navigate = useNavigate()
-  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const account = useAccount().status
+  const isAuthenticated = account === "member"
+  const authLoading = account === "loading"
   const save = useMutation(crpc.builds.createSaved.mutationOptions())
   const create = useMutation(crpc.builds.create.mutationOptions())
   const resolve = useMutation(crpc.builds.resolve.mutationOptions())

@@ -115,6 +115,43 @@ test("verified accounts confirm profiles, resolve collisions, and preserve avata
   ).toBe("exile")
 })
 
+test("declining removes the pending sign-in but never a confirmed account", async () => {
+  const t = convexTest(schema, modules)
+  const pending = await signIn(t, "pending@example.com")
+  await t.run(async (ctx) => {
+    const user = await ctx.db.query("user").first()
+    const now = Date.now()
+    await ctx.db.insert("account", {
+      accountId: "123456789012345678",
+      providerId: "discord",
+      issuer: "discord",
+      userId: user!._id,
+      createdAt: now,
+      updatedAt: now,
+    })
+  })
+  await pending.mutation(api.profiles.decline.functionRef, {})
+  expect(
+    await t.run(async (ctx) => ({
+      users: (await ctx.db.query("user").collect()).length,
+      sessions: (await ctx.db.query("session").collect()).length,
+      accounts: (await ctx.db.query("account").collect()).length,
+    }))
+  ).toEqual({ users: 0, sessions: 0, accounts: 0 })
+
+  const confirmed = await signIn(t, "confirmed@example.com")
+  await confirmed.mutation(api.profiles.complete.functionRef, {
+    username: "exile",
+    useDiscordAvatar: false,
+  })
+  await expect(
+    confirmed.mutation(api.profiles.decline.functionRef, {})
+  ).rejects.toThrow("already been created")
+  expect(
+    (await confirmed.query(api.profiles.me.functionRef, {})).profile?.username
+  ).toBe("exile")
+})
+
 test("unverified stored users cannot create profiles", async () => {
   const t = convexTest(schema, modules)
   const user = await signIn(t, "unverified@example.com", false)

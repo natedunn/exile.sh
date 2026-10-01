@@ -115,6 +115,7 @@ export declare const api: {
       { useDiscordAvatar: boolean; username: string },
       any
     >;
+    decline: FunctionReference<"mutation", "public", {}, any>;
     me: FunctionReference<"query", "public", {}, any>;
   };
   savedBuilds: {

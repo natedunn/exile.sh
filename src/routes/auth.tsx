@@ -1,12 +1,9 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { useAuth } from "kitcn/react"
 import { filters } from "@/lib/economy-filters"
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useCRPC } from "@/lib/convex/crpc"
+import { useAccount } from "@/lib/use-account"
 import { ProfileSavedData } from "@/components/profile-saved-data"
 import { cn } from "cn"
 import {
@@ -32,7 +29,6 @@ const heading =
   "font-display text-4xl leading-[1.1] font-medium tracking-display text-ink italic"
 const copy = "leading-[1.6] text-ink-muted"
 const alert = "leading-[1.6] text-ink"
-const avatar = "size-16 rounded-full"
 
 function AuthPage() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -71,7 +67,7 @@ function AuthPage() {
               signIn.mutate({
                 provider: "discord",
                 callbackURL: "/auth",
-                newUserCallbackURL: "/auth",
+                newUserCallbackURL: "/create-account",
                 errorCallbackURL: "/auth",
               })
             }
@@ -92,110 +88,43 @@ function AuthPage() {
 }
 
 function Profile() {
-  const crpc = useCRPC()
-  const profile = useQuery(crpc.profiles.me.queryOptions({}))
-  const complete = useMutation(crpc.profiles.complete.mutationOptions())
+  const { me } = useAccount()
   const signOut = useMutation(useSignOutMutationOptions())
-  const [username, setUsername] = useState<string | null>(null)
-  const [useAvatar, setUseAvatar] = useState(false)
-  const data = profile.data
+  const profile = me.data?.profile
   return (
     <>
-      <h1 className={heading}>
-        {data?.profile ? "Your profile" : "Create your profile"}
-      </h1>
-      {profile.isPending && (
+      <h1 className={heading}>Your profile</h1>
+      {me.isPending && (
         <p role="status" className={copy}>
           Loading your profile…
         </p>
       )}
-      {profile.isError && (
+      {me.isError && (
         <>
           <p role="alert" className={alert}>
             Your profile could not be loaded.
           </p>
-          <Button onClick={() => void profile.refetch()}>Try again</Button>
+          <Button onClick={() => void me.refetch()}>Try again</Button>
         </>
       )}
-      {data?.profile ? (
+      {profile && (
         <>
-          {data.profile.avatar && (
+          {profile.avatar && (
             <img
-              className={avatar}
-              src={data.profile.avatar}
+              className="size-16 rounded-full"
+              src={profile.avatar}
               alt="Your profile avatar"
               referrerPolicy="no-referrer"
             />
           )}
-          <p className={cn(copy, "wrap-anywhere")}>@{data.profile.username}</p>
+          <p className={cn(copy, "wrap-anywhere")}>@{profile.username}</p>
           <p className={copy}>
             Your watchlist and bookmarked bins are private to your account and
             follow you across devices.
           </p>
+          <ProfileSavedData />
         </>
-      ) : (
-        data && (
-          <form
-            className="flex flex-col gap-3.5"
-            onSubmit={(event) => {
-              event.preventDefault()
-              complete.mutate({
-                username: username ?? data.suggestedUsername,
-                useDiscordAvatar: useAvatar,
-              })
-            }}
-          >
-            <label htmlFor="profile-username" className="text-base text-ink">
-              Username
-            </label>
-            <Input
-              id="profile-username"
-              autoComplete="username"
-              required
-              minLength={2}
-              maxLength={30}
-              pattern="[a-zA-Z0-9_.]+"
-              value={username ?? data.suggestedUsername}
-              onChange={(event) => setUsername(event.target.value)}
-              aria-describedby="username-help"
-            />
-            <p id="username-help" className={copy}>
-              Letters, numbers, underscores and periods. We suggest an available
-              version of your Discord username.
-            </p>
-            {data.discordAvatar && (
-              <div className="flex flex-col gap-3.5">
-                <img
-                  className={avatar}
-                  src={data.discordAvatar}
-                  alt="Discord avatar preview"
-                  referrerPolicy="no-referrer"
-                />
-                <label className="flex items-center gap-2.5 text-base text-ink">
-                  <Checkbox
-                    checked={useAvatar}
-                    onCheckedChange={setUseAvatar}
-                  />{" "}
-                  Use my Discord avatar on Exile.sh
-                </label>
-              </div>
-            )}
-            <p className={copy}>
-              Your username and chosen avatar are public. Your email stays
-              private.
-            </p>
-            {complete.error && (
-              <p role="alert" className={alert}>
-                {complete.error.message}
-              </p>
-            )}
-            <Button type="submit" disabled={complete.isPending}>
-              {complete.isPending ? "Creating profile…" : "Create profile"}
-            </Button>
-          </form>
-        )
       )}
-      <ProfileSavedData />
       {signOut.error && (
         <p role="alert" className={alert}>
           Sign-out failed. Please try again.
