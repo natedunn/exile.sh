@@ -1,8 +1,9 @@
 import { z } from "zod"
 import { CRPCError } from "kitcn/server"
+import { eq } from "kitcn/orm"
 import { authMutation, authQuery } from "../lib/crpc"
 import { usernameBase } from "../lib/discord-profile"
-import { profiles } from "./schema"
+import { accountTable, profiles, sessionTable, userTable } from "./schema"
 import type { QueryCtx } from "./generated/server"
 
 async function availableUsername(ctx: QueryCtx, name: string) {
@@ -72,4 +73,28 @@ export const complete = authMutation
       avatar: input.useDiscordAvatar ? ctx.user.image || null : null,
     })
     return { username: input.username }
+  })
+
+/* Backs out of a Discord sign-in before the account is created: removes the
+   sign-in's user, sessions, and Discord link so nothing is kept. Confirmed
+   accounts are never touched here. */
+export const decline = authMutation
+  .input(z.object({}))
+  .mutation(async ({ ctx }) => {
+    const existing = await ctx.orm.query.profiles.findFirst({
+      where: { userId: ctx.userId },
+    })
+    if (existing)
+      throw new CRPCError({
+        code: "CONFLICT",
+        message: "Your account has already been created.",
+      })
+    await ctx.orm
+      .delete(sessionTable)
+      .where(eq(sessionTable.userId, ctx.userId))
+    await ctx.orm
+      .delete(accountTable)
+      .where(eq(accountTable.userId, ctx.userId))
+    await ctx.orm.delete(userTable).where(eq(userTable.id, ctx.userId))
+    return null
   })

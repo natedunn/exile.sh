@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router"
-import { useAuth } from "kitcn/react"
+import { useAccount } from "@/lib/use-account"
 
 export function AccountLink() {
-  const { isAuthenticated } = useAuth()
+  const isAuthenticated = useAccount().status === "member"
   return (
     <Link
       className="ml-auto shrink-0 text-xs whitespace-nowrap text-ink"

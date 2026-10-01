@@ -17,7 +17,11 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllEnvs())
 
-async function signIn(t: ReturnType<typeof convexTest>, email: string) {
+async function signIn(
+  t: ReturnType<typeof convexTest>,
+  email: string,
+  confirmed = true
+) {
   const { userId, sessionId } = await t.run(async (ctx) => {
     const now = Date.now()
     const userId = await ctx.db.insert("user", {
@@ -34,6 +38,11 @@ async function signIn(t: ReturnType<typeof convexTest>, email: string) {
       createdAt: now,
       updatedAt: now,
     })
+    if (confirmed)
+      await ctx.db.insert("profiles", {
+        userId,
+        username: email.split("@")[0],
+      })
     return { userId, sessionId }
   })
   return t.withIdentity({ subject: userId, sessionId })

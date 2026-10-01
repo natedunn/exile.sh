@@ -1,22 +1,25 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { skipToken, useMutation, useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { useAuth } from "kitcn/react"
 import { Bookmark, Check } from "lucide-react"
 import { useCRPC } from "@/lib/convex/crpc"
+import { useAccount } from "@/lib/use-account"
 import { Button } from "@/components/ui/button"
 
 export function SaveBuildButton({ slug }: { slug: string }) {
   const crpc = useCRPC()
-  const { isAuthenticated, isLoading } = useAuth()
+  const account = useAccount().status
+  const isMember = account === "member"
   const status = useQuery(
-    crpc.savedBuilds.status.queryOptions({ slug }, { skipUnauth: true })
+    crpc.savedBuilds.status.queryOptions(isMember ? { slug } : skipToken, {
+      skipUnauth: true,
+    })
   )
   const save = useMutation(crpc.savedBuilds.set.mutationOptions())
-  if (!isAuthenticated)
+  if (!isMember)
     return (
       <Button
         variant="outline"
-        disabled={isLoading}
+        disabled={account === "loading"}
         render={<Link to="/auth" search={{ error: undefined }} />}
       >
         <Bookmark /> Sign in to bookmark

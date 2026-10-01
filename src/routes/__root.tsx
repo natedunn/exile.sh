@@ -7,10 +7,12 @@ import {
   Scripts,
   createRootRoute,
   useLocation,
+  useNavigate,
 } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { Providers } from "../components/providers"
 import { SiteLayout, ViewerLayout } from "../components/shell"
+import { useAccount } from "../lib/use-account"
 import appCss from "../styles.css?url"
 import fontinItalic from "../assets/fonts/fontin-italic.woff2?url"
 import fontinRegular from "../assets/fonts/fontin-regular.woff2?url"
@@ -100,6 +102,18 @@ function useIsViewer() {
 
 function RootLayout() {
   const isViewer = useIsViewer()
+  const navigate = useNavigate()
+  const { status } = useAccount()
+  const isCreateAccount = useLocation({
+    select: (location) => location.pathname === "/create-account",
+  })
+  // A Discord sign-in without a confirmed account can only confirm or cancel.
+  const mustConfirm = status === "pending" && !isCreateAccount
+  useEffect(() => {
+    if (mustConfirm) void navigate({ to: "/create-account", replace: true })
+  }, [mustConfirm, navigate])
+  if (isCreateAccount) return <Outlet />
+  if (mustConfirm) return null
   const Layout = isViewer ? ViewerLayout : SiteLayout
   return (
     <Layout>

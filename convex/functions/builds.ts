@@ -3,7 +3,7 @@ import { eq } from "kitcn/orm"
 import { z } from "zod"
 import { CRPCError } from "kitcn/server"
 import {
-  authMutation,
+  memberMutation,
   publicAction,
   publicMutation,
   publicQuery,
@@ -97,7 +97,7 @@ export const create = publicMutation
   })
 
 // Publish and bookmark atomically, so a failed save never leaves a new bin behind.
-export const createSaved = authMutation
+export const createSaved = memberMutation
   .input(createInput)
   .mutation(async ({ ctx, input }) => {
     const build = await createBuild(ctx, input)

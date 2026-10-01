@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CreateAccountRouteImport } from './routes/create-account'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as GemsRouteImport } from './routes/gems'
 import { Route as MethodologyRouteImport } from './routes/methodology'
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateAccountRoute = CreateAccountRouteImport.update({
+  id: '/create-account',
+  path: '/create-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EconomyRoute = EconomyRouteImport.update({
@@ -158,6 +164,7 @@ const OgGemsGemRoute = OgGemsGemRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/create-account': typeof CreateAccountRoute
   '/economy': typeof EconomyRouteWithChildren
   '/gems': typeof GemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/create-account': typeof CreateAccountRoute
   '/methodology': typeof MethodologyRoute
   '/build-bin/$slug': typeof BuildBinSlugRoute
   '/currency/$slug': typeof CurrencySlugRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/create-account': typeof CreateAccountRoute
   '/economy': typeof EconomyRouteWithChildren
   '/gems': typeof GemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/create-account'
     | '/economy'
     | '/gems'
     | '/methodology'
@@ -262,6 +272,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/create-account'
     | '/methodology'
     | '/build-bin/$slug'
     | '/currency/$slug'
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/create-account'
     | '/economy'
     | '/gems'
     | '/methodology'
@@ -312,6 +324,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  CreateAccountRoute: typeof CreateAccountRoute
   EconomyRoute: typeof EconomyRouteWithChildren
   GemsRoute: typeof GemsRouteWithChildren
   MethodologyRoute: typeof MethodologyRoute
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create-account': {
+      id: '/create-account'
+      path: '/create-account'
+      fullPath: '/create-account'
+      preLoaderRoute: typeof CreateAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/economy': {
@@ -546,6 +566,7 @@ const TreesRouteWithChildren = TreesRoute._addFileChildren(TreesRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  CreateAccountRoute: CreateAccountRoute,
   EconomyRoute: EconomyRouteWithChildren,
   GemsRoute: GemsRouteWithChildren,
   MethodologyRoute: MethodologyRoute,

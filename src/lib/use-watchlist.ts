@@ -1,7 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useAuth } from "kitcn/react"
+import {
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useCRPC } from "./convex/crpc"
+import { useAccount } from "./use-account"
 
 const KEY = "exile.watchlist"
 
@@ -21,16 +26,17 @@ function writeLocal(next: string[]) {
 // sign-in sends the browser's stars to the account exactly once.
 let merging: Promise<unknown> | undefined
 
-/* Starred currencies. Signed out, they live in localStorage; signed in, they
-   live on the account. Stars left in this browser while signed out are
-   merged into the account on sign-in and then cleared locally, so later
-   removals on the account are not undone by a stale copy. `storageError`
+/* Starred currencies. Without an account, they live in localStorage; with
+   one, they live on the account. Stars left in this browser are merged into
+   the account once it is created or signed into, then cleared locally, so
+   later removals on the account are not undone by a stale copy. `storageError`
    reports a browser that refuses to save, so the page can say favorites
    won't last. */
 export function useWatchlist() {
   const crpc = useCRPC()
   const queryClient = useQueryClient()
-  const { isAuthenticated } = useAuth()
+  // A Discord sign-in still awaiting confirmation keeps its stars local.
+  const isAuthenticated = useAccount().status === "member"
   const [local, setLocal] = useState<string[]>([])
   const [storageError, setStorageError] = useState(false)
   const [retryVersion, setRetryVersion] = useState(0)
@@ -45,7 +51,9 @@ export function useWatchlist() {
 
   const listKey = crpc.watchlist.list.queryKey({})
   const account = useQuery(
-    crpc.watchlist.list.queryOptions({}, { skipUnauth: true })
+    crpc.watchlist.list.queryOptions(isAuthenticated ? {} : skipToken, {
+      skipUnauth: true,
+    })
   )
   // Star optimistically; the live subscription replaces this with the saved
   // list, and a failed save puts the star back where it was.

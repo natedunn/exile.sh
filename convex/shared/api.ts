@@ -27,6 +27,7 @@ export const api = {
   },
   profiles: {
     complete: createApiLeaf<"mutation", typeof import("../functions/profiles").complete>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/profiles").complete>("profiles:complete"), { auth: "required", type: "mutation" }),
+    decline: createApiLeaf<"mutation", typeof import("../functions/profiles").decline>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/profiles").decline>("profiles:decline"), { auth: "required", type: "mutation" }),
     me: createApiLeaf<"query", typeof import("../functions/profiles").me>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/profiles").me>("profiles:me"), { auth: "required", type: "query" }),
   },
   savedBuilds: {
