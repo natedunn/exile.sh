@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useCRPC } from "@/lib/convex/crpc"
+import { ProfileSavedData } from "@/components/profile-saved-data"
 import { cn } from "cn"
 import {
   useSignInSocialMutationOptions,
@@ -128,8 +129,8 @@ function Profile() {
           )}
           <p className={cn(copy, "wrap-anywhere")}>@{data.profile.username}</p>
           <p className={copy}>
-            Your Exile.sh profile is ready. Your watchlist is saved to your
-            account and follows you across devices.
+            Your watchlist and bookmarked bins are private to your account and
+            follow you across devices.
           </p>
         </>
       ) : (
@@ -194,6 +195,7 @@ function Profile() {
           </form>
         )
       )}
+      <ProfileSavedData />
       {signOut.error && (
         <p role="alert" className={alert}>
           Sign-out failed. Please try again.

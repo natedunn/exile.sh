@@ -14,10 +14,9 @@ import type { ActionCtx, MutationCtx, QueryCtx } from './server';
 import type { OrmTriggerContext } from 'kitcn/orm';
 
 const procedureRegistry = {
-  "create": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../builds").create>("builds:create"), () => (require("../builds") as Record<string, unknown>)["create"])],
-  "createSaved": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../builds").createSaved>("builds:createSaved"), () => (require("../builds") as Record<string, unknown>)["createSaved"])],
-  "get": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../builds").get>("builds:get"), () => (require("../builds") as Record<string, unknown>)["get"])],
-  "resolve": ["action", typedProcedureResolver(createGeneratedFunctionReference<"action", "public", typeof import("../builds").resolve>("builds:resolve"), () => (require("../builds") as Record<string, unknown>)["resolve"])],
+  "list": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../savedBuilds").list>("savedBuilds:list"), () => (require("../savedBuilds") as Record<string, unknown>)["list"])],
+  "set": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../savedBuilds").set>("savedBuilds:set"), () => (require("../savedBuilds") as Record<string, unknown>)["set"])],
+  "status": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../savedBuilds").status>("savedBuilds:status"), () => (require("../savedBuilds") as Record<string, unknown>)["status"])],
 } as const;
 
   const handlerRegistry = procedureRegistry;
@@ -60,7 +59,7 @@ type GeneratedProcedureHandler<
 >;
 
 
-export function createBuildsCaller<TCtx extends ProcedureCallerContext>(
+export function createSavedBuildsCaller<TCtx extends ProcedureCallerContext>(
   ctx: TCtx
 ): GeneratedProcedureCaller<TCtx> {
   return generatedRuntime.getCallerFactory()(
@@ -68,7 +67,7 @@ export function createBuildsCaller<TCtx extends ProcedureCallerContext>(
   ) as GeneratedProcedureCaller<TCtx>;
 }
 
-export function createBuildsHandler<TCtx extends ProcedureHandlerContext>(
+export function createSavedBuildsHandler<TCtx extends ProcedureHandlerContext>(
   ctx: TCtx
 ): GeneratedProcedureHandler<TCtx> {
   return generatedRuntime.getHandlerFactory()(ctx) as GeneratedProcedureHandler<TCtx>;

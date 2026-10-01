@@ -1,7 +1,15 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useAuth } from "kitcn/react"
 import { useMutation } from "@tanstack/react-query"
-import { ArrowRight, Check, Code, Link2, LoaderCircle } from "lucide-react"
+import {
+  ArrowRight,
+  Bookmark,
+  Check,
+  Code,
+  Link2,
+  LoaderCircle,
+} from "lucide-react"
 import { BuildView } from "../components/build-view"
 import { Button } from "../components/ui/button"
 import {
@@ -57,6 +65,8 @@ function importError(error: unknown) {
 function BuildImport() {
   const crpc = useCRPC(),
     navigate = useNavigate()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const save = useMutation(crpc.builds.createSaved.mutationOptions())
   const create = useMutation(crpc.builds.create.mutationOptions())
   const resolve = useMutation(crpc.builds.resolve.mutationOptions())
   const [ready, setReady] = useState(false)
@@ -154,11 +164,11 @@ function BuildImport() {
     const timer = window.setTimeout(() => void inspect(source, true), 450)
     return () => window.clearTimeout(timer)
   }, [source, ready, preview, inspect])
-  async function publish() {
+  async function publish(saved = false) {
     if (!preview) return
     setError("")
     try {
-      const result = await create.mutateAsync({
+      const result = await (saved ? save : create).mutateAsync({
         slug: crypto.randomUUID(),
         title: title.trim(),
         code: preview.code,
@@ -317,6 +327,29 @@ function BuildImport() {
       code={preview.code}
       shareAction={
         <Dialog>
+          {isAuthenticated ? (
+            <Button
+              variant="outline"
+              disabled={create.isPending || save.isPending || !title.trim()}
+              onClick={() => void publish(true)}
+            >
+              <Bookmark />
+              {save.isPending ? "Bookmarking…" : "Bookmark this"}
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              disabled={authLoading}
+              render={<Link to="/auth" search={{ error: undefined }} />}
+            >
+              <Bookmark /> Sign in to bookmark
+            </Button>
+          )}
+          {error && (
+            <p role="alert" className="text-sm text-negative">
+              {error}
+            </p>
+          )}
           <DialogTrigger render={<Button variant="outline" />}>
             <Link2 />
             Share
@@ -344,10 +377,10 @@ function BuildImport() {
                 maxLength={100}
                 onChange={(e) => setTitle(e.target.value)}
               />
-              <div className="flex justify-end gap-2.5">
+              <div className="flex flex-wrap justify-end gap-2.5">
                 <Button
                   variant="outline"
-                  disabled={create.isPending}
+                  disabled={create.isPending || save.isPending}
                   onClick={() => {
                     setPreview(null)
                     setError("")
@@ -356,8 +389,8 @@ function BuildImport() {
                   Change export
                 </Button>
                 <BuildPrimaryButton
-                  disabled={create.isPending || !title.trim()}
-                  onClick={publish}
+                  disabled={create.isPending || save.isPending || !title.trim()}
+                  onClick={() => void publish()}
                 >
                   {create.isPending ? "Publishing…" : "Create share link"}
                   <ArrowRight />

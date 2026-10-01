@@ -621,6 +621,37 @@ export type DataModel = {
     searchIndexes: {};
     vectorIndexes: {};
   };
+  savedBuilds: {
+    document: {
+      character: string;
+      level: number;
+      savedAt: number;
+      skill: string;
+      slug: string;
+      title: string;
+      userId: string;
+      _id: Id<"savedBuilds">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "character"
+      | "level"
+      | "savedAt"
+      | "skill"
+      | "slug"
+      | "title"
+      | "userId";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      userId_savedAt: ["userId", "savedAt", "_creationTime"];
+      userId_slug: ["userId", "slug", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
   session: {
     document: {
       createdAt: number;

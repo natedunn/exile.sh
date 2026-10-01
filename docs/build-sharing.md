@@ -2,6 +2,14 @@
 
 `/build-bin` (the Build Bin) accepts a PoE2 export or a pobb.in link, renders a local preview, and publishes an immutable anonymous snapshot to `/build-bin/:uuid`. The original compressed export is retained for copy/download, including data that the current viewer does not interpret. No calculation engine or GGG API is involved. See [the spike](pob-sharing-spike.md) for the evidence and source inventory.
 
+## Account bookmarks
+
+Signed-in users can bookmark an imported preview or any existing shared bin with one click. Bookmarking a preview publishes the immutable bin and opens its shared page with the button showing “Bookmarked”; it does not open a dialog. `builds.createSaved` publishes and bookmarks in one authenticated transaction, using the same validation and publishing budget as anonymous sharing. A failed bookmark rolls back publication. Bookmarking a preview creates a public snapshot with a private account bookmark.
+
+Bookmarks live in `savedBuilds`, keyed uniquely by account and bin slug. They are private to the account, idempotent, and limited to 500 bins. Lightweight title, character, level, skill, and save-time metadata keep the profile list from loading full exports. The snapshot remains immutable; removing a bookmark leaves the original shared bin intact.
+
+The account page at `/auth` lists bookmarked bins and the existing account currency watchlist, with links to reopen each entry and controls to remove it. Both lists update through Convex subscriptions. Local currency stars continue to merge on sign-in through the existing watchlist hook.
+
 ## Gem tooltip references
 
 Skill and support tooltips show descriptions and numerical effects from the pinned PoB reference. `scripts/update-gem-effects.py` generates per-skill JSON using PoB's MIT-licensed `StatDescriber.lua` and its generated GGG descriptions; install `lupa` in a Python environment to run it. Lua runs only at asset-generation time, never on user input. The generator reads the gem-art catalogue's skill IDs, records source hashes in `public/gems/effects-v1/source.json`, and refuses to overwrite a published asset revision. Generate future updates under a new versioned directory.

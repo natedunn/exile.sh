@@ -4,15 +4,16 @@
 
 export const procedureNames = {
   "buildImportBudget.ts": [{ column: 3, line: 9, name: "buildImportBudget:reserveImport" }],
-  "builds.ts": [{ column: 3, line: 38, name: "builds:create" }, { column: 3, line: 17, name: "builds:get" }, { column: 3, line: 88, name: "builds:resolve" }],
+  "builds.ts": [{ column: 3, line: 94, name: "builds:create" }, { column: 3, line: 102, name: "builds:createSaved" }, { column: 3, line: 24, name: "builds:get" }, { column: 3, line: 111, name: "builds:resolve" }],
   "economy.ts": [{ column: 3, line: 69, name: "economy:itemHistory" }, { column: 3, line: 139, name: "economy:movers" }, { column: 3, line: 35, name: "economy:overview" }],
   "ingestion.ts": [{ column: 3, line: 47, name: "ingestion:ingest" }],
   "patchIngestion.ts": [{ column: 3, line: 33, name: "patchIngestion:poll" }, { column: 3, line: 14, name: "patchIngestion:post" }],
   "patchStore.ts": [{ column: 3, line: 67, name: "patchStore:acquire" }, { column: 3, line: 45, name: "patchStore:discover" }, { column: 3, line: 87, name: "patchStore:finish" }, { column: 54, line: 7, name: "patchStore:latest" }, { column: 3, line: 26, name: "patchStore:post" }],
   "profiles.ts": [{ column: 3, line: 54, name: "profiles:complete" }, { column: 48, line: 27, name: "profiles:me" }],
+  "savedBuilds.ts": [{ column: 50, line: 8, name: "savedBuilds:list" }, { column: 3, line: 36, name: "savedBuilds:set" }, { column: 3, line: 26, name: "savedBuilds:status" }],
   "seed.ts": [{ column: 3, line: 178, name: "seed:local" }],
   "store.ts": [{ column: 3, line: 38, name: "store:acquire" }, { column: 3, line: 121, name: "store:begin" }, { column: 39, line: 297, name: "store:cleanup" }, { column: 3, line: 106, name: "store:imported" }, { column: 3, line: 204, name: "store:publish" }, { column: 3, line: 182, name: "store:recent" }, { column: 3, line: 78, name: "store:release" }, { column: 44, line: 94, name: "store:resetCircuit" }, { column: 34, line: 65, name: "store:state" }, { column: 3, line: 143, name: "store:writeChunk" }],
-  "watchlist.ts": [{ column: 50, line: 19, name: "watchlist:list" }, { column: 3, line: 50, name: "watchlist:merge" }, { column: 3, line: 27, name: "watchlist:set" }],
+  "watchlist.ts": [{ column: 3, line: 21, name: "watchlist:list" }, { column: 3, line: 52, name: "watchlist:merge" }, { column: 3, line: 29, name: "watchlist:set" }],
   "xIngestion.ts": [{ column: 3, line: 9, name: "xIngestion:poll" }],
   "xStore.ts": [{ column: 3, line: 42, name: "xStore:acquire" }, { column: 3, line: 190, name: "xStore:hide" }, { column: 54, line: 15, name: "xStore:latest" }, { column: 3, line: 164, name: "xStore:release" }, { column: 3, line: 69, name: "xStore:rememberAccount" }, { column: 3, line: 90, name: "xStore:savePage" }, { column: 3, line: 36, name: "xStore:state" }],
 };
