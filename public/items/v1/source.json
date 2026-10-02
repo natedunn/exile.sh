@@ -1,0 +1,529 @@
+{
+  "pobRevision": "ce566eac45ea8a86477f513c7ee65a1ebe60014e",
+  "repoeSource": "https://repoe-fork.github.io/poe2/",
+  "runeforgingMappings": {
+    "file": "scripts/data/unique-runeforging.json",
+    "sha256": "ff2f406006eba7ec02ba4df95264b98ad62d6d2830ffd969483b6a77f2e64fae",
+    "coverage": "Published unique recipes resolved only against unambiguous imported base identities; unresolved paths are excluded. Absence does not mean an upgrade is impossible.",
+    "uniques": 230,
+    "publishedRecipes": {
+      "file": "scripts/data/runeforging-recipes.json",
+      "sha256": "e2730316104162b3dc1fd2972b45d9223b12b5dba079323bee3c099014e8ecb7",
+      "source": "https://poe2db.tw/us/Runeforging"
+    }
+  },
+  "sha256": {
+    "https://api.github.com/repos/PathOfBuildingCommunity/PathOfBuilding-PoE2/contents/src/Data/Bases?ref=ce566eac45ea8a86477f513c7ee65a1ebe60014e": "e277d7cf1ebf753361c7b89334cb8d7aacecf642cebd8ffea32ee5b34adfb707",
+    "https://api.github.com/repos/PathOfBuildingCommunity/PathOfBuilding-PoE2/contents/src/Data/Uniques?ref=ce566eac45ea8a86477f513c7ee65a1ebe60014e": "7c4658d9c1f1a06bb4984ec310d47af0668b911af047e21dcd13035aa94bd9ff",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/amulet.lua": "cedb4a4a6591286b7c37973ca6af89d49c6245aa6664c34dc50db838cc866ea3",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/axe.lua": "285b9cca5c877ff55d4863e9a02432ea5ddecf85063ecfdda1ff84bc9ba1656e",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/belt.lua": "bfc0654ff1f1fe068866fb0dc892faeebb9ec36e87e365b10ec72f1d7091c3c5",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/body.lua": "0d3156d893bcfca1eb8c9b299f2a28c62a1d4c9f1d3a39f3a087cac18d23e9cd",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/boots.lua": "a164dcfa8ad0af668ea2000a9ea918c0ef3f40755bfca3c3609bb11d0d3c81b8",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/bow.lua": "6bd10dbe0dbfea1638ea8f15f828cfa99d294dbf832bcab8f8472990154f725e",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/claw.lua": "fc771b343199a85505401868fd34320dc6117266d6672637e1757430262c18cb",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/crossbow.lua": "e9988fbc6b482c36bfc0865afc441952df3de4013061629952377472723590a6",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/dagger.lua": "a3b81d4868f7d556bd4ba412e1edabb931f5a4240283e6e351dacd9419b50c8e",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/fishing.lua": "53f70fb8e80c64f593152b3b12504ab9320ad188dc8753003ac6e751d50c40bb",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/flail.lua": "1fa7b45de89051684ccd534b96866279ebb7290be2e49e7421e6702a269a75d9",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/flask.lua": "ed025daab24f4964874296c5e5eb0855f1b90a4063b4a69cc8a65fef7c293cc7",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/focus.lua": "b5a315245cc0f9f11657f7fdab751e5ed5306166df54c2c19ef83295b876820e",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/gloves.lua": "05b91c71f9292f120482355447566db285cb513f6b506e349e9a29efa0b329f2",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/helmet.lua": "8fe41aa01c7e0e3b505eebf41db80bb0451b1719c6b7b4a156a7aed2262605e8",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/incursionlimb.lua": "1df6a73c327b7ccbbb9172ec4fdec905015aeb168084e53ef0f00544a16c6763",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/jewel.lua": "b9fe5096276439717b9f24e7e389279f2ef88c3f518ee2443cfbf73494e7d442",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/mace.lua": "d3bb896069429fcff68d4e04ff517e49ad290cfc70b26fdbe8db3406c8392fec",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/quiver.lua": "7d100d232b052507f734256f36625552e4cdccff963a690b643af5d35e552721",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/ring.lua": "fd04089d8e54a8450c3a7368738be889c94786b7c883007a95e32ff94168a382",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/sceptre.lua": "e4ced96a6064e6fbd447cb01edd1e0c482ab7d6d710b502764749c850c9fc8a4",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/shield.lua": "d4628eed0450bdeaeec8ea10b4960aa0e5e5705829b6c53500069ebfcef478ef",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/spear.lua": "8cb6acac3e44d924ffe3ac5522fae408697fa322f02f99896edfca8f49e62268",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/staff.lua": "8589a6fe4c7f8c44261318f3e3212c7c563751372366ce5795b0a9b264b3620d",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/sword.lua": "8bb14bdafc5fa6c243f7bc0b7b8d611183b629828f361e84c3e64e72a071df06",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/talisman.lua": "4e721181ba512ab359a9b1b5e5afa4a8c6666332dbbad1d2f3432243fe8d8191",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/traptool.lua": "1698ec9b999aa3e3c880587fa0e3ff5f23d34416cfa1a5a7a99f9f609f815a6d",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Bases/wand.lua": "83380d46933eca12a6df6308be0d1664f79fb70f841209e194e362f94af3d8a1",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Essence.lua": "950219488fed20cc3ca1bad17953f577c4361c6b65e371ce9ae3f9cbbae95f74",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/ModCharm.lua": "ef31de790278940ab584f83c52a64091f2af8824715da84f07c6754fe2bc9d8d",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/ModCorrupted.lua": "50549cb0cbe722e28b337b30e4918e14ddf14bd4aa5da5d064984b1ba8f99351",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/ModFlask.lua": "d50d074c1b7e0a57c164b7c49add1670d90ba806a25d946467e4ca7af9feb350",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/ModItem.lua": "774257f577f8cee8ac59d7848df4bc7a109d266a615eb97c2a2c08ecb6b47cf4",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/ModJewel.lua": "44285abc35fa4c32b2b0ba169570c99b01fd97136d1a801462b9b1398db82e80",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/ModVeiled.lua": "95234097bcb70946ad451fbdb80b93cff3bd4a57abfdf29052305905fd32a632",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/amulet.lua": "556ac5e21582457e9f02ace34a50af1cdf6d6d0132a3f62e9ce1f06965d8298a",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/axe.lua": "bce0f10bfe13f583dd83df68ffa48f29892c05302422c86f86105dbc86cad58d",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/belt.lua": "4f1050dc4a7ac721e4cf0035574f00cc079c96dd2b14a1c3517f06c18464db5c",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/body.lua": "d5809f1ee6b0542c424a583187f9c8df19dea4b2fc40f9a6e426a76ccfbc7883",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/boots.lua": "8983b511ebf73f5fcbd30abd52a44077c33ecadc903729294c266227e6527035",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/bow.lua": "bb971a14babb972ac8bbde6494caa881716935b344876a409eaf7ca5b5474c83",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/claw.lua": "c08587a82e8e51e4a9b720a2d490a8111c19e4f6ec1c0070c1e614597cf0ef06",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/crossbow.lua": "81a39754058fbfceeb88c3ebd72b8848fe389e3d752885e49de4ee06781459bb",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/dagger.lua": "85d561ff65fe805248834fdc9dc961e41ca02294f6a5f50dfb5a0a88985d6e9c",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/fishing.lua": "09ec2f8ef23a37dc2fdee146dc4dda764de6cdb44c2ae5025bf2c67a12a9138a",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/flail.lua": "b720fe9876a27bcd8606dbae910f490d81d6b56a9998f9beff7419f1d75282c3",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/flask.lua": "44e60ec02046da8d983f64f5eee6ea491198740508c9aa92768a487a890156c0",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/focus.lua": "9d351ce29e479ca474914af833f84fff74717d8e68387595c73c56d98999a860",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/gloves.lua": "72ef59ea1ffe68dd8b8731e183f99efdc6edb792ac2cf9476ff29f29e7bd63ac",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/helmet.lua": "eb069d4441184a296c5db8d2a947bc7c575251a39d8ed9affde542f12261aff3",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/incursionlimb.lua": "2611aba6c8ab4cd33cf9ca6a4411464ac36d0675a8cd284e52f97e73c1a0497a",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/jewel.lua": "7b564d0bff6d6d93583ef8d00b48a1fe8253b93585686f023de58199802d9d1b",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/mace.lua": "51098c2b12f911ab67d6fae1ca5acd08c6f4c89bce064ec4a3186fea93e8d993",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/quiver.lua": "b2cac7a008da6e821d974927f0185872a2b0f7eaaf41e6e650a934182a574146",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/ring.lua": "6aa15bbe4e79d78d2f0b17f4494eeeb033c13a536bbf943ac2a30828e553ef41",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/sceptre.lua": "c08e6fa99cdc943fa0698c599ff016e17f9fbb12bd7e4e9c8bc903aba30ec387",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/shield.lua": "b7e2e3718bc2b7745e06150173bf19b641a9a7b619bbda3fb97a0d62d1ee59d0",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/soulcore.lua": "68957f80aa5c77108d3b101aa89f98267bd61d535b7dac26d0347c4400fcf197",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/spear.lua": "db246334741bc140b87ed24a9d2a2831b32184e22f714ec15cbda27a832da731",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/staff.lua": "8f6ba2a96ee877ae8fb73634a9f9c3b7351063657e25387cbdbf0b3bd0d52289",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/sword.lua": "dd81a9410b042301d1b1d875ae7aecf94a74ba4203903d03ac1ef194c84f859b",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/talisman.lua": "3812457fd3fcaafad5020ab1afb6ff1c5788485e1da22db1e658775f04bd46c1",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/tincture.lua": "2ffab27f09640d56b523cc7d6272d50ae584c36e746f4a4c66a9789d7b4ae334",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/traptool.lua": "64d1251fd189c9c0194f47c10e378a5bd2f447a3cd65689705e60816c9033376",
+    "https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/ce566eac45ea8a86477f513c7ee65a1ebe60014e/src/Data/Uniques/wand.lua": "2c6ee5ceaaa726c7aa8791a03cad4442e056fa572c1b7ea5793caef56554f9bc",
+    "https://repoe-fork.github.io/poe2/augments.min.json": "8f39db1eec0f927c30bd944a3a5bf62d6ce74d9d4a655161a91fce3e85d76977",
+    "https://repoe-fork.github.io/poe2/base_items.min.json": "c95315f5198e37c162b154c167a4c2c7deed98d751c628e7fd4327286e430a9f",
+    "https://repoe-fork.github.io/poe2/mods.min.json": "de686180c7250dcde389358fbf251611b0b677d7672cc66def0dc8f3bd3f481d",
+    "https://repoe-fork.github.io/poe2/uniques.min.json": "66b7ef63b533f79eb315e979dc30aa643b205dd82a7625f00d419e73ec0ddfd6"
+  },
+  "artworkOwner": "Grinding Gear Games",
+  "counts": {
+    "bases": 1775,
+    "uniques": 427,
+    "modifiers": 3638,
+    "essences": 80,
+    "augments": 313
+  },
+  "limitations": [
+    "Reference data does not prove crafting reachability.",
+    "Complex multi-variant uniques are reference-only.",
+    "Hidden PoB bases are excluded except released Runeforged and Runemastered forms. Ambiguous base definitions are excluded.",
+    "PoB and RePoE releases may differ; source hashes identify the exact inputs."
+  ],
+  "diagnostics": [
+    {
+      "name": "Voll's Protector",
+      "reason": "No unambiguous released base"
+    },
+    {
+      "name": "Hand of Wisdom and Action",
+      "reason": "No unambiguous released base"
+    },
+    {
+      "name": "Heroic Tragedy",
+      "reason": "No unambiguous released base"
+    },
+    {
+      "name": "Undying Hate",
+      "reason": "No unambiguous released base"
+    },
+    {
+      "name": "Seeing Stars",
+      "reason": "No unambiguous released base"
+    },
+    {
+      "name": "The Surrender",
+      "reason": "No unambiguous released base"
+    },
+    {
+      "name": "Oaksworn",
+      "reason": "No unambiguous released base"
+    },
+    {
+      "name": "Pillar of the Caged God",
+      "reason": "No unambiguous released base"
+    }
+  ],
+  "baseDiagnostics": [
+    {
+      "id": "Metadata/Items/Belts/FourBelt9VerisiumUnique1",
+      "reason": "Ambiguous PoB definition"
+    },
+    {
+      "id": "Metadata/Items/Belts/FourBelt9VerisiumUnique2",
+      "reason": "Ambiguous PoB definition"
+    },
+    {
+      "id": "Metadata/Items/Belts/FourBelt9VerisiumUnique3",
+      "reason": "Ambiguous PoB definition"
+    },
+    {
+      "id": "Metadata/Items/Belts/FourBelt9VerisiumUnique4",
+      "reason": "Ambiguous PoB definition"
+    },
+    {
+      "id": "Metadata/Items/Armours/Helmets/FourHelmetStrInt6VerisiumUnique2",
+      "reason": "Ambiguous PoB definition"
+    }
+  ],
+  "recipeDiagnostics": [
+    {
+      "unique": "Eventide Petals",
+      "from": "Veridical Chain",
+      "to": "Runemastered Veridical Chain",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Eventide Petals",
+      "from": "Veridical Chain",
+      "to": "Runemastered Veridical Chain",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Eventide Petals",
+      "from": "Veridical Chain",
+      "to": "Runemastered Veridical Chain",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Waistgate",
+      "from": "Heavy Belt",
+      "to": "Runemastered Heavy Belt",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Waistgate",
+      "from": "Heavy Belt",
+      "to": "Runemastered Heavy Belt",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Waistgate",
+      "from": "Heavy Belt",
+      "to": "Runemastered Heavy Belt",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Waistgate",
+      "from": "Heavy Belt",
+      "to": "Runemastered Heavy Belt",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Blackbraid",
+      "from": "Fur Plate",
+      "to": "Runeforged Fur Plate",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Geofri's Sanctuary",
+      "from": "Runemastered Revered Vestments",
+      "to": "Runemastered Revered Vestments",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Decree of Loyalty",
+      "from": "Ancient Mail",
+      "to": "Runemastered Ancient Mail",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "The Unleashed",
+      "from": "Revered Vestments",
+      "to": "Runemastered Revered Vestments",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "The Unleashed",
+      "from": "Revered Vestments",
+      "to": "Runemastered Revered Vestments",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "The Unleashed",
+      "from": "Revered Vestments",
+      "to": "Runemastered Revered Vestments",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Forgotten Warden",
+      "from": "Primal Markings",
+      "to": "Runemastered Primal Markings",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Decree of Flight",
+      "from": "Ancient Leggings",
+      "to": "Runemastered Ancient Leggings",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Quill Rain",
+      "from": "Shortbow",
+      "to": "Runeforged Shortbow",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Quill Rain",
+      "from": "Runeforged Shortbow",
+      "to": "Runeforged Shortbow",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Horror's Flight",
+      "from": "Runeforged Engraved Bracers",
+      "name": "Horror's Flight",
+      "to": "Runeforged Engraved Bracers",
+      "reason": "Disconnected or self-referential recipe"
+    },
+    {
+      "unique": "Radiant Grief",
+      "from": "Lace Hood",
+      "to": "Runeforged Lace Hood",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Decree of Acuity",
+      "from": "Ancient Visor",
+      "to": "Runemastered Ancient Visor",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Keeper of the Arc",
+      "from": "Spiritbone Crown",
+      "to": "Runemastered Spiritbone Crown",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Keeper of the Arc",
+      "from": "Spiritbone Crown",
+      "to": "Runemastered Spiritbone Crown",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Keeper of the Arc",
+      "from": "Spiritbone Crown",
+      "to": "Runemastered Spiritbone Crown",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Vestige of Darkness",
+      "from": "Tenebrous Crown",
+      "to": "Runemastered Tenebrous Crown",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Mj\u00f6lner",
+      "from": "Torment Club",
+      "to": "Runemastered Torment Club",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Mj\u00f6lner",
+      "from": "Torment Club",
+      "to": "Runemastered Torment Club",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Mj\u00f6lner",
+      "from": "Torment Club",
+      "to": "Runemastered Torment Club",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Olrovasara",
+      "from": "Torment Club",
+      "to": "Runemastered Torment Club",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Olrovasara",
+      "from": "Torment Club",
+      "to": "Runemastered Torment Club",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Olrovasara",
+      "from": "Torment Club",
+      "to": "Runemastered Torment Club",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Serle's Grit",
+      "from": "Kalguuran Forgehammer",
+      "to": "Runeforged Kalguuran Forgehammer",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Serle's Grit",
+      "from": "Kalguuran Forgehammer",
+      "to": "Runeforged Kalguuran Forgehammer",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Serle's Grit",
+      "from": "Kalguuran Forgehammer",
+      "to": "Runeforged Kalguuran Forgehammer",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Serle's Grit",
+      "from": "Kalguuran Forgehammer",
+      "to": "Runeforged Kalguuran Forgehammer",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Twisted Empyrean",
+      "from": "Aberrant Sledge",
+      "to": "Runemastered Aberrant Sledge",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Twisted Empyrean",
+      "from": "Aberrant Sledge",
+      "to": "Runemastered Aberrant Sledge",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Twisted Empyrean",
+      "from": "Aberrant Sledge",
+      "to": "Runemastered Aberrant Sledge",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Twisted Empyrean",
+      "from": "Aberrant Sledge",
+      "to": "Runemastered Aberrant Sledge",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Nightfall",
+      "from": "Glacial Fortress",
+      "to": "Runemastered Glacial Fortress",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Svalinn",
+      "from": "Crucible Tower Shield",
+      "to": "Runemastered Crucible Tower Shield",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Svalinn",
+      "from": "Crucible Tower Shield",
+      "to": "Runemastered Crucible Tower Shield",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Svalinn",
+      "from": "Crucible Tower Shield",
+      "to": "Runemastered Crucible Tower Shield",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Svalinn",
+      "from": "Crucible Tower Shield",
+      "to": "Runemastered Crucible Tower Shield",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Calgyra's Arc",
+      "from": "Ornate Buckler",
+      "to": "Runemastered Ornate Buckler",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Eyes of the Runefather",
+      "from": "Venerable Defender",
+      "to": "Runemastered Venerable Defender",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Eyes of the Runefather",
+      "from": "Venerable Defender",
+      "to": "Runemastered Venerable Defender",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Eyes of the Runefather",
+      "from": "Venerable Defender",
+      "to": "Runemastered Venerable Defender",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Prism Guardian",
+      "from": "Intricate Crest Shield",
+      "name": "Prism Guardian",
+      "to": "Runemastered Intricate Crest Shield",
+      "reason": "Disconnected or self-referential recipe"
+    },
+    {
+      "unique": "The Blood Thorn",
+      "from": "Wrapped Quarterstaff",
+      "to": "Runeforged Wrapped Quarterstaff",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Duality",
+      "from": "Warding Quarterstaff",
+      "to": "Runemastered Warding Quarterstaff",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Duality",
+      "from": "Warding Quarterstaff",
+      "to": "Runemastered Warding Quarterstaff",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Duality",
+      "from": "Warding Quarterstaff",
+      "to": "Runemastered Warding Quarterstaff",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Matsya",
+      "from": "Crescent Quarterstaff",
+      "to": "Runeforged Crescent Quarterstaff",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Nazir's Judgement",
+      "from": "Steelpoint Quarterstaff",
+      "to": "Runeforged Steelpoint Quarterstaff",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "The Sentry",
+      "from": "Gothic Quarterstaff",
+      "to": "Runeforged Gothic Quarterstaff",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "The Sentry",
+      "from": "Runeforged Gothic Quarterstaff",
+      "to": "Runemastered Gothic Quarterstaff",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Runeseeker's Call",
+      "from": "Runic Fork",
+      "to": "Runemastered Runic Fork",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Runeseeker's Call",
+      "from": "Runic Fork",
+      "to": "Runemastered Runic Fork",
+      "reason": "Missing or ambiguous base identity"
+    },
+    {
+      "unique": "Runeseeker's Call",
+      "from": "Runic Fork",
+      "to": "Runemastered Runic Fork",
+      "reason": "Missing or ambiguous base identity"
+    }
+  ],
+  "essenceDiagnostics": [
+    {
+      "essence": "Essence of Delirium",
+      "itemClass": "Body Armour",
+      "mod": "EssenceGrantedPassive"
+    }
+  ],
+  "augmentDiagnostics": [
+    {
+      "id": "Metadata/Items/SoulCores/IdolSpecial7",
+      "reason": "Untranslated stats for Buckler"
+    }
+  ]
+}

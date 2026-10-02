@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers"
+import type { ItemCatalogue } from "../../shared/item-registry"
 import type { GemCatalogue } from "../../shared/gems"
 
 /* Reads the Worker's own static files through the ASSETS binding. Results
@@ -30,4 +31,10 @@ export const gemCatalogue = () =>
   load(
     "/gems/v1/catalogue.json",
     (response) => response.json() as Promise<GemCatalogue>
+  )
+
+export const itemCatalogue = () =>
+  load(
+    "/items/v1/catalogue.json",
+    (response) => response.json() as Promise<ItemCatalogue>
   )

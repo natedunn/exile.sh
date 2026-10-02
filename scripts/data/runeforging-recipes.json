@@ -1,0 +1,1546 @@
+{
+  "source": "https://poe2db.tw/us/Runeforging",
+  "reviewed": "2026-10-01",
+  "rows": [
+    {
+      "from": "Wooden Club",
+      "name": "Brynhand's Mark",
+      "to": "Runeforged Wooden Club"
+    },
+    {
+      "from": "Runeforged Wooden Club",
+      "name": "Brynhand's Mark",
+      "to": "Runemastered Wooden Club"
+    },
+    {
+      "from": "Slim Mace",
+      "name": "Frostbreath",
+      "to": "Runeforged Slim Mace"
+    },
+    {
+      "from": "Spiked Club",
+      "name": "Trenchtimbre",
+      "to": "Runeforged Spiked Club"
+    },
+    {
+      "from": "Warpick",
+      "name": "Sculpted Suffering",
+      "to": "Runeforged Warpick"
+    },
+    {
+      "from": "Morning Star",
+      "name": "Brutus' Lead Sprinkler",
+      "to": "Runeforged Morning Star"
+    },
+    {
+      "from": "Kalguuran Forgehammer",
+      "name": "Serle's Grit",
+      "to": "Runeforged Kalguuran Forgehammer"
+    },
+    {
+      "from": "Kalguuran Forgehammer",
+      "name": "Serle's Grit",
+      "to": "Runeforged Kalguuran Forgehammer"
+    },
+    {
+      "from": "Kalguuran Forgehammer",
+      "name": "Serle's Grit",
+      "to": "Runeforged Kalguuran Forgehammer"
+    },
+    {
+      "from": "Kalguuran Forgehammer",
+      "name": "Serle's Grit",
+      "to": "Runeforged Kalguuran Forgehammer"
+    },
+    {
+      "from": "Felled Greatclub",
+      "name": "Hoghunt",
+      "to": "Runeforged Felled Greatclub"
+    },
+    {
+      "from": "Runeforged Felled Greatclub",
+      "name": "Hoghunt",
+      "to": "Runemastered Felled Greatclub"
+    },
+    {
+      "from": "Oak Greathammer",
+      "name": "Hrimnor's Hymn",
+      "to": "Runeforged Oak Greathammer"
+    },
+    {
+      "from": "Runeforged Oak Greathammer",
+      "name": "Hrimnor's Hymn",
+      "to": "Runemastered Oak Greathammer"
+    },
+    {
+      "from": "Forge Maul",
+      "name": "Trephina",
+      "to": "Runeforged Forge Maul"
+    },
+    {
+      "from": "Studded Greatclub",
+      "name": "Brain Rattler",
+      "to": "Runeforged Studded Greatclub"
+    },
+    {
+      "from": "Runeforged Studded Greatclub",
+      "name": "Brain Rattler",
+      "to": "Runemastered Studded Greatclub"
+    },
+    {
+      "from": "Cultist Greathammer",
+      "name": "The Empty Roar",
+      "to": "Runeforged Cultist Greathammer"
+    },
+    {
+      "from": "Temple Maul",
+      "name": "Shyaba",
+      "to": "Runeforged Temple Maul"
+    },
+    {
+      "from": "Leaden Greathammer",
+      "name": "Chober Chaber",
+      "to": "Runeforged Leaden Greathammer"
+    },
+    {
+      "from": "Crumbling Maul",
+      "name": "Quecholli",
+      "to": "Runeforged Crumbling Maul"
+    },
+    {
+      "from": "Pointed Maul",
+      "name": "Tidebreaker",
+      "to": "Runeforged Pointed Maul"
+    },
+    {
+      "from": "Hardwood Spear",
+      "name": "Splinter of Lorrata",
+      "to": "Runeforged Hardwood Spear"
+    },
+    {
+      "from": "Ironhead Spear",
+      "name": "Tyranny's Grip",
+      "to": "Runeforged Ironhead Spear"
+    },
+    {
+      "from": "Runeforged Ironhead Spear",
+      "name": "Tyranny's Grip",
+      "to": "Runemastered Ironhead Spear"
+    },
+    {
+      "from": "Hunting Spear",
+      "name": "Chainsting",
+      "to": "Runeforged Hunting Spear"
+    },
+    {
+      "from": "Winged Spear",
+      "name": "Skysliver",
+      "to": "Runeforged Winged Spear"
+    },
+    {
+      "from": "War Spear",
+      "name": "Daevata's Wind",
+      "to": "Runeforged War Spear"
+    },
+    {
+      "from": "Forked Spear",
+      "name": "Tangletongue",
+      "to": "Runeforged Forked Spear"
+    },
+    {
+      "from": "Barbed Spear",
+      "name": "Saitha's Spear",
+      "to": "Runeforged Barbed Spear"
+    },
+    {
+      "from": "Wrapped Quarterstaff",
+      "name": "The Blood Thorn",
+      "to": "Runeforged Wrapped Quarterstaff"
+    },
+    {
+      "from": "Long Quarterstaff",
+      "name": "Pillar of the Caged God",
+      "to": "Runeforged Long Quarterstaff"
+    },
+    {
+      "from": "Runeforged Long Quarterstaff",
+      "name": "Pillar of the Caged God",
+      "to": "Runemastered Long Quarterstaff"
+    },
+    {
+      "from": "Gothic Quarterstaff",
+      "name": "The Sentry",
+      "to": "Runeforged Gothic Quarterstaff"
+    },
+    {
+      "from": "Runeforged Gothic Quarterstaff",
+      "name": "The Sentry",
+      "to": "Runemastered Gothic Quarterstaff"
+    },
+    {
+      "from": "Crescent Quarterstaff",
+      "name": "Matsya",
+      "to": "Runeforged Crescent Quarterstaff"
+    },
+    {
+      "from": "Steelpoint Quarterstaff",
+      "name": "Nazir's Judgement",
+      "to": "Runeforged Steelpoint Quarterstaff"
+    },
+    {
+      "from": "Crude Bow",
+      "name": "Widowhail",
+      "to": "Runeforged Crude Bow"
+    },
+    {
+      "from": "Shortbow",
+      "name": "Quill Rain",
+      "to": "Runeforged Shortbow"
+    },
+    {
+      "from": "Runeforged Shortbow",
+      "name": "Quill Rain",
+      "to": "Runeforged Shortbow"
+    },
+    {
+      "from": "Warden Bow",
+      "name": "Ironbound",
+      "to": "Runeforged Warden Bow"
+    },
+    {
+      "from": "Recurve Bow",
+      "name": "Splinterheart",
+      "to": "Runeforged Recurve Bow"
+    },
+    {
+      "from": "Composite Bow",
+      "name": "Doomfletch",
+      "to": "Runeforged Composite Bow"
+    },
+    {
+      "from": "Dualstring Bow",
+      "name": "Death's Harp",
+      "to": "Runeforged Dualstring Bow"
+    },
+    {
+      "from": "Zealot Bow",
+      "name": "Slivertongue",
+      "to": "Runeforged Zealot Bow"
+    },
+    {
+      "from": "Makeshift Crossbow",
+      "name": "Mist Whisper",
+      "to": "Runeforged Makeshift Crossbow"
+    },
+    {
+      "from": "Tense Crossbow",
+      "name": "Rampart Raptor",
+      "to": "Runeforged Tense Crossbow"
+    },
+    {
+      "from": "Runeforged Tense Crossbow",
+      "name": "Rampart Raptor",
+      "to": "Runemastered Tense Crossbow"
+    },
+    {
+      "from": "Sturdy Crossbow",
+      "name": "Gatecrasher",
+      "to": "Runeforged Sturdy Crossbow"
+    },
+    {
+      "from": "Dyad Crossbow",
+      "name": "Double Vision",
+      "to": "Runeforged Dyad Crossbow"
+    },
+    {
+      "from": "Runeforged Dyad Crossbow",
+      "name": "Double Vision",
+      "to": "Runemastered Dyad Crossbow"
+    },
+    {
+      "from": "Changeling Talisman",
+      "name": "Amor Mandragora",
+      "to": "Runeforged Changeling Talisman"
+    },
+    {
+      "from": "Nettle Talisman",
+      "name": "Spiteful Floret",
+      "to": "Runeforged Nettle Talisman"
+    },
+    {
+      "from": "Runeforged Nettle Talisman",
+      "name": "Spiteful Floret",
+      "to": "Runemastered Nettle Talisman"
+    },
+    {
+      "from": "Familial Talisman",
+      "name": "Hysseg's Claw",
+      "to": "Runeforged Familial Talisman"
+    },
+    {
+      "from": "Runeforged Familial Talisman",
+      "name": "Hysseg's Claw",
+      "to": "Runemastered Familial Talisman"
+    },
+    {
+      "from": "Vicious Talisman",
+      "name": "The Flesh Poppet",
+      "to": "Runeforged Vicious Talisman"
+    },
+    {
+      "from": "Rusted Cuirass",
+      "name": "Bramblejack",
+      "to": "Runemastered Rusted Cuirass"
+    },
+    {
+      "from": "Fur Plate",
+      "name": "Blackbraid",
+      "to": "Runeforged Fur Plate"
+    },
+    {
+      "from": "Iron Cuirass",
+      "name": "Edyrn's Tusks",
+      "to": "Runemastered Iron Cuirass"
+    },
+    {
+      "from": "Raider Plate",
+      "name": "The Road Warrior",
+      "to": "Runemastered Raider Plate"
+    },
+    {
+      "from": "Maraketh Cuirass",
+      "name": "Titanrot Cataphract",
+      "to": "Runemastered Maraketh Cuirass"
+    },
+    {
+      "from": "Steel Plate",
+      "name": "Wandering Reliquary",
+      "to": "Runemastered Steel Plate"
+    },
+    {
+      "from": "Full Plate",
+      "name": "Kingsguard",
+      "to": "Runemastered Full Plate"
+    },
+    {
+      "from": "Vaal Cuirass",
+      "name": "Greed's Embrace",
+      "to": "Runemastered Vaal Cuirass"
+    },
+    {
+      "from": "Leather Vest",
+      "name": "Bristleboar",
+      "to": "Runemastered Leather Vest"
+    },
+    {
+      "from": "Quilted Vest",
+      "name": "Foxshade",
+      "to": "Runemastered Quilted Vest"
+    },
+    {
+      "from": "Pathfinder Coat",
+      "name": "Ashrend",
+      "to": "Runemastered Pathfinder Coat"
+    },
+    {
+      "from": "Shrouded Vest",
+      "name": "Sands of Silk",
+      "to": "Runemastered Shrouded Vest"
+    },
+    {
+      "from": "Rhoahide Coat",
+      "name": "Briskwrap",
+      "to": "Runemastered Rhoahide Coat"
+    },
+    {
+      "from": "Studded Vest",
+      "name": "Dustbloom",
+      "to": "Runemastered Studded Vest"
+    },
+    {
+      "from": "Scout's Vest",
+      "name": "The Rat Cage",
+      "to": "Runemastered Scout's Vest"
+    },
+    {
+      "from": "Serpentscale Coat",
+      "name": "Quatl's Molt",
+      "to": "Runemastered Serpentscale Coat"
+    },
+    {
+      "from": "Smuggler Coat",
+      "name": "Queen of the Forest",
+      "to": "Runemastered Smuggler Coat"
+    },
+    {
+      "from": "Strider Vest",
+      "name": "Yriel's Fostering",
+      "to": "Runemastered Strider Vest"
+    },
+    {
+      "from": "Exquisite Vest",
+      "name": "The Auspex",
+      "to": "Runemastered Exquisite Vest"
+    },
+    {
+      "from": "Armoured Vest",
+      "name": "Hyrri's Ire",
+      "to": "Runemastered Armoured Vest"
+    },
+    {
+      "from": "Tattered Robe",
+      "name": "Ghostwrithe",
+      "to": "Runemastered Tattered Robe"
+    },
+    {
+      "from": "Feathered Robe",
+      "name": "Bitterbloom",
+      "to": "Runemastered Feathered Robe"
+    },
+    {
+      "from": "Hexer's Robe",
+      "name": "The Black Doubt",
+      "to": "Runemastered Hexer's Robe"
+    },
+    {
+      "from": "Bone Raiment",
+      "name": "Necromantle",
+      "to": "Runemastered Bone Raiment"
+    },
+    {
+      "from": "Silk Robe",
+      "name": "Cloak of Flame",
+      "to": "Runemastered Silk Robe"
+    },
+    {
+      "from": "Silk Robe",
+      "name": "Temporalis",
+      "to": "Runemastered Silk Robe"
+    },
+    {
+      "from": "Keth Raiment",
+      "name": "Prayers for Rain",
+      "to": "Runemastered Keth Raiment"
+    },
+    {
+      "from": "Votive Raiment",
+      "name": "Tetzlapokal's Desire",
+      "to": "Runemastered Votive Raiment"
+    },
+    {
+      "from": "Altar Robe",
+      "name": "The Covenant",
+      "to": "Runemastered Altar Robe"
+    },
+    {
+      "from": "Elementalist Robe",
+      "name": "Gloamgown",
+      "to": "Runemastered Elementalist Robe"
+    },
+    {
+      "from": "Plated Raiment",
+      "name": "Vis Mortis",
+      "to": "Runemastered Plated Raiment"
+    },
+    {
+      "from": "Havoc Raiment",
+      "name": "Cloak of Defiance",
+      "to": "Runemastered Havoc Raiment"
+    },
+    {
+      "from": "Enlightened Robe",
+      "name": "Silks of Veneration",
+      "to": "Runemastered Enlightened Robe"
+    },
+    {
+      "from": "Chain Mail",
+      "name": "Coat of Red",
+      "to": "Runemastered Chain Mail"
+    },
+    {
+      "from": "Rogue Armour",
+      "name": "The Barrow Dweller",
+      "to": "Runemastered Rogue Armour"
+    },
+    {
+      "from": "Vagabond Armour",
+      "name": "Irongrasp",
+      "to": "Runemastered Vagabond Armour"
+    },
+    {
+      "from": "Cloaked Mail",
+      "name": "Pariah's Embrace",
+      "to": "Runemastered Cloaked Mail"
+    },
+    {
+      "from": "Explorer Armour",
+      "name": "Belly of the Beast",
+      "to": "Runemastered Explorer Armour"
+    },
+    {
+      "from": "Explorer Armour",
+      "name": "Pragmatism",
+      "to": "Runemastered Explorer Armour"
+    },
+    {
+      "from": "Scale Mail",
+      "name": "Doryani's Prototype",
+      "to": "Runemastered Scale Mail"
+    },
+    {
+      "from": "Knight Armour",
+      "name": "Widow's Reign",
+      "to": "Runemastered Knight Armour"
+    },
+    {
+      "from": "Knight Armour",
+      "name": "Perfidy",
+      "to": "Runemastered Knight Armour"
+    },
+    {
+      "from": "Knight Armour",
+      "name": "The Sunken Vessel",
+      "to": "Runemastered Knight Armour"
+    },
+    {
+      "from": "Ancestral Mail",
+      "name": "Lightning Coil",
+      "to": "Runemastered Ancestral Mail"
+    },
+    {
+      "from": "Heroic Armour",
+      "name": "The Coming Calamity",
+      "to": "Runemastered Heroic Armour"
+    },
+    {
+      "from": "Pilgrim Vestments",
+      "name": "Enfolding Dawn",
+      "to": "Runemastered Pilgrim Vestments"
+    },
+    {
+      "from": "Mail Vestments",
+      "name": "Icetomb",
+      "to": "Runemastered Mail Vestments"
+    },
+    {
+      "from": "Shaman Mantle",
+      "name": "Reverie",
+      "to": "Runemastered Shaman Mantle"
+    },
+    {
+      "from": "Plated Vestments",
+      "name": "Voll's Protector",
+      "to": "Runemastered Ironclad Vestments"
+    },
+    {
+      "from": "Sacrificial Mantle",
+      "name": "Soul Mantle",
+      "to": "Runemastered Sacrificial Mantle"
+    },
+    {
+      "from": "Cleric Vestments",
+      "name": "The Mutable Star",
+      "to": "Runemastered Cleric Vestments"
+    },
+    {
+      "from": "Tideseer Mantle",
+      "name": "Waveshaper",
+      "to": "Runemastered Tideseer Mantle"
+    },
+    {
+      "from": "Gilded Vestments",
+      "name": "Couture of Crimson",
+      "to": "Runemastered Gilded Vestments"
+    },
+    {
+      "from": "Runemastered Revered Vestments",
+      "name": "Geofri's Sanctuary",
+      "to": "Runemastered Revered Vestments"
+    },
+    {
+      "from": "Corvus Mantle",
+      "name": "Sacrosanctum",
+      "to": "Runemastered Corvus Mantle"
+    },
+    {
+      "from": "Ornate Ringmail",
+      "name": "Loreweave",
+      "to": "Runemastered Ornate Ringmail"
+    },
+    {
+      "from": "Ancient Mail",
+      "name": "Decree of Loyalty",
+      "to": "Runemastered Ancient Mail"
+    },
+    {
+      "from": "Hermit Garb",
+      "name": "Apron of Emiran",
+      "to": "Runemastered Hermit Garb"
+    },
+    {
+      "from": "Waxed Jacket",
+      "name": "Gloomform",
+      "to": "Runemastered Waxed Jacket"
+    },
+    {
+      "from": "Marabout Garb",
+      "name": "Sierran Inheritance",
+      "to": "Runemastered Marabout Garb"
+    },
+    {
+      "from": "Wayfarer Jacket",
+      "name": "The Dancing Mirage",
+      "to": "Runemastered Wayfarer Jacket"
+    },
+    {
+      "from": "Anchorite Garb",
+      "name": "Redflare Conduit",
+      "to": "Runemastered Anchorite Garb"
+    },
+    {
+      "from": "Scalper's Jacket",
+      "name": "Zerphi's Serape",
+      "to": "Runemastered Scalper's Jacket"
+    },
+    {
+      "from": "Assassin Garb",
+      "name": "Cospri's Will",
+      "to": "Runemastered Assassin Garb"
+    },
+    {
+      "from": "Primal Markings",
+      "name": "Forgotten Warden",
+      "to": "Runemastered Primal Markings"
+    },
+    {
+      "from": "Garment",
+      "name": "Tabula Rasa",
+      "to": "Runeforged Garment"
+    },
+    {
+      "from": "Garment",
+      "name": "Skin of the Loyal",
+      "to": "Runeforged Garment"
+    },
+    {
+      "from": "Grand Regalia",
+      "name": "Morior Invictus",
+      "to": "Runemastered Grand Regalia"
+    },
+    {
+      "from": "Sacrificial Regalia",
+      "name": "Atziri's Splendour",
+      "to": "Runemastered Sacrificial Regalia"
+    },
+    {
+      "from": "Rusted Greathelm",
+      "name": "Horns of Bynden",
+      "to": "Runemastered Rusted Greathelm"
+    },
+    {
+      "from": "Rusted Greathelm",
+      "name": "Wings of Caelyn",
+      "to": "Runemastered Rusted Greathelm"
+    },
+    {
+      "from": "Soldier Greathelm",
+      "name": "Ezomyte Peak",
+      "to": "Runemastered Soldier Greathelm"
+    },
+    {
+      "from": "Wrapped Greathelm",
+      "name": "Black Sun Crest",
+      "to": "Runemastered Wrapped Greathelm"
+    },
+    {
+      "from": "Spired Greathelm",
+      "name": "Thrillsteel",
+      "to": "Runemastered Spired Greathelm"
+    },
+    {
+      "from": "Elite Greathelm",
+      "name": "Deidbell",
+      "to": "Runemastered Elite Greathelm"
+    },
+    {
+      "from": "Warrior Greathelm",
+      "name": "Corona of the Red Sun",
+      "to": "Runemastered Warrior Greathelm"
+    },
+    {
+      "from": "Fierce Greathelm",
+      "name": "Blood Price",
+      "to": "Runemastered Fierce Greathelm"
+    },
+    {
+      "from": "Shabby Hood",
+      "name": "Innsmouth",
+      "to": "Runemastered Shabby Hood"
+    },
+    {
+      "from": "Felt Cap",
+      "name": "Goldrim",
+      "to": "Runemastered Felt Cap"
+    },
+    {
+      "from": "Lace Hood",
+      "name": "Radiant Grief",
+      "to": "Runeforged Lace Hood"
+    },
+    {
+      "from": "Hunter Hood",
+      "name": "Elevore",
+      "to": "Runemastered Hunter Hood"
+    },
+    {
+      "from": "Viper Cap",
+      "name": "Constricting Command",
+      "to": "Runemastered Viper Cap"
+    },
+    {
+      "from": "Corsair Cap",
+      "name": "The Black Insignia",
+      "to": "Runemastered Corsair Cap"
+    },
+    {
+      "from": "Leatherbound Hood",
+      "name": "Starkonja's Head",
+      "to": "Runemastered Leatherbound Hood"
+    },
+    {
+      "from": "Velvet Cap",
+      "name": "Heatshiver",
+      "to": "Runemastered Velvet Cap"
+    },
+    {
+      "from": "Covert Hood",
+      "name": "Myris Uxor",
+      "to": "Runemastered Covert Hood"
+    },
+    {
+      "from": "Armoured Cap",
+      "name": "Alpha's Howl",
+      "to": "Runemastered Armoured Cap"
+    },
+    {
+      "from": "Twig Circlet",
+      "name": "Crown of Thorns",
+      "to": "Runemastered Twig Circlet"
+    },
+    {
+      "from": "Wicker Tiara",
+      "name": "The Devouring Diadem",
+      "to": "Runemastered Wicker Tiara"
+    },
+    {
+      "from": "Beaded Circlet",
+      "name": "Visage of Ayah",
+      "to": "Runemastered Beaded Circlet"
+    },
+    {
+      "from": "Chain Tiara",
+      "name": "Sandstorm Visage",
+      "to": "Runemastered Chain Tiara"
+    },
+    {
+      "from": "Feathered Tiara",
+      "name": "Mask of the Stitched Demon",
+      "to": "Runemastered Feathered Tiara"
+    },
+    {
+      "from": "Gold Circlet",
+      "name": "Atziri's Disdain",
+      "to": "Runemastered Gold Circlet"
+    },
+    {
+      "from": "Vermeil Circlet",
+      "name": "Crown of Eyes",
+      "to": "Runemastered Vermeil Circlet"
+    },
+    {
+      "from": "Jade Tiara",
+      "name": "Scold's Bridle",
+      "to": "Runemastered Jade Tiara"
+    },
+    {
+      "from": "Twilight Tiara",
+      "name": "Heretic's Veil",
+      "to": "Runemastered Twilight Tiara"
+    },
+    {
+      "from": "Magus Tiara",
+      "name": "Indigon",
+      "to": "Runemastered Magus Tiara"
+    },
+    {
+      "from": "Brimmed Helm",
+      "name": "Greymake",
+      "to": "Runemastered Brimmed Helm"
+    },
+    {
+      "from": "Guarded Helm",
+      "name": "Erian's Cobble",
+      "to": "Runemastered Guarded Helm"
+    },
+    {
+      "from": "Visored Helm",
+      "name": "Ironride",
+      "to": "Runemastered Visored Helm"
+    },
+    {
+      "from": "Cowled Helm",
+      "name": "The Smiling Knight",
+      "to": "Runemastered Cowled Helm"
+    },
+    {
+      "from": "Shielded Helm",
+      "name": "The Vile Knight",
+      "to": "Runemastered Shielded Helm"
+    },
+    {
+      "from": "Decorated Helm",
+      "name": "The Bringer of Rain",
+      "to": "Runemastered Decorated Helm"
+    },
+    {
+      "from": "Ancient Visor",
+      "name": "Decree of Acuity",
+      "to": "Runemastered Ancient Visor"
+    },
+    {
+      "from": "Grand Visage",
+      "name": "Solus Ipse",
+      "to": "Runemastered Grand Visage"
+    },
+    {
+      "from": "Iron Crown",
+      "name": "Crown of the Victor",
+      "to": "Runemastered Iron Crown"
+    },
+    {
+      "from": "Horned Crown",
+      "name": "Bronzebeard",
+      "to": "Runemastered Horned Crown"
+    },
+    {
+      "from": "Cultist Crown",
+      "name": "Crown of the Pale King",
+      "to": "Runemastered Cultist Crown"
+    },
+    {
+      "from": "Martyr Crown",
+      "name": "Veil of the Night",
+      "to": "Runemastered Martyr Crown"
+    },
+    {
+      "from": "Heavy Crown",
+      "name": "Cornathaum",
+      "to": "Runemastered Heavy Crown"
+    },
+    {
+      "from": "Tenebrous Crown",
+      "name": "Vestige of Darkness",
+      "to": "Runemastered Tenebrous Crown"
+    },
+    {
+      "from": "Hewn Mask",
+      "name": "The Hollow Mask",
+      "to": "Runemastered Hewn Mask"
+    },
+    {
+      "from": "Face Mask",
+      "name": "Mask of the Sanguimancer",
+      "to": "Runemastered Face Mask"
+    },
+    {
+      "from": "Hooded Mask",
+      "name": "Leer Cast",
+      "to": "Runemastered Hooded Mask"
+    },
+    {
+      "from": "Veiled Mask",
+      "name": "Atsak's Sight",
+      "to": "Runemastered Veiled Mask"
+    },
+    {
+      "from": "Tribal Mask",
+      "name": "The Vertex",
+      "to": "Runemastered Tribal Mask"
+    },
+    {
+      "from": "Tribal Mask",
+      "name": "Glimpse of Chaos",
+      "to": "Runemastered Tribal Mask"
+    },
+    {
+      "from": "Solid Mask",
+      "name": "The Three Dragons",
+      "to": "Runemastered Solid Mask"
+    },
+    {
+      "from": "Death Mask",
+      "name": "Mind of the Council",
+      "to": "Runemastered Death Mask"
+    },
+    {
+      "from": "Stocky Mitts",
+      "name": "Facebreaker",
+      "to": "Runemastered Stocky Mitts"
+    },
+    {
+      "from": "Riveted Mitts",
+      "name": "Treefingers",
+      "to": "Runemastered Riveted Mitts"
+    },
+    {
+      "from": "Tempered Mitts",
+      "name": "Lochtonial Caress",
+      "to": "Runemastered Tempered Mitts"
+    },
+    {
+      "from": "Bolstered Mitts",
+      "name": "Dreadfist",
+      "to": "Runemastered Bolstered Mitts"
+    },
+    {
+      "from": "Moulded Mitts",
+      "name": "Atziri's Acuity",
+      "to": "Runemastered Moulded Mitts"
+    },
+    {
+      "from": "Moulded Mitts",
+      "name": "Hateforge",
+      "to": "Runemastered Moulded Mitts"
+    },
+    {
+      "from": "Titan Mitts",
+      "name": "Empire's Grasp",
+      "to": "Runemastered Titan Mitts"
+    },
+    {
+      "from": "Suede Bracers",
+      "name": "Northpaw",
+      "to": "Runemastered Suede Bracers"
+    },
+    {
+      "from": "Firm Bracers",
+      "name": "Grip of Winter",
+      "to": "Runemastered Firm Bracers"
+    },
+    {
+      "from": "Sectioned Bracers",
+      "name": "Idle Hands",
+      "to": "Runemastered Sectioned Bracers"
+    },
+    {
+      "from": "Spined Bracers",
+      "name": "Snakebite",
+      "to": "Runemastered Spined Bracers"
+    },
+    {
+      "from": "Fine Bracers",
+      "name": "Maligaro's Virtuosity",
+      "to": "Runemastered Fine Bracers"
+    },
+    {
+      "from": "Runeforged Engraved Bracers",
+      "name": "Horror's Flight",
+      "to": "Runeforged Engraved Bracers"
+    },
+    {
+      "from": "Torn Gloves",
+      "name": "Painter's Servant",
+      "to": "Runemastered Torn Gloves"
+    },
+    {
+      "from": "Sombre Gloves",
+      "name": "Candlemaker",
+      "to": "Runemastered Sombre Gloves"
+    },
+    {
+      "from": "Stitched Gloves",
+      "name": "Doedre's Tenure",
+      "to": "Runemastered Stitched Gloves"
+    },
+    {
+      "from": "Jewelled Gloves",
+      "name": "Kitoko's Current",
+      "to": "Runemastered Jewelled Gloves"
+    },
+    {
+      "from": "Intricate Gloves",
+      "name": "Demon Stitcher",
+      "to": "Runemastered Intricate Gloves"
+    },
+    {
+      "from": "Pauascale Gloves",
+      "name": "Nightscale",
+      "to": "Runemastered Pauascale Gloves"
+    },
+    {
+      "from": "Embroidered Gloves",
+      "name": "Leopold's Applause",
+      "to": "Runemastered Embroidered Gloves"
+    },
+    {
+      "from": "Ringmail Gauntlets",
+      "name": "Jarngreipr",
+      "to": "Runemastered Ringmail Gauntlets"
+    },
+    {
+      "from": "Layered Gauntlets",
+      "name": "Aurseize",
+      "to": "Runemastered Layered Gauntlets"
+    },
+    {
+      "from": "Doubled Gauntlets",
+      "name": "Deathblow",
+      "to": "Runemastered Doubled Gauntlets"
+    },
+    {
+      "from": "Plate Gauntlets",
+      "name": "Valako's Vice",
+      "to": "Runemastered Plate Gauntlets"
+    },
+    {
+      "from": "Burnished Gauntlets",
+      "name": "Aerisvane's Wings",
+      "to": "Runemastered Burnished Gauntlets"
+    },
+    {
+      "from": "Rope Cuffs",
+      "name": "Gravebind",
+      "to": "Runemastered Rope Cuffs"
+    },
+    {
+      "from": "Aged Cuffs",
+      "name": "Shackles of the Wretched",
+      "to": "Runemastered Aged Cuffs"
+    },
+    {
+      "from": "Goldcast Cuffs",
+      "name": "Blueflame Bracers",
+      "to": "Runemastered Goldcast Cuffs"
+    },
+    {
+      "from": "Kalguuran Cuffs",
+      "name": "The Prisoner's Manacles",
+      "to": "Runemastered Verisium Cuffs"
+    },
+    {
+      "from": "Gauze Wraps",
+      "name": "Plaguefinger",
+      "to": "Runemastered Gauze Wraps"
+    },
+    {
+      "from": "Linen Wraps",
+      "name": "Killjoy",
+      "to": "Runemastered Linen Wraps"
+    },
+    {
+      "from": "Spiral Wraps",
+      "name": "Hand of Wisdom and Action",
+      "to": "Runemastered Spiral Wraps"
+    },
+    {
+      "from": "Furtive Wraps",
+      "name": "Essentia Sanguis",
+      "to": "Runemastered Furtive Wraps"
+    },
+    {
+      "from": "Utility Wraps",
+      "name": "Thunderfist",
+      "to": "Runemastered Utility Wraps"
+    },
+    {
+      "from": "Grand Manchettes",
+      "name": "Sine Aequo",
+      "to": "Runemastered Grand Manchettes"
+    },
+    {
+      "from": "Rough Greaves",
+      "name": "Legionstride",
+      "to": "Runemastered Rough Greaves"
+    },
+    {
+      "from": "Iron Greaves",
+      "name": "Corpsewade",
+      "to": "Runemastered Iron Greaves"
+    },
+    {
+      "from": "Bronze Greaves",
+      "name": "The Infinite Pursuit",
+      "to": "Runemastered Bronze Greaves"
+    },
+    {
+      "from": "Trimmed Greaves",
+      "name": "Trampletoe",
+      "to": "Runemastered Trimmed Greaves"
+    },
+    {
+      "from": "Stone Greaves",
+      "name": "Birth of Fury",
+      "to": "Runemastered Stone Greaves"
+    },
+    {
+      "from": "Laced Boots",
+      "name": "Briarpatch",
+      "to": "Runemastered Laced Boots"
+    },
+    {
+      "from": "Embossed Boots",
+      "name": "Gamblesprint",
+      "to": "Runemastered Embossed Boots"
+    },
+    {
+      "from": "Lizardscale Boots",
+      "name": "Bushwhack",
+      "to": "Runemastered Lizardscale Boots"
+    },
+    {
+      "from": "Cinched Boots",
+      "name": "Atziri's Step",
+      "to": "Runemastered Cinched Boots"
+    },
+    {
+      "from": "Straw Sandals",
+      "name": "Luminous Pace",
+      "to": "Runemastered Straw Sandals"
+    },
+    {
+      "from": "Wrapped Sandals",
+      "name": "Wanderlust",
+      "to": "Runemastered Wrapped Sandals"
+    },
+    {
+      "from": "Lattice Sandals",
+      "name": "Bones of Ullr",
+      "to": "Runemastered Lattice Sandals"
+    },
+    {
+      "from": "Silk Slippers",
+      "name": "Wondertrap",
+      "to": "Runemastered Silk Slippers"
+    },
+    {
+      "from": "Feathered Sandals",
+      "name": "Windscream",
+      "to": "Runemastered Feathered Sandals"
+    },
+    {
+      "from": "Mail Sabatons",
+      "name": "The Knight-errant",
+      "to": "Runemastered Mail Sabatons"
+    },
+    {
+      "from": "Braced Sabatons",
+      "name": "Darkray Vectors",
+      "to": "Runemastered Braced Sabatons"
+    },
+    {
+      "from": "Stacked Sabatons",
+      "name": "Obern's Bastion",
+      "to": "Runemastered Stacked Sabatons"
+    },
+    {
+      "from": "Covered Sabatons",
+      "name": "Shankgonne",
+      "to": "Runemastered Covered Sabatons"
+    },
+    {
+      "from": "Secured Leggings",
+      "name": "Wake of Destruction",
+      "to": "Runemastered Secured Leggings"
+    },
+    {
+      "from": "Ancient Leggings",
+      "name": "Decree of Flight",
+      "to": "Runemastered Ancient Leggings"
+    },
+    {
+      "from": "Threaded Shoes",
+      "name": "Ghostmarch",
+      "to": "Runemastered Threaded Shoes"
+    },
+    {
+      "from": "Hunting Shoes",
+      "name": "Powertread",
+      "to": "Runemastered Hunting Shoes"
+    },
+    {
+      "from": "Velour Shoes",
+      "name": "Beetlebite",
+      "to": "Runemastered Velour Shoes"
+    },
+    {
+      "from": "Grand Cuisses",
+      "name": "Ab Aeterno",
+      "to": "Runemastered Grand Cuisses"
+    },
+    {
+      "from": "Splintered Tower Shield",
+      "name": "Dionadair",
+      "to": "Runemastered Splintered Tower Shield"
+    },
+    {
+      "from": "Painted Tower Shield",
+      "name": "Wulfsbane",
+      "to": "Runemastered Painted Tower Shield"
+    },
+    {
+      "from": "Braced Tower Shield",
+      "name": "Doomgate",
+      "to": "Runemastered Braced Tower Shield"
+    },
+    {
+      "from": "Barricade Tower Shield",
+      "name": "Window to Paradise",
+      "to": "Runemastered Barricade Tower Shield"
+    },
+    {
+      "from": "Effigial Tower Shield",
+      "name": "The Wailing Wall",
+      "to": "Runemastered Effigial Tower Shield"
+    },
+    {
+      "from": "Rampart Tower Shield",
+      "name": "Lycosidae",
+      "to": "Runemastered Rampart Tower Shield"
+    },
+    {
+      "from": "Heraldric Tower Shield",
+      "name": "Redblade Banner",
+      "to": "Runemastered Heraldric Tower Shield"
+    },
+    {
+      "from": "Glacial Fortress",
+      "name": "Nightfall",
+      "to": "Runemastered Glacial Fortress"
+    },
+    {
+      "from": "Vaal Tower Shield",
+      "name": "The Surrender",
+      "to": "Runemastered Vaal Tower Shield"
+    },
+    {
+      "from": "Blacksteel Tower Shield",
+      "name": "Chernobog's Pillar",
+      "to": "Runemastered Blacksteel Tower Shield"
+    },
+    {
+      "from": "Hardwood Targe",
+      "name": "Arvil's Wheel",
+      "to": "Runemastered Hardwood Targe"
+    },
+    {
+      "from": "Crescent Targe",
+      "name": "Feathered Fortress",
+      "to": "Runemastered Crescent Targe"
+    },
+    {
+      "from": "Blazon Crest Shield",
+      "name": "Alkem Eira",
+      "to": "Runemastered Blazon Crest Shield"
+    },
+    {
+      "from": "Sigil Crest Shield",
+      "name": "Oaksworn",
+      "to": "Runemastered Sigil Crest Shield"
+    },
+    {
+      "from": "Emblem Crest Shield",
+      "name": "Saffell's Frame",
+      "to": "Runemastered Emblem Crest Shield"
+    },
+    {
+      "from": "Jingling Crest Shield",
+      "name": "Crest of Ardura",
+      "to": "Runemastered Jingling Crest Shield"
+    },
+    {
+      "from": "Intricate Crest Shield",
+      "name": "Prism Guardian",
+      "to": "Runemastered Intricate Crest Shield"
+    },
+    {
+      "from": "Omen Crest Shield",
+      "name": "Rise of the Phoenix",
+      "to": "Runemastered Omen Crest Shield"
+    },
+    {
+      "from": "Leather Buckler",
+      "name": "Dunkelhalt",
+      "to": "Runemastered Leather Buckler"
+    },
+    {
+      "from": "Wooden Buckler",
+      "name": "Nocturne",
+      "to": "Runemastered Wooden Buckler"
+    },
+    {
+      "from": "Plated Buckler",
+      "name": "Rondel de Ezo",
+      "to": "Runemastered Plated Buckler"
+    },
+    {
+      "from": "Iron Buckler",
+      "name": "Bloodbarrier",
+      "to": "Runemastered Iron Buckler"
+    },
+    {
+      "from": "Ridged Buckler",
+      "name": "Kaltenhalt",
+      "to": "Runemastered Ridged Buckler"
+    },
+    {
+      "from": "Spiked Buckler",
+      "name": "Silverthorne",
+      "to": "Runemastered Spiked Buckler"
+    },
+    {
+      "from": "Ornate Buckler",
+      "name": "Calgyra's Arc",
+      "to": "Runemastered Ornate Buckler"
+    },
+    {
+      "from": "Array Buckler",
+      "name": "Sunsplinter",
+      "to": "Runemastered Array Buckler"
+    },
+    {
+      "from": "Twig Focus",
+      "name": "Deathrattle",
+      "to": "Runemastered Twig Focus"
+    },
+    {
+      "from": "Woven Focus",
+      "name": "Threaded Light",
+      "to": "Runemastered Woven Focus"
+    },
+    {
+      "from": "Antler Focus",
+      "name": "Effigy of Cruelty",
+      "to": "Runemastered Antler Focus"
+    },
+    {
+      "from": "Engraved Focus",
+      "name": "Carrion Call",
+      "to": "Runemastered Engraved Focus"
+    },
+    {
+      "from": "Tonal Focus",
+      "name": "Serpent's Lesson",
+      "to": "Runemastered Tonal Focus"
+    },
+    {
+      "from": "Crystal Focus",
+      "name": "The Eternal Spark",
+      "to": "Runemastered Crystal Focus"
+    },
+    {
+      "from": "Voodoo Focus",
+      "name": "Apep's Supremacy",
+      "to": "Runemastered Voodoo Focus"
+    },
+    {
+      "from": "Sacred Focus",
+      "name": "Rathpith Globe",
+      "to": "Runemastered Plumed Focus"
+    },
+    {
+      "from": "Champion Cuirass",
+      "name": "The Brass Dome",
+      "to": "Runeforged Champion Cuirass"
+    },
+    {
+      "from": "Conqueror Plate",
+      "name": "Kaom's Heart",
+      "to": "Runeforged Conqueror Plate"
+    },
+    {
+      "from": "Crucible Tower Shield",
+      "name": "Svalinn",
+      "to": "Runemastered Crucible Tower Shield"
+    },
+    {
+      "from": "Crucible Tower Shield",
+      "name": "Svalinn",
+      "to": "Runemastered Crucible Tower Shield"
+    },
+    {
+      "from": "Crucible Tower Shield",
+      "name": "Svalinn",
+      "to": "Runemastered Crucible Tower Shield"
+    },
+    {
+      "from": "Crucible Tower Shield",
+      "name": "Svalinn",
+      "to": "Runemastered Crucible Tower Shield"
+    },
+    {
+      "from": "Spiritbone Crown",
+      "name": "Keeper of the Arc",
+      "to": "Runemastered Spiritbone Crown"
+    },
+    {
+      "from": "Spiritbone Crown",
+      "name": "Keeper of the Arc",
+      "to": "Runemastered Spiritbone Crown"
+    },
+    {
+      "from": "Spiritbone Crown",
+      "name": "Keeper of the Arc",
+      "to": "Runemastered Spiritbone Crown"
+    },
+    {
+      "from": "Torment Club",
+      "name": "Olrovasara",
+      "to": "Runemastered Torment Club"
+    },
+    {
+      "from": "Torment Club",
+      "name": "Olrovasara",
+      "to": "Runemastered Torment Club"
+    },
+    {
+      "from": "Torment Club",
+      "name": "Olrovasara",
+      "to": "Runemastered Torment Club"
+    },
+    {
+      "from": "Heavy Belt",
+      "name": "Waistgate",
+      "to": "Runemastered Heavy Belt"
+    },
+    {
+      "from": "Heavy Belt",
+      "name": "Waistgate",
+      "to": "Runemastered Heavy Belt"
+    },
+    {
+      "from": "Heavy Belt",
+      "name": "Waistgate",
+      "to": "Runemastered Heavy Belt"
+    },
+    {
+      "from": "Heavy Belt",
+      "name": "Waistgate",
+      "to": "Runemastered Heavy Belt"
+    },
+    {
+      "from": "Marching Mace",
+      "name": "Seeing Stars",
+      "to": "Runeforged Marching Mace"
+    },
+    {
+      "from": "Torment Club",
+      "name": "Mjölner",
+      "to": "Runemastered Torment Club"
+    },
+    {
+      "from": "Torment Club",
+      "name": "Mjölner",
+      "to": "Runemastered Torment Club"
+    },
+    {
+      "from": "Torment Club",
+      "name": "Mjölner",
+      "to": "Runemastered Torment Club"
+    },
+    {
+      "from": "Aberrant Sledge",
+      "name": "Twisted Empyrean",
+      "to": "Runemastered Aberrant Sledge"
+    },
+    {
+      "from": "Aberrant Sledge",
+      "name": "Twisted Empyrean",
+      "to": "Runemastered Aberrant Sledge"
+    },
+    {
+      "from": "Aberrant Sledge",
+      "name": "Twisted Empyrean",
+      "to": "Runemastered Aberrant Sledge"
+    },
+    {
+      "from": "Aberrant Sledge",
+      "name": "Twisted Empyrean",
+      "to": "Runemastered Aberrant Sledge"
+    },
+    {
+      "from": "Venerable Defender",
+      "name": "Eyes of the Runefather",
+      "to": "Runemastered Venerable Defender"
+    },
+    {
+      "from": "Venerable Defender",
+      "name": "Eyes of the Runefather",
+      "to": "Runemastered Venerable Defender"
+    },
+    {
+      "from": "Venerable Defender",
+      "name": "Eyes of the Runefather",
+      "to": "Runemastered Venerable Defender"
+    },
+    {
+      "from": "Revered Vestments",
+      "name": "The Unleashed",
+      "to": "Runemastered Revered Vestments"
+    },
+    {
+      "from": "Revered Vestments",
+      "name": "The Unleashed",
+      "to": "Runemastered Revered Vestments"
+    },
+    {
+      "from": "Revered Vestments",
+      "name": "The Unleashed",
+      "to": "Runemastered Revered Vestments"
+    },
+    {
+      "from": "Veridical Chain",
+      "name": "Eventide Petals",
+      "to": "Runemastered Veridical Chain"
+    },
+    {
+      "from": "Veridical Chain",
+      "name": "Eventide Petals",
+      "to": "Runemastered Veridical Chain"
+    },
+    {
+      "from": "Veridical Chain",
+      "name": "Eventide Petals",
+      "to": "Runemastered Veridical Chain"
+    },
+    {
+      "from": "Warding Quarterstaff",
+      "name": "Duality",
+      "to": "Runemastered Warding Quarterstaff"
+    },
+    {
+      "from": "Warding Quarterstaff",
+      "name": "Duality",
+      "to": "Runemastered Warding Quarterstaff"
+    },
+    {
+      "from": "Warding Quarterstaff",
+      "name": "Duality",
+      "to": "Runemastered Warding Quarterstaff"
+    },
+    {
+      "from": "Runic Fork",
+      "name": "Runeseeker's Call",
+      "to": "Runemastered Runic Fork"
+    },
+    {
+      "from": "Runic Fork",
+      "name": "Runeseeker's Call",
+      "to": "Runemastered Runic Fork"
+    },
+    {
+      "from": "Runic Fork",
+      "name": "Runeseeker's Call",
+      "to": "Runemastered Runic Fork"
+    }
+  ]
+}

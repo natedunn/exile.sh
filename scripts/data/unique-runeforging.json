@@ -1,0 +1,47 @@
+{
+  "reviewed": "2026-10-01",
+  "coverage": "Verified seed mappings only. Absence does not mean a unique cannot be runeforged.",
+  "uniques": [
+    {
+      "name": "Double Vision",
+      "source": "https://www.vaal.tools/uniques/double_vision/",
+      "sourceVersion": "0.5.5b",
+      "paths": [
+        {
+          "craftId": 436,
+          "from": "Metadata/Items/Weapons/TwoHandWeapons/Crossbows/FourCrossbow5",
+          "to": "Metadata/Items/Weapons/TwoHandWeapons/Crossbows/FourCrossbowVerisium5a"
+        },
+        {
+          "craftId": 437,
+          "from": "Metadata/Items/Weapons/TwoHandWeapons/Crossbows/FourCrossbowVerisium5a",
+          "to": "Metadata/Items/Weapons/TwoHandWeapons/Crossbows/FourCrossbowVerisium5b"
+        }
+      ]
+    },
+    {
+      "name": "Necromantle",
+      "source": "https://www.vaal.tools/uniques/necromantle/",
+      "sourceVersion": "0.5.5d",
+      "paths": [
+        {
+          "craftId": 468,
+          "from": "Metadata/Items/Armours/BodyArmours/FourBodyInt4",
+          "to": "Metadata/Items/Armours/BodyArmours/FourBodyInt4VerisiumUnique1"
+        }
+      ]
+    },
+    {
+      "name": "Candlemaker",
+      "source": "https://www.vaal.tools/uniques/candlemaker/",
+      "sourceVersion": "0.5.5b",
+      "paths": [
+        {
+          "craftId": 578,
+          "from": "Metadata/Items/Armours/Gloves/FourGlovesInt2",
+          "to": "Metadata/Items/Armours/Gloves/FourGlovesInt2VerisiumUnique1"
+        }
+      ]
+    }
+  ]
+}

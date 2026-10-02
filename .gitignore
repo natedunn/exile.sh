@@ -28,3 +28,7 @@ test-results/
 playwright-report/
 # Regenerate with bun run cf:types.
 worker-configuration.d.ts
+
+# Drafts written by bun run items:refresh; investigate, then move entries
+# into poe2db-accepted-differences.json.
+scripts/data/poe2db-draft-differences.json
