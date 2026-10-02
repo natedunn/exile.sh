@@ -1,11 +1,12 @@
 import * as React from "react"
 import { cn } from "cn"
+import { GemSectionTitle } from "../gem-section"
 
-/* The build page's sections: each opens with a tinted strip closed by a
- * rule, then splits into its content and a column of the figures that
- * belong to it, with a hairline between. Rules run frame to frame, so the
- * content takes the shell gutter on its outer edge. Under the lg
- * breakpoint the two columns stack. */
+/* The build page's sections: each opens with the gem and currency pages'
+ * title voice, a bronze label trailed by a hairline, then splits into its
+ * content and a column of the figures that belong to it, with a hairline
+ * between. Rules run frame to frame, so the content takes the shell gutter
+ * on its outer edge. Under the lg breakpoint the two columns stack. */
 
 /** The sticky section nav is 60px, 52px under lg: sections stop below it. */
 export { navigationHeight as buildNavHeightClass } from "../ui/navigation-styles"
@@ -13,9 +14,9 @@ export const buildScrollMarginClass =
   "scroll-mt-navigation max-lg:scroll-mt-navigation-compact"
 
 export const buildSectionMainClass =
-  "min-w-0 pt-6 pr-6 pb-8 pl-[var(--shell-gutter)] max-lg:px-[var(--shell-gutter)]"
+  "min-w-0 pt-4 pr-6 pb-8 pl-[var(--shell-gutter)] max-lg:px-[var(--shell-gutter)]"
 export const buildSectionAsideClass =
-  "sticky top-15 min-w-0 pt-6 pr-[var(--shell-gutter)] pb-8 pl-6 max-lg:static max-lg:border-t max-lg:border-rule-strong max-lg:px-[var(--shell-gutter)]"
+  "sticky top-15 min-w-0 pt-4 pr-[var(--shell-gutter)] pb-8 pl-6 lg:-mt-11 max-lg:static max-lg:border-t max-lg:border-rule-strong max-lg:px-[var(--shell-gutter)]"
 
 function BuildSection({
   className,
@@ -34,15 +35,24 @@ function BuildSection({
   )
 }
 
+/** The title row sits over the content column, and the figures divider
+ * runs up through it to the section's top rule. Controls such as set
+ * pickers trail the title's hairline. */
 function BuildSectionStrip({
   className,
+  full = false,
   ...props
-}: React.ComponentProps<"header">) {
+}: React.ComponentProps<"header"> & {
+  /** No figures column: the row spans the section. */
+  full?: boolean
+}) {
   return (
     <header
       data-slot="build-section-strip"
       className={cn(
-        "flex min-h-18 items-center justify-between gap-4 border-b border-rule-strong bg-surface/60 px-[var(--shell-gutter)] py-3 max-sm:flex-col max-sm:items-start max-sm:gap-3 max-sm:py-4",
+        "relative flex min-h-9 flex-wrap items-center gap-x-4 gap-y-3 px-[var(--shell-gutter)] pt-8",
+        !full &&
+          "lg:pr-111 lg:before:pointer-events-none lg:before:absolute lg:before:inset-y-0 lg:before:right-105 lg:before:border-l lg:before:border-rule-strong lg:before:content-['']",
         className
       )}
       {...props}
@@ -55,9 +65,9 @@ function BuildSectionTitle({
   ...props
 }: React.ComponentProps<"h2">) {
   return (
-    <h2
+    <GemSectionTitle
       data-slot="build-section-title"
-      className={cn("display text-section text-ink", className)}
+      className={cn("min-w-0 flex-1 basis-48 px-0", className)}
       {...props}
     />
   )
