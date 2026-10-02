@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "exile.sh — The economy of Wraeclast",
+  "name": "exile.sh — Tools for Path of Exile 2",
   "short_name": "exile.sh",
-  "description": "Path of Exile 2 exchange prices, market movements, and build tools.",
+  "description": "A collection of tools for Path of Exile 2. Explore passive trees, share builds, follow patch notes, and track the economy.",
   "lang": "en",
   "start_url": "/",
   "scope": "/",
