@@ -6,11 +6,11 @@ Game data and artwork belong to Grinding Gear Games.
 import concurrent.futures
 import hashlib
 import json
-import math
 import pathlib
-import re
 import urllib.parse
 import urllib.request
+
+from repoe_tree import clean, layout
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DEST = ROOT / "public/atlas-trees/v2"
@@ -26,50 +26,21 @@ for key, choice in choices["nodes"].items():
     assert meta["name"] == choice["name"] and meta["stats"] == choice["sourceStats"], f"Stale Atlas choices: {key}"
 DEST.mkdir(parents=True, exist_ok=True)
 (DEST / "icons").mkdir(exist_ok=True)
-nodes, positions = {}, {}
-clean = lambda text: re.sub(r"\[([^\]]+)\]", lambda match: match[1].split("|")[-1], text)
-for group_id, group in enumerate(data["groups"]):
-    for placement in group["passives"]:
-        key = str(placement["hash"])
-        meta = data["passives"][key]
-        if meta["is_icon_only"]:
-            continue
-        orbit = placement["radius"]
-        angle = 2 * math.pi * placement["position_clockwise"] / data["skills_per_orbit"][orbit]
-        radius = data["orbit_radii"][orbit]
-        subtree = meta.get("atlas_subtree", {}).get("id", "Main")
-        stats = [clean(line) for line in meta["stat_text"]]
-        if meta["is_atlas_root"]:
-            stats = [f"Starting point for the {subtree.lower()} Atlas tree."]
-        nodes[key] = {"id": key, "x": round(group["x"] + math.sin(angle) * radius, 3),
-                      "y": round(group["y"] - math.cos(angle) * radius, 3),
-                      "name": clean(meta["name"]) or f"{subtree} Atlas starting point",
-                      "stats": stats, "notable": meta["is_notable"] or meta["is_keystone"],
-                      "keystone": meta["is_keystone"], "ascendancy": "", "start": False,
-                      "icon": meta["icon"], "atlasSubtree": subtree}
-        positions[key] = (placement, group_id, angle)
-        if key in choices["nodes"]:
-            nodes[key]["options"] = choices["nodes"][key]["options"]
-edges, seen = [], set()
-for key, (placement, group_id, angle) in positions.items():
-    for index, other_id in enumerate(placement["connections"]):
-        other = str(other_id)
-        pair = tuple(sorted([key, other]))
-        if other not in nodes or key == other or pair in seen:
-            continue
-        seen.add(pair)
-        a, b = nodes[key], nodes[other]
-        spline = placement["splines"][index]
-        radius = data["orbit_radii"][abs(spline)] if 0 < abs(spline) < len(data["orbit_radii"]) else 0
-        sweep = 0 if spline > 0 else 1
-        dest, dest_group, dest_angle = positions[other]
-        if not spline and group_id == dest_group and placement["radius"] == dest["radius"]:
-            radius = data["orbit_radii"][placement["radius"]]
-            sweep = 1 if (dest_angle - angle) % (2 * math.pi) < math.pi else 0
-        distance = math.hypot(b["x"] - a["x"], b["y"] - a["y"])
-        path = f'M {a["x"]} {a["y"]} '
-        path += f'A {radius} {radius} 0 0 {sweep} {b["x"]} {b["y"]}' if radius and 0 < distance <= radius * 2 + .01 else f'L {b["x"]} {b["y"]}'
-        edges.append({"from": key, "to": other, "path": path})
+def describe(key, meta):
+    if meta["is_icon_only"]:
+        return None
+    subtree = meta.get("atlas_subtree", {}).get("id", "Main")
+    stats = [clean(line) for line in meta["stat_text"]]
+    if meta["is_atlas_root"]:
+        stats = [f"Starting point for the {subtree.lower()} Atlas tree."]
+    fields = {"name": clean(meta["name"]) or f"{subtree} Atlas starting point",
+              "stats": stats, "notable": meta["is_notable"] or meta["is_keystone"],
+              "keystone": meta["is_keystone"], "ascendancy": "", "start": False,
+              "icon": meta["icon"], "atlasSubtree": subtree}
+    if key in choices["nodes"]:
+        fields["options"] = choices["nodes"][key]["options"]
+    return fields
+nodes, edges = layout(data, describe)
 source = {"url": BASE + "passive_skill_trees/Atlas.json", "exportVersion": "4.5.5.2",
           "sha256": hashlib.sha256(raw).hexdigest(), "artworkOwner": "Grinding Gear Games", "artworkMirror": ART_BASE}
 paths = {node["icon"] for node in nodes.values() if node["icon"]}

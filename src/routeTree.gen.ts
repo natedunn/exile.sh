@@ -32,11 +32,13 @@ import { Route as PatchNotesThreadIdRouteImport } from './routes/patch-notes.$th
 import { Route as TreesIndexRouteImport } from './routes/trees.index'
 import { Route as TreesAscendanciesRouteImport } from './routes/trees.ascendancies'
 import { Route as TreesAtlasRouteImport } from './routes/trees.atlas'
+import { Route as TreesGenesisRouteImport } from './routes/trees.genesis'
 import { Route as TreesPassiveRouteImport } from './routes/trees.passive'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as OgCurrencySlugRouteImport } from './routes/og.currency.$slug'
 import { Route as OgGemsIndexRouteImport } from './routes/og.gems.index'
 import { Route as OgGemsGemRouteImport } from './routes/og.gems.$gem'
+import { Route as OgTreesTreeRouteImport } from './routes/og.trees.$tree'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -153,6 +155,11 @@ const TreesAtlasRoute = TreesAtlasRouteImport.update({
   path: '/atlas',
   getParentRoute: () => TreesRoute,
 } as any)
+const TreesGenesisRoute = TreesGenesisRouteImport.update({
+  id: '/genesis',
+  path: '/genesis',
+  getParentRoute: () => TreesRoute,
+} as any)
 const TreesPassiveRoute = TreesPassiveRouteImport.update({
   id: '/passive',
   path: '/passive',
@@ -178,6 +185,11 @@ const OgGemsGemRoute = OgGemsGemRouteImport.update({
   path: '/og/gems/$gem',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OgTreesTreeRoute = OgTreesTreeRouteImport.update({
+  id: '/og/trees/$tree',
+  path: '/og/trees/$tree',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -197,6 +209,7 @@ export interface FileRoutesByFullPath {
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
+  '/trees/genesis': typeof TreesGenesisRoute
   '/trees/passive': typeof TreesPassiveRoute
   '/build-bin/': typeof BuildBinIndexRoute
   '/economy/': typeof EconomyIndexRoute
@@ -207,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/og/currency/$slug': typeof OgCurrencySlugRoute
   '/og/gems/$gem': typeof OgGemsGemRoute
+  '/og/trees/$tree': typeof OgTreesTreeRoute
   '/og/gems/': typeof OgGemsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -223,6 +237,7 @@ export interface FileRoutesByTo {
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
+  '/trees/genesis': typeof TreesGenesisRoute
   '/trees/passive': typeof TreesPassiveRoute
   '/build-bin': typeof BuildBinIndexRoute
   '/economy': typeof EconomyIndexRoute
@@ -233,6 +248,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/og/currency/$slug': typeof OgCurrencySlugRoute
   '/og/gems/$gem': typeof OgGemsGemRoute
+  '/og/trees/$tree': typeof OgTreesTreeRoute
   '/og/gems': typeof OgGemsIndexRoute
 }
 export interface FileRoutesById {
@@ -254,6 +270,7 @@ export interface FileRoutesById {
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
+  '/trees/genesis': typeof TreesGenesisRoute
   '/trees/passive': typeof TreesPassiveRoute
   '/build-bin/': typeof BuildBinIndexRoute
   '/economy/': typeof EconomyIndexRoute
@@ -264,6 +281,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/og/currency/$slug': typeof OgCurrencySlugRoute
   '/og/gems/$gem': typeof OgGemsGemRoute
+  '/og/trees/$tree': typeof OgTreesTreeRoute
   '/og/gems/': typeof OgGemsIndexRoute
 }
 export interface FileRouteTypes {
@@ -286,6 +304,7 @@ export interface FileRouteTypes {
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
+    | '/trees/genesis'
     | '/trees/passive'
     | '/build-bin/'
     | '/economy/'
@@ -296,6 +315,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/og/currency/$slug'
     | '/og/gems/$gem'
+    | '/og/trees/$tree'
     | '/og/gems/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -312,6 +332,7 @@ export interface FileRouteTypes {
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
+    | '/trees/genesis'
     | '/trees/passive'
     | '/build-bin'
     | '/economy'
@@ -322,6 +343,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/og/currency/$slug'
     | '/og/gems/$gem'
+    | '/og/trees/$tree'
     | '/og/gems'
   id:
     | '__root__'
@@ -342,6 +364,7 @@ export interface FileRouteTypes {
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
+    | '/trees/genesis'
     | '/trees/passive'
     | '/build-bin/'
     | '/economy/'
@@ -352,6 +375,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/og/currency/$slug'
     | '/og/gems/$gem'
+    | '/og/trees/$tree'
     | '/og/gems/'
   fileRoutesById: FileRoutesById
 }
@@ -372,6 +396,7 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   OgCurrencySlugRoute: typeof OgCurrencySlugRoute
   OgGemsGemRoute: typeof OgGemsGemRoute
+  OgTreesTreeRoute: typeof OgTreesTreeRoute
   OgGemsIndexRoute: typeof OgGemsIndexRoute
 }
 
@@ -538,6 +563,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TreesAtlasRouteImport
       parentRoute: typeof TreesRoute
     }
+    '/trees/genesis': {
+      id: '/trees/genesis'
+      path: '/genesis'
+      fullPath: '/trees/genesis'
+      preLoaderRoute: typeof TreesGenesisRouteImport
+      parentRoute: typeof TreesRoute
+    }
     '/trees/passive': {
       id: '/trees/passive'
       path: '/passive'
@@ -571,6 +603,13 @@ declare module '@tanstack/react-router' {
       path: '/og/gems/$gem'
       fullPath: '/og/gems/$gem'
       preLoaderRoute: typeof OgGemsGemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/og/trees/$tree': {
+      id: '/og/trees/$tree'
+      path: '/og/trees/$tree'
+      fullPath: '/og/trees/$tree'
+      preLoaderRoute: typeof OgTreesTreeRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -618,6 +657,7 @@ const ItemsRouteWithChildren = ItemsRoute._addFileChildren(ItemsRouteChildren)
 interface TreesRouteChildren {
   TreesAscendanciesRoute: typeof TreesAscendanciesRoute
   TreesAtlasRoute: typeof TreesAtlasRoute
+  TreesGenesisRoute: typeof TreesGenesisRoute
   TreesPassiveRoute: typeof TreesPassiveRoute
   TreesIndexRoute: typeof TreesIndexRoute
 }
@@ -625,6 +665,7 @@ interface TreesRouteChildren {
 const TreesRouteChildren: TreesRouteChildren = {
   TreesAscendanciesRoute: TreesAscendanciesRoute,
   TreesAtlasRoute: TreesAtlasRoute,
+  TreesGenesisRoute: TreesGenesisRoute,
   TreesPassiveRoute: TreesPassiveRoute,
   TreesIndexRoute: TreesIndexRoute,
 }
@@ -648,6 +689,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   OgCurrencySlugRoute: OgCurrencySlugRoute,
   OgGemsGemRoute: OgGemsGemRoute,
+  OgTreesTreeRoute: OgTreesTreeRoute,
   OgGemsIndexRoute: OgGemsIndexRoute,
 }
 export const routeTree = rootRouteImport

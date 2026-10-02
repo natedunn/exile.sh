@@ -6,8 +6,10 @@ import { assetBytes } from "./assets.server"
 import { plainDescription } from "./catalog"
 import { gemTags } from "./gem-display"
 import { clipText } from "./share-meta"
+import { treeShares } from "./tree-share"
+import type { TreeShare } from "./tree-share"
 
-/* Share cards (1200 × 630) for the gem and currency pages, drawn with satori over the
+/* Share cards (1200 × 630) for the gem, currency and tree pages, drawn with satori over the
  * dithered background from scripts/dither-art.mjs. Colours are the sRGB
  * values of the tokens in tokens.css; satori cannot read CSS variables. */
 
@@ -45,7 +47,11 @@ function pngDataUrl(buffer: ArrayBuffer) {
 }
 
 async function background(
-  card: "gems-card" | "support-gems-card" | "currency-card"
+  card:
+    | "gems-card"
+    | "support-gems-card"
+    | "currency-card"
+    | `${TreeShare}-tree-card`
 ) {
   return pngDataUrl(await assetBytes(`/og/${card}.png`))
 }
@@ -309,6 +315,20 @@ export async function currencyCard(item: CatalogItem, slug: string) {
           : undefined
       }
       path={`exile.sh/currency/${slug}`}
+    />
+  )
+}
+
+export async function treeCard(tree: TreeShare) {
+  const { title, body, path } = treeShares[tree]
+  return render(
+    <Card
+      image={await background(`${tree}-tree-card`)}
+      label="Path of Exile 2"
+      title={title}
+      titleSize={titleSize(title)}
+      body={body}
+      path={`exile.sh${path}`}
     />
   )
 }

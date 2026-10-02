@@ -1,0 +1,3113 @@
+{
+ "source": {
+  "url": "https://repoe-fork.github.io/poe2/stat_translations/stat_descriptions.json",
+  "retrievedAt": "2026-10-01",
+  "sha256": "1d4fca41f24520f937ad47ab607ef0ff1e94113c21ae186a4275cdc13d7beb76",
+  "genesisSha256": "589393d22541ca13dad2a4dca79b2fd202468b527724f8dc1014f8381105c079",
+  "note": "English entries for stats used by the Genesis Tree export. Stats without an entry are hidden in game. Game data belongs to Grinding Gear Games."
+ },
+ "entries": [
+  {
+   "ids": [
+    "brequel_display_base_type_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance for Birthed Items to be"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_display_birthed_items_always_greater_or_perfect"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items are always Greater or Perfect"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_display_cannot_have_modifiers_of_type"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items cannot have Modifiers of type"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_display_crafted_modifier_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance for Birthed Items to have a Crafted Modifier"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_display_empty_modifier"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have an empty Modifier of type"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_display_has_modifier_of_type"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have a Modifier of type"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_display_item_cannot_be_base_type"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items cannot be"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_10_additional_exalted_orb_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 100,
+       "max": 100,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birth 10 additional items of the same type when Birthing [ExaltedOrb|Exalted Orbs]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance to Birth 10 additional items of the same type when Birthing [ExaltedOrb|Exalted Orbs]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_16_to_24_additional_splinters_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 100,
+       "max": 100,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birth an 16 to 24 additional [BreachSplinter|Breach Splinters] when Birthing [BreachSplinter|Breach Splinters]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance to Birth an 16 to 24 additional [BreachSplinter|Breach Splinters] when Birthing [BreachSplinter|Breach Splinters]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_2_additional_quality_currency_same_type_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 100,
+       "max": 100,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birth an additional item of the same type when Birthing Quality Currency"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance to Birth an item of the same type when Birthing Quality Currency"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_3_to_7_additional_chaos_or_vaal_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 100,
+       "max": 100,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birth an additional 3 to 7 items of the same type when Birthing [VaalOrb|Vaal Orbs] or [ChaosOrb|Chaos Orbs]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance to Birth an additional 3 to 7 items of the same type when\nBirthing [VaalOrb|Vaal Orbs] or [ChaosOrb|Chaos Orbs]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_5_additional_items_same_type_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance to Birth 5 additional Items of the same type"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_absent_amulet_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have {0}% increased chance to be [AbsentAmulet|Absent Amulets]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "Birthed Items have {0}% reduced chance to be [AbsentAmulet|Absent Amulets]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_additional_alchemy_orb_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 100,
+       "max": 100,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birth an additional item of the same type when Birthing [OrbOfAlchemy|Orbs of Alchemy]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance to Birth an additional item of the same type when Birthing [OrbOfAlchemy|Orbs of Alchemy]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_additional_catalyst_different_type_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% [SurpassChance|Surpassing] chance to Birth an additional [Catalyst|Catalyst] of a different type when Birthing [Catalyst|Catalysts]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_additional_catalyst_same_type_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% [SurpassChance|Surpassing] chance to Birth an additional [Catalyst|Catalyst] of the same type\nwhen Birthing [Catalyst|Catalysts]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_additional_exalted_orb_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 100,
+       "max": 100,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birth an additional item of the same type when Birthing [ExaltedOrb|Exalted Orbs]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance to Birth an additional item of the same type when Birthing [ExaltedOrb|Exalted Orbs]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_additional_item_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% [SurpassChance|Surpassing] chance to Birth an additional Item"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_additional_regal_orb_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 100,
+       "max": 100,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birth an additional item of the same type when Birthing [RegalOrb|Regal Orbs]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance to Birth an additional item of the same type when Birthing [RegalOrb|Regal Orbs]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_breach_ring_additional_quality"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed [BreachRing|Breach Rings] have {0}% chance to instead Birth as a [RefinedBreachRing|Refined Breach Ring]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_breach_ring_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have {0}% chance to be [BreachRing|Breach Rings]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_breach_splinters_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance for Birthed Currency to be a stack of [BreachSplinter|Breach Splinters]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_breachlord_sac_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "divide_by_one_hundred_1dp"
+      ]
+     ],
+     "string": "{0}% chance for Birthed Currency to be a [BreachlordSac|Breachlord Sac]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_caster_modifier_value_lucky_rolls_+"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": 1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Caster Modifiers on Birthed Items roll their values an additional time, keeping the highest value"
+    },
+    {
+     "condition": [
+      {
+       "min": 2,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Caster Modifiers on Birthed Items roll their values an additional {0} times,\nkeeping the highest value"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_catalyst_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance for Birthed Currency to be a [Catalyst]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_chaos_orb_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth [ChaosOrb|Chaos Orbs]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth [ChaosOrb|Chaos Orbs]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_consume_no_resource_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance for Birthing to not consume Hiveblood"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_convert_items_to_gold"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": 1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "All Birthed items are converted to Gold"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_corona_amulet_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have {0}% chance to be [CoronaAmulet|Corona Amulets]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_desecration_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance for Birthed Currency to be an [AlteredCollarbone|Altered Collarbone]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_divine_orb_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth [DivineOrb|Divine Orbs]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth [DivineOrb|Divine Orbs]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_enable_caster_modifiers"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items can roll additional Caster-related Modifiers"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_enable_minion_modifiers"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items can roll additional [Minion]-related Modifiers"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_essence_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance for Birthed Currency to be an [EssenceOfTheBreach|Essence of the Breach]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_exalted_orb_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth [ExaltedOrb|Exalted Orbs]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth [ExaltedOrb|Exalted Orbs]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_forking_belt_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have {0}% chance to be [ForkingBelt|Forking Belts]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_guarantee_attribute_modifier"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items always have an [Attributes|Attribute] Modifier"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_guarantee_defence_modifier"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items always have an [Armour], [Evasion] or [EnergyShield|Energy Shield] Modifier"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_guarantee_open_prefix"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items always have an empty Prefix Modifier"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_guarantee_open_suffix"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items always have an empty Suffix Modifier"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_guarantee_resistance_modifier"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items always have a [Resistances|Resistance] Modifier"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_guarantee_resource_modifier"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items always have a Life or Mana Modifier"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_guarantee_x_caster_modifier",
+    "brequel_reward_guarantee_two_caster_modifiers"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      },
+      {
+       "min": 0,
+       "max": 0,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore",
+      "ignore"
+     ],
+     "index_handlers": [
+      [],
+      []
+     ],
+     "string": "Birthed Items always have a Caster Modifier"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      },
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore",
+      "ignore"
+     ],
+     "index_handlers": [
+      [],
+      []
+     ],
+     "string": "Birthed Items always have two Caster Modifiers"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_guarantee_x_minion_modifiers",
+    "brequel_reward_guarantee_two_minion_modifiers"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      },
+      {
+       "min": 0,
+       "max": 0,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore",
+      "ignore"
+     ],
+     "index_handlers": [
+      [],
+      []
+     ],
+     "string": "Birthed Items always have a [Minion] Modifier"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      },
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore",
+      "ignore"
+     ],
+     "index_handlers": [
+      [],
+      []
+     ],
+     "string": "Birthed Items always have two [Minion] Modifiers"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_invoking_belt_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have {0}% chance to be [InvokingBelt|Invoking Belts]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_jewellers_orb_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth Jeweller's Orbs"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth Jeweller's Orbs"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_lament_amulet_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have {0}% increased chance to be [LamentAmulet|Lament Amulets]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "Birthed Items have {0}% reduced chance to be [LamentAmulet|Lament Amulets]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_armour_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Armour] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_attribute_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Attributes|Attribute] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_caster_crit_modifier_levela"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Caster [Critical] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_caster_modifier_levela"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Caster Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_caster_prefix_modifier_levela"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Caster Prefix Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_caster_speed_modifier_levela"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Caster speed Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_caster_suffix_modifier_levela"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Caster Suffix Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_chaos_resistance_modifier_levelb"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Resistances|Chaos Resistance] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_charm_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Charm] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_cold_resistance_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Resistances|Cold Resistance] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_damage_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Damage Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_defence_modifier_levela"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Armour], [Evasion] and [EnergyShield|Energy Shield] Modifiers on Birthed Items\nhave [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_dexterity_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Dexterity] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_energy_shield_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[EnergyShield|Energy Shield] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_evasion_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Evasion] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_fire_resistance_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Resistances|Fire Resistance] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_flask_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Flask] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_intelligence_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Intelligence] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_life_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Life Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_lightning_resistance_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Resistances|Lightning Resistance] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_mana_modifier_levela"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Mana Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_minion_damage_modifier_levelb"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Minion] damage Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_minion_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Minion] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_minion_prefix_modifier_levela"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Minion] Prefix Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_minion_resistance_modifier_levelb"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Minion] [Resistances|Resistance] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_minion_speed_modifier_levelb"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Minion] speed Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_minion_suffix_modifier_levela"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Minion] Suffix Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_modifier_levelb"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_prefix_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Prefix Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_resistance_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Resistances|Resistance] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_resource_modifier_levela"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Life and Mana Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_strength_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Strength] Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minimum_suffix_modifier_level"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Suffix Modifiers on Birthed Items have [BetterCurrencyMinimumLevel|Minimum Modifier Level] {0}"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_minion_modifier_value_lucky_rolls_+"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": 1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Minion] Modifiers on Birthed Items roll their values an additional time, keeping the highest value"
+    },
+    {
+     "condition": [
+      {
+       "min": 2,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "[Minion] Modifiers on Birthed Items roll their values an additional {0} times,\nkeeping the highest value"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_modifier_value_lucky_rolls_+"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": 1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Modifiers on Birthed Items roll their values an additional time, keeping the highest value"
+    },
+    {
+     "condition": [
+      {
+       "min": 2,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Modifiers on Birthed Items roll their values an additional {0} times, keeping the highest value"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_no_attack_modifiers"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items cannot have Attack Modifiers"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_no_caster_modifiers"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items cannot have Caster Modifiers"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_no_chance_orbs"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Cannot Birth [OrbOfChance|Orbs of Chance]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_no_critical_modifiers"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items cannot have Critical Modifiers"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_no_divine_orbs"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Cannot Birth [DivineOrb|Divine Orbs]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_no_gem_cutters_prisms"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Cannot Birth [GemcuttersPrism|Gemcutter's Prisms]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_no_orbs_of_annulment"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Cannot Birth [AnnulmentOrb|Orbs of Annulment]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_no_orbs_of_augmentation"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Cannot Birth [OrbOfAugmentation|Orbs of Augmentation]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_no_orbs_of_transmutation"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Cannot Birth [OrbOfTransmutation|Orbs of Transmutation]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_no_perfect_jewellers_orbs"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Cannot Birth [JewellersOrbPerfect|Perfect Jeweller's Orbs]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_only_catalysts"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Can only Birth [Catalyst|Catalysts]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_orb_of_alchemy_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth [OrbOfAlchemy|Orbs of Alchemy]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth [OrbOfAlchemy|Orbs of Alchemy]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_orb_of_anunulment_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth [AnnulmentOrb|Orbs of Annulment]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth [AnnulmentOrb|Orbs of Annulment]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_orb_of_augmentation_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth [OrbOfAugmentation|Orbs of Augmentation]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth [OrbOfAugmentation|Orbs of Augmentation]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_orb_of_transmutation_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth [OrbOfTransmutation|Orbs of Transmutation]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth [OrbOfTransmutation|Orbs of Transmutation]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_portent_amulet_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have {0}% increased chance to be [PortentAmulet|Portent Amulets]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "Birthed Items have {0}% reduced chance to be [PortentAmulet|Portent Amulets]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_prefix_modifier_value_lucky_rolls_+"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": 1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Prefix Modifiers on Birthed Items roll their values an additional time, keeping the highest value"
+    },
+    {
+     "condition": [
+      {
+       "min": 2,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Prefix Modifiers on Birthed Items roll their values an additional {0} times,\nkeeping the highest value"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_prefix_modifier_values_always_max"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Prefix Modifiers on Birthed Items have maximum values"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_quality_currency_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth Quality Currency"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth Quality Currency"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_regal_orb_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth [RegalOrb|Regal Orbs]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth [RegalOrb|Regal Orbs]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_reservation_amulet_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have {0}% chance to be [LamentAmulet|Lament], [PortentAmulet|Portent] or [AbsentAmulet|Absent] Amulets"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_resource_cost_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthing consumes {0}% increased Hiveblood"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "Birthing consumes {0}% reduced Hiveblood"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_sinew_belt_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have {0}% chance to be [SinewBelt|Sinew Belts]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_special_catalyst_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% chance for Birthed [Catalyst|Catalysts] to be [Catalyst|Jewel Catalysts]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_stalking_belt_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have {0}% chance to be [StalkingBelt|Stalking Belts]"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_suffix_modifier_value_lucky_rolls_+"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": 1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Suffix Modifiers on Birthed Items roll their values an additional time, keeping the highest value"
+    },
+    {
+     "condition": [
+      {
+       "min": 2,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Suffix Modifiers on Birthed Items roll their values an additional {0} times,\nkeeping the highest value"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_suffix_modifier_values_always_max"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "ignore"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Suffix Modifiers on Birthed Items have maximum values"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_temporary_minion_limit_crafted_chance_%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "Birthed Items have an {0}% chance to be crafted with [GenesisTreeRingTemporaryMinionLimitCrafted|''of Multitudes'']"
+    }
+   ]
+  },
+  {
+   "ids": [
+    "brequel_reward_vaal_orb_chance_+%"
+   ],
+   "English": [
+    {
+     "condition": [
+      {
+       "min": 1,
+       "max": null,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      []
+     ],
+     "string": "{0}% increased chance to Birth [VaalOrb|Vaal Orbs]"
+    },
+    {
+     "condition": [
+      {
+       "min": null,
+       "max": -1,
+       "negated": null
+      }
+     ],
+     "format": [
+      "#"
+     ],
+     "index_handlers": [
+      [
+       "negate"
+      ]
+     ],
+     "string": "{0}% reduced chance to Birth [VaalOrb|Vaal Orbs]"
+    }
+   ]
+  }
+ ]
+}

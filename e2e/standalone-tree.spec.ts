@@ -126,7 +126,7 @@ for (const viewport of [
     ).toBeVisible()
     await page.keyboard.press("Home")
     await page.keyboard.press("Enter")
-    await expect(page).toHaveURL(/version=0_5/)
+    await expect(page).not.toHaveURL(/version=/)
     await page.goBack()
     await expect(page).toHaveURL(/version=0_1/)
     await expect(map).toBeVisible()
@@ -159,7 +159,7 @@ test("Paths Not Taken toggle supports keyboard and historical versions", async (
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto("/trees/passive?section=Oracle")
+  await page.goto("/trees/passive?ascendancy=Oracle")
   await openMobileSettings(page)
   const toggle = page.getByRole("checkbox", { name: "Paths Not Taken" })
   await expect(toggle).toBeEnabled()
@@ -193,7 +193,7 @@ test("toggling Oracle paths preserves framing, zoom and pan", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto("/trees/passive?section=Oracle")
+  await page.goto("/trees/passive?ascendancy=Oracle")
   const map = page.locator(
     '[data-slot="tree-page"] [data-slot="tree-viewport"] svg'
   )
@@ -297,7 +297,7 @@ test("tree pages offer contextual controls and keep zoom inside the viewport", a
 test("ascendancy links survive reload, version changes and history", async ({
   page,
 }) => {
-  await page.goto("/trees/ascendancies?section=Oracle&version=0_5")
+  await page.goto("/trees/ascendancies?ascendancy=Oracle&version=0_5")
   const choice = page.getByRole("combobox", { name: "Ascendancy", exact: true })
   await expect(choice).toContainText("Oracle")
   await expect(
@@ -326,7 +326,7 @@ test("ascendancy links survive reload, version changes and history", async ({
   await expect(page.getByRole("checkbox")).toHaveCount(0)
   await choice.click()
   await page.getByRole("option", { name: "Amazon", exact: true }).click()
-  await expect(page).toHaveURL(/section=Amazon/)
+  await expect(page).toHaveURL(/ascendancy=Amazon/)
   await expect(
     page.locator('[data-ascendancy-background="Amazon"]')
   ).toBeVisible()
@@ -413,7 +413,7 @@ test("ascendancy selector stays usable while a tree is unavailable", async ({
 test("Abyssal Lich shows alternate passives and its own artwork", async ({
   page,
 }) => {
-  await page.goto("/trees/ascendancies?section=Abyssal%20Lich&version=0_5")
+  await page.goto("/trees/ascendancies?ascendancy=Abyssal%20Lich&version=0_5")
   await expect(
     page.getByRole("combobox", { name: "Ascendancy", exact: true })
   ).toContainText("Abyssal Lich")
@@ -436,7 +436,7 @@ test("Abyssal Lich shows alternate passives and its own artwork", async ({
 test("buffered panning retains visible nodes and commits the final camera", async ({
   page,
 }) => {
-  await page.goto("/trees/passive?section=Oracle")
+  await page.goto("/trees/passive?ascendancy=Oracle")
   const map = page.locator('[data-slot="tree-viewport"] svg')
   await expect(map).toBeVisible()
   const total = await map.locator("[data-node]").count()
@@ -514,7 +514,7 @@ test("held inspection survives its node leaving the rendering buffer", async ({
 test("batched node paint covers every target and artwork image once", async ({
   page,
 }) => {
-  await page.goto("/trees/passive?section=Oracle")
+  await page.goto("/trees/passive?ascendancy=Oracle")
   const map = page.locator('[data-slot="tree-viewport"] svg')
   await expect(map).toBeVisible()
   await page.getByRole("checkbox", { name: "Paths Not Taken" }).check()
@@ -546,4 +546,36 @@ test("batched node paint covers every target and artwork image once", async ({
   expect(counts.backgrounds).toBe(counts.images)
   expect(counts.borders).toBe(counts.images)
   expect(counts.fillPaths).toBeLessThan(counts.targets / 2)
+})
+
+test("tree URLs only carry state the page uses", async ({ page }) => {
+  await page.goto("/trees/passive")
+  await expect(page.locator('[data-slot="tree-viewport"] svg')).toBeVisible()
+  expect(new URL(page.url()).search).toBe("")
+  await page.goto("/trees/passive?ascendancy=Oracle&unseen=true&version=0_4")
+  await expect(page).toHaveURL(/unseen=true/)
+  const tabs = page.getByRole("navigation", { name: "Tree types" })
+  await tabs
+    .getByRole("link", { name: "Ascendancy Trees", exact: true })
+    .click()
+  await expect(page).toHaveURL(/\/trees\/ascendancies\?/)
+  await expect(page).toHaveURL(/ascendancy=Oracle/)
+  await expect(page).toHaveURL(/version=0_4/)
+  await expect(page).not.toHaveURL(/unseen/)
+  await tabs.getByRole("link", { name: "Genesis Tree", exact: true }).click()
+  await expect(page).toHaveURL(/\/trees\/genesis$/)
+  await tabs.getByRole("link", { name: "Atlas Trees", exact: true }).click()
+  await expect(page).toHaveURL(/\/trees\/atlas$/)
+  // Paths Not Taken is dropped without the Oracle centre.
+  await page.goto("/trees/passive?ascendancy=Amazon&unseen=true")
+  await expect(page).not.toHaveURL(/unseen/)
+  // The saved ascendancy restores without being written into the URL.
+  await page.evaluate(() =>
+    localStorage.setItem("exile.tree.ascendancy", "Oracle")
+  )
+  await page.goto("/trees/passive")
+  await expect(
+    page.getByRole("combobox", { name: "Show ascendancy", includeHidden: true })
+  ).toContainText("Oracle")
+  expect(new URL(page.url()).search).toBe("")
 })
