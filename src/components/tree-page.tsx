@@ -1,6 +1,15 @@
-import { getRouteApi, Link, useNavigate } from "@tanstack/react-router"
+import { Link, useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
-import { isTreeVersion, TREE_VERSIONS } from "../../shared/tree-versions"
+import {
+  DEFAULT_TREE_VERSION,
+  isTreeVersion,
+  TREE_VERSIONS,
+} from "../../shared/tree-versions"
+import {
+  validateAscendancySearch,
+  validatePassiveSearch,
+} from "../lib/tree-search"
+import type { TreeSearch } from "../lib/tree-search"
 import type { TreeType } from "./passive-tree"
 import { TreeExplorer } from "./passive-tree"
 import {
@@ -25,12 +34,11 @@ const TREE_PAGES = [
   { type: "atlas", to: "/trees/atlas", name: "Atlas", suffix: "Trees" },
   { type: "genesis", to: "/trees/genesis", name: "Genesis", suffix: "Tree" },
 ] as const
-const treeRoute = getRouteApi("/trees")
 
 export function TreePage({ type }: { type: TreeType }) {
-  const { version, unseen, section } = treeRoute.useSearch()
+  const search: TreeSearch = useSearch({ strict: false })
+  const version = search.version ?? DEFAULT_TREE_VERSION
   const navigate = useNavigate()
-  const destination = TREE_PAGES.find((page) => page.type === type)!.to
   const [savedAscendancy, setSavedAscendancy] = useState("")
   useEffect(() => {
     const restore = () => {
@@ -44,27 +52,43 @@ export function TreePage({ type }: { type: TreeType }) {
     window.addEventListener("storage", restore)
     return () => window.removeEventListener("storage", restore)
   }, [])
-  const activeSection = section || savedAscendancy
-  const changeUnseen = (checked: boolean) => {
+  const activeAscendancy = search.ascendancy ?? savedAscendancy
+  // Only the passive and ascendancy pages keep URL state; the validators drop
+  // defaults, None and an unseen flag without Oracle.
+  const update = (next: TreeSearch) => {
+    const to =
+      type === "passive"
+        ? "/trees/passive"
+        : type === "ascendancy"
+          ? "/trees/ascendancies"
+          : undefined
+    if (!to) return
+    const validate =
+      type === "passive" ? validatePassiveSearch : validateAscendancySearch
     void navigate({
-      to: destination,
-      search: { version, unseen: checked, section },
+      to,
+      search: validate({ ...search, ...next }),
       resetScroll: false,
     })
   }
-  const changeSection = (nextSection: string) => {
-    setSavedAscendancy(nextSection)
+  const changeUnseen = (checked: boolean) => {
+    // Pin the restored ascendancy so the flag survives validation.
+    update({ ascendancy: activeAscendancy, unseen: checked || undefined })
+  }
+  const changeAscendancy = (ascendancy: string) => {
+    setSavedAscendancy(ascendancy)
     try {
-      localStorage.setItem("exile.tree.ascendancy", nextSection)
+      localStorage.setItem("exile.tree.ascendancy", ascendancy)
     } catch {
       /* storage unavailable */
     }
-    void navigate({
-      to: destination,
-      search: { version, unseen, section: nextSection },
-      resetScroll: false,
-    })
+    update({ ascendancy })
   }
+  /** Passive and Ascendancies share version and ascendancy; the rest are bare. */
+  const tabSearch = (page: (typeof TREE_PAGES)[number]) =>
+    page.type === "passive" || page.type === "ascendancy"
+      ? { version: search.version, ascendancy: search.ascendancy }
+      : {}
   const versions =
     type === "atlas" || type === "genesis" ? null : (
       <Field>
@@ -73,12 +97,7 @@ export function TreePage({ type }: { type: TreeType }) {
           value={version}
           items={TREE_VERSIONS}
           onValueChange={(value) => {
-            if (isTreeVersion(value))
-              void navigate({
-                to: destination,
-                search: { version: value, unseen, section },
-                resetScroll: false,
-              })
+            if (isTreeVersion(value)) update({ version: value })
           }}
         >
           <SelectTrigger
@@ -111,7 +130,7 @@ export function TreePage({ type }: { type: TreeType }) {
                 render={
                   <Link
                     to={page.to}
-                    search={{ version, unseen, section }}
+                    search={tabSearch(page)}
                     aria-label={`${page.name} ${page.suffix}`}
                     aria-current={type === page.type ? "page" : undefined}
                   />
@@ -129,9 +148,9 @@ export function TreePage({ type }: { type: TreeType }) {
         version={version}
         type={type}
         options={versions}
-        section={activeSection}
-        onSectionChange={changeSection}
-        showUnseen={unseen}
+        section={activeAscendancy}
+        onSectionChange={changeAscendancy}
+        showUnseen={search.unseen === true}
         onShowUnseenChange={changeUnseen}
       />
     </section>
