@@ -1,5 +1,6 @@
-// Generates the dithered art assets in public/art: the masthead art for the
-// economy, gems and patch notes headings, the Divine Orb, and CSS masks. Run with
+// Generates the dithered art assets in public/art and public/og: the masthead
+// art for the economy, gems and patch notes headings, the Divine Orb, CSS
+// masks, and share card backgrounds. Run with
 // `node scripts/dither-art.mjs`. Output is committed; this only needs to run
 // again when the palette or the source artwork changes.
 import { mkdir, readFile, writeFile } from "node:fs/promises"
@@ -345,4 +346,69 @@ await writeFile(
   new URL("../public/og/currency-card.png", import.meta.url),
   await ogCard(await glowArt(330, 315, 0.5))
 )
+// Tree cards draw each tree's own line art: connections dim, nodes bright,
+// with `view` (tree units, or the nodes' bounds plus `pad`) filling the art
+// window; wide trees pad more so their edges stay clear of the title. The ascendancy card adds
+// the ring its tree sits in on the passive tree.
+async function treeArt(path, { view, pad = 300, line, dot, ring }) {
+  const tree = JSON.parse(
+    await readFile(new URL(`../public/${path}`, import.meta.url))
+  )
+  const [x, y, w, h] = view ?? fitView(tree.nodes, pad, 330 / 315)
+  const radius = (n) => (n.keystone ? dot * 2.2 : n.notable ? dot * 1.5 : dot)
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="330" height="315" viewBox="${x} ${y} ${w} ${h}">
+<g fill="none" stroke="rgb(150,150,150)" stroke-width="${line}" stroke-linecap="round">${tree.edges.map((e) => `<path d="${e.path}"/>`).join("")}</g>
+${ring ? `<circle cx="${x + w / 2}" cy="${y + h / 2}" r="${ring}" fill="none" stroke="rgb(110,110,110)" stroke-width="${line * 1.5}"/>` : ""}
+<g fill="white">${tree.nodes
+    .filter((n) => !n.start)
+    .map((n) => `<circle cx="${n.x}" cy="${n.y}" r="${radius(n)}"/>`)
+    .join("")}</g></svg>`
+  return mastheadArt(Buffer.from(svg), {
+    width: 330,
+    height: 315,
+    size: [330, 315],
+    left: 0,
+    top: 0,
+    focus: [0.5, 0.5],
+    hold: 0.35,
+    gamma: 0.75,
+    halo: 0.6,
+  })
+}
+// The nodes' bounds plus `pad`, widened to the window's aspect ratio.
+function fitView(nodes, pad, aspect) {
+  const xs = nodes.map((n) => n.x),
+    ys = nodes.map((n) => n.y)
+  let x = Math.min(...xs) - pad,
+    y = Math.min(...ys) - pad,
+    w = Math.max(...xs) + pad - x,
+    h = Math.max(...ys) + pad - y
+  if (w / h < aspect) {
+    x -= (h * aspect - w) / 2
+    w = h * aspect
+  } else {
+    y -= (w / aspect - h) / 2
+    h = w / aspect
+  }
+  return [x, y, w, h]
+}
+for (const [name, path, options] of [
+  // The passive tree is cropped to its middle so its clusters stay legible.
+  [
+    "passive",
+    "pob-trees/passives-v1/0_5.json",
+    { view: [-9000, -8600, 18000, 17200], line: 28, dot: 40 },
+  ],
+  [
+    "ascendancies",
+    "pob-trees/ascendancies-v1/0_5/oracle.json",
+    { line: 10, dot: 28, ring: 1150 },
+  ],
+  ["atlas", "atlas-trees/v2/tree.json", { pad: 900, line: 24, dot: 50 }],
+  ["genesis", "genesis-trees/v1/tree.json", { pad: 1300, line: 28, dot: 65 }],
+])
+  await writeFile(
+    new URL(`../public/og/${name}-tree-card.png`, import.meta.url),
+    await ogCard(await treeArt(path, options))
+  )
 console.log("wrote public/art and public/og")
