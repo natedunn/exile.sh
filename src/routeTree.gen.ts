@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CreateAccountRouteImport } from './routes/create-account'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as GemsRouteImport } from './routes/gems'
+import { Route as ItemsRouteImport } from './routes/items'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as TreesRouteImport } from './routes/trees'
 import { Route as BuildBinIndexRouteImport } from './routes/build-bin.index'
@@ -24,6 +25,8 @@ import { Route as EconomyMarketRouteImport } from './routes/economy.market'
 import { Route as EconomyMoversRouteImport } from './routes/economy.movers'
 import { Route as GemsIndexRouteImport } from './routes/gems.index'
 import { Route as GemsGemRouteImport } from './routes/gems.$gem'
+import { Route as ItemsIndexRouteImport } from './routes/items.index'
+import { Route as ItemsItemRouteImport } from './routes/items.$item'
 import { Route as PatchNotesIndexRouteImport } from './routes/patch-notes.index'
 import { Route as PatchNotesThreadIdRouteImport } from './routes/patch-notes.$threadId'
 import { Route as TreesIndexRouteImport } from './routes/trees.index'
@@ -60,6 +63,11 @@ const EconomyRoute = EconomyRouteImport.update({
 const GemsRoute = GemsRouteImport.update({
   id: '/gems',
   path: '/gems',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ItemsRoute = ItemsRouteImport.update({
+  id: '/items',
+  path: '/items',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodologyRoute = MethodologyRouteImport.update({
@@ -111,6 +119,16 @@ const GemsGemRoute = GemsGemRouteImport.update({
   id: '/$gem',
   path: '/$gem',
   getParentRoute: () => GemsRoute,
+} as any)
+const ItemsIndexRoute = ItemsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ItemsRoute,
+} as any)
+const ItemsItemRoute = ItemsItemRouteImport.update({
+  id: '/$item',
+  path: '/$item',
+  getParentRoute: () => ItemsRoute,
 } as any)
 const PatchNotesIndexRoute = PatchNotesIndexRouteImport.update({
   id: '/patch-notes/',
@@ -179,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/create-account': typeof CreateAccountRoute
   '/economy': typeof EconomyRouteWithChildren
   '/gems': typeof GemsRouteWithChildren
+  '/items': typeof ItemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/trees': typeof TreesRouteWithChildren
   '/build-bin/$slug': typeof BuildBinSlugRoute
@@ -186,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/gems/$gem': typeof GemsGemRoute
+  '/items/$item': typeof ItemsItemRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
@@ -194,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/build-bin/': typeof BuildBinIndexRoute
   '/economy/': typeof EconomyIndexRoute
   '/gems/': typeof GemsIndexRoute
+  '/items/': typeof ItemsIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
   '/trees/': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -212,6 +233,7 @@ export interface FileRoutesByTo {
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/gems/$gem': typeof GemsGemRoute
+  '/items/$item': typeof ItemsItemRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
@@ -220,6 +242,7 @@ export interface FileRoutesByTo {
   '/build-bin': typeof BuildBinIndexRoute
   '/economy': typeof EconomyIndexRoute
   '/gems': typeof GemsIndexRoute
+  '/items': typeof ItemsIndexRoute
   '/patch-notes': typeof PatchNotesIndexRoute
   '/trees': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -235,6 +258,7 @@ export interface FileRoutesById {
   '/create-account': typeof CreateAccountRoute
   '/economy': typeof EconomyRouteWithChildren
   '/gems': typeof GemsRouteWithChildren
+  '/items': typeof ItemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
   '/trees': typeof TreesRouteWithChildren
   '/build-bin/$slug': typeof BuildBinSlugRoute
@@ -242,6 +266,7 @@ export interface FileRoutesById {
   '/economy/market': typeof EconomyMarketRoute
   '/economy/movers': typeof EconomyMoversRoute
   '/gems/$gem': typeof GemsGemRoute
+  '/items/$item': typeof ItemsItemRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
@@ -250,6 +275,7 @@ export interface FileRoutesById {
   '/build-bin/': typeof BuildBinIndexRoute
   '/economy/': typeof EconomyIndexRoute
   '/gems/': typeof GemsIndexRoute
+  '/items/': typeof ItemsIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
   '/trees/': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -266,6 +292,7 @@ export interface FileRouteTypes {
     | '/create-account'
     | '/economy'
     | '/gems'
+    | '/items'
     | '/methodology'
     | '/trees'
     | '/build-bin/$slug'
@@ -273,6 +300,7 @@ export interface FileRouteTypes {
     | '/economy/market'
     | '/economy/movers'
     | '/gems/$gem'
+    | '/items/$item'
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
@@ -281,6 +309,7 @@ export interface FileRouteTypes {
     | '/build-bin/'
     | '/economy/'
     | '/gems/'
+    | '/items/'
     | '/patch-notes/'
     | '/trees/'
     | '/api/auth/$'
@@ -299,6 +328,7 @@ export interface FileRouteTypes {
     | '/economy/market'
     | '/economy/movers'
     | '/gems/$gem'
+    | '/items/$item'
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
@@ -307,6 +337,7 @@ export interface FileRouteTypes {
     | '/build-bin'
     | '/economy'
     | '/gems'
+    | '/items'
     | '/patch-notes'
     | '/trees'
     | '/api/auth/$'
@@ -321,6 +352,7 @@ export interface FileRouteTypes {
     | '/create-account'
     | '/economy'
     | '/gems'
+    | '/items'
     | '/methodology'
     | '/trees'
     | '/build-bin/$slug'
@@ -328,6 +360,7 @@ export interface FileRouteTypes {
     | '/economy/market'
     | '/economy/movers'
     | '/gems/$gem'
+    | '/items/$item'
     | '/patch-notes/$threadId'
     | '/trees/ascendancies'
     | '/trees/atlas'
@@ -336,6 +369,7 @@ export interface FileRouteTypes {
     | '/build-bin/'
     | '/economy/'
     | '/gems/'
+    | '/items/'
     | '/patch-notes/'
     | '/trees/'
     | '/api/auth/$'
@@ -351,6 +385,7 @@ export interface RootRouteChildren {
   CreateAccountRoute: typeof CreateAccountRoute
   EconomyRoute: typeof EconomyRouteWithChildren
   GemsRoute: typeof GemsRouteWithChildren
+  ItemsRoute: typeof ItemsRouteWithChildren
   MethodologyRoute: typeof MethodologyRoute
   TreesRoute: typeof TreesRouteWithChildren
   BuildBinSlugRoute: typeof BuildBinSlugRoute
@@ -400,6 +435,13 @@ declare module '@tanstack/react-router' {
       path: '/gems'
       fullPath: '/gems'
       preLoaderRoute: typeof GemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/items': {
+      id: '/items'
+      path: '/items'
+      fullPath: '/items'
+      preLoaderRoute: typeof ItemsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/methodology': {
@@ -471,6 +513,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/gems/$gem'
       preLoaderRoute: typeof GemsGemRouteImport
       parentRoute: typeof GemsRoute
+    }
+    '/items/': {
+      id: '/items/'
+      path: '/'
+      fullPath: '/items/'
+      preLoaderRoute: typeof ItemsIndexRouteImport
+      parentRoute: typeof ItemsRoute
+    }
+    '/items/$item': {
+      id: '/items/$item'
+      path: '/$item'
+      fullPath: '/items/$item'
+      preLoaderRoute: typeof ItemsItemRouteImport
+      parentRoute: typeof ItemsRoute
     }
     '/patch-notes/': {
       id: '/patch-notes/'
@@ -586,6 +642,18 @@ const GemsRouteChildren: GemsRouteChildren = {
 
 const GemsRouteWithChildren = GemsRoute._addFileChildren(GemsRouteChildren)
 
+interface ItemsRouteChildren {
+  ItemsItemRoute: typeof ItemsItemRoute
+  ItemsIndexRoute: typeof ItemsIndexRoute
+}
+
+const ItemsRouteChildren: ItemsRouteChildren = {
+  ItemsItemRoute: ItemsItemRoute,
+  ItemsIndexRoute: ItemsIndexRoute,
+}
+
+const ItemsRouteWithChildren = ItemsRoute._addFileChildren(ItemsRouteChildren)
+
 interface TreesRouteChildren {
   TreesAscendanciesRoute: typeof TreesAscendanciesRoute
   TreesAtlasRoute: typeof TreesAtlasRoute
@@ -610,6 +678,7 @@ const rootRouteChildren: RootRouteChildren = {
   CreateAccountRoute: CreateAccountRoute,
   EconomyRoute: EconomyRouteWithChildren,
   GemsRoute: GemsRouteWithChildren,
+  ItemsRoute: ItemsRouteWithChildren,
   MethodologyRoute: MethodologyRoute,
   TreesRoute: TreesRouteWithChildren,
   BuildBinSlugRoute: BuildBinSlugRoute,

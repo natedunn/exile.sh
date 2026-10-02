@@ -42,6 +42,14 @@ environment variables.
 
 This is the first development slice, not a public launch or complete Scout parity. Longer history, per-pair historical charts, league rollover automation, and collection cost optimization remain. GGG login/account sync is deferred until application registration is available. Unique pricing is outside v1.
 
+## Item references
+
+The Items section browses PoE2 uniques and bases, with each item's modifiers,
+base stats, and its modifier pool by source (base, desecrated, essence,
+corruption and augments). It is the foundation for
+an item designer; crafting combination validation is not implemented yet.
+See [item registry data and coverage](docs/item-registry.md).
+
 ## Development
 
 ```sh

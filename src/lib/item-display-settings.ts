@@ -24,6 +24,7 @@ function subscribe(onChange: () => void) {
     if (
       event.key === storageKey ||
       event.key === bondedStorageKey ||
+      event.key === poolStorageKey ||
       event.key === null
     )
       onChange()
@@ -74,4 +75,40 @@ export function setShowBondedModifiers(value: boolean) {
 
 export function useShowBondedModifiers() {
   return useSyncExternalStore(subscribe, getBondedSnapshot, () => false)
+}
+
+type PoolLayout = "split" | "stacked"
+const poolStorageKey = "exile:modifier-pool-layout"
+let poolFallback: PoolLayout = "split"
+let poolStorageUnavailable = false
+
+function getPoolSnapshot(): PoolLayout {
+  if (poolStorageUnavailable) return poolFallback
+  try {
+    return localStorage.getItem(poolStorageKey) === "stacked"
+      ? "stacked"
+      : "split"
+  } catch {
+    return poolFallback
+  }
+}
+
+/** Modifier pool tables: prefixes beside suffixes, or one above the other. */
+export function setModifierPoolLayout(value: PoolLayout) {
+  poolFallback = value
+  try {
+    localStorage.setItem(poolStorageKey, value)
+    poolStorageUnavailable = false
+  } catch {
+    poolStorageUnavailable = true
+  }
+  window.dispatchEvent(new Event(changeEvent))
+}
+
+export function useModifierPoolLayout() {
+  return useSyncExternalStore(
+    subscribe,
+    getPoolSnapshot,
+    () => "split" as const
+  )
 }

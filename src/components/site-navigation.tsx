@@ -6,6 +6,7 @@ import {
   Newspaper,
   Network,
   Diamond,
+  Package,
   XIcon,
 } from "lucide-react"
 import { Link } from "@tanstack/react-router"
@@ -40,6 +41,7 @@ export function SiteNavigation({ filters }: { filters: Filters }) {
     { label: "Economy", to: "/economy", icon: Gem },
     { label: "Build Bin", to: "/build-bin", icon: Swords },
     { label: "Gems", to: "/gems", icon: Diamond },
+    { label: "Items", to: "/items", icon: Package },
     { label: "Trees", to: "/trees", icon: Network },
     { label: "Patch Notes", to: "/patch-notes", icon: Newspaper },
   ] as const
