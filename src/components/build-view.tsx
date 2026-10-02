@@ -508,43 +508,62 @@ export function BuildView({
       resetKey={`${itemSet}:${weapons}:${skillSet}:${specIndex}`}
     >
       <article className="min-w-0">
-        {/* The masthead follows the exchange masthead: a serif title over a
-          mono meta line, closed by a rule that runs frame to frame. */}
-        <PageHeading className="-mx-[var(--shell-gutter)] min-h-0 items-center gap-8 px-[var(--shell-gutter)] py-8 max-sm:flex-wrap max-sm:gap-4 max-sm:py-6">
-          {/* The class emblem under a dithered bronze glow. The glow is used
-              at its native 640px so the cells stay crisp; the masthead clips
-              whatever spills past the frame. */}
-          <div
-            className="relative z-1 grid size-21 shrink-0 place-items-center rounded-full border border-rule-strong bg-surface text-brand before:pointer-events-none before:absolute before:top-1/2 before:left-1/2 before:-z-1 before:size-160 before:-translate-x-1/2 before:-translate-y-1/2 before:bg-brand before:[mask-image:var(--dither-glow)] before:[mask-size:auto] before:[mask-position:center] before:[mask-repeat:no-repeat] before:opacity-8 before:content-[''] max-sm:size-14 [&>svg]:size-8 max-sm:[&>svg]:size-6"
-            aria-hidden="true"
-          >
-            {portrait ? (
+        {/* The masthead follows the gem and currency mastheads: the class
+            emblem beside a serif title over a mono meta line, the portrait
+            dithered into the right of the frame, and the actions anchored
+            to its bottom edge. */}
+        <PageHeading className="-mx-[var(--shell-gutter)] min-h-0 px-[var(--shell-gutter)] pb-6 max-lg:flex-wrap">
+          <div className="relative z-1 flex min-w-0 flex-1 items-center gap-6 max-sm:gap-4">
+            {/* The class emblem under a dithered bronze glow. The glow is
+                used at its native 640px so the cells stay crisp; the
+                masthead clips whatever spills past the frame. */}
+            <div
+              className="relative z-1 grid size-21 shrink-0 place-items-center rounded-full border border-rule-strong bg-surface text-brand before:pointer-events-none before:absolute before:top-1/2 before:left-1/2 before:-z-1 before:size-160 before:-translate-x-1/2 before:-translate-y-1/2 before:bg-brand before:[mask-image:var(--dither-glow)] before:[mask-size:auto] before:[mask-position:center] before:[mask-repeat:no-repeat] before:opacity-8 before:content-[''] max-sm:hidden [&>svg]:size-8"
+              aria-hidden="true"
+            >
+              {portrait ? (
+                <img
+                  src={portrait}
+                  alt=""
+                  width={84}
+                  height={84}
+                  className="size-full rounded-full object-cover"
+                />
+              ) : (
+                <Shield />
+              )}
+            </div>
+            <PageHeadingCopy data-testid="build-identity">
+              <PageTitle className="text-5xl text-balance whitespace-normal max-sm:text-4xl">
+                {title.trim() ||
+                  `${build.ascendancy || build.className} · Level ${build.level}`}
+              </PageTitle>
+              <PageMeta>
+                <span>{build.className}</span>
+                {spec && <span>Tree {spec.version.replaceAll("_", ".")}</span>}
+              </PageMeta>
+            </PageHeadingCopy>
+          </div>
+          {portrait && (
+            // The portrait again, dithered into the masthead the way gem
+            // and currency pages carry their art.
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 right-0 w-1/2 overflow-hidden [mask-image:var(--dither-glow-masthead)] [mask-size:100%_100%] [mask-repeat:no-repeat] opacity-50 max-sm:w-2/3 max-sm:opacity-25"
+            >
               <img
                 src={portrait}
                 alt=""
-                width={84}
-                height={84}
-                className="size-full rounded-full object-cover"
+                className="absolute top-1/2 left-[62%] aspect-square h-[150%] -translate-x-1/2 -translate-y-1/2 [mask-image:radial-gradient(closest-side,black_45%,transparent)] object-cover brightness-110 contrast-125 grayscale sepia [image-rendering:pixelated]"
               />
-            ) : (
-              <Shield />
-            )}
-          </div>
-          <PageHeadingCopy className="flex-1" data-testid="build-identity">
-            <PageTitle className="text-5xl whitespace-normal max-sm:text-4xl">
-              {title.trim() ||
-                `${build.ascendancy || build.className} · Level ${build.level}`}
-            </PageTitle>
-            <PageMeta>
-              <span>{build.className}</span>
-              {spec && <span>Tree {spec.version.replaceAll("_", ".")}</span>}
-            </PageMeta>
-          </PageHeadingCopy>
-          <div className="relative z-1 flex flex-wrap items-center justify-end gap-2 max-sm:basis-full max-sm:justify-start [&_[data-slot=button]]:border-rule-strong">
+              <div className="absolute inset-0 dot-screen text-brand/15" />
+            </div>
+          )}
+          <div className="relative z-1 ml-auto flex shrink-0 flex-wrap items-center justify-end gap-2 max-lg:ml-0 max-lg:basis-full max-lg:justify-start [&_[data-slot=button]]:border-rule-strong">
             {/* Clipboard feedback sits in the row with the buttons, so
                 nothing moves. */}
             <span
-              className="mr-2 mono-label tracking-label-tight text-brand empty:hidden max-sm:order-1 max-sm:m-0 max-sm:basis-full"
+              className="mr-2 mono-label tracking-label-tight text-brand empty:hidden max-lg:order-1 max-lg:m-0 max-lg:basis-full"
               role="status"
             >
               {message}
@@ -564,7 +583,7 @@ export function BuildView({
               Copy PoB code
             </BuildPrimaryButton>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               aria-label="Download PoB export code"
               onClick={download}
@@ -581,14 +600,12 @@ export function BuildView({
             <BuildSection id="equipment">
               <BuildSectionStrip>
                 <BuildSectionTitle>Equipment</BuildSectionTitle>
-                <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-                  <SetPicker
-                    label="Equipment set"
-                    sets={build.itemSets}
-                    value={itemSet}
-                    onChange={(v) => select("items", v)}
-                  />
-                </div>
+                <SetPicker
+                  label="Equipment set"
+                  sets={build.itemSets}
+                  value={itemSet}
+                  onChange={(v) => select("items", v)}
+                />
               </BuildSectionStrip>
               <BuildSectionBody>
                 {/* The board frame sits flush in its cell, its rule closing
@@ -627,9 +644,7 @@ export function BuildView({
             </BuildSection>
             <BuildSection id="skills">
               <BuildSectionStrip>
-                <div className="flex items-center gap-2">
-                  <BuildSectionTitle>Skills & supports</BuildSectionTitle>
-                </div>
+                <BuildSectionTitle>Skills & supports</BuildSectionTitle>
                 <SetPicker
                   label="Skill set"
                   sets={build.skillSets}
@@ -705,7 +720,7 @@ export function BuildView({
               </ItemTreeVersionProvider>
             </BuildSection>
             <BuildSection id="notes">
-              <BuildSectionStrip>
+              <BuildSectionStrip full>
                 <BuildSectionTitle>Notes</BuildSectionTitle>
               </BuildSectionStrip>
               <BuildSectionBody full>
