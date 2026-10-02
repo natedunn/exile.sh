@@ -41,6 +41,9 @@
 /atlas-trees/v2/*
   Cache-Control: public, max-age=31536000, immutable
 
+/genesis-trees/v1/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /pob-trees/passives-v1/*
   Cache-Control: public, max-age=31536000, immutable
 

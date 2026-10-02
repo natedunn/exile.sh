@@ -6,7 +6,7 @@ test.use({
   hasTouch: true,
 })
 
-for (const route of ["passive", "atlas"]) {
+for (const route of ["passive", "atlas", "genesis"]) {
   test(`${route}: pinch zooms the tree without zooming the page`, async ({
     page,
   }) => {
