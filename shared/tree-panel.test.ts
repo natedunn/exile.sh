@@ -65,13 +65,11 @@ it("hides disabled panel controls and gates palette on allocations", () => {
     "Paths Not Taken"
   )
   expect(render({ defaultAscendancy: "Oracle" })).toContain("Paths Not Taken")
-  expect(render()).not.toContain('aria-label="Color vision"')
-  expect(render({ allocatedNodes: ["1"] })).toContain(
-    'aria-label="Color vision"'
-  )
+  expect(render()).not.toContain("Color Blindness Mode")
+  expect(render({ allocatedNodes: ["1"] })).toContain("Color Blindness Mode")
   expect(
     render({ allocatedNodes: ["1"], showPaletteSelector: false })
-  ).not.toContain('aria-label="Color vision"')
+  ).not.toContain("Color Blindness Mode")
 })
 
 it.each([1, 2] as const)(
