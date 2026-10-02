@@ -920,7 +920,8 @@ function TreeMapRenderer({
       window.removeEventListener("blur", blur)
     }
   }, [attention])
-  const artworkZoomThreshold = treeType in staticTrees ? 1.2 : 3
+  // Static trees are small enough to show artwork from the initial zoom.
+  const artworkZoomThreshold = treeType in staticTrees ? 1 : 3
   const artwork = useQuery({
     queryKey: artworkUrl ? ["tree-art", artworkUrl] : ["tree-art-v2", version],
     enabled:
