@@ -526,7 +526,7 @@ for (const width of [1440, 390]) {
 test("changing Paths Not Taken clears pins from the previous tree data", async ({
   page,
 }) => {
-  await page.goto("/trees/passive?section=Oracle")
+  await page.goto("/trees/passive?ascendancy=Oracle")
   const popup = await selectResult(page, "heavy ammunition")
   await popup.locator("button[aria-label^=Pin]").click()
   await expect(page.locator('[data-tooltip-pinned="true"]')).toHaveCount(1)
