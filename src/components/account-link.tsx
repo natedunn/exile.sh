@@ -6,10 +6,11 @@ export function AccountLink() {
   return (
     <Link
       className="ml-auto shrink-0 text-xs whitespace-nowrap text-ink max-lg:hidden"
-      to="/auth"
-      search={{ error: undefined }}
+      {...(isAuthenticated
+        ? { to: "/settings" }
+        : { to: "/auth", search: { error: undefined } })}
     >
-      {isAuthenticated ? "Account" : "Sign in"}
+      {isAuthenticated ? "Settings" : "Sign in"}
     </Link>
   )
 }

@@ -17,6 +17,7 @@ import { Route as GemsRouteImport } from './routes/gems'
 import { Route as HomePreviewRouteImport } from './routes/home-preview'
 import { Route as ItemsRouteImport } from './routes/items'
 import { Route as MethodologyRouteImport } from './routes/methodology'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TreesRouteImport } from './routes/trees'
 import { Route as BuildBinIndexRouteImport } from './routes/build-bin.index'
@@ -31,6 +32,11 @@ import { Route as ItemsIndexRouteImport } from './routes/items.index'
 import { Route as ItemsItemRouteImport } from './routes/items.$item'
 import { Route as PatchNotesIndexRouteImport } from './routes/patch-notes.index'
 import { Route as PatchNotesThreadIdRouteImport } from './routes/patch-notes.$threadId'
+import { Route as SettingsIndexRouteImport } from './routes/settings.index'
+import { Route as SettingsDisplayRouteImport } from './routes/settings.display'
+import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
+import { Route as SettingsProfileRouteImport } from './routes/settings.profile'
+import { Route as SettingsSavedRouteImport } from './routes/settings.saved'
 import { Route as TreesIndexRouteImport } from './routes/trees.index'
 import { Route as TreesAscendanciesRouteImport } from './routes/trees.ascendancies'
 import { Route as TreesAtlasRouteImport } from './routes/trees.atlas'
@@ -82,6 +88,11 @@ const ItemsRoute = ItemsRouteImport.update({
 const MethodologyRoute = MethodologyRouteImport.update({
   id: '/methodology',
   path: '/methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -154,6 +165,31 @@ const PatchNotesThreadIdRoute = PatchNotesThreadIdRouteImport.update({
   path: '/patch-notes/$threadId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsDisplayRoute = SettingsDisplayRouteImport.update({
+  id: '/display',
+  path: '/display',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsProfileRoute = SettingsProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => SettingsRoute,
+} as any)
+const SettingsSavedRoute = SettingsSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => SettingsRoute,
+} as any)
 const TreesIndexRoute = TreesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -224,6 +260,7 @@ export interface FileRoutesByFullPath {
   '/home-preview': typeof HomePreviewRoute
   '/items': typeof ItemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
+  '/settings': typeof SettingsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trees': typeof TreesRouteWithChildren
   '/build-bin/$slug': typeof BuildBinSlugRoute
@@ -233,6 +270,10 @@ export interface FileRoutesByFullPath {
   '/gems/$gem': typeof GemsGemRoute
   '/items/$item': typeof ItemsItemRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
+  '/settings/display': typeof SettingsDisplayRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/profile': typeof SettingsProfileRoute
+  '/settings/saved': typeof SettingsSavedRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
   '/trees/genesis': typeof TreesGenesisRoute
@@ -242,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/gems/': typeof GemsIndexRoute
   '/items/': typeof ItemsIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/trees/': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/og/currency/$slug': typeof OgCurrencySlugRoute
@@ -265,6 +307,10 @@ export interface FileRoutesByTo {
   '/gems/$gem': typeof GemsGemRoute
   '/items/$item': typeof ItemsItemRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
+  '/settings/display': typeof SettingsDisplayRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/profile': typeof SettingsProfileRoute
+  '/settings/saved': typeof SettingsSavedRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
   '/trees/genesis': typeof TreesGenesisRoute
@@ -274,6 +320,7 @@ export interface FileRoutesByTo {
   '/gems': typeof GemsIndexRoute
   '/items': typeof ItemsIndexRoute
   '/patch-notes': typeof PatchNotesIndexRoute
+  '/settings': typeof SettingsIndexRoute
   '/trees': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/og/currency/$slug': typeof OgCurrencySlugRoute
@@ -293,6 +340,7 @@ export interface FileRoutesById {
   '/home-preview': typeof HomePreviewRoute
   '/items': typeof ItemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
+  '/settings': typeof SettingsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trees': typeof TreesRouteWithChildren
   '/build-bin/$slug': typeof BuildBinSlugRoute
@@ -302,6 +350,10 @@ export interface FileRoutesById {
   '/gems/$gem': typeof GemsGemRoute
   '/items/$item': typeof ItemsItemRoute
   '/patch-notes/$threadId': typeof PatchNotesThreadIdRoute
+  '/settings/display': typeof SettingsDisplayRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/profile': typeof SettingsProfileRoute
+  '/settings/saved': typeof SettingsSavedRoute
   '/trees/ascendancies': typeof TreesAscendanciesRoute
   '/trees/atlas': typeof TreesAtlasRoute
   '/trees/genesis': typeof TreesGenesisRoute
@@ -311,6 +363,7 @@ export interface FileRoutesById {
   '/gems/': typeof GemsIndexRoute
   '/items/': typeof ItemsIndexRoute
   '/patch-notes/': typeof PatchNotesIndexRoute
+  '/settings/': typeof SettingsIndexRoute
   '/trees/': typeof TreesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/og/currency/$slug': typeof OgCurrencySlugRoute
@@ -331,6 +384,7 @@ export interface FileRouteTypes {
     | '/home-preview'
     | '/items'
     | '/methodology'
+    | '/settings'
     | '/sitemap.xml'
     | '/trees'
     | '/build-bin/$slug'
@@ -340,6 +394,10 @@ export interface FileRouteTypes {
     | '/gems/$gem'
     | '/items/$item'
     | '/patch-notes/$threadId'
+    | '/settings/display'
+    | '/settings/notifications'
+    | '/settings/profile'
+    | '/settings/saved'
     | '/trees/ascendancies'
     | '/trees/atlas'
     | '/trees/genesis'
@@ -349,6 +407,7 @@ export interface FileRouteTypes {
     | '/gems/'
     | '/items/'
     | '/patch-notes/'
+    | '/settings/'
     | '/trees/'
     | '/api/auth/$'
     | '/og/currency/$slug'
@@ -372,6 +431,10 @@ export interface FileRouteTypes {
     | '/gems/$gem'
     | '/items/$item'
     | '/patch-notes/$threadId'
+    | '/settings/display'
+    | '/settings/notifications'
+    | '/settings/profile'
+    | '/settings/saved'
     | '/trees/ascendancies'
     | '/trees/atlas'
     | '/trees/genesis'
@@ -381,6 +444,7 @@ export interface FileRouteTypes {
     | '/gems'
     | '/items'
     | '/patch-notes'
+    | '/settings'
     | '/trees'
     | '/api/auth/$'
     | '/og/currency/$slug'
@@ -399,6 +463,7 @@ export interface FileRouteTypes {
     | '/home-preview'
     | '/items'
     | '/methodology'
+    | '/settings'
     | '/sitemap.xml'
     | '/trees'
     | '/build-bin/$slug'
@@ -408,6 +473,10 @@ export interface FileRouteTypes {
     | '/gems/$gem'
     | '/items/$item'
     | '/patch-notes/$threadId'
+    | '/settings/display'
+    | '/settings/notifications'
+    | '/settings/profile'
+    | '/settings/saved'
     | '/trees/ascendancies'
     | '/trees/atlas'
     | '/trees/genesis'
@@ -417,6 +486,7 @@ export interface FileRouteTypes {
     | '/gems/'
     | '/items/'
     | '/patch-notes/'
+    | '/settings/'
     | '/trees/'
     | '/api/auth/$'
     | '/og/currency/$slug'
@@ -436,6 +506,7 @@ export interface RootRouteChildren {
   HomePreviewRoute: typeof HomePreviewRoute
   ItemsRoute: typeof ItemsRouteWithChildren
   MethodologyRoute: typeof MethodologyRoute
+  SettingsRoute: typeof SettingsRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TreesRoute: typeof TreesRouteWithChildren
   BuildBinSlugRoute: typeof BuildBinSlugRoute
@@ -508,6 +579,13 @@ declare module '@tanstack/react-router' {
       path: '/methodology'
       fullPath: '/methodology'
       preLoaderRoute: typeof MethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -607,6 +685,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/patch-notes/$threadId'
       preLoaderRoute: typeof PatchNotesThreadIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/display': {
+      id: '/settings/display'
+      path: '/display'
+      fullPath: '/settings/display'
+      preLoaderRoute: typeof SettingsDisplayRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/notifications': {
+      id: '/settings/notifications'
+      path: '/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof SettingsNotificationsRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/profile': {
+      id: '/settings/profile'
+      path: '/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof SettingsProfileRouteImport
+      parentRoute: typeof SettingsRoute
+    }
+    '/settings/saved': {
+      id: '/settings/saved'
+      path: '/saved'
+      fullPath: '/settings/saved'
+      preLoaderRoute: typeof SettingsSavedRouteImport
+      parentRoute: typeof SettingsRoute
     }
     '/trees/': {
       id: '/trees/'
@@ -734,6 +847,26 @@ const ItemsRouteChildren: ItemsRouteChildren = {
 
 const ItemsRouteWithChildren = ItemsRoute._addFileChildren(ItemsRouteChildren)
 
+interface SettingsRouteChildren {
+  SettingsDisplayRoute: typeof SettingsDisplayRoute
+  SettingsNotificationsRoute: typeof SettingsNotificationsRoute
+  SettingsProfileRoute: typeof SettingsProfileRoute
+  SettingsSavedRoute: typeof SettingsSavedRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
+}
+
+const SettingsRouteChildren: SettingsRouteChildren = {
+  SettingsDisplayRoute: SettingsDisplayRoute,
+  SettingsNotificationsRoute: SettingsNotificationsRoute,
+  SettingsProfileRoute: SettingsProfileRoute,
+  SettingsSavedRoute: SettingsSavedRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
+}
+
+const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
+  SettingsRouteChildren,
+)
+
 interface TreesRouteChildren {
   TreesAscendanciesRoute: typeof TreesAscendanciesRoute
   TreesAtlasRoute: typeof TreesAtlasRoute
@@ -761,6 +894,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomePreviewRoute: HomePreviewRoute,
   ItemsRoute: ItemsRouteWithChildren,
   MethodologyRoute: MethodologyRoute,
+  SettingsRoute: SettingsRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TreesRoute: TreesRouteWithChildren,
   BuildBinSlugRoute: BuildBinSlugRoute,

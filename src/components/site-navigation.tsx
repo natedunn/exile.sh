@@ -7,6 +7,7 @@ import {
   Network,
   Diamond,
   Package,
+  Settings,
   UserRound,
   XIcon,
 } from "lucide-react"
@@ -130,14 +131,19 @@ export function SiteNavigation({ filters }: { filters: Filters }) {
             {/* The masthead's account link moves in here below lg. */}
             <div className="border-t border-rule p-4">
               <Link
-                to="/auth"
-                search={{ error: undefined }}
+                {...(isAuthenticated
+                  ? { to: "/settings" }
+                  : { to: "/auth", search: { error: undefined } })}
                 activeProps={{ "aria-current": "page" }}
                 onClick={() => setOpen(false)}
                 className="flex min-h-12 items-center gap-3 p-3 font-mono text-xs tracking-label-tight whitespace-nowrap text-ink uppercase aria-[current=page]:bg-surface aria-[current=page]:shadow-[inset_3px_0_0_var(--color-brand)]"
               >
-                <UserRound size={20} aria-hidden="true" />
-                {isAuthenticated ? "Account" : "Sign in"}
+                {isAuthenticated ? (
+                  <Settings size={20} aria-hidden="true" />
+                ) : (
+                  <UserRound size={20} aria-hidden="true" />
+                )}
+                {isAuthenticated ? "Settings" : "Sign in"}
               </Link>
             </div>
             <SheetClose
