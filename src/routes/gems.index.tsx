@@ -35,8 +35,10 @@ export const Route = createFileRoute("/gems/")({
 })
 
 const PAGE_SIZE = 60
-// One column on phones, up to three on wide screens.
-const GRID = "m-0 grid list-none gap-2 p-0 md:grid-cols-2 xl:grid-cols-3"
+// Matches the items grid: cells draw their own right and bottom rules
+// against the list's left rule, so a short final row closes cleanly.
+const GRID =
+  "m-0 grid list-none grid-cols-3 border-l border-rule-strong p-0 max-lg:grid-cols-2 max-md:grid-cols-1"
 
 function GemsPage() {
   const search = Route.useSearch()
@@ -88,7 +90,7 @@ function GemsPage() {
         search={search}
         favorite={favoriteSet.has(reference.gameId)}
         onFavoriteChange={() => toggleFavorite(reference.gameId)}
-        className="border border-rule-strong bg-surface last:border-b"
+        className="border-r border-b border-rule-strong bg-surface last:border-b"
       />
     )
 
@@ -179,7 +181,7 @@ function GemsPage() {
                     {pinned.length} {pinned.length === 1 ? "gem" : "gems"}
                   </p>
                 </div>
-                <ul data-testid="gem-favorites" className={`${GRID} mt-3`}>
+                <ul data-testid="gem-favorites" className={GRID}>
                   {pinned.map(renderGem)}
                 </ul>
               </section>
@@ -194,7 +196,7 @@ function GemsPage() {
             </div>
             {results.length ? (
               <>
-                <ul data-testid="gem-results" className={`${GRID} mt-3`}>
+                <ul data-testid="gem-results" className={GRID}>
                   {ordered.slice(0, visible).map(renderGem)}
                 </ul>
                 {visible < results.length && (
