@@ -418,7 +418,7 @@ function HomePage() {
                 )}
               </div>
             </div>
-            <div className="relative grid grid-cols-2 gap-x-8 gap-y-10 max-sm:grid-cols-1 max-sm:gap-6">
+            <div className="relative grid grid-cols-2 gap-x-8 gap-y-10 max-md:pl-8 max-sm:grid-cols-1 max-sm:gap-6 max-sm:pl-4">
               {tool.features.map(({ icon: Icon, ...feature }) => (
                 <div key={feature.title} className="min-w-0">
                   <Icon
