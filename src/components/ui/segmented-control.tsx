@@ -3,8 +3,7 @@ import { cn } from "cn"
 
 import { Button } from "@/components/ui/button"
 
-/* A bordered row of mono segments; the active one fills bronze. Items are
-   Buttons (or links via render) using the segment variant. */
+/* A bordered row of buttons for changing a value in place. */
 function SegmentedControl({
   className,
   ...props
@@ -23,20 +22,12 @@ function SegmentedControl({
 
 function SegmentedControlItem({
   size = "nav",
-  render,
-  nativeButton,
   ...props
-}: Omit<React.ComponentProps<typeof Button>, "variant">) {
-  return (
-    <Button
-      variant="segment"
-      size={size}
-      render={render}
-      nativeButton={nativeButton ?? !render}
-      role={render ? "link" : undefined}
-      {...props}
-    />
-  )
+}: Omit<
+  React.ComponentProps<typeof Button>,
+  "variant" | "render" | "nativeButton"
+>) {
+  return <Button variant="segment" size={size} {...props} />
 }
 
 export { SegmentedControl, SegmentedControlItem }

@@ -1,3 +1,5 @@
+import { cn } from "cn"
+import { textLink } from "../components/ui/link-styles"
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
 import { useState } from "react"
 import type * as React from "react"
@@ -87,18 +89,16 @@ export const Route = createFileRoute("/items/$item")({
     <EmptyState>
       <h1 className="font-display text-2xl">Item not found</h1>
       <p>This item is not in the current reference snapshot.</p>
-      <Button
-        variant="outline"
-        nativeButton={false}
-        render={
-          <Link
-            to="/items"
-            search={{ q: "", kind: "unique", itemClass: "", page: 1 }}
-          />
-        }
+      <Link
+        to="/items"
+        search={{ q: "", kind: "unique", itemClass: "", page: 1 }}
+        className={cn(
+          textLink,
+          "inline-flex items-center gap-1.5 [&_svg]:size-4"
+        )}
       >
         Browse items
-      </Button>
+      </Link>
     </EmptyState>
   ),
   component: ItemDetailPage,

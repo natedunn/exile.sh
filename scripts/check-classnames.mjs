@@ -5,6 +5,7 @@
 // Variable-backed lists are resolved through TypeScript, including imports.
 // Usage: node scripts/check-classnames.mjs [--list]
 import { compile } from "@tailwindcss/node"
+import ts from "typescript"
 import fs from "node:fs"
 import path from "node:path"
 import { referencedClassLists } from "./classname-references.mjs"
@@ -49,8 +50,48 @@ const seen = (tokens, file) => {
   for (const t of tokens.split(/\s+/))
     if (t && !classLists.has(t)) classLists.set(t, file)
 }
+// Navigation uses native anchors, never the button primitive's selection and
+// keyboard behavior. Include wrappers that previously accepted link renders.
+const buttonLinks = []
+const buttonComponents = new Set([
+  "Button",
+  "SegmentedControlItem",
+  "SubNavigationItem",
+])
+const anchorComponents = new Set(["a", "Link", "CurrencyLink"])
 for (const file of files) {
   const code = fs.readFileSync(file, "utf8")
+  const ast = ts.createSourceFile(
+    file,
+    code,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX
+  )
+  const visit = (node) => {
+    if (
+      (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+      buttonComponents.has(node.tagName.getText(ast))
+    ) {
+      const render = node.attributes.properties.find(
+        (prop) => ts.isJsxAttribute(prop) && prop.name.text === "render"
+      )
+      const findAnchor = (child) => {
+        if (
+          (ts.isJsxOpeningElement(child) ||
+            ts.isJsxSelfClosingElement(child)) &&
+          anchorComponents.has(child.tagName.getText(ast))
+        ) {
+          const { line } = ast.getLineAndCharacterOfPosition(node.getStart(ast))
+          buttonLinks.push(`${path.relative(root, file)}:${line + 1}`)
+        }
+        ts.forEachChild(child, findAnchor)
+      }
+      if (render) findAnchor(render)
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(ast)
   for (const m of code.matchAll(/className=(?:"([^"]*)"|\{)/g)) {
     if (m[1] !== undefined) seen(m[1], file)
     else {
@@ -70,18 +111,34 @@ for (const file of files) {
   }
 }
 
+if (buttonLinks.length) {
+  for (const location of buttonLinks)
+    console.error(
+      `Use a native link instead of rendering it through a button: ${location}`
+    )
+  process.exit(1)
+}
+
 for (const { value, file } of referencedClassLists(files)) seen(value, file)
 
 // Tooltips must never switch the pointer to the question-mark help cursor.
 const helpCursor = [...classLists.keys()].filter((token) =>
   /(?:^|:)cursor-(?:help|\[help\])$/.test(token)
 )
-const cursorStyles = [...files, path.join(root, "src/styles.css"), path.join(root, "src/tokens.css")]
+const cursorStyles = [
+  ...files,
+  path.join(root, "src/styles.css"),
+  path.join(root, "src/tokens.css"),
+]
   .filter((file) => fs.existsSync(file))
-  .filter((file) => /\bcursor\s*:\s*["']?help\b/.test(fs.readFileSync(file, "utf8")))
+  .filter((file) =>
+    /\bcursor\s*:\s*["']?help\b/.test(fs.readFileSync(file, "utf8"))
+  )
 if (helpCursor.length || cursorStyles.length) {
   for (const token of helpCursor)
-    console.error(`Forbidden help cursor: ${token} (${path.relative(root, classLists.get(token))})`)
+    console.error(
+      `Forbidden help cursor: ${token} (${path.relative(root, classLists.get(token))})`
+    )
   for (const file of cursorStyles)
     console.error(`Forbidden help cursor style: ${path.relative(root, file)}`)
   process.exit(1)

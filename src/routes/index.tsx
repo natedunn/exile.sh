@@ -1,3 +1,5 @@
+import { cn } from "cn"
+import { textLink } from "../components/ui/link-styles"
 import {
   stripSearchParams,
   createFileRoute,
@@ -31,7 +33,6 @@ import {
 } from "lucide-react"
 import { filters, defaultFilters } from "../lib/economy-filters"
 import { shareMeta } from "../lib/share-meta"
-import { Button } from "../components/ui/button"
 import {
   Tooltip,
   TooltipTrigger,
@@ -291,39 +292,23 @@ function HomePage() {
           <div className="grid max-w-3xl gap-4 text-lg leading-relaxed text-ink-muted">
             <p>
               Welcome, traveler, to Exile.sh: an{" "}
-              <Button
-                nativeButton={false}
-                role="link"
-                variant="link"
-                size="bare"
-                className="text-lg font-normal underline"
-                render={
-                  <a
-                    href="https://github.com/natedunn/exile.sh"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  />
-                }
+              <a
+                href="https://github.com/natedunn/exile.sh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={textLink}
               >
                 open-source
-              </Button>{" "}
+              </a>{" "}
               collection of tools for{" "}
-              <Button
-                nativeButton={false}
-                role="link"
-                variant="link"
-                size="bare"
-                className="text-lg font-normal underline"
-                render={
-                  <a
-                    href="https://pathofexile2.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  />
-                }
+              <a
+                href="https://pathofexile2.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={textLink}
               >
                 Path of Exile 2
-              </Button>
+              </a>
               .
             </p>
             <p>
@@ -332,13 +317,9 @@ function HomePage() {
               <Tooltip>
                 <TooltipTrigger
                   delay={0}
-                  render={
-                    <Button
-                      variant="link"
-                      size="bare"
-                      className="text-lg font-normal text-ink-muted underline decoration-dotted"
-                    />
-                  }
+                  render={<span />}
+                  tabIndex={0}
+                  className="text-ink-muted underline decoration-dotted underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-focus"
                 >
                   kind of obsessed
                 </TooltipTrigger>
@@ -397,20 +378,16 @@ function HomePage() {
                 {tool.description}
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <Button
-                  nativeButton={false}
-                  role="link"
-                  variant="link"
-                  size="bare"
-                  render={
-                    <Link
-                      to={tool.to}
-                      search={tool.to === "/economy/market" ? preferences : {}}
-                    />
-                  }
+                <Link
+                  to={tool.to}
+                  search={tool.to === "/economy/market" ? preferences : {}}
+                  className={cn(
+                    textLink,
+                    "inline-flex items-center gap-1.5 [&_svg]:size-4"
+                  )}
                 >
                   {tool.action} <ArrowRight aria-hidden="true" />
-                </Button>
+                </Link>
                 {tool.to === "/trees/passive" && (
                   <nav
                     aria-label="Additional passive trees"
@@ -423,16 +400,16 @@ function HomePage() {
                         ["/trees/genesis", "Genesis"],
                       ] as const
                     ).map(([tree, label]) => (
-                      <Button
-                        nativeButton={false}
-                        role="link"
+                      <Link
+                        to={tree}
                         key={tree}
-                        variant="link"
-                        size="bare"
-                        render={<Link to={tree} />}
+                        className={cn(
+                          textLink,
+                          "inline-flex items-center gap-1.5 [&_svg]:size-4"
+                        )}
                       >
                         {label}
-                      </Button>
+                      </Link>
                     ))}
                   </nav>
                 )}
@@ -485,22 +462,17 @@ function HomePage() {
           <p>Built for the game I love, and for the people who play it.</p>
           <p>
             It’s made by a single{" "}
-            <Button
-              nativeButton={false}
-              role="link"
-              variant="link"
-              size="bare"
-              className="text-lg font-normal text-ink-muted underline"
-              render={
-                <a
-                  href="https://natedunn.net"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                />
-              }
+            <a
+              href="https://natedunn.net"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                textLink,
+                "text-lg font-normal text-ink-muted underline"
+              )}
             >
               indie developer
-            </Button>
+            </a>
             . 👋
           </p>
         </div>

@@ -1,3 +1,5 @@
+import { cn } from "cn"
+import { textLink } from "../components/ui/link-styles"
 import { shareMeta } from "../lib/share-meta"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -338,13 +340,21 @@ function BuildImport() {
               {save.isPending ? "Bookmarking…" : "Bookmark this"}
             </Button>
           ) : (
-            <Button
-              variant="outline"
-              disabled={authLoading}
-              render={<Link to="/auth" search={{ error: undefined }} />}
+            <Link
+              to="/auth"
+              search={{ error: undefined }}
+              aria-disabled={authLoading}
+              tabIndex={authLoading ? -1 : undefined}
+              onClick={(event) => {
+                if (authLoading) event.preventDefault()
+              }}
+              className={cn(
+                textLink,
+                "inline-flex items-center gap-1.5 [&_svg]:size-4"
+              )}
             >
               <Bookmark /> Sign in to bookmark
-            </Button>
+            </Link>
           )}
           {error && (
             <p role="alert" className="text-sm text-negative">

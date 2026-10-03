@@ -1,3 +1,4 @@
+import { linkFocus } from "../ui/link-styles"
 import { Link } from "@tanstack/react-router"
 import { cn } from "cn"
 import { ArrowDownLeft, ArrowUpRight, CircleHelp } from "lucide-react"
@@ -147,26 +148,19 @@ export function MoversSection({
               </div>
               {group.data.length ? (
                 group.data.map((r, index) => (
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <Link
+                    to="/currency/$slug"
+                    params={{ slug: currencySlug(r.id) }}
+                    search={f}
                     data-testid="mover-row"
+                    key={r.id}
                     className={cn(
+                      linkFocus,
                       "relative flex h-auto min-h-17 w-full items-center justify-start gap-3 rounded-none border-0 border-b border-rule bg-transparent px-3 py-2 text-left text-sm max-lg:py-3 max-sm:px-2",
                       group.up
                         ? "hover:bg-positive/8 hover:shadow-[inset_3px_0_0_var(--color-positive)]"
                         : "hover:bg-negative/8 hover:shadow-[inset_3px_0_0_var(--color-negative)]"
                     )}
-                    key={r.id}
-                    nativeButton={false}
-                    role="link"
-                    render={
-                      <Link
-                        to="/currency/$slug"
-                        params={{ slug: currencySlug(r.id) }}
-                        search={f}
-                      />
-                    }
                   >
                     <span
                       className="w-[2ch] font-mono text-label tracking-normal text-ink-faint"
@@ -191,7 +185,7 @@ export function MoversSection({
                       value={change(r)}
                       className="min-w-19 justify-end text-sm max-sm:min-w-0"
                     />
-                  </Button>
+                  </Link>
                 ))
               ) : (
                 <div className="min-h-30 px-3 py-6 text-sm text-ink-muted">
