@@ -18,7 +18,7 @@ export function BookmarkToggle({
       variant="ghost"
       size="icon"
       // One step above the card's own hover, so it reads on a hovered card.
-      className="mr-2 self-center hover:bg-rule aria-pressed:text-brand"
+      className="mr-2 self-center hover:bg-rule aria-pressed:bg-notice aria-pressed:text-brand aria-pressed:hover:bg-rule"
       aria-label={`${bookmarked ? "Remove" : "Add"} ${name} ${bookmarked ? "from" : "to"} bookmarks`}
       aria-pressed={bookmarked}
       onClick={onBookmarkedChange}
