@@ -58,6 +58,8 @@ export function ReferenceSearchField({
           <InputGroupAddon align="inline-end">
             <InputGroupButton
               size="icon-xs"
+              // Inside the box's border, so the ring sits close.
+              className="focus-visible:outline-offset-0"
               aria-label={`Clear ${label.toLocaleLowerCase()}`}
               onClick={() => {
                 onChange("")
