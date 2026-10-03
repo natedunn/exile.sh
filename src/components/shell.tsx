@@ -93,7 +93,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       </main>
       <footer
         className={cn(
-          "relative flex shrink-0 items-center gap-6 border-t border-rule-strong px-(--shell-gutter) pt-6 pb-8 font-mono text-label tracking-[0.06em] text-ink-muted before:pointer-events-none before:absolute before:inset-x-0 before:-top-px before:h-[3px] before:dot-screen before:[mask-image:linear-gradient(to_left,black_10%,transparent_80%)] before:bg-[size:3px_3px] before:text-brand before:opacity-70 before:content-[''] max-sm:flex-col max-sm:items-start max-sm:gap-3",
+          "relative flex shrink-0 items-center gap-6 border-t border-rule-strong px-(--shell-gutter) pt-6 pb-8 font-mono text-label tracking-[0.06em] text-ink-muted max-sm:flex-col max-sm:items-start max-sm:gap-3",
           isDetail ? "mt-0" : "mt-6"
         )}
       >
