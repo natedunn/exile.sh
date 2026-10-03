@@ -52,11 +52,13 @@ export function GemResult({
   }
 
   return (
+    // The whole card, bookmark included, takes the hover and open state.
     <li
       className={cn(
-        "flex min-w-0 items-stretch border-b border-rule last:border-b-0",
+        "flex min-w-0 items-stretch border-b border-rule last:border-b-0 hover:bg-skill-hover has-[[data-popup-open]]:bg-skill-hover data-[support=true]:hover:bg-support-hover data-[support=true]:has-[[data-popup-open]]:bg-support-hover",
         className
       )}
+      data-support={reference.support}
     >
       <Popover {...inspection.popoverProps}>
         <PopoverTrigger
@@ -105,7 +107,7 @@ export function GemResult({
               return pointerAnchor(clientX, clientY)
             })
           }}
-          className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 border-0 bg-transparent py-3 pr-2 pl-4 text-left text-ink hover:bg-skill-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus data-popup-open:bg-skill-hover data-[support=true]:hover:bg-support-hover data-[support=true]:data-popup-open:bg-support-hover max-sm:pl-3"
+          className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 border-0 bg-transparent py-3 pr-2 pl-4 text-left text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus max-sm:pl-3"
           data-support={reference.support}
           aria-label={`${reference.name}. View ${reference.support ? "" : `level ${gem.level} `}gem details`}
         >

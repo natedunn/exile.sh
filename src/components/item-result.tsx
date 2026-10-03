@@ -51,7 +51,13 @@ export function ItemResult({
   }>()
 
   return (
-    <li className={cn("flex min-w-0 items-stretch", className)}>
+    // The whole card, bookmark included, takes the hover and open state.
+    <li
+      className={cn(
+        "flex min-w-0 items-stretch transition-colors duration-160 hover:bg-hover has-[[data-popup-open]]:bg-hover has-[a:focus-visible]:bg-hover motion-reduce:transition-none",
+        className
+      )}
+    >
       <Popover {...inspection.popoverProps}>
         <PopoverTrigger
           nativeButton={false}
@@ -88,7 +94,7 @@ export function ItemResult({
               return pointerAnchor(clientX, clientY)
             })
           }}
-          className="flex min-w-0 flex-1 items-center gap-3 py-2 pr-2 pl-4 text-ink no-underline transition-colors duration-160 hover:bg-hover focus-visible:bg-hover focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus data-popup-open:bg-hover motion-reduce:transition-none max-sm:pl-3"
+          className="flex min-w-0 flex-1 items-center gap-3 py-2 pr-2 pl-4 text-ink no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus max-sm:pl-3"
           aria-label={`${item.name}. View item details`}
         >
           <ItemRegistryImage src={item.image} />
