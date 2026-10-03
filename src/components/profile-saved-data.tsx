@@ -1,3 +1,5 @@
+import { cn } from "cn"
+import { textLink } from "./ui/link-styles"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { useCRPC } from "@/lib/convex/crpc"
@@ -111,9 +113,15 @@ export function ProfileSavedData() {
             <EmptyStateText>
               Bookmark a Build Bin to return to it later.
             </EmptyStateText>
-            <Button variant="outline" render={<Link to="/build-bin" />}>
+            <Link
+              to="/build-bin"
+              className={cn(
+                textLink,
+                "inline-flex items-center gap-1.5 [&_svg]:size-4"
+              )}
+            >
               Open Build Bin
-            </Button>
+            </Link>
           </EmptyState>
         )}
         {!!bins.data?.length && (

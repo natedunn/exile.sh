@@ -25,23 +25,27 @@ export function shareMeta({
   title: string
   description: string
   path: string
-  image: string
+  image?: string
 }) {
   const url = `${siteUrl}${path}`
-  // Search results cut near 155 characters and social previews sooner.
+  // Keep summaries concise; search engines may choose a different snippet.
   const summary = clipText(description, 155)
   return {
     meta: [
-      { title: `${title} · exile.sh` },
+      { title: title.startsWith("exile.sh:") ? title : `${title} · exile.sh` },
       { name: "description", content: summary },
       { property: "og:title", content: title },
       { property: "og:description", content: summary },
       { property: "og:type", content: "website" },
       { property: "og:url", content: url },
-      { property: "og:image", content: `${siteUrl}${image}` },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      { name: "twitter:card", content: "summary_large_image" },
+      ...(image
+        ? [
+            { property: "og:image", content: `${siteUrl}${image}` },
+            { property: "og:image:width", content: "1200" },
+            { property: "og:image:height", content: "630" },
+            { name: "twitter:card", content: "summary_large_image" },
+          ]
+        : [{ name: "twitter:card", content: "summary" }]),
     ],
     links: [{ rel: "canonical", href: url }],
   }

@@ -1,3 +1,4 @@
+import { navigationItem } from "./ui/navigation-styles"
 import { Link, useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import {
@@ -20,7 +21,7 @@ import {
   SelectValue,
 } from "./ui/select"
 import { Field, FieldLabel } from "./ui/field"
-import { SubNavigation, SubNavigationItem } from "./ui/sub-navigation"
+import { SubNavigation } from "./ui/sub-navigation"
 
 /** Small screens drop the suffix so every tab stays within the viewport. */
 const TREE_PAGES = [
@@ -125,20 +126,17 @@ export function TreePage({ type }: { type: TreeType }) {
         <div className="mx-auto flex max-w-(--shell-max-width) px-(--shell-gutter)">
           <SubNavigation aria-label="Tree types" className="max-sm:w-full">
             {TREE_PAGES.map((page) => (
-              <SubNavigationItem
+              <Link
+                to={page.to}
+                search={tabSearch(page)}
+                aria-label={`${page.name} ${page.suffix}`}
+                aria-current={type === page.type ? "page" : undefined}
                 key={page.type}
-                render={
-                  <Link
-                    to={page.to}
-                    search={tabSearch(page)}
-                    aria-label={`${page.name} ${page.suffix}`}
-                    aria-current={type === page.type ? "page" : undefined}
-                  />
-                }
+                className={navigationItem}
               >
                 {page.name}
                 <span className="max-sm:hidden">{page.suffix}</span>
-              </SubNavigationItem>
+              </Link>
             ))}
           </SubNavigation>
         </div>

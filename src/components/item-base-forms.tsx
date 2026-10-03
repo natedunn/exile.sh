@@ -1,3 +1,5 @@
+import { cn } from "cn"
+import { textLink } from "./ui/link-styles"
 import { Link } from "@tanstack/react-router"
 import type {
   BaseReference,
@@ -49,11 +51,12 @@ export function BaseFormSwitch({
       Object.keys(formName).indexOf(a.form) -
       Object.keys(formName).indexOf(b.form)
   )
+  const Container = onSelect ? SegmentedControl : "nav"
   return (
-    <SegmentedControl
-      role="group"
+    <Container
+      role={onSelect ? "group" : undefined}
       aria-label="Base form"
-      className="flex w-full [&>*]:flex-1"
+      className={onSelect ? "flex w-full [&>*]:flex-1" : "flex flex-wrap gap-4"}
     >
       {ordered.map((base) =>
         onSelect ? (
@@ -66,23 +69,20 @@ export function BaseFormSwitch({
             {formName[base.form]}
           </SegmentedControlItem>
         ) : (
-          <SegmentedControlItem
+          <Link
+            to="/items/$item"
+            params={{ item: base.slug }}
+            search={baseSearch}
+            resetScroll={false}
             key={base.slug}
             aria-current={base.slug === selected.slug ? "page" : undefined}
-            render={
-              <Link
-                to="/items/$item"
-                params={{ item: base.slug }}
-                search={baseSearch}
-                resetScroll={false}
-              />
-            }
+            className={cn(textLink, "aria-[current=page]:text-ink")}
           >
             {formName[base.form]}
-          </SegmentedControlItem>
+          </Link>
         )
       )}
-    </SegmentedControl>
+    </Container>
   )
 }
 

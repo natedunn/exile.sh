@@ -14,8 +14,10 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CreateAccountRouteImport } from './routes/create-account'
 import { Route as EconomyRouteImport } from './routes/economy'
 import { Route as GemsRouteImport } from './routes/gems'
+import { Route as HomePreviewRouteImport } from './routes/home-preview'
 import { Route as ItemsRouteImport } from './routes/items'
 import { Route as MethodologyRouteImport } from './routes/methodology'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TreesRouteImport } from './routes/trees'
 import { Route as BuildBinIndexRouteImport } from './routes/build-bin.index'
 import { Route as BuildBinSlugRouteImport } from './routes/build-bin.$slug'
@@ -65,6 +67,11 @@ const GemsRoute = GemsRouteImport.update({
   path: '/gems',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HomePreviewRoute = HomePreviewRouteImport.update({
+  id: '/home-preview',
+  path: '/home-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ItemsRoute = ItemsRouteImport.update({
   id: '/items',
   path: '/items',
@@ -73,6 +80,11 @@ const ItemsRoute = ItemsRouteImport.update({
 const MethodologyRoute = MethodologyRouteImport.update({
   id: '/methodology',
   path: '/methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TreesRoute = TreesRouteImport.update({
@@ -197,8 +209,10 @@ export interface FileRoutesByFullPath {
   '/create-account': typeof CreateAccountRoute
   '/economy': typeof EconomyRouteWithChildren
   '/gems': typeof GemsRouteWithChildren
+  '/home-preview': typeof HomePreviewRoute
   '/items': typeof ItemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trees': typeof TreesRouteWithChildren
   '/build-bin/$slug': typeof BuildBinSlugRoute
   '/currency/$slug': typeof CurrencySlugRoute
@@ -227,7 +241,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/create-account': typeof CreateAccountRoute
+  '/home-preview': typeof HomePreviewRoute
   '/methodology': typeof MethodologyRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/build-bin/$slug': typeof BuildBinSlugRoute
   '/currency/$slug': typeof CurrencySlugRoute
   '/economy/market': typeof EconomyMarketRoute
@@ -258,8 +274,10 @@ export interface FileRoutesById {
   '/create-account': typeof CreateAccountRoute
   '/economy': typeof EconomyRouteWithChildren
   '/gems': typeof GemsRouteWithChildren
+  '/home-preview': typeof HomePreviewRoute
   '/items': typeof ItemsRouteWithChildren
   '/methodology': typeof MethodologyRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trees': typeof TreesRouteWithChildren
   '/build-bin/$slug': typeof BuildBinSlugRoute
   '/currency/$slug': typeof CurrencySlugRoute
@@ -292,8 +310,10 @@ export interface FileRouteTypes {
     | '/create-account'
     | '/economy'
     | '/gems'
+    | '/home-preview'
     | '/items'
     | '/methodology'
+    | '/sitemap.xml'
     | '/trees'
     | '/build-bin/$slug'
     | '/currency/$slug'
@@ -322,7 +342,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/create-account'
+    | '/home-preview'
     | '/methodology'
+    | '/sitemap.xml'
     | '/build-bin/$slug'
     | '/currency/$slug'
     | '/economy/market'
@@ -352,8 +374,10 @@ export interface FileRouteTypes {
     | '/create-account'
     | '/economy'
     | '/gems'
+    | '/home-preview'
     | '/items'
     | '/methodology'
+    | '/sitemap.xml'
     | '/trees'
     | '/build-bin/$slug'
     | '/currency/$slug'
@@ -385,8 +409,10 @@ export interface RootRouteChildren {
   CreateAccountRoute: typeof CreateAccountRoute
   EconomyRoute: typeof EconomyRouteWithChildren
   GemsRoute: typeof GemsRouteWithChildren
+  HomePreviewRoute: typeof HomePreviewRoute
   ItemsRoute: typeof ItemsRouteWithChildren
   MethodologyRoute: typeof MethodologyRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TreesRoute: typeof TreesRouteWithChildren
   BuildBinSlugRoute: typeof BuildBinSlugRoute
   CurrencySlugRoute: typeof CurrencySlugRoute
@@ -437,6 +463,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GemsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/home-preview': {
+      id: '/home-preview'
+      path: '/home-preview'
+      fullPath: '/home-preview'
+      preLoaderRoute: typeof HomePreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/items': {
       id: '/items'
       path: '/items'
@@ -449,6 +482,13 @@ declare module '@tanstack/react-router' {
       path: '/methodology'
       fullPath: '/methodology'
       preLoaderRoute: typeof MethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/trees': {
@@ -678,8 +718,10 @@ const rootRouteChildren: RootRouteChildren = {
   CreateAccountRoute: CreateAccountRoute,
   EconomyRoute: EconomyRouteWithChildren,
   GemsRoute: GemsRouteWithChildren,
+  HomePreviewRoute: HomePreviewRoute,
   ItemsRoute: ItemsRouteWithChildren,
   MethodologyRoute: MethodologyRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TreesRoute: TreesRouteWithChildren,
   BuildBinSlugRoute: BuildBinSlugRoute,
   CurrencySlugRoute: CurrencySlugRoute,

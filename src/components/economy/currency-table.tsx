@@ -1,3 +1,4 @@
+import { linkFocus } from "../ui/link-styles"
 import { cn } from "cn"
 import {
   ArrowDown,
@@ -240,6 +241,7 @@ export function CurrencyTable({
                   data-testid="currency-row"
                   className="group/row cursor-pointer border-rule transition-none focus-within:bg-surface focus-within:shadow-[inset_3px_0_0_var(--color-brand-deep)] hover:bg-surface hover:shadow-[inset_3px_0_0_var(--color-brand-deep)]"
                   onClick={(event) => {
+                    if (window.getSelection()?.toString()) return
                     if (
                       (event.target as HTMLElement).closest("button, a, input")
                     )
@@ -259,19 +261,20 @@ export function CurrencyTable({
                     </Toggle>
                   </TableCell>
                   <TableCell className={cn(bodyCell, "h-15.5")}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex h-auto max-w-75 min-w-60 justify-start gap-4 bg-transparent p-0 text-left text-sm font-[450] text-ink hover:bg-transparent hover:text-ink max-xl:max-w-55 max-xl:min-w-50"
-                      nativeButton={false}
-                      role="link"
-                      render={<CurrencyLink id={r.id} f={f} />}
+                    <CurrencyLink
+                      id={r.id}
+                      f={f}
+                      className={cn(
+                        linkFocus,
+                        "inline-flex items-center justify-center",
+                        "flex h-auto max-w-75 min-w-60 justify-start gap-4 bg-transparent p-0 text-left text-sm font-[450] text-ink hover:bg-transparent hover:text-ink max-xl:max-w-55 max-xl:min-w-50"
+                      )}
                     >
                       <Icon id={r.id} glow />
                       <span className="truncate group-focus-within/row:underline group-focus-within/row:decoration-dotted group-focus-within/row:underline-offset-4 group-hover/row:underline group-hover/row:decoration-dotted group-hover/row:underline-offset-4">
                         {name}
                       </span>
-                    </Button>
+                    </CurrencyLink>
                   </TableCell>
                   <TableCell
                     data-testid="price-cell"
@@ -314,17 +317,19 @@ export function CurrencyTable({
                     <Sparkline alignStart values={r.trends[quoteIndex(r.id)]} />
                   </TableCell>
                   <TableCell className={cn(bodyCell, "h-15.5")}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-5 bg-transparent p-0 text-ink-faint group-hover/row:text-brand hover:bg-transparent"
-                      nativeButton={false}
-                      role="link"
-                      render={<CurrencyLink id={r.id} f={f} tabIndex={-1} />}
+                    <CurrencyLink
+                      id={r.id}
+                      f={f}
+                      tabIndex={-1}
                       aria-label={`View ${name} history`}
+                      className={cn(
+                        linkFocus,
+                        "inline-flex items-center justify-center",
+                        "w-5 bg-transparent p-0 text-ink-faint group-hover/row:text-brand hover:bg-transparent"
+                      )}
                     >
                       <ChevronRight size={15} />
-                    </Button>
+                    </CurrencyLink>
                   </TableCell>
                 </TableRow>
               )

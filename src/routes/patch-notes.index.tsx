@@ -1,3 +1,5 @@
+import { textLink } from "../components/ui/link-styles"
+import { shareMeta } from "../lib/share-meta"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowUpRight, Newspaper } from "lucide-react"
 import { cn } from "cn"
@@ -15,23 +17,19 @@ import {
   PatchStripLink,
   PatchStripTitle,
 } from "../components/patch-notes-layout"
-import { Button } from "../components/ui/button"
 import { EmptyState, EmptyStateText } from "../components/ui/empty-state"
 import { Note } from "../components/ui/note"
 import { day } from "../lib/format"
 import { getPatchNotes, getXUpdates } from "../lib/patch-notes-server"
 
 export const Route = createFileRoute("/patch-notes/")({
-  head: () => ({
-    meta: [
-      { title: "Patch Notes · exile.sh" },
-      {
-        name: "description",
-        content:
-          "Official Path of Exile 2 patch notes and hotfixes, formatted for easy reading with links to the original GGG forum posts.",
-      },
-    ],
-  }),
+  head: () =>
+    shareMeta({
+      title: "PoE2 Patch Notes & Hotfixes",
+      description:
+        "Official Path of Exile 2 patch notes and hotfixes, formatted for easy reading with links to the original GGG forum posts.",
+      path: "/patch-notes",
+    }),
   loader: async () => {
     const [patches, x] = await Promise.all([getPatchNotes(), getXUpdates()])
     return { ...patches, x }
@@ -103,14 +101,16 @@ function PatchNotesPage() {
               <EmptyStateText>
                 Read the latest patch notes directly from Grinding Gear Games.
               </EmptyStateText>
-              <Button
-                variant="outline"
-                render={<a href={FORUM_URL} />}
-                className="h-auto rounded-none px-4.5 py-2.5 font-mono text-xs font-normal whitespace-normal [&_svg]:inline [&_svg]:size-auto [&_svg]:align-[-2px]"
+              <a
+                href={FORUM_URL}
+                className={cn(
+                  textLink,
+                  "h-auto rounded-none px-4.5 py-2.5 font-mono text-xs font-normal whitespace-normal [&_svg]:inline [&_svg]:size-auto [&_svg]:align-[-2px]"
+                )}
               >
                 Visit the patch notes forum{" "}
                 <ArrowUpRight size={13} aria-hidden="true" />
-              </Button>
+              </a>
             </EmptyState>
           ) : (
             <ol className="m-0 list-none p-0">

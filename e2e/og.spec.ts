@@ -23,7 +23,7 @@ test("gem pages point crawlers at their share cards", async ({ request }) => {
     }
   }
   const gem = await meta("/gems/lightning-arrow")
-  expect(gem.title).toBe("Lightning Arrow · Gems · exile.sh")
+  expect(gem.title).toBe("Lightning Arrow — PoE2 Skill Gem · exile.sh")
   expect(gem.image).toMatch(/\/og\/gems\/lightning-arrow$/)
   expect(gem.canonical).toMatch(/\/gems\/lightning-arrow$/)
   expect((await meta("/gems")).image).toMatch(/\/og\/gems$/)
@@ -37,7 +37,7 @@ test("currency pages share their own cards", async ({ request }) => {
   expect((await request.get("/og/currency/not-a-currency")).status()).toBe(404)
   const html = await (await request.get("/currency/chaos-orb")).text()
   expect(/<title>([^<]*)<\/title>/.exec(html)?.[1]).toBe(
-    "Chaos Orb · Economy · exile.sh"
+    "Chaos Orb Price &amp; Exchange Rates — PoE2 · exile.sh"
   )
   expect(/property="og:image" content="([^"]*)"/.exec(html)?.[1]).toMatch(
     /\/og\/currency\/chaos-orb$/

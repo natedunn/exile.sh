@@ -20,7 +20,7 @@ export const Route = createFileRoute("/currency/$slug")({
     if (!item) return { meta: [{ title: "Currency · exile.sh" }] }
     const description = plainDescription(item.description).trim()
     return shareMeta({
-      title: `${item.name} · Economy`,
+      title: `${item.name} Price & Exchange Rates — PoE2`,
       description: `${item.name} price history, exchange rates and markets in Path of Exile 2.${description ? ` ${description}` : ""}`,
       path: `/currency/${params.slug}`,
       image: `/og/currency/${params.slug}`,

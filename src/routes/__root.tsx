@@ -1,3 +1,4 @@
+import { textLink } from "../components/ui/link-styles"
 import { Button } from "../components/ui/button"
 import { EmptyState, EmptyStateText } from "../components/ui/empty-state"
 import { cn } from "cn"
@@ -72,13 +73,9 @@ export const Route = createRootRoute({
     <EmptyState>
       <h1 className="display text-section text-ink">Lost in Wraeclast.</h1>
       <EmptyStateText>This page does not exist.</EmptyStateText>
-      <Button
-        variant="outline"
-        className={emptyStateAction}
-        render={<a href="/economy" />}
-      >
+      <a href="/economy" className={cn(textLink, emptyStateAction)}>
         Return to the economy
-      </Button>
+      </a>
     </EmptyState>
   ),
   errorComponent: ({ reset }) => (
