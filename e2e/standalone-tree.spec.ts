@@ -68,10 +68,10 @@ for (const viewport of [
       name: "Passive Tree",
       exact: true,
     })
-    await expect(activeTreeLink).toHaveCSS("border-bottom-width", "2px")
+    await expect(activeTreeLink).toHaveAttribute("aria-current", "page")
     expect(
       await activeTreeLink.evaluate(
-        (link) => getComputedStyle(link).borderBottomColor
+        (link) => getComputedStyle(link).backgroundColor
       )
     ).not.toBe("rgba(0, 0, 0, 0)")
     for (const selector of [

@@ -333,8 +333,8 @@ function SectionNav({
             </a>
           </div>
         </div>
-        {/* The list is the main navigation's: mono capitals with a bronze
-            underline on the current section. */}
+        {/* The list matches the masthead: icon labels with a tinted plate
+            on the current section. */}
         <ul
           className={cn(
             navigationRow,
@@ -342,7 +342,7 @@ function SectionNav({
           )}
         >
           {sections.map((s) => (
-            <li key={s.id} className="h-full shrink-0">
+            <li key={s.id} className="flex h-full shrink-0 items-center">
               <a
                 href={`#${s.id}`}
                 className={cn(navigationItem, "max-sm:[&>svg]:hidden")}

@@ -42,7 +42,8 @@ export function WorkspaceHeader({
           aria-current={!moversPage ? "page" : undefined}
           className={navigationItem}
         >
-          <Gem className="size-3.5" /> Currency market
+          <Gem aria-hidden="true" />
+          Currency market
         </Link>
         <Link
           to="/economy/movers"
@@ -50,7 +51,8 @@ export function WorkspaceHeader({
           aria-current={moversPage ? "page" : undefined}
           className={navigationItem}
         >
-          <ArrowUpRight className="size-3.5" /> Market movers
+          <ArrowUpRight aria-hidden="true" />
+          Market movers
         </Link>
       </SubNavigation>
       <div className="flex items-end gap-4 py-3 max-lg:order-first max-lg:w-full">
