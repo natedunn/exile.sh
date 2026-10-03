@@ -32,7 +32,6 @@ import {
 import { filters, defaultFilters } from "../lib/economy-filters"
 import { shareMeta } from "../lib/share-meta"
 import { Button } from "../components/ui/button"
-import { Badge } from "../components/ui/badge"
 import {
   Tooltip,
   TooltipTrigger,
@@ -250,21 +249,18 @@ const tools = [
         description:
           "Mark the changes that matter to your builds, visible only to you.",
         icon: Highlighter,
-        planned: true,
       },
       {
         title: "Personal notes",
         description:
           "Leave private notes alongside the patch notes you are reading.",
         icon: StickyNote,
-        planned: true,
       },
       {
         title: "Browser notifications",
         description:
           "Get notified in your browser when new game updates arrive.",
         icon: Bell,
-        planned: true,
       },
     ],
   },
@@ -452,11 +448,6 @@ function HomePage() {
                   <h3 className="text-base font-medium text-ink">
                     {feature.title}
                   </h3>
-                  {"planned" in feature && (
-                    <Badge variant="outline" className="mt-2">
-                      Coming soon
-                    </Badge>
-                  )}
                   <p className="mt-2 text-sm leading-relaxed text-ink-muted">
                     {feature.description}
                   </p>
