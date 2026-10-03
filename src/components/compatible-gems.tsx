@@ -5,7 +5,7 @@ import type { CompatibleGem } from "../../shared/gem-compatibility"
 import { findGems } from "../lib/gem-search"
 import { useGemSearchIndex } from "../lib/use-gem-search-index"
 import { useGemCatalogue } from "../lib/use-gem-catalogue"
-import { useGemFavorites } from "../lib/use-saved-list"
+import { useGemBookmarks } from "../lib/use-saved-list"
 import { Button } from "./ui/button"
 import { EmptyState } from "./ui/empty-state"
 import { GemSection, GemSectionTitle } from "./gem-section"
@@ -31,7 +31,7 @@ export function CompatibleGems({
   const index = useGemSearchIndex()
   // Enhance hover details after hydration; reference rows render from loader data.
   const catalogue = useGemCatalogue()
-  const { favorites, toggleFavorite } = useGemFavorites()
+  const { favorites, toggleFavorite } = useGemBookmarks()
   const slugs = useMemo(
     () =>
       new Map(
@@ -94,8 +94,10 @@ export function CompatibleGems({
                       slug={slugs.get(reference.skillId)!}
                       headers={catalogue.data?.headers}
                       search={search}
-                      favorite={favorites.includes(reference.gameId)}
-                      onFavoriteChange={() => toggleFavorite(reference.gameId)}
+                      bookmarked={favorites.includes(reference.gameId)}
+                      onBookmarkedChange={() =>
+                        toggleFavorite(reference.gameId)
+                      }
                     />
                   ))}
               </ul>

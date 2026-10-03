@@ -47,34 +47,38 @@ async function signIn(
   return t.withIdentity({ subject: userId, sessionId })
 }
 
-const { list, set, merge } = api.gemFavorites
+const gems = api.gemBookmarks
+const items = api.itemBookmarks
 const ARC = "Metadata/Items/Gems/SkillGemArc"
 const SPARK = "Metadata/Items/Gems/SkillGemSpark"
 const PIERCE = "Metadata/Items/Gems/SupportGemPierce"
 
-test("gem favorite endpoints reject anonymous callers", async () => {
+test("bookmark endpoints reject anonymous callers", async () => {
   const t = convexTest(schema, modules)
-  await expect(t.query(list.functionRef, {})).rejects.toThrow("Sign in")
-  await expect(
-    t.mutation(set.functionRef, { item: ARC, watched: true })
-  ).rejects.toThrow("Sign in")
-  await expect(t.mutation(merge.functionRef, { items: [ARC] })).rejects.toThrow(
-    "Sign in"
-  )
+  for (const { list, set, merge } of [gems, items]) {
+    await expect(t.query(list.functionRef, {})).rejects.toThrow("Sign in")
+    await expect(
+      t.mutation(set.functionRef, { item: ARC, watched: true })
+    ).rejects.toThrow("Sign in")
+    await expect(
+      t.mutation(merge.functionRef, { items: [ARC] })
+    ).rejects.toThrow("Sign in")
+  }
 })
 
-test("gem favorites wait until the account is confirmed", async () => {
+test("bookmarks wait until the account is confirmed", async () => {
   const t = convexTest(schema, modules)
   const pending = await signIn(t, "pending@example.com", false)
-  await expect(pending.query(list.functionRef, {})).rejects.toThrow(
+  await expect(pending.query(gems.list.functionRef, {})).rejects.toThrow(
     "Create your exile.sh account"
   )
 })
 
-test("gem favorites are idempotent and private to each account", async () => {
+test("bookmarks are idempotent and private to each account", async () => {
   const t = convexTest(schema, modules)
   const first = await signIn(t, "first@example.com")
   const second = await signIn(t, "second@example.com")
+  const { list, set } = gems
   await first.mutation(set.functionRef, { item: ARC, watched: true })
   await first.mutation(set.functionRef, { item: ARC, watched: true })
   await first.mutation(set.functionRef, { item: PIERCE, watched: true })
@@ -88,9 +92,29 @@ test("gem favorites are idempotent and private to each account", async () => {
   expect(await first.query(list.functionRef, {})).toEqual([PIERCE])
 })
 
-test("merging browser gem favorites adds only what the account lacks", async () => {
+test("gem and item bookmarks are kept apart", async () => {
+  const t = convexTest(schema, modules)
+  const user = await signIn(t, "kinds@example.com")
+  await user.mutation(gems.set.functionRef, { item: "shared", watched: true })
+  await user.mutation(items.set.functionRef, {
+    item: "headhunter",
+    watched: true,
+  })
+  expect(await user.query(gems.list.functionRef, {})).toEqual(["shared"])
+  expect(await user.query(items.list.functionRef, {})).toEqual(["headhunter"])
+  await user.mutation(items.set.functionRef, { item: "shared", watched: true })
+  await user.mutation(gems.set.functionRef, { item: "shared", watched: false })
+  expect(await user.query(gems.list.functionRef, {})).toEqual([])
+  expect((await user.query(items.list.functionRef, {})).sort()).toEqual([
+    "headhunter",
+    "shared",
+  ])
+})
+
+test("merging browser bookmarks adds only what the account lacks", async () => {
   const t = convexTest(schema, modules)
   const user = await signIn(t, "merge@example.com")
+  const { list, set, merge } = gems
   await user.mutation(set.functionRef, { item: ARC, watched: true })
   expect(
     await user.mutation(merge.functionRef, {

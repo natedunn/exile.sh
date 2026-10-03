@@ -1,13 +1,13 @@
 import { cn } from "cn"
 import { Link } from "@tanstack/react-router"
 import { useState } from "react"
-import { Diamond, Star } from "lucide-react"
+import { Diamond } from "lucide-react"
 import type { GemHeaders, GemReference, SavedGem } from "../../shared/gems"
 import { GemTooltipContent } from "./skill-gems"
 import { useInspectionTooltip } from "./use-inspection-tooltip"
 import { InspectionTooltipContent } from "./tooltip-pins"
 import { Popover, PopoverTrigger } from "./ui/popover"
-import { Toggle } from "./ui/toggle"
+import { BookmarkToggle } from "./bookmark-toggle"
 import { pointerAnchor } from "../lib/pointer-anchor"
 import type { GemSearch } from "../routes/gems"
 
@@ -19,8 +19,8 @@ export function GemResult({
   quality,
   headers,
   search,
-  favorite,
-  onFavoriteChange,
+  bookmarked,
+  onBookmarkedChange,
   className,
 }: {
   reference: GemReference
@@ -31,8 +31,8 @@ export function GemResult({
   quality: string
   headers?: GemHeaders
   search: GemSearch
-  favorite: boolean
-  onFavoriteChange: () => void
+  bookmarked: boolean
+  onBookmarkedChange: () => void
   className?: string
 }) {
   const inspection = useInspectionTooltip()
@@ -157,15 +157,11 @@ export function GemResult({
           />
         </InspectionTooltipContent>
       </Popover>
-      <Toggle
-        size="sm"
-        className="mr-2 size-8 min-w-0 shrink-0 self-center rounded bg-transparent p-0 text-ink-faint hover:bg-transparent hover:text-ink aria-pressed:bg-transparent aria-pressed:text-brand data-[state=on]:bg-transparent"
-        aria-label={`${favorite ? "Remove" : "Add"} ${reference.name} ${favorite ? "from" : "to"} favorites`}
-        pressed={favorite}
-        onPressedChange={onFavoriteChange}
-      >
-        <Star size={14} fill={favorite ? "currentColor" : "none"} />
-      </Toggle>
+      <BookmarkToggle
+        name={reference.name}
+        bookmarked={bookmarked}
+        onBookmarkedChange={onBookmarkedChange}
+      />
     </li>
   )
 }

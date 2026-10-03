@@ -5,6 +5,12 @@ import { useDeferredValue, useMemo } from "react"
 import { GemResult } from "../components/gem-result"
 import { GemSearchField } from "../components/gem-search-field"
 import { TooltipPinScope } from "../components/tooltip-pins"
+import {
+  BookmarkedResults,
+  bookmarkCell,
+  resultCell,
+  resultGrid,
+} from "../components/result-grid"
 import { Button } from "../components/ui/button"
 import { EmptyState } from "../components/ui/empty-state"
 import { Field, FieldLabel } from "../components/ui/field"
@@ -19,7 +25,7 @@ import {
 import { useGemCatalogue } from "../lib/use-gem-catalogue"
 import { findGems } from "../lib/gem-search"
 import { useGemSearchIndex } from "../lib/use-gem-search-index"
-import { useGemFavorites } from "../lib/use-saved-list"
+import { useGemBookmarks } from "../lib/use-saved-list"
 import type { GemSearch } from "./gems"
 
 export const Route = createFileRoute("/gems/")({
@@ -35,24 +41,13 @@ export const Route = createFileRoute("/gems/")({
 })
 
 const PAGE_SIZE = 60
-// Matches the items grid: cells draw their own right and bottom rules
-// against the list's left rule, so a short final row closes cleanly.
-const GRID =
-  "m-0 grid list-none grid-cols-3 border-l border-rule-strong p-0 max-lg:grid-cols-2 max-md:grid-cols-1"
-const CELL = "border-r border-b border-rule-strong bg-surface last:border-b"
-// Favorites have no heading rule above them, so every cell draws a full
-// border and overlaps its neighbours by a pixel to keep the rules single.
-const FAVORITES_GRID =
-  "m-0 grid list-none grid-cols-3 pt-px pl-px max-lg:grid-cols-2 max-md:grid-cols-1"
-const FAVORITE_CELL =
-  "-mt-px -ml-px border border-rule-strong bg-surface last:border-b"
 
 function GemsPage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
   const catalogue = useGemCatalogue()
   const index = useGemSearchIndex()
-  const { favorites, toggleFavorite, storageError } = useGemFavorites()
+  const { favorites, toggleFavorite, storageError } = useGemBookmarks()
   const query = search.q
   const level = String(search.level)
   const quality = String(search.quality)
@@ -71,19 +66,19 @@ function GemsPage() {
     )
     return findGems(references, index.data, deferredQuery)
   }, [catalogue.data, index.data, deferredQuery])
-  const favoriteSet = new Set(favorites)
-  // Favorites lead a search; with no search they have their own section.
+  const bookmarkSet = new Set(favorites)
+  // Bookmarks lead a search; with no search they have their own section.
   const ordered = deferredQuery
     ? [
-        ...results.filter(({ reference }) => favoriteSet.has(reference.gameId)),
+        ...results.filter(({ reference }) => bookmarkSet.has(reference.gameId)),
         ...results.filter(
-          ({ reference }) => !favoriteSet.has(reference.gameId)
+          ({ reference }) => !bookmarkSet.has(reference.gameId)
         ),
       ]
     : results
   const pinned = deferredQuery
     ? []
-    : results.filter(({ reference }) => favoriteSet.has(reference.gameId))
+    : results.filter(({ reference }) => bookmarkSet.has(reference.gameId))
   const renderGem =
     (className: string) =>
     ({ reference, match }: (typeof results)[number]) =>
@@ -97,8 +92,8 @@ function GemsPage() {
           slug={gemSlug(catalogue.data, reference)}
           headers={catalogue.data.headers}
           search={search}
-          favorite={favoriteSet.has(reference.gameId)}
-          onFavoriteChange={() => toggleFavorite(reference.gameId)}
+          bookmarked={bookmarkSet.has(reference.gameId)}
+          onBookmarkedChange={() => toggleFavorite(reference.gameId)}
           className={className}
         />
       )
@@ -157,7 +152,7 @@ function GemsPage() {
       <div className="pt-4">
         {storageError && (
           <Note className="mt-4" role="status">
-            Your browser could not save favorites. They will last only for this
+            Your browser could not save bookmarks. They will last only for this
             session.
           </Note>
         )}
@@ -178,22 +173,9 @@ function GemsPage() {
         ) : (
           <TooltipPinScope maxPinnedTooltips={1}>
             {pinned.length > 0 && (
-              <section aria-labelledby="gem-favorites" className="mb-8">
-                <div className="mt-6 flex items-baseline justify-between gap-3 pb-2">
-                  <h2
-                    id="gem-favorites"
-                    className="font-display text-2xl text-ink"
-                  >
-                    Favorites
-                  </h2>
-                  <p className="font-mono text-label text-ink-muted">
-                    {pinned.length} {pinned.length === 1 ? "gem" : "gems"}
-                  </p>
-                </div>
-                <ul data-testid="gem-favorites" className={FAVORITES_GRID}>
-                  {pinned.map(renderGem(FAVORITE_CELL))}
-                </ul>
-              </section>
+              <BookmarkedResults count={pinned.length} noun="gem">
+                {pinned.map(renderGem(bookmarkCell))}
+              </BookmarkedResults>
             )}
             <div className="mt-6 flex items-baseline justify-between gap-3 border-b border-rule-strong pb-2">
               <h2 className="font-display text-2xl text-ink">
@@ -205,8 +187,8 @@ function GemsPage() {
             </div>
             {results.length ? (
               <>
-                <ul data-testid="gem-results" className={GRID}>
-                  {ordered.slice(0, visible).map(renderGem(CELL))}
+                <ul data-testid="gem-results" className={resultGrid}>
+                  {ordered.slice(0, visible).map(renderGem(resultCell))}
                 </ul>
                 {visible < results.length && (
                   <Button

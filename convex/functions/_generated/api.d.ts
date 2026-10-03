@@ -104,7 +104,22 @@ export declare const api: {
       } | null
     >;
   };
-  gemFavorites: {
+  gemBookmarks: {
+    list: FunctionReference<"query", "public", {}, any>;
+    merge: FunctionReference<
+      "mutation",
+      "public",
+      { items: Array<string> },
+      any
+    >;
+    set: FunctionReference<
+      "mutation",
+      "public",
+      { item: string; watched: boolean },
+      any
+    >;
+  };
+  itemBookmarks: {
     list: FunctionReference<"query", "public", {}, any>;
     merge: FunctionReference<
       "mutation",

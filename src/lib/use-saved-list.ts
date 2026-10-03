@@ -9,11 +9,12 @@ import { useCRPC } from "./convex/crpc"
 import { useAccount } from "./use-account"
 
 // Account-backed lists with the same list/set/merge procedures.
-type SavedList = "watchlist" | "gemFavorites"
+type SavedList = "watchlist" | "gemBookmarks" | "itemBookmarks"
 
 const KEYS: Record<SavedList, string> = {
   watchlist: "exile.watchlist",
-  gemFavorites: "exile.gem-favorites",
+  gemBookmarks: "exile.gem-bookmarks",
+  itemBookmarks: "exile.item-bookmarks",
 }
 
 function readLocal(storageKey: string): string[] {
@@ -32,7 +33,7 @@ function writeLocal(storageKey: string, next: string[]) {
 // sign-in sends the browser's stars to the account exactly once per list.
 const merging = new Map<SavedList, Promise<unknown>>()
 
-/* Starred currencies, or favorite gems. Without an account, they live in
+/* Starred currencies, or bookmarked gems and items. Without an account, they live in
    localStorage; with one, they live on the account. Stars left in this
    browser are merged into the account once it is created or signed into,
    then cleared locally, so later removals on the account are not undone by a
@@ -149,5 +150,8 @@ function useSavedList(name: SavedList) {
 
 export const useWatchlist = () => useSavedList("watchlist")
 
-/* Favorite gems, keyed by game id. */
-export const useGemFavorites = () => useSavedList("gemFavorites")
+/* Bookmarked gems, keyed by game id. */
+export const useGemBookmarks = () => useSavedList("gemBookmarks")
+
+/* Bookmarked items, keyed by catalogue slug. */
+export const useItemBookmarks = () => useSavedList("itemBookmarks")

@@ -14,9 +14,9 @@ import type { ActionCtx, MutationCtx, QueryCtx } from './server';
 import type { OrmTriggerContext } from 'kitcn/orm';
 
 const procedureRegistry = {
-  "list": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../gemFavorites").list>("gemFavorites:list"), () => (require("../gemFavorites") as Record<string, unknown>)["list"])],
-  "merge": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../gemFavorites").merge>("gemFavorites:merge"), () => (require("../gemFavorites") as Record<string, unknown>)["merge"])],
-  "set": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../gemFavorites").set>("gemFavorites:set"), () => (require("../gemFavorites") as Record<string, unknown>)["set"])],
+  "list": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../itemBookmarks").list>("itemBookmarks:list"), () => (require("../itemBookmarks") as Record<string, unknown>)["list"])],
+  "merge": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../itemBookmarks").merge>("itemBookmarks:merge"), () => (require("../itemBookmarks") as Record<string, unknown>)["merge"])],
+  "set": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../itemBookmarks").set>("itemBookmarks:set"), () => (require("../itemBookmarks") as Record<string, unknown>)["set"])],
 } as const;
 
   const handlerRegistry = procedureRegistry;
@@ -59,7 +59,7 @@ type GeneratedProcedureHandler<
 >;
 
 
-export function createGemFavoritesCaller<TCtx extends ProcedureCallerContext>(
+export function createItemBookmarksCaller<TCtx extends ProcedureCallerContext>(
   ctx: TCtx
 ): GeneratedProcedureCaller<TCtx> {
   return generatedRuntime.getCallerFactory()(
@@ -67,7 +67,7 @@ export function createGemFavoritesCaller<TCtx extends ProcedureCallerContext>(
   ) as GeneratedProcedureCaller<TCtx>;
 }
 
-export function createGemFavoritesHandler<TCtx extends ProcedureHandlerContext>(
+export function createItemBookmarksHandler<TCtx extends ProcedureHandlerContext>(
   ctx: TCtx
 ): GeneratedProcedureHandler<TCtx> {
   return generatedRuntime.getHandlerFactory()(ctx) as GeneratedProcedureHandler<TCtx>;

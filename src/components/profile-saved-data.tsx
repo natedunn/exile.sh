@@ -3,18 +3,15 @@ import { textLink } from "./ui/link-styles"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { useCRPC } from "@/lib/convex/crpc"
-import { Diamond } from "lucide-react"
-import { useGemFavorites, useWatchlist } from "@/lib/use-saved-list"
-import { useGemCatalogue } from "@/lib/use-gem-catalogue"
+import { useWatchlist } from "@/lib/use-saved-list"
 import { itemInfo } from "@/lib/catalog"
 import { defaultFilters } from "@/lib/economy-filters"
 import { currencySlug } from "../../shared/currency-slug"
-import { gemSlug } from "../../shared/gem-slug"
-import { defaultGemSearch } from "@/routes/gems"
 import { Button } from "@/components/ui/button"
 import { EmptyState, EmptyStateText } from "@/components/ui/empty-state"
 import { Panel } from "@/components/ui/panel"
 import { Icon } from "@/components/economy/icon"
+import { GemBookmarks, ItemBookmarks } from "@/components/profile-bookmarks"
 
 export function ProfileSavedData() {
   const crpc = useCRPC()
@@ -25,16 +22,6 @@ export function ProfileSavedData() {
     isLoading: watchlistLoading,
     retry,
   } = useWatchlist()
-  const gems = useGemFavorites()
-  // The catalogue is large, so only fetch it once there is a gem to name.
-  const catalogue = useGemCatalogue(gems.favorites.length > 0)
-  const favoriteGems = catalogue.data
-    ? gems.favorites
-        // A gem dropped from the catalogue keeps its row but is not listed.
-        .filter((id) => Object.hasOwn(catalogue.data.gems, id))
-        .map((id) => catalogue.data.gems[id])
-        .sort((a, b) => a.name.localeCompare(b.name))
-    : []
   const bins = useQuery(crpc.savedBuilds.list.queryOptions({}))
   const remove = useMutation(crpc.savedBuilds.set.mutationOptions())
   return (
@@ -99,104 +86,8 @@ export function ProfileSavedData() {
           </Panel>
         )}
       </section>
-      <section aria-labelledby="profile-gems" className="flex flex-col gap-3">
-        <h3 id="profile-gems" className="font-display text-2xl text-ink">
-          Favorite gems
-        </h3>
-        <p className="text-sm text-ink-muted">
-          Favorited skill and support gems lead the gems page.
-        </p>
-        {(gems.isLoading ||
-          (gems.favorites.length > 0 && catalogue.isPending)) && (
-          <p role="status">Loading your favorite gems…</p>
-        )}
-        {(gems.error || catalogue.isError) && (
-          <>
-            <p role="alert" className="text-sm text-negative">
-              Your favorite gems could not be loaded or updated.
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => {
-                gems.retry()
-                void catalogue.refetch()
-              }}
-            >
-              Try again
-            </Button>
-          </>
-        )}
-        {!gems.isLoading && !gems.error && !gems.favorites.length && (
-          <EmptyState size="inline">
-            <EmptyStateText>
-              Star gems on the gems page to find them here.
-            </EmptyStateText>
-            <Link
-              to="/gems"
-              search={defaultGemSearch}
-              className={cn(
-                textLink,
-                "inline-flex items-center gap-1.5 [&_svg]:size-4"
-              )}
-            >
-              Browse gems
-            </Link>
-          </EmptyState>
-        )}
-        {favoriteGems.length > 0 && catalogue.data && (
-          <Panel>
-            <ul className="divide-y divide-rule">
-              {favoriteGems.map((reference) => (
-                <li
-                  key={reference.gameId}
-                  className="flex items-center gap-3 p-3"
-                >
-                  <span
-                    className="grid size-8 shrink-0 place-items-center overflow-hidden border border-brand/40 bg-paper-deep text-ink-muted data-[support=true]:rounded-full [&_img]:size-full [&_img]:object-cover"
-                    data-support={reference.support}
-                  >
-                    {reference.image ? (
-                      <img
-                        src={reference.image}
-                        alt=""
-                        width={32}
-                        height={32}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <Diamond aria-hidden="true" />
-                    )}
-                  </span>
-                  <Link
-                    className="min-w-0 flex-1 text-sm wrap-anywhere text-ink hover:text-brand"
-                    to="/gems/$gem"
-                    params={{ gem: gemSlug(catalogue.data, reference) }}
-                    search={{
-                      ...defaultGemSearch,
-                      gemLevel: undefined,
-                      gemQuality: undefined,
-                      advancedQuality: undefined,
-                    }}
-                  >
-                    {reference.name}
-                  </Link>
-                  <span className="shrink-0 font-mono text-label text-ink-muted max-sm:hidden">
-                    {reference.support ? "Support" : reference.type}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={`Remove ${reference.name} from favorite gems`}
-                    onClick={() => gems.toggleFavorite(reference.gameId)}
-                  >
-                    Remove
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </Panel>
-        )}
-      </section>
+      <GemBookmarks />
+      <ItemBookmarks />
       <section aria-labelledby="profile-bins" className="flex flex-col gap-3">
         <h3 id="profile-bins" className="font-display text-2xl text-ink">
           Bookmarked Bins
