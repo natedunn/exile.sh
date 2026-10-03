@@ -64,12 +64,15 @@ export function GearSlot({
   missing?: boolean
   jewels?: { name: string; item: EquipmentItem }[]
 }) {
-  const inspection = useInspectionTooltip({ stickyShortcut: true })
   const [itemPopup, setItemPopup] = useState<HTMLDivElement | null>(null)
   const [augment, setAugment] = useState<{
     index: number
     replace: boolean
   } | null>(null)
+  const inspection = useInspectionTooltip({
+    stickyShortcut: true,
+    shown: augment !== null,
+  })
   const inspectAugment = useCallback(
     (index: number, open: boolean, replace: boolean) => {
       setAugment((current) => {
@@ -173,8 +176,10 @@ export function GearSlot({
             {...(augment && {
               initialFocus: false,
               finalFocus: false,
-              "data-hover-only": true,
-              showPin: false,
+              // As on a direct hover, the pin appears, and the card takes
+              // the pointer, only while the shortcut holds it.
+              "data-hover-only": !inspection.contentProps.freeze,
+              showPin: inspection.contentProps.freeze,
               fallbackClose: false,
             })}
             pinId={`item:${item.id}`}
