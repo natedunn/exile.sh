@@ -1,11 +1,13 @@
+import { cn } from "cn"
 import { Link } from "@tanstack/react-router"
 import { useState } from "react"
-import { Diamond } from "lucide-react"
+import { Diamond, Star } from "lucide-react"
 import type { GemHeaders, GemReference, SavedGem } from "../../shared/gems"
 import { GemTooltipContent } from "./skill-gems"
 import { useInspectionTooltip } from "./use-inspection-tooltip"
 import { InspectionTooltipContent } from "./tooltip-pins"
 import { Popover, PopoverTrigger } from "./ui/popover"
+import { Toggle } from "./ui/toggle"
 import { pointerAnchor } from "../lib/pointer-anchor"
 import type { GemSearch } from "../routes/gems"
 
@@ -17,6 +19,9 @@ export function GemResult({
   quality,
   headers,
   search,
+  favorite,
+  onFavoriteChange,
+  className,
 }: {
   reference: GemReference
   /** The gem's readable URL slug (shared/gem-slug). */
@@ -26,6 +31,9 @@ export function GemResult({
   quality: string
   headers?: GemHeaders
   search: GemSearch
+  favorite: boolean
+  onFavoriteChange: () => void
+  className?: string
 }) {
   const inspection = useInspectionTooltip()
   const [hoverAnchor, setHoverAnchor] = useState<{
@@ -44,7 +52,12 @@ export function GemResult({
   }
 
   return (
-    <li className="border-b border-rule last:border-b-0">
+    <li
+      className={cn(
+        "flex min-w-0 items-stretch border-b border-rule last:border-b-0",
+        className
+      )}
+    >
       <Popover {...inspection.popoverProps}>
         <PopoverTrigger
           nativeButton={false}
@@ -92,7 +105,7 @@ export function GemResult({
               return pointerAnchor(clientX, clientY)
             })
           }}
-          className="flex w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-4 py-3 text-left text-ink hover:bg-skill-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus data-popup-open:bg-skill-hover data-[support=true]:hover:bg-support-hover data-[support=true]:data-popup-open:bg-support-hover max-sm:px-3"
+          className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 border-0 bg-transparent py-3 pr-2 pl-4 text-left text-ink hover:bg-skill-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus data-popup-open:bg-skill-hover data-[support=true]:hover:bg-support-hover data-[support=true]:data-popup-open:bg-support-hover max-sm:pl-3"
           data-support={reference.support}
           aria-label={`${reference.name}. View ${reference.support ? "" : `level ${gem.level} `}gem details`}
         >
@@ -144,6 +157,15 @@ export function GemResult({
           />
         </InspectionTooltipContent>
       </Popover>
+      <Toggle
+        size="sm"
+        className="mr-2 size-8 min-w-0 shrink-0 self-center rounded bg-transparent p-0 text-ink-faint hover:bg-transparent hover:text-ink aria-pressed:bg-transparent aria-pressed:text-brand data-[state=on]:bg-transparent"
+        aria-label={`${favorite ? "Remove" : "Add"} ${reference.name} ${favorite ? "from" : "to"} favorites`}
+        pressed={favorite}
+        onPressedChange={onFavoriteChange}
+      >
+        <Star size={14} fill={favorite ? "currentColor" : "none"} />
+      </Toggle>
     </li>
   )
 }

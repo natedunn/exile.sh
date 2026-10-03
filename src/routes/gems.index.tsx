@@ -19,6 +19,7 @@ import {
 import { useGemCatalogue } from "../lib/use-gem-catalogue"
 import { findGems } from "../lib/gem-search"
 import { useGemSearchIndex } from "../lib/use-gem-search-index"
+import { useGemFavorites } from "../lib/use-saved-list"
 import type { GemSearch } from "./gems"
 
 export const Route = createFileRoute("/gems/")({
@@ -34,12 +35,15 @@ export const Route = createFileRoute("/gems/")({
 })
 
 const PAGE_SIZE = 60
+// One column on phones, up to three on wide screens.
+const GRID = "m-0 grid list-none gap-2 p-0 md:grid-cols-2 xl:grid-cols-3"
 
 function GemsPage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
   const catalogue = useGemCatalogue()
   const index = useGemSearchIndex()
+  const { favorites, toggleFavorite, storageError } = useGemFavorites()
   const query = search.q
   const level = String(search.level)
   const quality = String(search.quality)
@@ -58,6 +62,35 @@ function GemsPage() {
     )
     return findGems(references, index.data, deferredQuery)
   }, [catalogue.data, index.data, deferredQuery])
+  const favoriteSet = new Set(favorites)
+  // Favorites lead a search; with no search they have their own section.
+  const ordered = deferredQuery
+    ? [
+        ...results.filter(({ reference }) => favoriteSet.has(reference.gameId)),
+        ...results.filter(
+          ({ reference }) => !favoriteSet.has(reference.gameId)
+        ),
+      ]
+    : results
+  const pinned = deferredQuery
+    ? []
+    : results.filter(({ reference }) => favoriteSet.has(reference.gameId))
+  const renderGem = ({ reference, match }: (typeof results)[number]) =>
+    catalogue.data && (
+      <GemResult
+        key={reference.gameId}
+        reference={reference}
+        match={match}
+        level={level}
+        quality={quality}
+        slug={gemSlug(catalogue.data, reference)}
+        headers={catalogue.data.headers}
+        search={search}
+        favorite={favoriteSet.has(reference.gameId)}
+        onFavoriteChange={() => toggleFavorite(reference.gameId)}
+        className="border border-rule-strong bg-surface last:border-b"
+      />
+    )
 
   return (
     <div className="pb-12">
@@ -111,6 +144,12 @@ function GemsPage() {
         </Field>
       </div>
       <div className="pt-4">
+        {storageError && (
+          <Note className="mt-4" role="status">
+            Your browser could not save favorites. They will last only for this
+            session.
+          </Note>
+        )}
         {index.isError && (
           <Note className="mt-4" role="status">
             Effect text could not be loaded. Names, tags, and descriptions
@@ -127,6 +166,24 @@ function GemsPage() {
           </p>
         ) : (
           <TooltipPinScope maxPinnedTooltips={1}>
+            {pinned.length > 0 && (
+              <section aria-labelledby="gem-favorites" className="mb-8">
+                <div className="mt-6 flex items-baseline justify-between gap-3 border-b border-rule-strong pb-2">
+                  <h2
+                    id="gem-favorites"
+                    className="font-display text-2xl text-ink"
+                  >
+                    Favorites
+                  </h2>
+                  <p className="font-mono text-label text-ink-muted">
+                    {pinned.length} {pinned.length === 1 ? "gem" : "gems"}
+                  </p>
+                </div>
+                <ul data-testid="gem-favorites" className={`${GRID} mt-3`}>
+                  {pinned.map(renderGem)}
+                </ul>
+              </section>
+            )}
             <div className="mt-6 flex items-baseline justify-between gap-3 border-b border-rule-strong pb-2">
               <h2 className="font-display text-2xl text-ink">
                 {query.trim() ? "Results" : "All gems"}
@@ -137,22 +194,8 @@ function GemsPage() {
             </div>
             {results.length ? (
               <>
-                <ul
-                  data-testid="gem-results"
-                  className="m-0 list-none border-x border-b border-rule-strong bg-surface p-0"
-                >
-                  {results.slice(0, visible).map(({ reference, match }) => (
-                    <GemResult
-                      key={reference.gameId}
-                      reference={reference}
-                      match={match}
-                      level={level}
-                      quality={quality}
-                      slug={gemSlug(catalogue.data, reference)}
-                      headers={catalogue.data.headers}
-                      search={search}
-                    />
-                  ))}
+                <ul data-testid="gem-results" className={`${GRID} mt-3`}>
+                  {ordered.slice(0, visible).map(renderGem)}
                 </ul>
                 {visible < results.length && (
                   <Button

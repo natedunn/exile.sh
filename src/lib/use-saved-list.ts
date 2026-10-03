@@ -8,32 +8,39 @@ import { useEffect, useState } from "react"
 import { useCRPC } from "./convex/crpc"
 import { useAccount } from "./use-account"
 
-const KEY = "exile.watchlist"
+// Account-backed lists with the same list/set/merge procedures.
+type SavedList = "watchlist" | "gemFavorites"
 
-function readLocal(): string[] {
-  const saved: unknown = JSON.parse(localStorage.getItem(KEY) ?? "[]")
+const KEYS: Record<SavedList, string> = {
+  watchlist: "exile.watchlist",
+  gemFavorites: "exile.gem-favorites",
+}
+
+function readLocal(storageKey: string): string[] {
+  const saved: unknown = JSON.parse(localStorage.getItem(storageKey) ?? "[]")
   return Array.isArray(saved)
     ? saved.filter((value): value is string => typeof value === "string")
     : []
 }
 
-function writeLocal(next: string[]) {
-  if (next.length) localStorage.setItem(KEY, JSON.stringify(next))
-  else localStorage.removeItem(KEY)
+function writeLocal(storageKey: string, next: string[]) {
+  if (next.length) localStorage.setItem(storageKey, JSON.stringify(next))
+  else localStorage.removeItem(storageKey)
 }
 
 // Shared across hook instances (and StrictMode's double effects) so one
-// sign-in sends the browser's stars to the account exactly once.
-let merging: Promise<unknown> | undefined
+// sign-in sends the browser's stars to the account exactly once per list.
+const merging = new Map<SavedList, Promise<unknown>>()
 
-/* Starred currencies. Without an account, they live in localStorage; with
-   one, they live on the account. Stars left in this browser are merged into
-   the account once it is created or signed into, then cleared locally, so
-   later removals on the account are not undone by a stale copy. `storageError`
-   reports a browser that refuses to save, so the page can say favorites
-   won't last. */
-export function useWatchlist() {
-  const crpc = useCRPC()
+/* Starred currencies, or favorite gems. Without an account, they live in
+   localStorage; with one, they live on the account. Stars left in this
+   browser are merged into the account once it is created or signed into,
+   then cleared locally, so later removals on the account are not undone by a
+   stale copy. `storageError` reports a browser that refuses to save, so the
+   page can say favorites won't last. */
+function useSavedList(name: SavedList) {
+  const storageKey = KEYS[name]
+  const procedures = useCRPC()[name]
   const queryClient = useQueryClient()
   // A Discord sign-in still awaiting confirmation keeps its stars local.
   const isAuthenticated = useAccount().status === "member"
@@ -43,15 +50,15 @@ export function useWatchlist() {
 
   useEffect(() => {
     try {
-      setLocal(readLocal())
+      setLocal(readLocal(storageKey))
     } catch {
       setStorageError(true)
     }
-  }, [])
+  }, [storageKey])
 
-  const listKey = crpc.watchlist.list.queryKey({})
+  const listKey = procedures.list.queryKey({})
   const account = useQuery(
-    crpc.watchlist.list.queryOptions(isAuthenticated ? {} : skipToken, {
+    procedures.list.queryOptions(isAuthenticated ? {} : skipToken, {
       skipUnauth: true,
     })
   )
@@ -63,9 +70,9 @@ export function useWatchlist() {
         ? [...current.filter((value) => value !== item), item]
         : current.filter((value) => value !== item)
     )
-  const merge = useMutation(crpc.watchlist.merge.mutationOptions())
+  const merge = useMutation(procedures.merge.mutationOptions())
   const set = useMutation(
-    crpc.watchlist.set.mutationOptions({
+    procedures.set.mutationOptions({
       onMutate: ({ item, watched }) => star(item, watched),
       onError: (_error, { item, watched }) => star(item, !watched),
     })
@@ -73,22 +80,25 @@ export function useWatchlist() {
 
   const { mutateAsync: mergeAsync } = merge
   useEffect(() => {
-    if (!isAuthenticated || !local.length || merging) return
+    if (!isAuthenticated || !local.length || merging.has(name)) return
     const items = local
-    merging = mergeAsync({ items })
+    const pending = mergeAsync({ items })
       .then(() => {
         // Keep anything starred locally while the merge was in flight.
-        const rest = readLocal().filter((value) => !items.includes(value))
-        writeLocal(rest)
+        const rest = readLocal(storageKey).filter(
+          (value) => !items.includes(value)
+        )
+        writeLocal(storageKey, rest)
         setLocal(rest)
       })
       .catch(() => {
         // Leave local stars in place; the next visit retries.
       })
       .finally(() => {
-        merging = undefined
+        merging.delete(name)
       })
-  }, [isAuthenticated, local, mergeAsync, retryVersion])
+    merging.set(name, pending)
+  }, [storageKey, name, isAuthenticated, local, mergeAsync, retryVersion])
 
   // Until the merge lands, show local stars alongside the account's.
   const favorites = isAuthenticated
@@ -104,7 +114,7 @@ export function useWatchlist() {
         const next = local.filter((value) => value !== id)
         setLocal(next)
         try {
-          writeLocal(next)
+          writeLocal(storageKey, next)
         } catch {
           setStorageError(true)
         }
@@ -116,7 +126,7 @@ export function useWatchlist() {
       : local.filter((value) => value !== id)
     setLocal(next)
     try {
-      writeLocal(next)
+      writeLocal(storageKey, next)
     } catch {
       setStorageError(true)
     }
@@ -136,3 +146,8 @@ export function useWatchlist() {
     storageError: storageError && !isAuthenticated,
   }
 }
+
+export const useWatchlist = () => useSavedList("watchlist")
+
+/* Favorite gems, keyed by game id. */
+export const useGemFavorites = () => useSavedList("gemFavorites")

@@ -373,6 +373,22 @@ export type DataModel = {
     searchIndexes: {};
     vectorIndexes: {};
   };
+  gemFavorites: {
+    document: {
+      gem: string;
+      userId: string;
+      _id: Id<"gemFavorites">;
+      _creationTime: number;
+    };
+    fieldPaths: "_creationTime" | "_id" | "gem" | "userId";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      userId_gem: ["userId", "gem", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
   history: {
     document: {
       day: number;

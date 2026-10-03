@@ -273,6 +273,19 @@ export const watchlist = convexTable(
   (t) => [uniqueIndex("userId_item").on(t.userId, t.item)]
 )
 
+// One row per favorited gem, shaped like the watchlist. `gem` is the gem's
+// game id (Metadata/Items/Gems/...), which the client also stores locally.
+export const gemFavorites = convexTable(
+  "gemFavorites",
+  {
+    userId: text()
+      .notNull()
+      .references(() => userTable.id),
+    gem: text().notNull(),
+  },
+  (t) => [uniqueIndex("userId_gem").on(t.userId, t.gem)]
+)
+
 // Private bookmarks point to immutable public Build Bin snapshots.
 export const savedBuilds = convexTable(
   "savedBuilds",
@@ -338,6 +351,7 @@ export const patchReadState = convexTable("patchReadState", {
 export const tables = {
   profiles,
   watchlist,
+  gemFavorites,
   savedBuilds,
   patchAnnotations,
   patchReadState,

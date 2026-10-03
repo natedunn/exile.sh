@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { Fragment, useState } from "react"
-import { Check, Copy, Square } from "lucide-react"
+import { Check, Copy, Square, Star } from "lucide-react"
 import { z } from "zod"
 import type { GemReference, SavedGem } from "../../shared/gems"
 import { gemEffectValues } from "../../shared/gems"
@@ -44,6 +44,7 @@ import {
 import { gemEffectsQueryOptions } from "../lib/gem-effects"
 import { getGemPage } from "../lib/gem-page"
 import { shareMeta } from "../lib/share-meta"
+import { useGemFavorites } from "../lib/use-saved-list"
 import { defaultGemSearch } from "./gems"
 
 export const Route = createFileRoute("/gems/$gem")({
@@ -185,6 +186,8 @@ function GemDetailPage() {
     page: search.page,
   }
   const reference = page.reference
+  const { favorites, toggleFavorite } = useGemFavorites()
+  const favorite = favorites.includes(reference.gameId)
   const skillId = reference.skillId
   const effects = useQuery({
     ...gemEffectsQueryOptions(skillId),
@@ -485,7 +488,17 @@ function GemDetailPage() {
         <Button
           type="button"
           variant="outline"
-          className="relative z-1 ml-auto shrink-0 bg-paper"
+          aria-pressed={favorite}
+          className="relative z-1 ml-auto shrink-0 bg-paper aria-pressed:border-brand-deep aria-pressed:bg-notice aria-pressed:text-brand"
+          onClick={() => toggleFavorite(reference.gameId)}
+        >
+          <Star aria-hidden="true" fill={favorite ? "currentColor" : "none"} />
+          {favorite ? "Favorited" : "Favorite"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="relative z-1 shrink-0 bg-paper"
           onClick={() => void copyLink()}
         >
           <Copy aria-hidden="true" />

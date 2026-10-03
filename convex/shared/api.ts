@@ -21,6 +21,11 @@ export const api = {
     movers: createApiLeaf<"query", typeof import("../functions/economy").movers>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").movers>("economy:movers"), { type: "query" }),
     overview: createApiLeaf<"query", typeof import("../functions/economy").overview>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").overview>("economy:overview"), { type: "query" }),
   },
+  gemFavorites: {
+    list: createApiLeaf<"query", typeof import("../functions/gemFavorites").list>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/gemFavorites").list>("gemFavorites:list"), { auth: "required", type: "query" }),
+    merge: createApiLeaf<"mutation", typeof import("../functions/gemFavorites").merge>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/gemFavorites").merge>("gemFavorites:merge"), { auth: "required", type: "mutation" }),
+    set: createApiLeaf<"mutation", typeof import("../functions/gemFavorites").set>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/gemFavorites").set>("gemFavorites:set"), { auth: "required", type: "mutation" }),
+  },
   patchAnnotations: {
     list: createApiLeaf<"query", typeof import("../functions/patchAnnotations").list>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchAnnotations").list>("patchAnnotations:list"), { auth: "required", type: "query" }),
     merge: createApiLeaf<"mutation", typeof import("../functions/patchAnnotations").merge>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/patchAnnotations").merge>("patchAnnotations:merge"), { auth: "required", type: "mutation" }),
