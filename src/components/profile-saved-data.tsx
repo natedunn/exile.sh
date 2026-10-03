@@ -24,14 +24,14 @@ export function ProfileSavedData() {
   const bins = useQuery(crpc.savedBuilds.list.queryOptions({}))
   const remove = useMutation(crpc.savedBuilds.set.mutationOptions())
   return (
-    <div className="flex flex-col gap-8">
+    <div className="grid items-start gap-10 xl:grid-cols-2 xl:gap-8">
       <section
         aria-labelledby="profile-watchlist"
         className="flex flex-col gap-3"
       >
-        <h2 id="profile-watchlist" className="display text-section text-ink">
+        <h3 id="profile-watchlist" className="font-display text-2xl text-ink">
           Currency watchlist
-        </h2>
+        </h3>
         <p className="text-sm text-ink-muted">
           Your starred currencies follow you across devices.
         </p>
@@ -86,9 +86,9 @@ export function ProfileSavedData() {
         )}
       </section>
       <section aria-labelledby="profile-bins" className="flex flex-col gap-3">
-        <h2 id="profile-bins" className="display text-section text-ink">
+        <h3 id="profile-bins" className="font-display text-2xl text-ink">
           Bookmarked Bins
-        </h2>
+        </h3>
         <p className="text-sm text-ink-muted">
           Bookmarked Build Bin snapshots, preserved as they were imported.
         </p>

@@ -88,11 +88,7 @@ function CreateAccountPage() {
                 },
                 {
                   onSuccess: () =>
-                    void navigate({
-                      to: "/auth",
-                      search: { error: undefined },
-                      replace: true,
-                    }),
+                    void navigate({ to: "/settings/profile", replace: true }),
                 }
               )
             }}

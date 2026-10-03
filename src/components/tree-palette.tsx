@@ -1,5 +1,6 @@
 import { useId, useSyncExternalStore } from "react"
 import type { ComponentProps } from "react"
+import { cn } from "cn"
 import {
   Select,
   SelectContent,
@@ -66,7 +67,6 @@ export function TreePaletteScope(props: ComponentProps<"div">) {
 }
 
 export function TreePaletteSelect() {
-  const palette = useTreePalette()
   const id = useId()
   return (
     <Field
@@ -74,28 +74,42 @@ export function TreePaletteSelect() {
       className="border border-rule-strong bg-paper p-3 shadow-popup"
     >
       <FieldLabel htmlFor={id}>Color Blindness Mode</FieldLabel>
-      <Select
-        value={palette}
-        items={PALETTES}
-        onValueChange={(value) => {
-          if (isPalette(value)) write(value)
-        }}
-      >
-        <SelectTrigger
-          id={id}
-          optionLabels={PALETTES.map((p) => p.label)}
-          className="max-w-full"
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {PALETTES.map((p) => (
-            <SelectItem key={p.value} value={p.value}>
-              {p.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <TreePalettePicker id={id} />
     </Field>
+  )
+}
+
+/** The palette picker alone, for callers that bring their own label. */
+export function TreePalettePicker({
+  id,
+  className,
+}: {
+  id: string
+  className?: string
+}) {
+  const palette = useTreePalette()
+  return (
+    <Select
+      value={palette}
+      items={PALETTES}
+      onValueChange={(value) => {
+        if (isPalette(value)) write(value)
+      }}
+    >
+      <SelectTrigger
+        id={id}
+        optionLabels={PALETTES.map((p) => p.label)}
+        className={cn("max-w-full", className)}
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {PALETTES.map((p) => (
+          <SelectItem key={p.value} value={p.value}>
+            {p.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }
