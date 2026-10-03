@@ -65,9 +65,6 @@ function GemsPage() {
         <PageHeadingCopy>
           <PageTitle>Gems</PageTitle>
           <PageMeta>
-            <span>
-              <strong>Path of Exile 2</strong>
-            </span>
             <span>Skills &amp; supports</span>
           </PageMeta>
         </PageHeadingCopy>
