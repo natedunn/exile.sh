@@ -125,7 +125,7 @@ function SettingsLayout() {
           />
         )}
       </PageHeading>
-      {/* Below lg the sidebar folds into an underlined row of links. */}
+      {/* Below lg the sidebar folds into a row of links. */}
       <div className="-mx-(--shell-gutter) overflow-x-auto border-b border-rule-strong px-(--shell-gutter) lg:hidden">
         <SubNavigation aria-label="Settings">
           {groups

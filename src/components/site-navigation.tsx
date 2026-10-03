@@ -63,12 +63,15 @@ export function SiteNavigation({ filters }: { filters: Filters }) {
   ] as const
   return (
     <>
-      {/* Underlined tab row: the active destination carries a bronze rule. */}
+      {/* A hairline separates the wordmark from the destinations. */}
       <nav
-        className={cn(navigationRow, "h-full text-ink-muted max-lg:hidden")}
+        className={cn(
+          navigationRow,
+          "h-full border-l border-rule pl-6 max-lg:hidden"
+        )}
         aria-label="Main navigation"
       >
-        {destinations.map(({ label, to }) => (
+        {destinations.map(({ label, to, icon: Icon }) => (
           <Link
             key={to}
             to={to}
@@ -76,6 +79,7 @@ export function SiteNavigation({ filters }: { filters: Filters }) {
             activeProps={{ "aria-current": "page" }}
             className={navigationItem}
           >
+            <Icon aria-hidden="true" />
             {label}
             {to === "/patch-notes" && hasNew && <NewBadge />}
           </Link>
