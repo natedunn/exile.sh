@@ -293,10 +293,54 @@ export const savedBuilds = convexTable(
   ]
 )
 
+// Private notes on a mirrored patch post. `annotationId` is minted by
+// the browser so a signed-out copy merges without duplicating; the range is
+// a text offset into the post body, with `quote` to re-find it if the
+// forum post is edited.
+export const patchAnnotations = convexTable(
+  "patchAnnotations",
+  {
+    userId: text()
+      .notNull()
+      .references(() => userTable.id),
+    threadId: text().notNull(),
+    annotationId: text().notNull(),
+    start: integer().notNull(),
+    end: integer().notNull(),
+    quote: text().notNull(),
+    note: text().notNull(),
+    // When the reader marked it; `createdAt` is the ORM's own column.
+    markedAt: integer().notNull(),
+  },
+  (t) => [
+    uniqueIndex("userId_threadId_annotationId").on(
+      t.userId,
+      t.threadId,
+      t.annotationId
+    ),
+  ]
+)
+
+// What a member has already seen on the patch notes page, as the publish
+// time of the newest patch post and X post they were shown, plus whether
+// they want the New badge at all and whether X posts count toward it.
+export const patchReadState = convexTable("patchReadState", {
+  userId: text()
+    .notNull()
+    .unique()
+    .references(() => userTable.id),
+  patchSeenAt: integer().notNull(),
+  xSeenAt: integer().notNull(),
+  badge: boolean().notNull(),
+  includeX: boolean().notNull(),
+})
+
 export const tables = {
   profiles,
   watchlist,
   savedBuilds,
+  patchAnnotations,
+  patchReadState,
   patchThreads,
   patchBodies,
   xPosts,

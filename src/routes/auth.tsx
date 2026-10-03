@@ -5,6 +5,7 @@ import { filters } from "@/lib/economy-filters"
 import { Button } from "@/components/ui/button"
 import { useAccount } from "@/lib/use-account"
 import { ProfileSavedData } from "@/components/profile-saved-data"
+import { ProfilePatchNotes } from "@/components/profile-patch-notes"
 import { cn } from "cn"
 import {
   useSignInSocialMutationOptions,
@@ -119,10 +120,11 @@ function Profile() {
           )}
           <p className={cn(copy, "wrap-anywhere")}>@{profile.username}</p>
           <p className={copy}>
-            Your watchlist and bookmarked bins are private to your account and
-            follow you across devices.
+            Your watchlist, bookmarked bins, and notes on patch posts are
+            private to your account and follow you across devices.
           </p>
           <ProfileSavedData />
+          <ProfilePatchNotes />
         </>
       )}
       {signOut.error && (

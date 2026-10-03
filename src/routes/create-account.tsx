@@ -99,7 +99,8 @@ function CreateAccountPage() {
           >
             <p className={copy}>
               You signed in with Discord. Confirm to create your account; your
-              watchlist and bookmarked bins connect to it once it exists.
+              watchlist, bookmarked bins, and notes on patch posts connect to it
+              once it exists.
             </p>
             <label htmlFor="profile-username" className="text-base text-ink">
               Username

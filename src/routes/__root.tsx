@@ -13,6 +13,7 @@ import { useEffect } from "react"
 import { Providers } from "../components/providers"
 import { SiteLayout, ViewerLayout } from "../components/shell"
 import { useAccount } from "../lib/use-account"
+import { useMergePatchAnnotations } from "../lib/use-patch-annotations"
 import appCss from "../styles.css?url"
 import fontinItalic from "../assets/fonts/fontin-italic.woff2?url"
 import fontinRegular from "../assets/fonts/fontin-regular.woff2?url"
@@ -112,6 +113,8 @@ function RootLayout() {
   const isViewer = useIsViewer()
   const navigate = useNavigate()
   const { status } = useAccount()
+  // Sign-in lands on /auth, so notes made signed out merge from here.
+  useMergePatchAnnotations()
   const isCreateAccount = useLocation({
     select: (location) => location.pathname === "/create-account",
   })

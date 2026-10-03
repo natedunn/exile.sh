@@ -555,6 +555,43 @@ export type DataModel = {
     searchIndexes: {};
     vectorIndexes: {};
   };
+  patchAnnotations: {
+    document: {
+      annotationId: string;
+      end: number;
+      markedAt: number;
+      note: string;
+      quote: string;
+      start: number;
+      threadId: string;
+      userId: string;
+      _id: Id<"patchAnnotations">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "annotationId"
+      | "end"
+      | "markedAt"
+      | "note"
+      | "quote"
+      | "start"
+      | "threadId"
+      | "userId";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      userId_threadId_annotationId: [
+        "userId",
+        "threadId",
+        "annotationId",
+        "_creationTime",
+      ];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
   patchBodies: {
     document: {
       html: string;
@@ -568,6 +605,32 @@ export type DataModel = {
       by_id: ["_id"];
       by_creation_time: ["_creationTime"];
       by_threadId: ["threadId", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
+  patchReadState: {
+    document: {
+      badge: boolean;
+      includeX: boolean;
+      patchSeenAt: number;
+      userId: string;
+      xSeenAt: number;
+      _id: Id<"patchReadState">;
+      _creationTime: number;
+    };
+    fieldPaths:
+      | "_creationTime"
+      | "_id"
+      | "badge"
+      | "includeX"
+      | "patchSeenAt"
+      | "userId"
+      | "xSeenAt";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      patchReadState_userId_unique: ["userId", "_creationTime"];
     };
     searchIndexes: {};
     vectorIndexes: {};

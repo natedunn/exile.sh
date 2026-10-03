@@ -104,8 +104,77 @@ export declare const api: {
       } | null
     >;
   };
+  patchAnnotations: {
+    list: FunctionReference<"query", "public", { threadId: string }, any>;
+    merge: FunctionReference<
+      "mutation",
+      "public",
+      {
+        annotations: Array<{
+          annotation: {
+            createdAt: number;
+            end: number;
+            id: string;
+            note: string;
+            quote: string;
+            start: number;
+          };
+          threadId: string;
+        }>;
+      },
+      any
+    >;
+    remove: FunctionReference<
+      "mutation",
+      "public",
+      { id: string; threadId: string },
+      any
+    >;
+    save: FunctionReference<
+      "mutation",
+      "public",
+      {
+        annotation: {
+          createdAt: number;
+          end: number;
+          id: string;
+          note: string;
+          quote: string;
+          start: number;
+        };
+        threadId: string;
+      },
+      any
+    >;
+  };
+  patchReadState: {
+    get: FunctionReference<"query", "public", {}, any>;
+    merge: FunctionReference<
+      "mutation",
+      "public",
+      {
+        badge: boolean;
+        includeX: boolean;
+        patchSeenAt: number;
+        xSeenAt: number;
+      },
+      any
+    >;
+    save: FunctionReference<
+      "mutation",
+      "public",
+      {
+        badge?: boolean;
+        includeX?: boolean;
+        patchSeenAt?: number;
+        xSeenAt?: number;
+      },
+      any
+    >;
+  };
   patchStore: {
     latest: FunctionReference<"query", "public", {}, any>;
+    newest: FunctionReference<"query", "public", {}, any>;
     post: FunctionReference<"query", "public", { threadId: string }, any>;
   };
   profiles: {

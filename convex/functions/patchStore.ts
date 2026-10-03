@@ -21,6 +21,21 @@ export const latest = publicQuery.input(z.object({})).query(async ({ ctx }) => {
     unavailable: rows.length === 0,
   }
 })
+/* The publish time of the newest patch post and X post, for the
+   navigation's New badge. Two index reads, so every page can afford it. */
+export const newest = publicQuery.input(z.object({})).query(async ({ ctx }) => {
+  const [patch, x] = await Promise.all([
+    ctx.orm.query.patchThreads.findFirst({
+      orderBy: { publishedAt: "desc" },
+    }),
+    ctx.orm.query.xPosts.findFirst({
+      where: { hidden: 0 },
+      orderBy: { publishedAt: "desc" },
+    }),
+  ])
+  return { patch: patch?.publishedAt ?? null, x: x?.publishedAt ?? null }
+})
+
 export const post = publicQuery
   .input(z.object({ threadId }))
   .query(async ({ ctx, input }) => {
