@@ -11,7 +11,9 @@ import {
 } from "lucide-react"
 import { Link } from "@tanstack/react-router"
 import { Button } from "./ui/button"
+import { Badge, StatusDot } from "./ui/badge"
 import { cn } from "cn"
+import { usePatchFreshness } from "../lib/use-patch-freshness"
 import { navigationRow, navigationItem } from "./ui/navigation-styles"
 import {
   Sheet,
@@ -23,8 +25,18 @@ import {
 } from "./ui/sheet"
 import type { Filters } from "../lib/economy-filters"
 
+/* Marks Patch Notes while there is something the reader hasn't seen. */
+function NewBadge() {
+  return (
+    <Badge variant="notice" className="tracking-[0.06em]">
+      New
+    </Badge>
+  )
+}
+
 export function SiteNavigation({ filters }: { filters: Filters }) {
   const [open, setOpen] = useState(false)
+  const { hasNew } = usePatchFreshness()
   useEffect(() => {
     const breakpoint = getComputedStyle(document.documentElement)
       .getPropertyValue("--breakpoint-lg")
@@ -61,16 +73,26 @@ export function SiteNavigation({ filters }: { filters: Filters }) {
             className={navigationItem}
           >
             {label}
+            {to === "/patch-notes" && hasNew && <NewBadge />}
           </Link>
         ))}
       </nav>
       <div className="ml-auto hidden max-lg:block">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger
-            render={<Button variant="ghost" size="icon" className="size-11" />}
-            aria-label="Open main menu"
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative size-11"
+              />
+            }
+            aria-label={
+              hasNew ? "Open main menu, new patch notes" : "Open main menu"
+            }
           >
             <Menu className="size-5.5" aria-hidden="true" />
+            {hasNew && <StatusDot className="absolute top-2.5 right-2.5" />}
           </SheetTrigger>
           <SheetContent
             side="right"
@@ -98,6 +120,7 @@ export function SiteNavigation({ filters }: { filters: Filters }) {
                 >
                   <Icon size={20} aria-hidden="true" />
                   {label}
+                  {to === "/patch-notes" && hasNew && <NewBadge />}
                 </Link>
               ))}
             </nav>

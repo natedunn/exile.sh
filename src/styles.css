@@ -412,4 +412,15 @@
     background: var(--color-brand);
     color: var(--color-paper);
   }
+  /* Passages marked by reader notes on patch posts (CSS Custom Highlight API). */
+  ::highlight(patch-note) {
+    background-color: color-mix(in oklch, var(--color-brand) 26%, transparent);
+    color: var(--color-ink);
+  }
+  ::highlight(patch-note-active) {
+    background-color: color-mix(in oklch, var(--color-brand) 48%, transparent);
+    color: var(--color-ink);
+    text-decoration: underline 2px var(--color-brand-ink);
+    text-underline-offset: 3px;
+  }
 }

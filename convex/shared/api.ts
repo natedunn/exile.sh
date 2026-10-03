@@ -21,8 +21,20 @@ export const api = {
     movers: createApiLeaf<"query", typeof import("../functions/economy").movers>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").movers>("economy:movers"), { type: "query" }),
     overview: createApiLeaf<"query", typeof import("../functions/economy").overview>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").overview>("economy:overview"), { type: "query" }),
   },
+  patchAnnotations: {
+    list: createApiLeaf<"query", typeof import("../functions/patchAnnotations").list>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchAnnotations").list>("patchAnnotations:list"), { auth: "required", type: "query" }),
+    merge: createApiLeaf<"mutation", typeof import("../functions/patchAnnotations").merge>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/patchAnnotations").merge>("patchAnnotations:merge"), { auth: "required", type: "mutation" }),
+    remove: createApiLeaf<"mutation", typeof import("../functions/patchAnnotations").remove>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/patchAnnotations").remove>("patchAnnotations:remove"), { auth: "required", type: "mutation" }),
+    save: createApiLeaf<"mutation", typeof import("../functions/patchAnnotations").save>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/patchAnnotations").save>("patchAnnotations:save"), { auth: "required", type: "mutation" }),
+  },
+  patchReadState: {
+    get: createApiLeaf<"query", typeof import("../functions/patchReadState").get>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchReadState").get>("patchReadState:get"), { auth: "required", type: "query" }),
+    merge: createApiLeaf<"mutation", typeof import("../functions/patchReadState").merge>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/patchReadState").merge>("patchReadState:merge"), { auth: "required", type: "mutation" }),
+    save: createApiLeaf<"mutation", typeof import("../functions/patchReadState").save>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/patchReadState").save>("patchReadState:save"), { auth: "required", type: "mutation" }),
+  },
   patchStore: {
     latest: createApiLeaf<"query", typeof import("../functions/patchStore").latest>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchStore").latest>("patchStore:latest"), { type: "query" }),
+    newest: createApiLeaf<"query", typeof import("../functions/patchStore").newest>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchStore").newest>("patchStore:newest"), { type: "query" }),
     post: createApiLeaf<"query", typeof import("../functions/patchStore").post>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchStore").post>("patchStore:post"), { type: "query" }),
   },
   profiles: {

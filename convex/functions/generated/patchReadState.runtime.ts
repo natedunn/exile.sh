@@ -14,12 +14,9 @@ import type { ActionCtx, MutationCtx, QueryCtx } from './server';
 import type { OrmTriggerContext } from 'kitcn/orm';
 
 const procedureRegistry = {
-  "acquire": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "internal", typeof import("../patchStore").acquire>("patchStore:acquire"), () => (require("../patchStore") as Record<string, unknown>)["acquire"])],
-  "discover": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "internal", typeof import("../patchStore").discover>("patchStore:discover"), () => (require("../patchStore") as Record<string, unknown>)["discover"])],
-  "finish": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "internal", typeof import("../patchStore").finish>("patchStore:finish"), () => (require("../patchStore") as Record<string, unknown>)["finish"])],
-  "latest": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../patchStore").latest>("patchStore:latest"), () => (require("../patchStore") as Record<string, unknown>)["latest"])],
-  "newest": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../patchStore").newest>("patchStore:newest"), () => (require("../patchStore") as Record<string, unknown>)["newest"])],
-  "post": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../patchStore").post>("patchStore:post"), () => (require("../patchStore") as Record<string, unknown>)["post"])],
+  "get": ["query", typedProcedureResolver(createGeneratedFunctionReference<"query", "public", typeof import("../patchReadState").get>("patchReadState:get"), () => (require("../patchReadState") as Record<string, unknown>)["get"])],
+  "merge": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../patchReadState").merge>("patchReadState:merge"), () => (require("../patchReadState") as Record<string, unknown>)["merge"])],
+  "save": ["mutation", typedProcedureResolver(createGeneratedFunctionReference<"mutation", "public", typeof import("../patchReadState").save>("patchReadState:save"), () => (require("../patchReadState") as Record<string, unknown>)["save"])],
 } as const;
 
   const handlerRegistry = procedureRegistry;
@@ -62,7 +59,7 @@ type GeneratedProcedureHandler<
 >;
 
 
-export function createPatchStoreCaller<TCtx extends ProcedureCallerContext>(
+export function createPatchReadStateCaller<TCtx extends ProcedureCallerContext>(
   ctx: TCtx
 ): GeneratedProcedureCaller<TCtx> {
   return generatedRuntime.getCallerFactory()(
@@ -70,7 +67,7 @@ export function createPatchStoreCaller<TCtx extends ProcedureCallerContext>(
   ) as GeneratedProcedureCaller<TCtx>;
 }
 
-export function createPatchStoreHandler<TCtx extends ProcedureHandlerContext>(
+export function createPatchReadStateHandler<TCtx extends ProcedureHandlerContext>(
   ctx: TCtx
 ): GeneratedProcedureHandler<TCtx> {
   return generatedRuntime.getHandlerFactory()(ctx) as GeneratedProcedureHandler<TCtx>;
