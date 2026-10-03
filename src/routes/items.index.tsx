@@ -24,8 +24,8 @@ import { ItemResult } from "../components/item-result"
 import { TooltipPinScope } from "../components/tooltip-pins"
 import {
   BookmarkedResults,
-  bookmarkCell,
-  resultGrid,
+  framedCell,
+  framedGrid,
 } from "../components/result-grid"
 import { useItemBookmarks } from "../lib/use-saved-list"
 import type { ItemSearch } from "./items"
@@ -92,7 +92,7 @@ function ItemsPage() {
     ? []
     : results.filter((item) => bookmarkSet.has(item.slug))
   const visible = search.page * PAGE_SIZE
-  const renderItem = (className?: string) => (item: (typeof results)[number]) =>
+  const renderItem = (className: string) => (item: (typeof results)[number]) =>
     catalogue.data && (
       <ItemResult
         key={item.slug}
@@ -199,10 +199,10 @@ function ItemsPage() {
           <TooltipPinScope maxPinnedTooltips={1}>
             {pinned.length > 0 && (
               <BookmarkedResults count={pinned.length} noun="item">
-                {pinned.map(renderItem(bookmarkCell))}
+                {pinned.map(renderItem(framedCell))}
               </BookmarkedResults>
             )}
-            <div className="mt-6 flex items-baseline justify-between gap-3 border-b border-rule-strong pb-2">
+            <div className="mt-6 flex items-baseline justify-between gap-3 pb-2">
               <h2 className="font-display text-2xl text-ink">
                 {search.q.trim() ? "Results" : kindHeading[search.kind]}
               </h2>
@@ -213,8 +213,8 @@ function ItemsPage() {
             </div>
             {results.length ? (
               <>
-                <ul data-testid="item-results" className={resultGrid}>
-                  {ordered.slice(0, visible).map(renderItem())}
+                <ul data-testid="item-results" className={framedGrid}>
+                  {ordered.slice(0, visible).map(renderItem(framedCell))}
                 </ul>
                 {visible < results.length && (
                   <Button

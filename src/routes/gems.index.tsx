@@ -7,7 +7,7 @@ import { GemSearchField } from "../components/gem-search-field"
 import { TooltipPinScope } from "../components/tooltip-pins"
 import {
   BookmarkedResults,
-  bookmarkCell,
+  framedCell,
   resultCell,
   resultGrid,
 } from "../components/result-grid"
@@ -174,7 +174,7 @@ function GemsPage() {
           <TooltipPinScope maxPinnedTooltips={1}>
             {pinned.length > 0 && (
               <BookmarkedResults count={pinned.length} noun="gem">
-                {pinned.map(renderGem(bookmarkCell))}
+                {pinned.map(renderGem(framedCell))}
               </BookmarkedResults>
             )}
             <div className="mt-6 flex items-baseline justify-between gap-3 border-b border-rule-strong pb-2">

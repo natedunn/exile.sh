@@ -8,11 +8,11 @@ export const resultGrid =
 export const resultCell =
   "border-r border-b border-rule-strong bg-surface last:border-b"
 
-// Bookmarks have no heading rule above them, so every cell draws a full
-// border and overlaps its neighbours by a pixel to keep the rules single.
-const bookmarkGrid =
+// For a grid with no heading rule above it: every cell draws a full border
+// and overlaps its neighbours by a pixel to keep the rules single.
+export const framedGrid =
   "m-0 grid list-none grid-cols-3 pt-px pl-px max-lg:grid-cols-2 max-md:grid-cols-1"
-export const bookmarkCell =
+export const framedCell =
   "-mt-px -ml-px border border-rule-strong bg-surface last:border-b"
 
 /* The bookmarked results that lead a gems or items list. */
@@ -36,7 +36,7 @@ export function BookmarkedResults({
           {count} {count === 1 ? noun : `${noun}s`}
         </p>
       </div>
-      <ul data-testid="bookmarked-results" className={bookmarkGrid}>
+      <ul data-testid="bookmarked-results" className={framedGrid}>
         {children}
       </ul>
     </section>
