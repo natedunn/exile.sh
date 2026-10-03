@@ -1,8 +1,7 @@
 import { Bookmark } from "lucide-react"
 import { Button } from "./ui/button"
-import { Toggle } from "./ui/toggle"
 
-/* The icon-only bookmark on a gem or item result. */
+/* The icon-only ghost bookmark button on a gem or item result. */
 export function BookmarkToggle({
   name,
   bookmarked,
@@ -14,15 +13,21 @@ export function BookmarkToggle({
   onBookmarkedChange: () => void
 }) {
   return (
-    <Toggle
-      size="sm"
-      className="mr-2 size-8 min-w-0 shrink-0 self-center rounded bg-transparent p-0 text-ink-faint hover:bg-transparent hover:text-ink aria-pressed:bg-transparent aria-pressed:text-brand data-[state=on]:bg-transparent"
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      // One step above the card's own hover, so it reads on a hovered card.
+      className="mr-2 self-center hover:bg-rule aria-pressed:text-brand"
       aria-label={`${bookmarked ? "Remove" : "Add"} ${name} ${bookmarked ? "from" : "to"} bookmarks`}
-      pressed={bookmarked}
-      onPressedChange={onBookmarkedChange}
+      aria-pressed={bookmarked}
+      onClick={onBookmarkedChange}
     >
-      <Bookmark size={14} fill={bookmarked ? "currentColor" : "none"} />
-    </Toggle>
+      <Bookmark
+        aria-hidden="true"
+        fill={bookmarked ? "currentColor" : "none"}
+      />
+    </Button>
   )
 }
 
