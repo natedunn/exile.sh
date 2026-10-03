@@ -378,23 +378,26 @@ function HomePage() {
                 {tool.description}
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <Link
-                  to={tool.to}
-                  search={tool.to === "/economy/market" ? preferences : {}}
-                  className={cn(
-                    textLink,
-                    "inline-flex items-center gap-1.5 [&_svg]:size-4"
-                  )}
-                >
-                  {tool.action} <ArrowRight aria-hidden="true" />
-                </Link>
+                {tool.to !== "/trees/passive" && (
+                  <Link
+                    to={tool.to}
+                    search={tool.to === "/economy/market" ? preferences : {}}
+                    className={cn(
+                      textLink,
+                      "inline-flex items-center gap-1.5 [&_svg]:size-4"
+                    )}
+                  >
+                    {tool.action} <ArrowRight aria-hidden="true" />
+                  </Link>
+                )}
                 {tool.to === "/trees/passive" && (
                   <nav
-                    aria-label="Additional passive trees"
+                    aria-label="Interactive trees"
                     className="flex flex-wrap gap-x-4 gap-y-2"
                   >
                     {(
                       [
+                        ["/trees/passive", "Passive tree"],
                         ["/trees/ascendancies", "Ascendancies"],
                         ["/trees/atlas", "Atlas"],
                         ["/trees/genesis", "Genesis"],
