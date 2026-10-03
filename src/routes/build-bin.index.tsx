@@ -1,5 +1,6 @@
 import { cn } from "cn"
 import { textLink } from "../components/ui/link-styles"
+import { pageShareImage } from "../lib/page-share"
 import { shareMeta } from "../lib/share-meta"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -42,7 +43,7 @@ export const Route = createFileRoute("/build-bin/")({
       description:
         "Turn your Path of Building 2 export into a readable, shareable build. Equipment, skills, passives, and stats in one link.",
       path: "/build-bin",
-      image: "/build-share.png",
+      image: pageShareImage("build-bin"),
     }),
   component: BuildImport,
 })

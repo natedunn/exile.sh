@@ -5,6 +5,7 @@ import { BuildView } from "../components/build-view"
 import { EmptyState, EmptyStateText } from "../components/ui/empty-state"
 import type { BuildSelection } from "../components/build-view"
 import { getSharedBuild } from "../lib/build-server"
+import { pageShareImage } from "../lib/page-share"
 import { shareMeta } from "../lib/share-meta"
 import { buildSkill, displayStat, statValue } from "../../shared/pob"
 
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/build-bin/$slug")({
       title: loaderData.title,
       description,
       path: `/build-bin/${loaderData.slug}`,
-      image: "/build-share.png",
+      image: pageShareImage("build-bin"),
     })
   },
   component: SharedBuild,

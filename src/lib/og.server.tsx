@@ -2,14 +2,18 @@ import { ImageResponse } from "@cf-wasm/og/workerd"
 import type { ReactNode } from "react"
 import type { CatalogItem } from "../../shared/economy"
 import type { GemReference } from "../../shared/gems"
+import { ditherPng } from "../../shared/dither"
+import type { ItemReference } from "../../shared/item-registry"
 import { assetBytes } from "./assets.server"
 import { plainDescription } from "./catalog"
 import { gemTags } from "./gem-display"
+import { pageShares } from "./page-share"
+import type { PageShare } from "./page-share"
 import { clipText } from "./share-meta"
 import { treeShares } from "./tree-share"
 import type { TreeShare } from "./tree-share"
 
-/* Share cards (1200 × 630) for the gem, currency and tree pages, drawn with satori over the
+/* Share cards (1200 × 630) for the site's pages, drawn with satori over the
  * dithered background from scripts/dither-art.mjs. Colours are the sRGB
  * values of the tokens in tokens.css; satori cannot read CSS variables. */
 
@@ -38,7 +42,7 @@ async function fonts() {
   ] as const
 }
 
-function pngDataUrl(buffer: ArrayBuffer) {
+function pngDataUrl(buffer: ArrayBuffer | Uint8Array) {
   const bytes = new Uint8Array(buffer)
   let binary = ""
   for (let i = 0; i < bytes.length; i += 0x8000)
@@ -52,6 +56,8 @@ async function background(
     | "support-gems-card"
     | "currency-card"
     | `${TreeShare}-tree-card`
+    | "plain-card"
+    | `${(typeof pageShares)[PageShare]["art"]}-card`
 ) {
   return pngDataUrl(await assetBytes(`/og/${card}.png`))
 }
@@ -87,6 +93,17 @@ const mono = {
   textTransform: "uppercase",
 } as const
 
+function Wordmark() {
+  return (
+    <div style={{ display: "flex", alignItems: "baseline" }}>
+      <span style={{ fontStyle: "normal" }}>exile</span>
+      <span style={{ color: colour.brand, fontStyle: "italic" }}>.sh</span>
+    </div>
+  )
+}
+
+/* With `brand`, the title is the wordmark itself, so the corner wordmark and
+ * the path below are left out. */
 function Card({
   image,
   art,
@@ -96,6 +113,7 @@ function Card({
   tags = [],
   body,
   path,
+  brand = false,
 }: {
   image: string
   art?: Art | null
@@ -105,6 +123,7 @@ function Card({
   tags?: string[]
   body?: string
   path: string
+  brand?: boolean
 }) {
   return (
     <div
@@ -130,9 +149,8 @@ function Card({
           padding: "56px 0 52px 72px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "baseline", fontSize: 40 }}>
-          <span>exile</span>
-          <span style={{ color: colour.brand, fontStyle: "italic" }}>.sh</span>
+        <div style={{ display: "flex", fontSize: 40 }}>
+          {!brand && <Wordmark />}
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div
@@ -155,6 +173,8 @@ function Card({
           </div>
           <div
             style={{
+              // Satori reads every style value, so absent keys stay absent.
+              ...(brand && { display: "flex" }),
               marginTop: 18,
               fontSize: titleSize,
               fontStyle: "italic",
@@ -162,7 +182,7 @@ function Card({
               letterSpacing: "-0.02em",
             }}
           >
-            {title}
+            {brand ? <Wordmark /> : title}
           </div>
           {tags.length > 0 && (
             <div
@@ -212,7 +232,7 @@ function Card({
             color: colour.inkMuted,
           }}
         >
-          {path}
+          {!brand && path}
         </div>
       </div>
       {art && (
@@ -329,6 +349,66 @@ export async function treeCard(tree: TreeShare) {
       titleSize={titleSize(title)}
       body={body}
       path={`exile.sh${path}`}
+    />
+  )
+}
+
+export async function pageCard(page: PageShare) {
+  const { art, title, body, path } = pageShares[page]
+  const brand = page === "default"
+  return render(
+    <Card
+      image={await background(`${art}-card`)}
+      label="Path of Exile 2"
+      title={title}
+      titleSize={brand ? 132 : titleSize(title)}
+      body={body}
+      path={`exile.sh${path === "/" ? "" : path}`}
+      brand={brand}
+    />
+  )
+}
+
+/* An item's own art, dithered to match the cards' ground and drawn at
+ * twice its pixels over the art window. Null when the art cannot be
+ * fetched or read; the card then falls back to the items artwork. */
+async function itemArt(image: string): Promise<Art | null> {
+  try {
+    const response = await fetch(image.replace(/\.webp$/, ".png"))
+    if (!response.ok) return null
+    return {
+      src: pngDataUrl(ditherPng(await response.arrayBuffer())),
+      width: 660,
+      height: 630,
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function itemCard(item: ItemReference) {
+  const size = titleSize(item.name)
+  const wrapped = titleLines(item.name, size) > 1
+  const art = await itemArt(item.image)
+  return render(
+    <Card
+      image={await background(art ? "plain-card" : "items-card")}
+      art={art}
+      label={
+        item.kind === "unique"
+          ? `Unique · ${item.baseName}`
+          : `Base · ${item.itemClass}`
+      }
+      title={item.name}
+      titleSize={size}
+      body={clipText(
+        item.kind === "unique"
+          ? `A unique ${item.baseName}: its modifiers, variants and roll ranges.`
+          : `A ${item.itemClass} base: base stats, implicit modifiers and modifier references.`,
+        wrapped ? 95 : 145
+      )}
+      // Item slugs carry the base name too, too long for one line.
+      path="exile.sh/items"
     />
   )
 }

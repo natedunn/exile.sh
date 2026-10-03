@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { useDeferredValue, useMemo } from "react"
 import { searchItems } from "../../shared/item-registry"
 import { useItemRegistry } from "../lib/use-item-registry"
-import { siteUrl } from "../lib/share-meta"
+import { pageShareImage } from "../lib/page-share"
+import { shareMeta } from "../lib/share-meta"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Field, FieldLabel } from "../components/ui/field"
@@ -24,17 +25,14 @@ import { ItemRegistryImage } from "../components/item-registry-image"
 import type { ItemSearch } from "./items"
 
 export const Route = createFileRoute("/items/")({
-  head: () => ({
-    meta: [
-      { title: "Items · exile.sh" },
-      {
-        name: "description",
-        content:
-          "Search Path of Exile 2 uniques and bases. Explore unique rolls, implicit modifiers, and base modifier references.",
-      },
-    ],
-    links: [{ rel: "canonical", href: `${siteUrl}/items` }],
-  }),
+  head: () =>
+    shareMeta({
+      title: "Items",
+      description:
+        "Search Path of Exile 2 uniques and bases. Explore unique rolls, implicit modifiers, and base modifier references.",
+      path: "/items",
+      image: pageShareImage("items"),
+    }),
   component: ItemsPage,
 })
 const PAGE_SIZE = 60

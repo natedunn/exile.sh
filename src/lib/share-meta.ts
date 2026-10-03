@@ -1,3 +1,5 @@
+import { pageShareImage } from "./page-share"
+
 /** The public origin, without a trailing slash, for absolute share URLs. */
 export const siteUrl = (
   import.meta.env.VITE_SITE_URL || "https://exile.sh"
@@ -14,13 +16,22 @@ export function clipText(text: string, limit: number) {
   return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:.]$/, "")}…`
 }
 
+/** Open Graph / Twitter card image tags for a site-relative `image`. */
+export const shareImageMeta = (image: string) => [
+  { property: "og:image", content: `${siteUrl}${image}` },
+  { property: "og:image:width", content: "1200" },
+  { property: "og:image:height", content: "630" },
+  { name: "twitter:card", content: "summary_large_image" },
+]
+
 /** Title, description, canonical link and Open Graph / Twitter card tags
- * for a page. `path` and `image` are site-relative. */
+ * for a page. `path` and `image` are site-relative; without an image the
+ * page shares the site's default card. */
 export function shareMeta({
   title,
   description,
   path,
-  image,
+  image = pageShareImage("default"),
 }: {
   title: string
   description: string
@@ -38,14 +49,7 @@ export function shareMeta({
       { property: "og:description", content: summary },
       { property: "og:type", content: "website" },
       { property: "og:url", content: url },
-      ...(image
-        ? [
-            { property: "og:image", content: `${siteUrl}${image}` },
-            { property: "og:image:width", content: "1200" },
-            { property: "og:image:height", content: "630" },
-            { name: "twitter:card", content: "summary_large_image" },
-          ]
-        : [{ name: "twitter:card", content: "summary" }]),
+      ...shareImageMeta(image),
     ],
     links: [{ rel: "canonical", href: url }],
   }
