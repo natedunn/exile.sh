@@ -7,12 +7,14 @@ import {
   Network,
   Diamond,
   Package,
+  UserRound,
   XIcon,
 } from "lucide-react"
 import { Link } from "@tanstack/react-router"
 import { Button } from "./ui/button"
 import { Badge, StatusDot } from "./ui/badge"
 import { cn } from "cn"
+import { useAccount } from "../lib/use-account"
 import { usePatchFreshness } from "../lib/use-patch-freshness"
 import { navigationRow, navigationItem } from "./ui/navigation-styles"
 import {
@@ -37,6 +39,7 @@ function NewBadge() {
 export function SiteNavigation({ filters }: { filters: Filters }) {
   const [open, setOpen] = useState(false)
   const { hasNew } = usePatchFreshness()
+  const isAuthenticated = useAccount().status === "member"
   useEffect(() => {
     const breakpoint = getComputedStyle(document.documentElement)
       .getPropertyValue("--breakpoint-lg")
@@ -124,6 +127,19 @@ export function SiteNavigation({ filters }: { filters: Filters }) {
                 </Link>
               ))}
             </nav>
+            {/* The masthead's account link moves in here below lg. */}
+            <div className="border-t border-rule p-4">
+              <Link
+                to="/auth"
+                search={{ error: undefined }}
+                activeProps={{ "aria-current": "page" }}
+                onClick={() => setOpen(false)}
+                className="flex min-h-12 items-center gap-3 p-3 font-mono text-xs tracking-label-tight whitespace-nowrap text-ink uppercase aria-[current=page]:bg-surface aria-[current=page]:shadow-[inset_3px_0_0_var(--color-brand)]"
+              >
+                <UserRound size={20} aria-hidden="true" />
+                {isAuthenticated ? "Account" : "Sign in"}
+              </Link>
+            </div>
             <SheetClose
               render={
                 <Button
