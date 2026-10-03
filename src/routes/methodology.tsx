@@ -1,3 +1,4 @@
+import { pageShareImage } from "../lib/page-share"
 import { shareMeta } from "../lib/share-meta"
 import { filters, defaultFilters } from "../components/economy-page"
 import type * as React from "react"
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/methodology")({
       description:
         "Learn how exile.sh calculates Path of Exile 2 currency prices from GGG exchange data, and understand data sources, freshness and limitations.",
       path: "/methodology",
+      image: pageShareImage("methodology"),
     }),
   component: Methodology,
 })

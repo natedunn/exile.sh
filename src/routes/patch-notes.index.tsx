@@ -1,4 +1,5 @@
 import { textLink } from "../components/ui/link-styles"
+import { pageShareImage } from "../lib/page-share"
 import { shareMeta } from "../lib/share-meta"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowUpRight, Newspaper } from "lucide-react"
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/patch-notes/")({
       description:
         "Official Path of Exile 2 patch notes and hotfixes, formatted for easy reading with links to the original GGG forum posts.",
       path: "/patch-notes",
+      image: pageShareImage("patch-notes"),
     }),
   loader: async () => {
     const [patches, x] = await Promise.all([getPatchNotes(), getXUpdates()])

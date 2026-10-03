@@ -40,6 +40,8 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as OgCurrencySlugRouteImport } from './routes/og.currency.$slug'
 import { Route as OgGemsIndexRouteImport } from './routes/og.gems.index'
 import { Route as OgGemsGemRouteImport } from './routes/og.gems.$gem'
+import { Route as OgItemsItemRouteImport } from './routes/og.items.$item'
+import { Route as OgPagesPageRouteImport } from './routes/og.pages.$page'
 import { Route as OgTreesTreeRouteImport } from './routes/og.trees.$tree'
 
 const IndexRoute = IndexRouteImport.update({
@@ -197,6 +199,16 @@ const OgGemsGemRoute = OgGemsGemRouteImport.update({
   path: '/og/gems/$gem',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OgItemsItemRoute = OgItemsItemRouteImport.update({
+  id: '/og/items/$item',
+  path: '/og/items/$item',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OgPagesPageRoute = OgPagesPageRouteImport.update({
+  id: '/og/pages/$page',
+  path: '/og/pages/$page',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OgTreesTreeRoute = OgTreesTreeRouteImport.update({
   id: '/og/trees/$tree',
   path: '/og/trees/$tree',
@@ -234,6 +246,8 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/og/currency/$slug': typeof OgCurrencySlugRoute
   '/og/gems/$gem': typeof OgGemsGemRoute
+  '/og/items/$item': typeof OgItemsItemRoute
+  '/og/pages/$page': typeof OgPagesPageRoute
   '/og/trees/$tree': typeof OgTreesTreeRoute
   '/og/gems/': typeof OgGemsIndexRoute
 }
@@ -264,6 +278,8 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/og/currency/$slug': typeof OgCurrencySlugRoute
   '/og/gems/$gem': typeof OgGemsGemRoute
+  '/og/items/$item': typeof OgItemsItemRoute
+  '/og/pages/$page': typeof OgPagesPageRoute
   '/og/trees/$tree': typeof OgTreesTreeRoute
   '/og/gems': typeof OgGemsIndexRoute
 }
@@ -299,6 +315,8 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/og/currency/$slug': typeof OgCurrencySlugRoute
   '/og/gems/$gem': typeof OgGemsGemRoute
+  '/og/items/$item': typeof OgItemsItemRoute
+  '/og/pages/$page': typeof OgPagesPageRoute
   '/og/trees/$tree': typeof OgTreesTreeRoute
   '/og/gems/': typeof OgGemsIndexRoute
 }
@@ -335,6 +353,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/og/currency/$slug'
     | '/og/gems/$gem'
+    | '/og/items/$item'
+    | '/og/pages/$page'
     | '/og/trees/$tree'
     | '/og/gems/'
   fileRoutesByTo: FileRoutesByTo
@@ -365,6 +385,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/og/currency/$slug'
     | '/og/gems/$gem'
+    | '/og/items/$item'
+    | '/og/pages/$page'
     | '/og/trees/$tree'
     | '/og/gems'
   id:
@@ -399,6 +421,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/og/currency/$slug'
     | '/og/gems/$gem'
+    | '/og/items/$item'
+    | '/og/pages/$page'
     | '/og/trees/$tree'
     | '/og/gems/'
   fileRoutesById: FileRoutesById
@@ -422,6 +446,8 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   OgCurrencySlugRoute: typeof OgCurrencySlugRoute
   OgGemsGemRoute: typeof OgGemsGemRoute
+  OgItemsItemRoute: typeof OgItemsItemRoute
+  OgPagesPageRoute: typeof OgPagesPageRoute
   OgTreesTreeRoute: typeof OgTreesTreeRoute
   OgGemsIndexRoute: typeof OgGemsIndexRoute
 }
@@ -645,6 +671,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OgGemsGemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/og/items/$item': {
+      id: '/og/items/$item'
+      path: '/og/items/$item'
+      fullPath: '/og/items/$item'
+      preLoaderRoute: typeof OgItemsItemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/og/pages/$page': {
+      id: '/og/pages/$page'
+      path: '/og/pages/$page'
+      fullPath: '/og/pages/$page'
+      preLoaderRoute: typeof OgPagesPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/og/trees/$tree': {
       id: '/og/trees/$tree'
       path: '/og/trees/$tree'
@@ -731,6 +771,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   OgCurrencySlugRoute: OgCurrencySlugRoute,
   OgGemsGemRoute: OgGemsGemRoute,
+  OgItemsItemRoute: OgItemsItemRoute,
+  OgPagesPageRoute: OgPagesPageRoute,
   OgTreesTreeRoute: OgTreesTreeRoute,
   OgGemsIndexRoute: OgGemsIndexRoute,
 }

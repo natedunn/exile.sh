@@ -1,8 +1,9 @@
 // Generates the dithered art assets in public/art and public/og: the masthead
 // art for the economy, gems and patch notes headings, the Divine Orb, CSS
 // masks, and share card backgrounds. Run with
-// `node scripts/dither-art.mjs`. Output is committed; this only needs to run
-// again when the palette or the source artwork changes.
+// `node scripts/dither-art.mjs`, or `--cards` for only the page share cards.
+// Output is committed; this only needs to run again when the palette or the
+// source artwork changes.
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import sharp from "sharp"
 
@@ -276,6 +277,149 @@ function treesMastheadArt() {
   })
 }
 
+// Share card backgrounds, 1200 × 630: the paper ground with the site's
+// faint dot grid, and art dissolving into it on the right. Built
+// at half size and doubled, so dither cells stay crisp without relying on
+// the renderer's scaling. Text is drawn over it by src/lib/og.server.tsx.
+const PAPER = [12, 10, 7, 255]
+const GRID = [39, 35, 30, 255]
+async function ogCard(art) {
+  const width = 600,
+    height = 315
+  const ground = Buffer.alloc(width * height * 4)
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++)
+      ground.set(
+        x % 14 === 6 && y % 14 === 6 ? GRID : PAPER,
+        (y * width + x) * 4
+      )
+  const card = await sharp(ground, { raw: { width, height, channels: 4 } })
+    .composite([{ input: art, left: width - 330, top: 0 }])
+    .png()
+    .toBuffer()
+  return sharp(card)
+    .resize(width * 2, height * 2, { kernel: "nearest" })
+    .png({ palette: true })
+    .toBuffer()
+}
+// Share cards for the pages without art of their own reuse the homepage's
+// masthead art, framed for the card's 330 × 315 art window. The hooded one
+// is the fallback for every other page.
+async function pageCards() {
+  const orb = Buffer.from(await fetch(ORB_SOURCE).then((r) => r.arrayBuffer()))
+  const hooded = await sharp(await readFile(HOODED_SOURCE))
+    .trim()
+    .png()
+    .toBuffer()
+  const buildBin = await sharp(await readFile(BUILD_BIN_SOURCE))
+    .linear(1.3, -20)
+    .png()
+    .toBuffer()
+  const portrait = await sharp(await readFile(PORTRAIT_SOURCE))
+    .extract({ left: 72, top: 0, width: 184, height: 169 })
+    .toBuffer()
+  const window = { width: 330, height: 315 }
+  return [
+    [
+      "default",
+      await mastheadArt(hooded, {
+        ...window,
+        size: [360, 315],
+        left: 0,
+        top: 20,
+        focus: [0.6, 0.4],
+        hold: 0.6,
+        gamma: 1.15,
+        halo: 0,
+      }),
+    ],
+    [
+      "economy",
+      await mastheadArt(orb, {
+        ...window,
+        size: [290, 290],
+        left: 40,
+        top: 12,
+        focus: [0.55, 0.5],
+        hold: 0.35,
+        gamma: 0.8,
+        halo: 0.6,
+      }),
+    ],
+    [
+      "items",
+      await mastheadArt(await readFile(ITEMS_SOURCE), {
+        ...window,
+        size: [400, 225],
+        left: 25,
+        top: 50,
+        focus: [0.5, 0.5],
+        hold: 0.55,
+        gamma: 0.85,
+        halo: 0,
+      }),
+    ],
+    [
+      "build-bin",
+      await mastheadArt(buildBin, {
+        ...window,
+        size: [340, 255],
+        left: 10,
+        top: 30,
+        focus: [0.5, 0.45],
+        hold: 0.55,
+        gamma: 0.75,
+        halo: 0,
+      }),
+    ],
+    [
+      "patch-notes",
+      await mastheadArt(portrait, {
+        ...window,
+        size: [310, 285],
+        left: 30,
+        top: 20,
+        focus: [0.55, 0.45],
+        hold: 0.35,
+        gamma: 1.05,
+        halo: 0.6,
+      }),
+    ],
+  ]
+}
+
+async function writePageCards() {
+  await mkdir(new URL("../public/og/", import.meta.url), { recursive: true })
+  for (const [name, art] of await pageCards())
+    await writeFile(
+      new URL(`../public/og/${name}-card.png`, import.meta.url),
+      await ogCard(art)
+    )
+  // Item cards dither the item's own art at request time
+  // (shared/dither.ts), so their ground carries no art.
+  await writeFile(
+    new URL("../public/og/plain-card.png", import.meta.url),
+    await ogCard(
+      await sharp({
+        create: {
+          width: 330,
+          height: 315,
+          channels: 4,
+          background: { r: 0, g: 0, b: 0, alpha: 0 },
+        },
+      })
+        .png()
+        .toBuffer()
+    )
+  )
+}
+
+if (process.argv.includes("--cards")) {
+  await writePageCards()
+  console.log("wrote public/og page cards")
+  process.exit(0)
+}
+
 // A local-only refresh avoids downloading and rewriting unrelated artwork.
 if (process.argv.includes("--hooded-one")) {
   await mkdir(OUT, { recursive: true })
@@ -389,31 +533,6 @@ await writeFile(
     return Math.max(0, 1 - d) ** 1.4
   })
 )
-// Share card for /gems pages, 1200 × 630: the paper ground with the site's
-// faint dot grid, and the uncut gem dissolving into it on the right. Built
-// at half size and doubled, so dither cells stay crisp without relying on
-// the renderer's scaling. Text is drawn over it by src/lib/og.tsx.
-const PAPER = [12, 10, 7, 255]
-const GRID = [39, 35, 30, 255]
-async function ogCard(art) {
-  const width = 600,
-    height = 315
-  const ground = Buffer.alloc(width * height * 4)
-  for (let y = 0; y < height; y++)
-    for (let x = 0; x < width; x++)
-      ground.set(
-        x % 14 === 6 && y % 14 === 6 ? GRID : PAPER,
-        (y * width + x) * 4
-      )
-  const card = await sharp(ground, { raw: { width, height, channels: 4 } })
-    .composite([{ input: art, left: width - 330, top: 0 }])
-    .png()
-    .toBuffer()
-  return sharp(card)
-    .resize(width * 2, height * 2, { kernel: "nearest" })
-    .png({ palette: true })
-    .toBuffer()
-}
 await mkdir(new URL("../public/og/", import.meta.url), { recursive: true })
 // Skill and support gems each get their uncut gem.
 const supportGem = Buffer.from(
@@ -546,4 +665,5 @@ for (const [name, path, options] of [
     new URL(`../public/og/${name}-tree-card.png`, import.meta.url),
     await ogCard(await treeArt(path, options))
   )
+await writePageCards()
 console.log("wrote public/art and public/og")

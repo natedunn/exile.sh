@@ -1,3 +1,4 @@
+import { pageShareImage } from "../lib/page-share"
 import { shareMeta } from "../lib/share-meta"
 import { stripSearchParams, createFileRoute } from "@tanstack/react-router"
 import {
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/economy/market")({
       description:
         "Explore Path of Exile 2 currency prices, historical exchange rates and traded volume by league. Prices come from completed GGG exchange trades.",
       path: "/economy/market",
+      image: pageShareImage("market"),
     }),
   component: Page,
 })

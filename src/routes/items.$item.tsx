@@ -5,7 +5,7 @@ import { useState } from "react"
 import type * as React from "react"
 import { z } from "zod"
 import { getItemMeta } from "../lib/item-registry-meta"
-import { siteUrl } from "../lib/share-meta"
+import { shareMeta } from "../lib/share-meta"
 import { useItemRegistry } from "../lib/use-item-registry"
 import type {
   BaseReference,
@@ -65,25 +65,12 @@ export const Route = createFileRoute("/items/$item")({
   },
   head: ({ loaderData }) =>
     loaderData
-      ? {
-          meta: [
-            { title: `${loaderData.name} · exile.sh` },
-            { name: "description", content: loaderData.description },
-            { property: "og:title", content: loaderData.name },
-            { property: "og:description", content: loaderData.description },
-            {
-              property: "og:url",
-              content: `${siteUrl}/items/${loaderData.slug}`,
-            },
-            ...(loaderData.image
-              ? [{ property: "og:image", content: loaderData.image }]
-              : []),
-            { name: "twitter:card", content: "summary" },
-          ],
-          links: [
-            { rel: "canonical", href: `${siteUrl}/items/${loaderData.slug}` },
-          ],
-        }
+      ? shareMeta({
+          title: loaderData.name,
+          description: loaderData.description,
+          path: `/items/${loaderData.slug}`,
+          image: `/og/items/${loaderData.slug}`,
+        })
       : {},
   notFoundComponent: () => (
     <EmptyState>

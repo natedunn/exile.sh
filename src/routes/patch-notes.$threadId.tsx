@@ -25,7 +25,9 @@ import {
 import { textLink } from "../components/ui/link-styles"
 import { Note } from "../components/ui/note"
 import { day } from "../lib/format"
+import { pageShareImage } from "../lib/page-share"
 import { getPatchPost } from "../lib/patch-notes-server"
+import { shareMeta } from "../lib/share-meta"
 import { usePatchFreshness } from "../lib/use-patch-freshness"
 import { useEffect } from "react"
 
@@ -35,9 +37,13 @@ export const Route = createFileRoute("/patch-notes/$threadId")({
     return getPatchPost({ data: params })
   },
   staleTime: 600_000,
-  head: ({ loaderData }) => ({
-    meta: [{ title: `${loaderData?.post?.title ?? "Patch Notes"} · exile.sh` }],
-  }),
+  head: ({ loaderData, params }) =>
+    shareMeta({
+      title: loaderData?.post?.title ?? "Patch Notes",
+      description: `${loaderData?.post?.title ?? "Patch notes"}: official Path of Exile 2 patch notes, formatted for easy reading with a link to the original GGG forum post.`,
+      path: `/patch-notes/${params.threadId}`,
+      image: pageShareImage("patch-notes"),
+    }),
   pendingComponent: () => (
     <NewsPage>
       <PatchNotesHeading title="Patch notes" back />

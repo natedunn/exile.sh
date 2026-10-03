@@ -15,6 +15,8 @@ import { Providers } from "../components/providers"
 import { SiteLayout, ViewerLayout } from "../components/shell"
 import { useAccount } from "../lib/use-account"
 import { useMergePatchAnnotations } from "../lib/use-patch-annotations"
+import { pageShareImage } from "../lib/page-share"
+import { shareImageMeta } from "../lib/share-meta"
 import appCss from "../styles.css?url"
 import fontinItalic from "../assets/fonts/fontin-italic.woff2?url"
 import fontinRegular from "../assets/fonts/fontin-regular.woff2?url"
@@ -37,7 +39,8 @@ export const Route = createRootRoute({
       { property: "og:title", content: siteTitle },
       { property: "og:description", content: siteDescription },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      // Pages that set no image of their own share the default card.
+      ...shareImageMeta(pageShareImage("default")),
       { name: "theme-color", content: "#111412" },
       { name: "color-scheme", content: "dark" },
       { name: "application-name", content: "exile.sh" },

@@ -50,6 +50,7 @@
     "cn": "0.2.6",
     "convex": "1.44.0",
     "domutils": "^4.0.2",
+    "fast-png": "8.0.0",
     "fast-xml-parser": "^5.11.1",
     "fflate": "^0.8.3",
     "hono": "4.12.9",
