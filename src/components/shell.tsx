@@ -44,7 +44,7 @@ function Masthead({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex items-center gap-12 px-(--shell-gutter) max-lg:gap-4 max-sm:gap-2 max-sm:py-1",
+        "flex items-center gap-6 px-(--shell-gutter) max-lg:gap-4 max-sm:gap-2 max-sm:py-1",
         className
       )}
     >

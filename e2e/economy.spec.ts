@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test"
 import { readFileSync } from "node:fs"
 
 for (const width of [390, 768, 1440]) {
-  test(`Economy navigation underline meets the divider at ${width}px`, async ({
+  test(`Economy navigation matches the other tab rows at ${width}px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 })
@@ -75,10 +75,9 @@ for (const width of [390, 768, 1440]) {
           Math.abs(selectSpace.above - selectSpace.below)
         ).toBeLessThanOrEqual(1)
       }
-      const gap = await active.evaluate((element) => {
-        const toolbar = element.closest(
-          '[aria-label="Economy views"]'
-        )!.parentElement!
+      // The tab row sits on the divider, with the active plate inside it.
+      const gap = await nav.evaluate((element) => {
+        const toolbar = element.parentElement!
         return (
           toolbar.getBoundingClientRect().bottom -
           parseFloat(getComputedStyle(toolbar).borderBottomWidth) -
@@ -394,8 +393,9 @@ test("economy routes redirect to the market and provide page navigation", async 
     name: "Currency market",
     exact: true,
   })
-  await expect(activeView).toHaveCSS("border-bottom-width", "2px")
-  await expect(activeView).toHaveCSS("background-color", "rgba(0, 0, 0, 0)")
+  expect(
+    await activeView.evaluate((link) => getComputedStyle(link).backgroundColor)
+  ).not.toBe("rgba(0, 0, 0, 0)")
   await expect(
     page.getByRole("link", { name: "Exchange pairs", exact: true })
   ).toHaveCount(0)

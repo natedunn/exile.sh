@@ -25,12 +25,8 @@ const buttonVariants = cva(
         /* One cell of a SegmentedControl; the container draws the frame. */
         segment:
           "rounded-none border-0 mono-label text-label text-ink-muted hover:bg-hover hover:text-ink focus-visible:z-1 focus-visible:-outline-offset-3 aria-[current=page]:bg-brand aria-[current=page]:text-paper data-active:bg-brand data-active:text-paper [&_svg]:size-3.5",
-        /* Second-level site navigation: quiet text with a masthead-style
-           bronze rule for the active destination. */
-        subnav: cn(
-          "rounded-none border-0 bg-transparent px-0 mono-label text-label hover:bg-transparent focus-visible:z-1 focus-visible:-outline-offset-3",
-          navigationItem
-        ),
+        /* Second-level site navigation, styled like the masthead. */
+        subnav: navigationItem,
       },
       size: {
         default:

@@ -134,8 +134,10 @@ export function TreePage({ type }: { type: TreeType }) {
                 key={page.type}
                 className={navigationItem}
               >
-                {page.name}
-                <span className="max-sm:hidden">{page.suffix}</span>
+                <span>
+                  {page.name}
+                  <span className="max-sm:hidden"> {page.suffix}</span>
+                </span>
               </Link>
             ))}
           </SubNavigation>
