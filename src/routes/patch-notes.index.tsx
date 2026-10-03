@@ -1,3 +1,4 @@
+import { shareMeta } from "../lib/share-meta"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowUpRight, Newspaper } from "lucide-react"
 import { cn } from "cn"
@@ -22,16 +23,13 @@ import { day } from "../lib/format"
 import { getPatchNotes, getXUpdates } from "../lib/patch-notes-server"
 
 export const Route = createFileRoute("/patch-notes/")({
-  head: () => ({
-    meta: [
-      { title: "Patch Notes · exile.sh" },
-      {
-        name: "description",
-        content:
-          "Official Path of Exile 2 patch notes and hotfixes, formatted for easy reading with links to the original GGG forum posts.",
-      },
-    ],
-  }),
+  head: () =>
+    shareMeta({
+      title: "PoE2 Patch Notes & Hotfixes",
+      description:
+        "Official Path of Exile 2 patch notes and hotfixes, formatted for easy reading with links to the original GGG forum posts.",
+      path: "/patch-notes",
+    }),
   loader: async () => {
     const [patches, x] = await Promise.all([getPatchNotes(), getXUpdates()])
     return { ...patches, x }

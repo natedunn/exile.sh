@@ -24,7 +24,7 @@ import type { GemSearch } from "./gems"
 export const Route = createFileRoute("/gems/")({
   head: () =>
     shareMeta({
-      title: "Gems",
+      title: "PoE2 Skill & Support Gems",
       description:
         "Every Path of Exile 2 skill and support gem: level and quality ranges, effects, requirements and compatible supports.",
       path: "/gems",

@@ -30,7 +30,7 @@ function Wordmark() {
     <Link
       data-testid="wordmark"
       className="flex items-center font-display text-3xl leading-none font-semibold tracking-[-0.03em] text-ink max-sm:text-2xl"
-      to="/economy"
+      to="/"
       search={f}
     >
       exile<span className="text-brand italic">.sh</span>
@@ -100,7 +100,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         <Link
           data-testid="footer-brand"
           className="display text-2xl whitespace-nowrap text-ink hover:text-ink"
-          to="/economy"
+          to="/"
           search={f}
         >
           exile.sh

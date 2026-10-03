@@ -13,6 +13,15 @@ const GEM_SOURCE =
 const SUPPORT_GEM_SOURCE =
   "https://repoe-fork.github.io/poe2/Art/2DItems/Gems/UncutSupportGem.webp"
 const PORTRAIT_SOURCE = new URL("./art/patch-notes-source.png", import.meta.url)
+const HOODED_SOURCE = new URL(
+  "./art/hooded-one-highlighted-source.webp",
+  import.meta.url
+)
+const BUILD_BIN_SOURCE = new URL("./art/build-bin-source.png", import.meta.url)
+const ITEMS_SOURCE = new URL(
+  "./art/items-character-source.png",
+  import.meta.url
+)
 const OUT = new URL("../public/art/", import.meta.url)
 
 // 8x8 Bayer threshold matrix, normalized to [0, 1).
@@ -121,6 +130,7 @@ async function mastheadArt(
     hold = 0.3,
     gamma,
     halo = 0.5,
+    haloColor = HALO,
   }
 ) {
   // Pad the resized source so the window may reach past its edges.
@@ -166,7 +176,7 @@ async function mastheadArt(
         level > 0
           ? PALETTE[level]
           : halo * ease(1, d) ** 1.6 > bayer(x + 3, y + 5)
-            ? HALO
+            ? haloColor
             : PALETTE[0]
       out.set(colour, i)
     }
@@ -174,6 +184,104 @@ async function mastheadArt(
   return sharp(out, { raw: { width, height, channels: 4 } })
     .png({ palette: true })
     .toBuffer()
+}
+
+// Keep the generated hood/eye highlights, but render them through the same
+// bronze palette and 8×8 Bayer screen as the rest of the site. Native pixels
+// are displayed at 2× so the dots remain visible instead of shrinking away.
+async function hoodedOneArt() {
+  const source = await sharp(await readFile(HOODED_SOURCE))
+    .trim()
+    .png()
+    .toBuffer()
+  return mastheadArt(source, {
+    width: 160,
+    height: 144,
+    size: [160, 144],
+    left: 0,
+    top: 0,
+    focus: [0.65, 0.35],
+    hold: 0.65,
+    gamma: 1.15,
+    halo: 0,
+  })
+}
+
+async function itemsArt() {
+  return mastheadArt(await readFile(ITEMS_SOURCE), {
+    width: 190,
+    height: 100,
+    size: [190, 111],
+    left: 0,
+    top: -5,
+    focus: [0.6, 0.5],
+    hold: 0.65,
+    gamma: 0.85,
+    halo: 0,
+  })
+}
+
+if (process.argv.includes("--items")) {
+  await mkdir(OUT, { recursive: true })
+  await writeFile(new URL("items-masthead.png", OUT), await itemsArt())
+  console.log("wrote public/art/items-masthead.png")
+  process.exit(0)
+}
+
+// Keep the complete equipment layout, dissolving its frame into the page.
+async function buildBinArt() {
+  // Separate equipment highlights from the dark panels before quantization.
+  const source = await sharp(await readFile(BUILD_BIN_SOURCE))
+    .linear(1.3, -20)
+    .png()
+    .toBuffer()
+  return mastheadArt(source, {
+    width: 176,
+    height: 132,
+    size: [176, 132],
+    left: 0,
+    top: 0,
+    focus: [0.5, 0.4],
+    hold: 0.6,
+    gamma: 0.75,
+    halo: 0,
+  })
+}
+
+if (process.argv.includes("--build-bin")) {
+  await mkdir(OUT, { recursive: true })
+  await writeFile(new URL("build-bin-masthead.png", OUT), await buildBinArt())
+  console.log("wrote public/art/build-bin-masthead.png")
+  process.exit(0)
+}
+
+if (process.argv.includes("--trees")) {
+  await mkdir(OUT, { recursive: true })
+  await writeFile(new URL("trees-masthead.png", OUT), await treesMastheadArt())
+  console.log("wrote public/art/trees-masthead.png")
+  process.exit(0)
+}
+
+function treesMastheadArt() {
+  return treeArt("atlas-trees/v2/tree.json", {
+    subtree: "Breach",
+    pad: 160,
+    line: 10,
+    dot: 24,
+    width: 190,
+    height: 100,
+    hold: 0.6,
+    halo: 0.7,
+    haloColor: PALETTE[1],
+  })
+}
+
+// A local-only refresh avoids downloading and rewriting unrelated artwork.
+if (process.argv.includes("--hooded-one")) {
+  await mkdir(OUT, { recursive: true })
+  await writeFile(new URL("hooded-one-masthead.png", OUT), await hoodedOneArt())
+  console.log("wrote public/art/hooded-one-masthead.png")
+  process.exit(0)
 }
 
 // 1-bit dither ramps used as CSS masks. `dot` is the size of each dither cell.
@@ -196,6 +304,10 @@ function ramp(width, height, dot, value) {
 }
 
 await mkdir(OUT, { recursive: true })
+await writeFile(new URL("hooded-one-masthead.png", OUT), await hoodedOneArt())
+await writeFile(new URL("build-bin-masthead.png", OUT), await buildBinArt())
+await writeFile(new URL("items-masthead.png", OUT), await itemsArt())
+await writeFile(new URL("trees-masthead.png", OUT), await treesMastheadArt())
 // Masthead windows are 190 × 100 (380 × 200 CSS px, the heading's height).
 const orb = Buffer.from(await fetch(ORB_SOURCE).then((r) => r.arrayBuffer()))
 const gem = Buffer.from(await fetch(GEM_SOURCE).then((r) => r.arrayBuffer()))
@@ -350,13 +462,35 @@ await writeFile(
 // with `view` (tree units, or the nodes' bounds plus `pad`) filling the art
 // window; wide trees pad more so their edges stay clear of the title. The ascendancy card adds
 // the ring its tree sits in on the passive tree.
-async function treeArt(path, { view, pad = 300, line, dot, ring }) {
+async function treeArt(
+  path,
+  {
+    view,
+    subtree,
+    pad = 300,
+    line,
+    dot,
+    ring,
+    width = 330,
+    height = 315,
+    hold = 0.35,
+    halo = 0.6,
+    haloColor = HALO,
+  }
+) {
   const tree = JSON.parse(
     await readFile(new URL(`../public/${path}`, import.meta.url))
   )
-  const [x, y, w, h] = view ?? fitView(tree.nodes, pad, 330 / 315)
+  if (subtree) {
+    tree.nodes = tree.nodes.filter((node) => node.atlasSubtree === subtree)
+    const nodeIds = new Set(tree.nodes.map((node) => node.id))
+    tree.edges = tree.edges.filter(
+      (edge) => nodeIds.has(edge.from) && nodeIds.has(edge.to)
+    )
+  }
+  const [x, y, w, h] = view ?? fitView(tree.nodes, pad, width / height)
   const radius = (n) => (n.keystone ? dot * 2.2 : n.notable ? dot * 1.5 : dot)
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="330" height="315" viewBox="${x} ${y} ${w} ${h}">
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${x} ${y} ${w} ${h}">
 <g fill="none" stroke="rgb(150,150,150)" stroke-width="${line}" stroke-linecap="round">${tree.edges.map((e) => `<path d="${e.path}"/>`).join("")}</g>
 ${ring ? `<circle cx="${x + w / 2}" cy="${y + h / 2}" r="${ring}" fill="none" stroke="rgb(110,110,110)" stroke-width="${line * 1.5}"/>` : ""}
 <g fill="white">${tree.nodes
@@ -364,15 +498,16 @@ ${ring ? `<circle cx="${x + w / 2}" cy="${y + h / 2}" r="${ring}" fill="none" st
     .map((n) => `<circle cx="${n.x}" cy="${n.y}" r="${radius(n)}"/>`)
     .join("")}</g></svg>`
   return mastheadArt(Buffer.from(svg), {
-    width: 330,
-    height: 315,
-    size: [330, 315],
+    width,
+    height,
+    size: [width, height],
     left: 0,
     top: 0,
     focus: [0.5, 0.5],
-    hold: 0.35,
+    hold,
     gamma: 0.75,
-    halo: 0.6,
+    halo,
+    haloColor,
   })
 }
 // The nodes' bounds plus `pad`, widened to the window's aspect ratio.
