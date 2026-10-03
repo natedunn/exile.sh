@@ -32,7 +32,9 @@ import {
   TrendingUp,
 } from "lucide-react"
 import { filters, defaultFilters } from "../lib/economy-filters"
+import { defaultGemSearch } from "./gems"
 import { shareMeta } from "../lib/share-meta"
+import { Badge } from "../components/ui/badge"
 import {
   Tooltip,
   TooltipTrigger,
@@ -44,19 +46,24 @@ import {
   PageTitle,
 } from "../components/ui/page-heading"
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/home-preview")({
   // Keep bookmarked economy preferences available when entering the market.
   validateSearch: (search) => filters.parse(search),
   search: {
     middlewares: [stripSearchParams<typeof defaultFilters>(defaultFilters)],
   },
-  head: () =>
-    shareMeta({
+  head: () => {
+    const metadata = shareMeta({
       title: "exile.sh: A Collection of Path of Exile Tools",
       description:
         "Track PoE2 currency prices, find gems and items, explore passive trees, share Path of Building builds, and read the latest patch notes on exile.sh.",
-      path: "/",
-    }),
+      path: "/home-preview",
+    })
+    return {
+      ...metadata,
+      meta: [...metadata.meta, { name: "robots", content: "noindex, follow" }],
+    }
+  },
   component: HomePage,
 })
 
@@ -135,7 +142,7 @@ const tools = [
       "Find your next piece of equipment and understand the stats and modifiers behind it.",
     to: "/items",
     action: "Browse items",
-    art: "/art/items-masthead.png",
+    art: "/art/divine-dither.png",
     features: [
       {
         title: "Search uniques & bases",
@@ -169,7 +176,7 @@ const tools = [
       "Explore the passive, ascendancy, Atlas, and Genesis trees with searchable nodes and detailed stats.",
     to: "/trees/passive",
     action: "Explore the passive tree",
-    art: "/art/trees-masthead.png",
+    art: "/og/passive-tree-card.png",
     features: [
       {
         title: "Search & pin nodes",
@@ -203,7 +210,7 @@ const tools = [
       "Turn a Path of Building 2 export into a build you can inspect, bookmark, and share in your browser.",
     to: "/build-bin",
     action: "Import a build",
-    art: "/art/build-bin-masthead.png",
+    art: "/art/divine-dither.png",
     features: [
       {
         title: "PoB viewer",
@@ -250,18 +257,21 @@ const tools = [
         description:
           "Mark the changes that matter to your builds, visible only to you.",
         icon: Highlighter,
+        planned: true,
       },
       {
         title: "Personal notes",
         description:
           "Leave private notes alongside the patch notes you are reading.",
         icon: StickyNote,
+        planned: true,
       },
       {
         title: "Browser notifications",
         description:
           "Get notified in your browser when new game updates arrive.",
         icon: Bell,
+        planned: true,
       },
     ],
   },
@@ -270,7 +280,7 @@ const tools = [
 function HomePage() {
   const preferences = Route.useSearch()
   return (
-    <div>
+    <div className="pb-12">
       <PageHeading className="dither-fade -mx-(--shell-gutter) px-(--shell-gutter) py-10 [--dither-opacity:0.04] max-sm:py-6 [&>img]:absolute">
         <img
           src="/art/hooded-one-masthead.png"
@@ -339,6 +349,28 @@ function HomePage() {
             </p>
             <p>All free and all open source.</p>
           </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/economy/market"
+              search={preferences}
+              className={cn(
+                textLink,
+                "inline-flex items-center gap-1.5 [&_svg]:size-4"
+              )}
+            >
+              Check currency prices <ArrowRight aria-hidden="true" />
+            </Link>
+            <Link
+              to="/gems"
+              search={defaultGemSearch}
+              className={cn(
+                textLink,
+                "inline-flex items-center gap-1.5 [&_svg]:size-4"
+              )}
+            >
+              Find skill &amp; support gems
+            </Link>
+          </div>
         </PageHeadingCopy>
       </PageHeading>
 
@@ -358,13 +390,9 @@ function HomePage() {
                 alt=""
                 loading="lazy"
                 decoding="async"
-                width={index === 4 ? 176 : 190}
-                height={index === 4 ? 132 : 100}
-                className={
-                  index === 4
-                    ? "absolute -top-12 -left-8 h-66 w-88 object-contain opacity-30 select-none [image-rendering:pixelated] max-sm:-left-12"
-                    : "absolute -top-10 -left-16 h-52 w-96 object-contain opacity-30 select-none [image-rendering:pixelated] max-sm:-left-20"
-                }
+                width={index === 3 ? 1200 : 190}
+                height={index === 3 ? 630 : 100}
+                className="absolute -top-10 -left-16 h-52 w-96 object-contain opacity-30 select-none [image-rendering:pixelated] max-sm:-left-20"
               />
             </figure>
             <div className="relative min-w-0 pt-16 pl-8 max-sm:pl-4">
@@ -378,26 +406,23 @@ function HomePage() {
                 {tool.description}
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
-                {tool.to !== "/trees/passive" && (
-                  <Link
-                    to={tool.to}
-                    search={tool.to === "/economy/market" ? preferences : {}}
-                    className={cn(
-                      textLink,
-                      "inline-flex items-center gap-1.5 [&_svg]:size-4"
-                    )}
-                  >
-                    {tool.action} <ArrowRight aria-hidden="true" />
-                  </Link>
-                )}
+                <Link
+                  to={tool.to}
+                  search={tool.to === "/economy/market" ? preferences : {}}
+                  className={cn(
+                    textLink,
+                    "inline-flex items-center gap-1.5 [&_svg]:size-4"
+                  )}
+                >
+                  {tool.action} <ArrowRight aria-hidden="true" />
+                </Link>
                 {tool.to === "/trees/passive" && (
                   <nav
-                    aria-label="Interactive trees"
+                    aria-label="Additional passive trees"
                     className="flex flex-wrap gap-x-4 gap-y-2"
                   >
                     {(
                       [
-                        ["/trees/passive", "Passive tree"],
                         ["/trees/ascendancies", "Ascendancies"],
                         ["/trees/atlas", "Atlas"],
                         ["/trees/genesis", "Genesis"],
@@ -428,6 +453,11 @@ function HomePage() {
                   <h3 className="text-base font-medium text-ink">
                     {feature.title}
                   </h3>
+                  {"planned" in feature && (
+                    <Badge variant="outline" className="mt-2">
+                      Coming soon
+                    </Badge>
+                  )}
                   <p className="mt-2 text-sm leading-relaxed text-ink-muted">
                     {feature.description}
                   </p>
@@ -438,47 +468,19 @@ function HomePage() {
         ))}
       </div>
 
-      <section
-        aria-labelledby="project-author"
-        className="pt-16 pb-8 pl-8 max-sm:pt-12 max-sm:pb-6 max-sm:pl-4"
-      >
-        <h2
-          id="project-author"
-          className="flex flex-wrap items-center gap-x-5 gap-y-3 display text-4xl text-ink max-sm:gap-x-3 max-sm:text-3xl"
+      <section className="pt-8">
+        <h2 className="display text-section text-ink">Know your reference</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink-muted">
+          See where our economy data, game references, and tree versions come
+          from, and how they stay up to date.
+        </p>
+        <Link
+          to="/methodology"
+          search={preferences}
+          className={cn(textLink, "mt-3")}
         >
-          <span>A project by</span>
-          <span className="inline-flex items-center gap-5 max-sm:gap-3">
-            <img
-              src="/art/nate-dunn.png"
-              alt=""
-              aria-hidden="true"
-              width={80}
-              height={80}
-              loading="lazy"
-              decoding="async"
-              className="size-16 rotate-6 rounded-lg object-cover max-sm:size-12"
-            />
-            Nate Dunn
-          </span>
-        </h2>
-        <div className="mt-5 grid max-w-3xl gap-3 text-lg leading-relaxed text-ink-muted">
-          <p>Built for the game I love, and for the people who play it.</p>
-          <p>
-            It’s made by a single{" "}
-            <a
-              href="https://natedunn.net"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                textLink,
-                "text-lg font-normal text-ink-muted underline"
-              )}
-            >
-              indie developer
-            </a>
-            . 👋
-          </p>
-        </div>
+          Data &amp; attribution <ArrowRight aria-hidden="true" />
+        </Link>
       </section>
     </div>
   )

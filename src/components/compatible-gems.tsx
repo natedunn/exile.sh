@@ -1,10 +1,10 @@
-import { useQuery } from "@tanstack/react-query"
 import { useDeferredValue, useMemo, useState } from "react"
-import type { GemCatalogue, GemReference } from "../../shared/gems"
+import type { GemReference } from "../../shared/gems"
 import type { GemSearch } from "../routes/gems"
-import { gemSlug } from "../../shared/gem-slug"
+import type { CompatibleGem } from "../../shared/gem-compatibility"
 import { findGems } from "../lib/gem-search"
 import { useGemSearchIndex } from "../lib/use-gem-search-index"
+import { useGemCatalogue } from "../lib/use-gem-catalogue"
 import { Button } from "./ui/button"
 import { EmptyState } from "./ui/empty-state"
 import { GemSection, GemSectionTitle } from "./gem-section"
@@ -13,92 +13,43 @@ import { GemSearchField } from "./gem-search-field"
 import { Note } from "./ui/note"
 import { TooltipPinScope } from "./tooltip-pins"
 
-type Compatibility = {
-  sourceRevision: string
-  skills: string[]
-  supports: Record<string, number[]>
-}
-
 const PAGE_SIZE = 60
 
 export function CompatibleGems({
   gem,
-  catalogue,
+  references,
   search,
 }: {
   gem: GemReference
-  catalogue: GemCatalogue
+  references: CompatibleGem[] | null
   search: GemSearch
 }) {
   const [query, setQuery] = useState("")
   const [page, setPage] = useState(1)
   const deferredQuery = useDeferredValue(query)
-  const compatibility = useQuery<Compatibility>({
-    queryKey: ["gem-support-compatibility", "v1"],
-    queryFn: async () => {
-      const response = await fetch("/gems/v1/support-compatibility.json")
-      if (!response.ok) throw new Error("Gem compatibility unavailable")
-      return response.json()
-    },
-    staleTime: Infinity,
-    gcTime: 60 * 60 * 1000,
-    retry: 1,
-  })
   const index = useGemSearchIndex()
-  // The compatibility file lists skills by catalogue key, which differs from
-  // gameId for many gems; match on skillId through the catalogue instead.
-  const skillIndex = useMemo(
+  // Enhance hover details after hydration; reference rows render from loader data.
+  const catalogue = useGemCatalogue()
+  const slugs = useMemo(
     () =>
-      gem.support || !compatibility.data
-        ? -1
-        : compatibility.data.skills.findIndex(
-            (key) =>
-              key in catalogue.gems &&
-              catalogue.gems[key].skillId === gem.skillId
-          ),
-    [catalogue, compatibility.data, gem]
+      new Map(
+        references?.map(({ reference, slug }) => [reference.skillId, slug])
+      ),
+    [references]
   )
-  const results = useMemo(() => {
-    const data = compatibility.data
-    if (!data) return []
-    const references = gem.support
-      ? (data.supports[gem.skillId] ?? []).flatMap((number) => {
-          const key = data.skills[number]
-          return key in catalogue.gems ? [catalogue.gems[key]] : []
-        })
-      : (() => {
-          if (skillIndex < 0) return []
-          const supportRefs = new Map(
-            Object.values(catalogue.gems)
-              .filter((reference) => reference.support)
-              .map((reference) => [reference.skillId, reference])
-          )
-          return Object.entries(data.supports).flatMap(
-            ([supportId, skills]) => {
-              if (!skills.includes(skillIndex)) return []
-              const reference = supportRefs.get(supportId)
-              return reference ? [reference] : []
-            }
-          )
-        })()
-    return findGems(references, index.data, deferredQuery)
-  }, [
-    catalogue,
-    compatibility.data,
-    deferredQuery,
-    gem,
-    index.data,
-    skillIndex,
-  ])
+  const results = useMemo(
+    () =>
+      findGems(
+        references?.map(({ reference }) => reference) ?? [],
+        index.data,
+        deferredQuery
+      ),
+    [references, index.data, deferredQuery]
+  )
 
   const heading = gem.support
     ? "Compatible skill gems"
     : "Compatible support gems"
-  const missingCompatibility =
-    compatibility.data &&
-    (gem.support
-      ? !(gem.skillId in compatibility.data.supports)
-      : skillIndex < 0)
 
   return (
     <GemSection aria-labelledby="compatible-gems-title">
@@ -114,18 +65,7 @@ export function CompatibleGems({
           className="mt-3"
         />
       </div>
-      {compatibility.isError ? (
-        <Note className="mx-[var(--shell-gutter)] mt-5" role="alert">
-          Compatible gems could not be loaded.
-        </Note>
-      ) : compatibility.isPending || index.isPending ? (
-        <p
-          className="px-[var(--shell-gutter)] py-8 text-sm text-ink-muted"
-          role="status"
-        >
-          Loading compatible gems…
-        </p>
-      ) : missingCompatibility ? (
+      {references === null ? (
         <Note className="mx-[var(--shell-gutter)] mt-5" role="status">
           Compatibility data is unavailable for this gem.
         </Note>
@@ -149,8 +89,8 @@ export function CompatibleGems({
                       match={match}
                       level={String(search.level)}
                       quality={String(search.quality)}
-                      slug={gemSlug(catalogue, reference)}
-                      headers={catalogue.headers}
+                      slug={slugs.get(reference.skillId)!}
+                      headers={catalogue.data?.headers}
                       search={search}
                     />
                   ))}

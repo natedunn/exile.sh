@@ -1,11 +1,9 @@
+import { navigationItem } from "../ui/navigation-styles"
 import { Link } from "@tanstack/react-router"
 import { ArrowUpRight, Gem, TriangleAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Field, FieldLabel } from "@/components/ui/field"
-import {
-  SubNavigation,
-  SubNavigationItem,
-} from "@/components/ui/sub-navigation"
+import { SubNavigation } from "@/components/ui/sub-navigation"
 import {
   Select,
   SelectContent,
@@ -38,28 +36,22 @@ export function WorkspaceHeader({
   return (
     <div className="-mx-[var(--shell-gutter)] flex items-end justify-between gap-x-4 border-b border-rule-strong px-[var(--shell-gutter)] max-lg:flex-wrap">
       <SubNavigation aria-label="Economy views" className="max-lg:w-full">
-        <SubNavigationItem
-          render={
-            <Link
-              to="/economy/market"
-              search={f}
-              aria-current={!moversPage ? "page" : undefined}
-            />
-          }
+        <Link
+          to="/economy/market"
+          search={f}
+          aria-current={!moversPage ? "page" : undefined}
+          className={navigationItem}
         >
           <Gem className="size-3.5" /> Currency market
-        </SubNavigationItem>
-        <SubNavigationItem
-          render={
-            <Link
-              to="/economy/movers"
-              search={f}
-              aria-current={moversPage ? "page" : undefined}
-            />
-          }
+        </Link>
+        <Link
+          to="/economy/movers"
+          search={f}
+          aria-current={moversPage ? "page" : undefined}
+          className={navigationItem}
         >
           <ArrowUpRight className="size-3.5" /> Market movers
-        </SubNavigationItem>
+        </Link>
       </SubNavigation>
       <div className="flex items-end gap-4 py-3 max-lg:order-first max-lg:w-full">
         {delayNotice && (

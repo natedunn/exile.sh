@@ -1,3 +1,4 @@
+import { shareMeta } from "../lib/share-meta"
 import { stripSearchParams, createFileRoute } from "@tanstack/react-router"
 import {
   EconomyPage,
@@ -10,7 +11,13 @@ export const Route = createFileRoute("/economy/market")({
   search: {
     middlewares: [stripSearchParams<typeof defaultFilters>(defaultFilters)],
   },
-  head: () => ({ meta: [{ title: "Exchange economy · exile.sh" }] }),
+  head: () =>
+    shareMeta({
+      title: "PoE2 Currency Prices & Exchange Rates",
+      description:
+        "Explore Path of Exile 2 currency prices, historical exchange rates and traded volume by league. Prices come from completed GGG exchange trades.",
+      path: "/economy/market",
+    }),
   component: Page,
 })
 function Page() {

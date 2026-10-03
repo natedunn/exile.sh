@@ -1,3 +1,4 @@
+import { shareMeta } from "../lib/share-meta"
 import { filters, defaultFilters } from "../components/economy-page"
 import type * as React from "react"
 import {
@@ -11,7 +12,13 @@ export const Route = createFileRoute("/methodology")({
   search: {
     middlewares: [stripSearchParams<typeof defaultFilters>(defaultFilters)],
   },
-  head: () => ({ meta: [{ title: "Data & methodology · exile.sh" }] }),
+  head: () =>
+    shareMeta({
+      title: "PoE2 Data Sources & Methodology",
+      description:
+        "Learn how exile.sh calculates Path of Exile 2 currency prices from GGG exchange data, and understand data sources, freshness and limitations.",
+      path: "/methodology",
+    }),
   component: Methodology,
 })
 /* Prose voices: muted body copy with dotted bronze links, serif headings. */

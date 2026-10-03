@@ -1,3 +1,5 @@
+import { textLink } from "../components/ui/link-styles"
+import { shareMeta } from "../lib/share-meta"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowUpRight, Newspaper } from "lucide-react"
 import { cn } from "cn"
@@ -16,7 +18,6 @@ import {
   PatchSectionHeader,
 } from "../components/patch-notes-layout"
 import { Badge } from "../components/ui/badge"
-import { Button } from "../components/ui/button"
 import { EmptyState, EmptyStateText } from "../components/ui/empty-state"
 import { Note } from "../components/ui/note"
 import { day } from "../lib/format"
@@ -24,16 +25,13 @@ import { getPatchNotes, getXUpdates } from "../lib/patch-notes-server"
 import { usePatchFreshness } from "../lib/use-patch-freshness"
 
 export const Route = createFileRoute("/patch-notes/")({
-  head: () => ({
-    meta: [
-      { title: "Patch Notes · exile.sh" },
-      {
-        name: "description",
-        content:
-          "Official Path of Exile 2 patch notes and hotfixes, formatted for easy reading with links to the original GGG forum posts.",
-      },
-    ],
-  }),
+  head: () =>
+    shareMeta({
+      title: "PoE2 Patch Notes & Hotfixes",
+      description:
+        "Official Path of Exile 2 patch notes and hotfixes, formatted for easy reading with links to the original GGG forum posts.",
+      path: "/patch-notes",
+    }),
   loader: async () => {
     const [patches, x] = await Promise.all([getPatchNotes(), getXUpdates()])
     return { ...patches, x }
@@ -60,14 +58,15 @@ const FORUM_URL = "https://www.pathofexile.com/forum/view-forum/2212"
 
 function ForumLink() {
   return (
-    <Button
-      variant="outline"
-      className="bg-paper"
-      nativeButton={false}
-      render={<a href={FORUM_URL} />}
+    <a
+      href={FORUM_URL}
+      className={cn(
+        textLink,
+        "inline-flex items-center gap-1.5 [&_svg]:size-4"
+      )}
     >
       Official forum <ArrowUpRight aria-hidden="true" />
-    </Button>
+    </a>
   )
 }
 

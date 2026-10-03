@@ -22,7 +22,7 @@ import {
   PatchColumns,
   PatchMain,
 } from "../components/patch-notes-layout"
-import { Button } from "../components/ui/button"
+import { textLink } from "../components/ui/link-styles"
 import { Note } from "../components/ui/note"
 import { day } from "../lib/format"
 import { getPatchPost } from "../lib/patch-notes-server"
@@ -97,14 +97,15 @@ function PatchPostPage() {
           </>
         }
         actions={
-          <Button
-            variant="outline"
-            className="bg-paper"
-            nativeButton={false}
-            render={<a href={url} />}
+          <a
+            href={url}
+            className={cn(
+              textLink,
+              "inline-flex items-center gap-1.5 [&_svg]:size-4"
+            )}
           >
             Original post <ArrowUpRight aria-hidden="true" />
-          </Button>
+          </a>
         }
       />
       <PatchColumns>

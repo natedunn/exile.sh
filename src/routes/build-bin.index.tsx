@@ -1,3 +1,6 @@
+import { cn } from "cn"
+import { textLink } from "../components/ui/link-styles"
+import { shareMeta } from "../lib/share-meta"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useAccount } from "../lib/use-account"
@@ -33,16 +36,14 @@ import { normalizeCode, parseBuild, MAX_CODE_LENGTH } from "../../shared/pob"
 import type { BuildSnapshot } from "../../shared/pob"
 
 export const Route = createFileRoute("/build-bin/")({
-  head: () => ({
-    meta: [
-      { title: "Share your PoE2 build · exile.sh" },
-      {
-        name: "description",
-        content:
-          "Turn your Path of Building 2 export into a readable, shareable build. Equipment, skills, passives, and stats in one link.",
-      },
-    ],
-  }),
+  head: () =>
+    shareMeta({
+      title: "PoE2 Build Sharing \u2014 Path of Building Viewer",
+      description:
+        "Turn your Path of Building 2 export into a readable, shareable build. Equipment, skills, passives, and stats in one link.",
+      path: "/build-bin",
+      image: "/build-share.png",
+    }),
   component: BuildImport,
 })
 function importError(error: unknown) {
@@ -339,13 +340,21 @@ function BuildImport() {
               {save.isPending ? "Bookmarking…" : "Bookmark this"}
             </Button>
           ) : (
-            <Button
-              variant="outline"
-              disabled={authLoading}
-              render={<Link to="/auth" search={{ error: undefined }} />}
+            <Link
+              to="/auth"
+              search={{ error: undefined }}
+              aria-disabled={authLoading}
+              tabIndex={authLoading ? -1 : undefined}
+              onClick={(event) => {
+                if (authLoading) event.preventDefault()
+              }}
+              className={cn(
+                textLink,
+                "inline-flex items-center gap-1.5 [&_svg]:size-4"
+              )}
             >
               <Bookmark /> Sign in to bookmark
-            </Button>
+            </Link>
           )}
           {error && (
             <p role="alert" className="text-sm text-negative">

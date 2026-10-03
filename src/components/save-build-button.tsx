@@ -1,3 +1,5 @@
+import { cn } from "cn"
+import { textLink } from "./ui/link-styles"
 import { skipToken, useMutation, useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { Bookmark, Check } from "lucide-react"
@@ -17,13 +19,21 @@ export function SaveBuildButton({ slug }: { slug: string }) {
   const save = useMutation(crpc.savedBuilds.set.mutationOptions())
   if (!isMember)
     return (
-      <Button
-        variant="outline"
-        disabled={account === "loading"}
-        render={<Link to="/auth" search={{ error: undefined }} />}
+      <Link
+        to="/auth"
+        search={{ error: undefined }}
+        aria-disabled={account === "loading"}
+        tabIndex={account === "loading" ? -1 : undefined}
+        onClick={(event) => {
+          if (account === "loading") event.preventDefault()
+        }}
+        className={cn(
+          textLink,
+          "inline-flex items-center gap-1.5 [&_svg]:size-4"
+        )}
       >
         <Bookmark /> Sign in to bookmark
-      </Button>
+      </Link>
     )
   return (
     <div className="flex flex-col items-start gap-2">
