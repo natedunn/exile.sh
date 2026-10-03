@@ -506,6 +506,12 @@ await writeFile(
   new URL("fade-y.png", OUT),
   await ramp(16, 256, 2, (_x, y) => (1 - y) ** 1.3)
 )
+// Corner fade, 480 × 320: densest at the top-left and thinning to nothing
+// along the diagonal.
+await writeFile(
+  new URL("fade-tl.png", OUT),
+  await ramp(480, 320, 2, (x, y) => Math.max(0, 1 - Math.hypot(x, y)) ** 1.5)
+)
 // Masthead glow for art that is not baked, 640 × 200: densest right of
 // centre and thinning to nothing at every edge.
 await writeFile(

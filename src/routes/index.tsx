@@ -440,7 +440,7 @@ function HomePage() {
 
       <section
         aria-labelledby="project-author"
-        className="pt-16 pb-8 pl-8 max-sm:pt-12 max-sm:pb-6 max-sm:pl-4"
+        className="relative isolate pt-16 pb-24 pl-8 before:pointer-events-none before:absolute before:top-0 before:-left-(--shell-gutter) before:-z-1 before:h-80 before:w-120 before:max-w-full before:bg-brand before:opacity-[0.1] before:content-[''] before:[mask:var(--dither-fade-tl)_top_left/auto_no-repeat] max-sm:pt-12 max-sm:pb-16 max-sm:pl-4"
       >
         <h2
           id="project-author"
