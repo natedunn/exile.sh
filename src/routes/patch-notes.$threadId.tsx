@@ -9,6 +9,8 @@ import {
 } from "../components/build/stats-ledger"
 import { GemSection, GemSectionTitle } from "../components/gem-section"
 import {
+  NotesBar,
+  NotesSheet,
   PatchAnnotationPanel,
   SelectionToolbar,
   usePatchNotes,
@@ -86,7 +88,8 @@ function PatchPostPage() {
     ? new Date(post.date).toISOString().slice(0, 10)
     : undefined
   return (
-    <NewsPage>
+    // Under lg, room for the notes button at the foot of the screen.
+    <NewsPage className={cn(post && "max-lg:pb-16")}>
       <PatchNotesHeading
         title={post?.title ?? "Patch notes unavailable"}
         back
@@ -171,6 +174,12 @@ function PatchPostPage() {
           </GemSection>
         </PatchAside>
       </PatchColumns>
+      {post && (
+        <>
+          <NotesBar notes={notes} />
+          <NotesSheet notes={notes} title={post.title} />
+        </>
+      )}
     </NewsPage>
   )
 }

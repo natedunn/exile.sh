@@ -1,8 +1,15 @@
 import { Link } from "@tanstack/react-router"
-import { Check, Copy, MessageSquarePlus, Trash2 } from "lucide-react"
+import {
+  Check,
+  Copy,
+  List,
+  MessageSquarePlus,
+  NotebookPen,
+  Trash2,
+} from "lucide-react"
 import { cn } from "cn"
 import { useCallback, useEffect, useRef, useState } from "react"
-import type { MouseEvent } from "react"
+import type { MouseEvent, RefObject } from "react"
 import {
   locateAnnotation,
   NOTE_MAX,
@@ -14,6 +21,14 @@ import { GemSection, GemSectionTitle } from "./gem-section"
 import { gutter, PatchSectionHeader } from "./patch-notes-layout"
 import { Button } from "./ui/button"
 import { Note } from "./ui/note"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "./ui/sheet"
 import { Textarea } from "./ui/textarea"
 
 /* A note is a marked passage of the post with optional text of its own.
@@ -92,6 +107,16 @@ function readPick(root: HTMLElement): Pick | null {
 
 const isWide = () => matchMedia("(min-width: 64rem)").matches
 
+/* Under lg the notes open in a sheet from the bottom of the screen: one
+   note at a time while reading, or the whole list. */
+type SheetView = { view: "note"; id: string; focus: boolean } | { view: "list" }
+
+// Brings a passage into the upper part of the screen, clear of the sheet.
+function liftAbove(top: number) {
+  if (top > 0 && top < innerHeight * 0.35) return
+  window.scrollTo({ top: window.scrollY + top - innerHeight * 0.2 })
+}
+
 /* Everything the post page needs to mark up its body: where each saved
    note sits, which one is active, and the reader's live selection. */
 export function usePatchNotes(threadId: string, html: string | undefined) {
@@ -102,6 +127,10 @@ export function usePatchNotes(threadId: string, html: string | undefined) {
   const [activeId, setActiveId] = useState<string>()
   const [focusId, setFocusId] = useState<string>()
   const [pick, setPick] = useState<Pick | null>(null)
+  const [sheet, setSheet] = useState<SheetView | null>(null)
+  // Read at save time, so a note removed a moment ago is not written back.
+  const current = useRef(annotations)
+  current.current = annotations
 
   useEffect(() => {
     const root = articleRef.current
@@ -178,12 +207,20 @@ export function usePatchNotes(threadId: string, html: string | undefined) {
       note: "",
       createdAt: Date.now(),
     })
-    getSelection()?.removeAllRanges()
+    const selection = getSelection()
+    const top = selection?.rangeCount
+      ? selection.getRangeAt(0).getBoundingClientRect().top
+      : 0
+    selection?.removeAllRanges()
     setPick(null)
     setActiveId(id)
     // Beside the post, go straight to the optional text. On narrow screens
-    // the list sits above the post, and jumping there would lose the place.
+    // it opens in a sheet, with the passage kept in view above it.
     if (isWide()) setFocusId(id)
+    else {
+      liftAbove(top)
+      setSheet({ view: "note", id, focus: true })
+    }
   }
 
   // A click on painted text makes that note the active one.
@@ -210,6 +247,7 @@ export function usePatchNotes(threadId: string, html: string | undefined) {
       range.isPointInRange(caret.node, caret.offset)
     )
     setActiveId(hit?.[0])
+    if (hit && !isWide()) setSheet({ view: "note", id: hit[0], focus: false })
   }
 
   const clearFocus = useCallback(() => setFocusId(undefined), [])
@@ -218,11 +256,22 @@ export function usePatchNotes(threadId: string, html: string | undefined) {
     setActiveId(id)
     const range = placed.get(id)
     if (!range) return
+    // From the sheet, the passage opens with its note in view.
+    if (sheet) {
+      liftAbove(range.getBoundingClientRect().top)
+      setSheet({ view: "note", id, focus: false })
+      return
+    }
     const top = range.getBoundingClientRect().top
     window.scrollTo({
       top: window.scrollY + top - window.innerHeight / 3,
       behavior: "smooth",
     })
+  }
+
+  const saveNote = (id: string, note: string) => {
+    const row = current.current.find((value) => value.id === id)
+    if (row && row.note !== note) store.put({ ...row, note })
   }
 
   return {
@@ -232,14 +281,59 @@ export function usePatchNotes(threadId: string, html: string | undefined) {
     activeId,
     focusId,
     pick,
+    sheet,
+    openList: () => setSheet({ view: "list" }),
+    closeSheet: () => setSheet(null),
     create,
     reveal,
+    saveNote,
     clearFocus,
     onArticleClick,
   }
 }
 
 type PatchNotes = ReturnType<typeof usePatchNotes>
+
+/* Under lg, one button held at the foot of the screen, away from the
+   text being selected and from the browser's own selection menu: Add note
+   while text is selected, otherwise the way into the reader's notes. Like
+   the wide Note button, adding acts on pointer-down. */
+export function NotesBar({ notes }: { notes: PatchNotes }) {
+  const { pick, isReady, create, annotations, sheet } = notes
+  if (!isReady || sheet) return null
+  return (
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-end px-(--shell-gutter) pb-[max(env(safe-area-inset-bottom),--spacing(4))] lg:hidden">
+      {pick ? (
+        <Button
+          size="lg"
+          className="pointer-events-auto shadow-lg"
+          onMouseDown={(event) => event.preventDefault()}
+          onPointerDown={(event) => {
+            event.preventDefault()
+            create()
+          }}
+          onClick={(event) => {
+            if (event.detail === 0) create()
+          }}
+        >
+          <MessageSquarePlus /> Add note
+        </Button>
+      ) : (
+        <Button
+          size="lg"
+          variant="outline"
+          className="pointer-events-auto shadow-lg"
+          onClick={notes.openList}
+        >
+          <NotebookPen /> Notes
+          {annotations.length > 0 && (
+            <span className="figure text-brand-ink">{annotations.length}</span>
+          )}
+        </Button>
+      )}
+    </div>
+  )
+}
 
 /* One Note button while text is selected, on the post column's right
    border beside the selection's first line: clear of the text being read,
@@ -255,7 +349,7 @@ export function SelectionToolbar({ notes }: { notes: PatchNotes }) {
     <Button
       size="sm"
       variant="outline"
-      className="absolute right-(--shell-gutter) z-10 -translate-y-1/2 border-brand-deep text-brand-ink shadow-lg hover:bg-notice"
+      className="absolute right-(--shell-gutter) z-10 -translate-y-1/2 border-brand-deep text-brand-ink shadow-lg hover:bg-notice max-lg:hidden"
       style={{ top: pick.top }}
       onMouseDown={(event) => event.preventDefault()}
       onPointerDown={(event) => {
@@ -276,26 +370,44 @@ export function SelectionToolbar({ notes }: { notes: PatchNotes }) {
    not sent per keystroke. */
 function NoteField({
   annotation,
-  autoFocus,
+  autoFocus = false,
   onFocused,
   onSave,
+  fieldRef,
 }: {
   annotation: PatchAnnotation
-  autoFocus: boolean
-  onFocused: () => void
+  autoFocus?: boolean
+  onFocused?: () => void
   onSave: (note: string) => void
+  fieldRef?: RefObject<HTMLTextAreaElement | null>
 }) {
   const [draft, setDraft] = useState(annotation.note)
-  const ref = useRef<HTMLTextAreaElement>(null)
-  const latest = useRef({ annotation, onSave })
-  latest.current = { annotation, onSave }
+  const ownRef = useRef<HTMLTextAreaElement>(null)
+  const ref = fieldRef ?? ownRef
+  const latest = useRef({ annotation, onSave, draft })
+  latest.current = { annotation, onSave, draft }
+
+  // The same note can be open in the sheet and the list; follow saves
+  // made elsewhere unless this field is being typed in.
+  useEffect(() => {
+    if (document.activeElement !== ref.current) setDraft(annotation.note)
+  }, [annotation.note, ref])
+
+  // A sheet closed mid-pause would otherwise drop the last words.
+  useEffect(
+    () => () => {
+      const { annotation: row, onSave: save, draft: text } = latest.current
+      if (text !== row.note) save(text)
+    },
+    []
+  )
 
   useEffect(() => {
     if (!autoFocus) return
     ref.current?.focus({ preventScroll: true })
     ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" })
-    onFocused()
-  }, [autoFocus, onFocused])
+    onFocused?.()
+  }, [autoFocus, onFocused, ref])
 
   useEffect(() => {
     if (draft === latest.current.annotation.note) return
@@ -337,55 +449,77 @@ function asText(title: string, annotations: PatchAnnotation[]) {
   ].join("\n\n")
 }
 
-export function PatchAnnotationPanel({
-  notes,
-  title,
-}: {
-  notes: PatchNotes
-  title: string
-}) {
-  const {
-    annotations,
-    placed,
-    activeId,
-    focusId,
-    isMember,
-    isReady,
-    error,
-    storageError,
-  } = notes
+function CopyAll({ notes, title }: { notes: PatchNotes; title: string }) {
   const [copied, setCopied] = useState(false)
-  const listRef = useRef<HTMLOListElement>(null)
-
-  // On the wide layout the list sits beside the post, so follow the
-  // active note; on narrow screens it is far above and would jump.
-  useEffect(() => {
-    if (!activeId || !isWide()) return
-    listRef.current
-      ?.querySelector(`[data-annotation="${CSS.escape(activeId)}"]`)
-      ?.scrollIntoView({ block: "nearest", behavior: "smooth" })
-  }, [activeId])
-
+  if (!notes.annotations.length) return null
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(asText(title, annotations))
+      await navigator.clipboard.writeText(asText(title, notes.annotations))
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch {
       setCopied(false)
     }
   }
+  return (
+    <Button size="xs" variant="ghost" onClick={() => void copy()}>
+      {copied ? <Check /> : <Copy />} {copied ? "Copied" : "Copy all"}
+    </Button>
+  )
+}
+
+function StorageNote({
+  notes,
+  className,
+}: {
+  notes: PatchNotes
+  className?: string
+}) {
+  return (
+    <Note className={className}>
+      {notes.isMember ? (
+        "Saved to your account."
+      ) : notes.storageError ? (
+        "This browser won’t save notes. Sign in to keep them."
+      ) : (
+        <>
+          Saved in this browser.{" "}
+          <Link
+            to="/auth"
+            search={{ error: undefined }}
+            className="border-b border-dotted border-brand-deep text-brand-ink"
+          >
+            Sign in
+          </Link>{" "}
+          to keep them on your account.
+        </>
+      )}
+    </Note>
+  )
+}
+
+/* The reader's notes in post order, shared by the column beside the post
+   and the sheet's list. */
+function NoteList({
+  notes,
+  className,
+}: {
+  notes: PatchNotes
+  className?: string
+}) {
+  const { annotations, placed, activeId, focusId, isReady, error } = notes
+  const listRef = useRef<HTMLOListElement>(null)
+
+  // Keep the active note in view; a hidden list ignores this.
+  useEffect(() => {
+    if (!activeId) return
+    listRef.current
+      ?.querySelector(`[data-annotation="${CSS.escape(activeId)}"]`)
+      ?.scrollIntoView({ block: "nearest", behavior: "smooth" })
+  }, [activeId])
 
   return (
-    <GemSection aria-labelledby="patch-notes-list">
-      <PatchSectionHeader>
-        <GemSectionTitle id="patch-notes-list">Your notes</GemSectionTitle>
-        {annotations.length > 0 && (
-          <Button size="xs" variant="ghost" onClick={() => void copy()}>
-            {copied ? <Check /> : <Copy />} {copied ? "Copied" : "Copy all"}
-          </Button>
-        )}
-      </PatchSectionHeader>
+    <>
       {error && (
         <div className={cn(gutter, "mt-3 flex items-center gap-3")}>
           <p role="alert" className="text-sm text-negative">
@@ -409,7 +543,10 @@ export function PatchAnnotationPanel({
       ) : (
         <ol
           ref={listRef}
-          className="m-0 mt-3 list-none border-t border-rule p-0 lg:max-h-[50dvh] lg:overflow-y-auto"
+          className={cn(
+            "m-0 mt-3 list-none border-t border-rule p-0",
+            className
+          )}
         >
           {annotations.map((annotation) => {
             const found = placed.has(annotation.id)
@@ -446,32 +583,145 @@ export function PatchAnnotationPanel({
                   annotation={annotation}
                   autoFocus={annotation.id === focusId}
                   onFocused={notes.clearFocus}
-                  onSave={(note) => notes.put({ ...annotation, note })}
+                  onSave={(note) => notes.saveNote(annotation.id, note)}
                 />
               </li>
             )
           })}
         </ol>
       )}
-      <Note className={cn(gutter, "mt-3")}>
-        {isMember ? (
-          "Saved to your account."
-        ) : storageError ? (
-          "This browser won’t save notes. Sign in to keep them."
-        ) : (
-          <>
-            Saved in this browser.{" "}
-            <Link
-              to="/auth"
-              search={{ error: undefined }}
-              className="border-b border-dotted border-brand-deep text-brand-ink"
-            >
-              Sign in
-            </Link>{" "}
-            to keep them on your account.
-          </>
-        )}
-      </Note>
+    </>
+  )
+}
+
+/* The notes column beside the post, from lg up. Under lg the same list
+   lives in the sheet. */
+export function PatchAnnotationPanel({
+  notes,
+  title,
+}: {
+  notes: PatchNotes
+  title: string
+}) {
+  return (
+    <GemSection aria-labelledby="patch-notes-list" className="max-lg:hidden">
+      <PatchSectionHeader>
+        <GemSectionTitle id="patch-notes-list">Your notes</GemSectionTitle>
+        <CopyAll notes={notes} title={title} />
+      </PatchSectionHeader>
+      <NoteList notes={notes} className="max-h-[50dvh] overflow-y-auto" />
+      <StorageNote notes={notes} className={cn(gutter, "mt-3")} />
     </GemSection>
+  )
+}
+
+/* The sheet under lg. It covers only the foot of the screen with a light
+   veil, so the marked passage stays readable above it, and it rides above
+   an on-screen keyboard. */
+export function NotesSheet({
+  notes,
+  title,
+}: {
+  notes: PatchNotes
+  title: string
+}) {
+  const { sheet, annotations } = notes
+  const popupRef = useRef<HTMLDivElement>(null)
+  const fieldRef = useRef<HTMLTextAreaElement>(null)
+  // Hold the last view while the sheet animates closed.
+  const [shown, setShown] = useState(sheet)
+  if (sheet && sheet !== shown) setShown(sheet)
+  const note =
+    shown?.view === "note"
+      ? annotations.find((row) => row.id === shown.id)
+      : undefined
+  const open = !!sheet && (sheet.view === "list" || !!note)
+
+  useEffect(() => {
+    const viewport = window.visualViewport
+    if (!open || !viewport) return
+    const fit = () => {
+      const popup = popupRef.current
+      if (!popup) return
+      popup.style.bottom = `${Math.max(0, innerHeight - viewport.height - viewport.offsetTop)}px`
+      popup.style.maxHeight = `${Math.round(viewport.height * 0.7)}px`
+    }
+    fit()
+    viewport.addEventListener("resize", fit)
+    viewport.addEventListener("scroll", fit)
+    return () => {
+      viewport.removeEventListener("resize", fit)
+      viewport.removeEventListener("scroll", fit)
+    }
+  }, [open])
+
+  return (
+    <Sheet
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) notes.closeSheet()
+      }}
+    >
+      <SheetContent
+        ref={popupRef}
+        side="bottom"
+        overlayClassName="bg-paper/40 supports-backdrop-filter:backdrop-blur-none"
+        // Only a fresh note calls up the keyboard.
+        initialFocus={() =>
+          shown?.view === "note" && shown.focus
+            ? fieldRef.current
+            : popupRef.current
+        }
+        finalFocus={false}
+        className="max-h-[70dvh] gap-0 border-rule-strong bg-paper pb-[env(safe-area-inset-bottom)] outline-none [--shell-gutter:--spacing(4)] lg:hidden"
+      >
+        <SheetHeader className="flex-row items-center gap-3 border-b border-rule py-3 pr-14">
+          <SheetTitle className="min-w-0 flex-1 font-display text-lg">
+            {shown?.view === "note" ? "Note" : "Your notes"}
+          </SheetTitle>
+          {shown?.view === "list" && <CopyAll notes={notes} title={title} />}
+        </SheetHeader>
+        {shown?.view === "note" && note ? (
+          <>
+            <div className="flex min-h-0 flex-col gap-3 overflow-y-auto p-4">
+              <button
+                type="button"
+                onClick={() => notes.reveal(note.id)}
+                className="border-l-2 border-brand pl-3 text-left text-sm leading-[1.6] whitespace-normal text-ink-muted"
+              >
+                <span className="line-clamp-3">{note.quote}</span>
+              </button>
+              <NoteField
+                key={note.id}
+                fieldRef={fieldRef}
+                annotation={note}
+                onSave={(text) => notes.saveNote(note.id, text)}
+              />
+            </div>
+            <SheetFooter className="flex-row items-center gap-1 border-t border-rule px-2 py-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => notes.remove(note.id)}
+              >
+                <Trash2 /> Remove
+              </Button>
+              <Button size="sm" variant="ghost" onClick={notes.openList}>
+                <List /> All notes
+                <span className="figure">{annotations.length}</span>
+              </Button>
+              <SheetClose render={<Button size="sm" className="ml-auto" />}>
+                Done
+              </SheetClose>
+            </SheetFooter>
+          </>
+        ) : (
+          <div className="min-h-0 overflow-y-auto pb-4">
+            <NoteList notes={notes} className="mt-0 border-t-0" />
+            <StorageNote notes={notes} className={cn(gutter, "mt-3")} />
+          </div>
+        )}
+      </SheetContent>
+    </Sheet>
   )
 }
