@@ -65,7 +65,15 @@ export function ItemResult({
             <Link
               to="/items/$item"
               params={{ item: item.slug }}
-              search={search}
+              // The list's query and page stay on the list, so an item page
+              // is free to use its own search.
+              search={{
+                ...search,
+                q: "",
+                page: 1,
+                variant: undefined,
+                baseForm: undefined,
+              }}
             />
           }
           {...inspection.triggerProps}

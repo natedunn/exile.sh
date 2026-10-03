@@ -10,7 +10,7 @@ import { Button } from "./ui/button"
 import { EmptyState } from "./ui/empty-state"
 import { GemSection, GemSectionTitle } from "./gem-section"
 import { GemResult } from "./gem-result"
-import { GemSearchField } from "./gem-search-field"
+import { ReferenceSearchField } from "./reference-search-field"
 import { Note } from "./ui/note"
 import { TooltipPinScope } from "./tooltip-pins"
 
@@ -57,7 +57,9 @@ export function CompatibleGems({
     <GemSection aria-labelledby="compatible-gems-title">
       <GemSectionTitle id="compatible-gems-title">{heading}</GemSectionTitle>
       <div className="px-[var(--shell-gutter)]">
-        <GemSearchField
+        <ReferenceSearchField
+          label="Search gems"
+          placeholder="Name, tag, description, or effect text"
           id="compatible-gem-search"
           value={query}
           onChange={(value) => {

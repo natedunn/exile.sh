@@ -119,11 +119,13 @@ function ItemDetailPage() {
       forms.find((form) => form.slug === search.baseForm)) ||
     (ownBase?.kind === "base" ? ownBase : undefined)
   const original = forms.find((form) => form.form === "original")
+  // Back to the list with its filters, but never a query: `q` is not
+  // carried onto item pages.
   const listSearch = {
-    q: search.q,
+    q: "",
     kind: search.kind,
     itemClass: search.itemClass,
-    page: search.page,
+    page: 1,
   }
   const patch = (value: { variant?: number; baseForm?: string }) =>
     void navigate({

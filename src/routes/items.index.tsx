@@ -5,8 +5,6 @@ import { useItemRegistry } from "../lib/use-item-registry"
 import { pageShareImage } from "../lib/page-share"
 import { shareMeta } from "../lib/share-meta"
 import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { Field, FieldLabel } from "../components/ui/field"
 import { EmptyState } from "../components/ui/empty-state"
 import { Note } from "../components/ui/note"
 import {
@@ -20,6 +18,7 @@ import {
   PageMeta,
 } from "../components/ui/page-heading"
 import { ReferenceSelect } from "../components/item-registry-controls"
+import { ReferenceSearchField } from "../components/reference-search-field"
 import { ItemResult } from "../components/item-result"
 import { TooltipPinScope } from "../components/tooltip-pins"
 import {
@@ -129,18 +128,16 @@ function ItemsPage() {
         />
       </PageHeading>
       <div className="-mx-[var(--shell-gutter)] flex flex-wrap items-end gap-4 border-b border-rule-strong px-[var(--shell-gutter)] py-5">
-        <Field className="max-w-180 min-w-0 flex-1 max-sm:basis-full">
-          <FieldLabel htmlFor="item-search">Search items</FieldLabel>
-          <Input
-            id="item-search"
-            disabled={catalogue.isPending}
-            type="search"
-            placeholder="Name, base, or modifier text…"
-            value={search.q}
-            onChange={(event) => patch({ q: event.target.value, page: 1 })}
-            className="h-9"
-          />
-        </Field>
+        <ReferenceSearchField
+          id="item-search"
+          label="Search items"
+          placeholder="Name, base, or modifier text…"
+          disabled={catalogue.isPending}
+          value={search.q}
+          onChange={(q) => patch({ q, page: 1 })}
+          className="max-w-180 min-w-0 flex-1 max-sm:basis-full"
+          inputClassName="h-9"
+        />
         <ReferenceSelect
           id="item-class"
           disabled={catalogue.isPending}

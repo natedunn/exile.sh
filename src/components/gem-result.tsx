@@ -67,8 +67,12 @@ export function GemResult({
             <Link
               to="/gems/$gem"
               params={{ gem: slug }}
+              // The list's query and page stay on the list, so a gem page
+              // is free to use its own search.
               search={{
                 ...search,
+                q: "",
+                page: 1,
                 advancedQuality: undefined,
                 gemLevel:
                   !reference.support && search.level > 1

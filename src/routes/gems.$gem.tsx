@@ -180,11 +180,13 @@ function GemDetailPage() {
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">(
     "idle"
   )
+  // Back to the list with its level and quality, but never a query: `q`
+  // is not carried onto gem pages.
   const listSearch = {
-    q: search.q,
+    q: "",
     level: search.level,
     quality: search.quality,
-    page: search.page,
+    page: 1,
   }
   const reference = page.reference
   const { favorites, toggleFavorite } = useGemBookmarks()

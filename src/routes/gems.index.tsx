@@ -3,7 +3,7 @@ import { shareMeta } from "../lib/share-meta"
 import { gemSlug } from "../../shared/gem-slug"
 import { useDeferredValue, useMemo } from "react"
 import { GemResult } from "../components/gem-result"
-import { GemSearchField } from "../components/gem-search-field"
+import { ReferenceSearchField } from "../components/reference-search-field"
 import { TooltipPinScope } from "../components/tooltip-pins"
 import {
   BookmarkedResults,
@@ -119,7 +119,9 @@ function GemsPage() {
         />
       </PageHeading>
       <div className="-mx-[var(--shell-gutter)] flex flex-wrap items-end gap-4 border-b border-rule-strong px-[var(--shell-gutter)] py-5">
-        <GemSearchField
+        <ReferenceSearchField
+          label="Search gems"
+          placeholder="Name, tag, description, or effect text"
           id="gem-search"
           value={query}
           onChange={(value) => patchSearch({ q: value, page: 1 })}

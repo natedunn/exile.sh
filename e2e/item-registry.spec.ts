@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-test("search, unique detail, and return preserve catalogue filters", async ({
+test("search, unique detail, and return keep the query off item pages", async ({
   page,
 }) => {
   await page.goto("/items")
@@ -11,16 +11,16 @@ test("search, unique detail, and return preserve catalogue filters", async ({
   await expect(
     page.getByRole("heading", { name: "Astramentis", exact: true })
   ).toBeVisible()
+  expect(new URL(page.url()).searchParams.has("q")).toBe(false)
   await expect(page.getByTestId("unique-modifiers")).toContainText(
     "+(50-100) to all Attributes"
   )
   await expect(page.getByTestId("modifier-table-corrupted")).toBeVisible()
   await expect(page.getByTestId("modifier-table-prefix")).toHaveCount(0)
+  // The list's filters come back, but not its query.
   await page.getByRole("link", { name: "← All items" }).click()
-  await expect(page.getByLabel("Search items", { exact: true })).toHaveValue(
-    "Astramentis"
-  )
-  await expect(page.getByTestId("item-results").locator("li")).toHaveCount(1)
+  await expect(page.getByLabel("Search items", { exact: true })).toHaveValue("")
+  expect(new URL(page.url()).searchParams.has("q")).toBe(false)
 })
 
 test("base modifier tables split by source and respect item level", async ({
