@@ -41,20 +41,12 @@ export const Route = createFileRoute("/patch-notes/")({
   staleTime: 600_000,
   pendingComponent: () => (
     <NewsPage>
-      <PatchNotesHeading title="Patch notes" meta={<Source />} />
+      <PatchNotesHeading title="Patch notes" />
       <NewsStatus>Loading patch notes…</NewsStatus>
     </NewsPage>
   ),
   component: PatchNotesPage,
 })
-
-function Source() {
-  return (
-    <span>
-      <strong>Grinding Gear Games</strong>
-    </span>
-  )
-}
 
 const FORUM_URL = "https://www.pathofexile.com/forum/view-forum/2212"
 
@@ -113,7 +105,6 @@ function PatchNotesPage() {
         title="Patch notes"
         meta={
           <>
-            <Source />
             <span>
               {latest
                 ? `Latest ${day(latest.date)}`

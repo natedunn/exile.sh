@@ -223,6 +223,7 @@
   --dither-fade-tl: url("/art/fade-tl.png");
   --dither-glow: url("/art/glow.png");
   --dither-glow-icon: url("/art/glow-icon.png");
+  --dither-glow-item: url("/art/glow-item.png");
   /* Masthead glow, stretched over header art that is not pre-baked. */
   --dither-glow-masthead: url("/art/glow-masthead.png");
   /* Resolution-independent dot screen for small surfaces. */

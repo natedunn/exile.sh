@@ -91,16 +91,11 @@ function PatchPostPage() {
         title={post?.title ?? "Patch notes unavailable"}
         back
         meta={
-          <>
+          post?.date && (
             <span>
-              <strong>Grinding Gear Games</strong>
+              <time dateTime={posted}>{day(post.date)}</time>
             </span>
-            {post?.date && (
-              <span>
-                <time dateTime={posted}>{day(post.date)}</time>
-              </span>
-            )}
-          </>
+          )
         }
         actions={
           <a

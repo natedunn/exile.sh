@@ -447,7 +447,24 @@ function ramp(width, height, dot, value) {
     .toBuffer()
 }
 
+// Hover glow behind an item card's art on the items list, 84px: one card's
+// height, centred on the art and brightest at the centre, like the
+// currency icon's glow.
+const itemGlow = () =>
+  ramp(84, 84, 2, (x, y) => {
+    const d = Math.hypot(x - 0.5, y - 0.5) * 2
+    return Math.max(0, 1 - d) ** 1.4
+  })
+
+if (process.argv.includes("--item-glow")) {
+  await mkdir(OUT, { recursive: true })
+  await writeFile(new URL("glow-item.png", OUT), await itemGlow())
+  console.log("wrote public/art/glow-item.png")
+  process.exit(0)
+}
+
 await mkdir(OUT, { recursive: true })
+await writeFile(new URL("glow-item.png", OUT), await itemGlow())
 await writeFile(new URL("hooded-one-masthead.png", OUT), await hoodedOneArt())
 await writeFile(new URL("build-bin-masthead.png", OUT), await buildBinArt())
 await writeFile(new URL("items-masthead.png", OUT), await itemsArt())
