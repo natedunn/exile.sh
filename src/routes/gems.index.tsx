@@ -39,6 +39,13 @@ const PAGE_SIZE = 60
 // against the list's left rule, so a short final row closes cleanly.
 const GRID =
   "m-0 grid list-none grid-cols-3 border-l border-rule-strong p-0 max-lg:grid-cols-2 max-md:grid-cols-1"
+const CELL = "border-r border-b border-rule-strong bg-surface last:border-b"
+// Favorites have no heading rule above them, so every cell draws a full
+// border and overlaps its neighbours by a pixel to keep the rules single.
+const FAVORITES_GRID =
+  "m-0 grid list-none grid-cols-3 pt-px pl-px max-lg:grid-cols-2 max-md:grid-cols-1"
+const FAVORITE_CELL =
+  "-mt-px -ml-px border border-rule-strong bg-surface last:border-b"
 
 function GemsPage() {
   const search = Route.useSearch()
@@ -77,22 +84,24 @@ function GemsPage() {
   const pinned = deferredQuery
     ? []
     : results.filter(({ reference }) => favoriteSet.has(reference.gameId))
-  const renderGem = ({ reference, match }: (typeof results)[number]) =>
-    catalogue.data && (
-      <GemResult
-        key={reference.gameId}
-        reference={reference}
-        match={match}
-        level={level}
-        quality={quality}
-        slug={gemSlug(catalogue.data, reference)}
-        headers={catalogue.data.headers}
-        search={search}
-        favorite={favoriteSet.has(reference.gameId)}
-        onFavoriteChange={() => toggleFavorite(reference.gameId)}
-        className="border-r border-b border-rule-strong bg-surface last:border-b"
-      />
-    )
+  const renderGem =
+    (className: string) =>
+    ({ reference, match }: (typeof results)[number]) =>
+      catalogue.data && (
+        <GemResult
+          key={reference.gameId}
+          reference={reference}
+          match={match}
+          level={level}
+          quality={quality}
+          slug={gemSlug(catalogue.data, reference)}
+          headers={catalogue.data.headers}
+          search={search}
+          favorite={favoriteSet.has(reference.gameId)}
+          onFavoriteChange={() => toggleFavorite(reference.gameId)}
+          className={className}
+        />
+      )
 
   return (
     <div className="pb-12">
@@ -170,7 +179,7 @@ function GemsPage() {
           <TooltipPinScope maxPinnedTooltips={1}>
             {pinned.length > 0 && (
               <section aria-labelledby="gem-favorites" className="mb-8">
-                <div className="mt-6 flex items-baseline justify-between gap-3 border-b border-rule-strong pb-2">
+                <div className="mt-6 flex items-baseline justify-between gap-3 pb-2">
                   <h2
                     id="gem-favorites"
                     className="font-display text-2xl text-ink"
@@ -181,8 +190,8 @@ function GemsPage() {
                     {pinned.length} {pinned.length === 1 ? "gem" : "gems"}
                   </p>
                 </div>
-                <ul data-testid="gem-favorites" className={GRID}>
-                  {pinned.map(renderGem)}
+                <ul data-testid="gem-favorites" className={FAVORITES_GRID}>
+                  {pinned.map(renderGem(FAVORITE_CELL))}
                 </ul>
               </section>
             )}
@@ -197,7 +206,7 @@ function GemsPage() {
             {results.length ? (
               <>
                 <ul data-testid="gem-results" className={GRID}>
-                  {ordered.slice(0, visible).map(renderGem)}
+                  {ordered.slice(0, visible).map(renderGem(CELL))}
                 </ul>
                 {visible < results.length && (
                   <Button
