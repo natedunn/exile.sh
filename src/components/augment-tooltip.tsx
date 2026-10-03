@@ -211,7 +211,9 @@ export function AugmentSocket({
         className={
           jewel
             ? cn(itemCard, jewelCard, "gap-0 p-0")
-            : "font-sans text-xs leading-[1.65] [--inspection-width:330px]"
+            : // Body text matches the item card's modifiers; the title steps
+              // down from the card size to suit the smaller popup.
+              "font-display text-[15px] leading-[1.65] [--inspection-width:330px] max-sm:text-[14px] [&_[data-slot=popover-title]]:text-[19px]!"
         }
         data-rarity={jewel?.rarity.toUpperCase()}
         style={{ maxHeight: availableHeight }}

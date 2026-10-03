@@ -15,13 +15,18 @@ import { useAffixLayout } from "../lib/item-display-settings"
 import { useBondedModifiers } from "./item-display-settings-provider"
 
 const properties =
-  "grid gap-(--equipment-line-gap) text-left font-sans text-(length:--equipment-modifier-font-size) leading-(--equipment-line-height) data-[layout=centered]:text-center [&>div]:flex [&>div]:justify-start [&>div]:gap-1 data-[layout=centered]:[&>div]:justify-center [&_dt]:text-ink-muted [&_dt]:after:content-[':'] [&_dd]:m-0 [&_dd]:text-left [&_dd]:text-ink [&_dd]:tabular-nums data-[layout=centered]:[&_dd]:text-center"
+  "grid gap-(--equipment-line-gap) text-left font-display text-(length:--equipment-modifier-font-size) leading-(--equipment-line-height) data-[layout=centered]:text-center [&>div]:flex [&>div]:justify-start [&>div]:gap-1 data-[layout=centered]:[&>div]:justify-center [&_dt]:text-ink-muted [&_dt]:after:content-[':'] [&_dd]:m-0 [&_dd]:text-left [&_dd]:text-ink [&_dd]:tabular-nums data-[layout=centered]:[&_dd]:text-center"
 
 const modifiers =
-  "font-sans text-(length:--equipment-modifier-font-size) leading-(--equipment-line-height) font-medium text-item-modifier [&_[data-kind=crafted]]:text-item-crafted [&_[data-kind=enchant]]:text-item-augment [&_[data-kind=fractured]]:text-item-fractured [&_[data-kind=desecrated]]:text-item-desecrated [&_[data-kind=mutated]]:text-negative [&_[data-kind=corrupted]]:text-negative [&_[data-corrupted=true]]:text-negative [&_[data-corrupted=true]]:mt-3 [&_[data-corrupted=true]]:flex [&_[data-corrupted=true]]:items-center [&_[data-corrupted=true]]:gap-3 [&_[data-corrupted=true]]:corrupted-rule [&_[data-corrupted=true]]:mx-[calc(-1*var(--equipment-content-inset))] data-[layout=bullets]:[&_[data-corrupted=true]]:ms-0 data-[layout=bullets]:[&_[data-corrupted=true]]:before:hidden [&_[data-explicit=true]>[data-kind=normal]]:text-item-explicit"
+  "font-display text-(length:--equipment-modifier-font-size) leading-(--equipment-line-height) font-medium text-item-modifier [&_[data-kind=crafted]]:text-item-crafted [&_[data-kind=enchant]]:text-item-augment [&_[data-kind=fractured]]:text-item-fractured [&_[data-kind=desecrated]]:text-item-desecrated [&_[data-kind=mutated]]:text-negative [&_[data-kind=corrupted]]:text-negative [&_[data-corrupted=true]]:text-negative [&_[data-corrupted=true]]:mt-3 [&_[data-corrupted=true]]:flex [&_[data-corrupted=true]]:items-center [&_[data-corrupted=true]]:gap-3 [&_[data-corrupted=true]]:corrupted-rule [&_[data-corrupted=true]]:mx-[calc(-1*var(--equipment-content-inset))] data-[layout=bullets]:[&_[data-corrupted=true]]:ms-0 data-[layout=bullets]:[&_[data-corrupted=true]]:before:hidden [&_[data-explicit=true]>[data-kind=normal]]:text-item-explicit"
 
 const affixGroup =
-  "m-0 list-none p-0 text-center [&+&]:mt-1.75 [&+&]:border-t [&+&]:border-rule-strong [&+&]:pt-1.75 [&>li]:my-(--equipment-line-gap) [&>li]:wrap-anywhere [&>li::marker]:[color:color-mix(in_srgb,currentColor_50%,transparent)] [&>li[data-kind=desecrated]]:desecrated-wash data-[explicit=true]:[&>[data-kind=normal]]:text-item-explicit in-data-[layout=bullets]:list-disc in-data-[layout=bullets]:text-left in-data-[layout=bullets]:[&>li:not([data-granted-skill=true]):not([data-augment=true])]:[--equipment-affix-indent:1.25em] in-data-[layout=bullets]:[&>li:not([data-granted-skill=true]):not([data-augment=true])]:ml-(--equipment-affix-indent) in-data-[layout=bullets]:[&>li:is([data-augment=true],[data-granted-skill=true])]:flex in-data-[layout=bullets]:[&>li:is([data-augment=true],[data-granted-skill=true])]:items-start in-data-[layout=bullets]:[&>li:is([data-augment=true],[data-granted-skill=true])]:justify-start in-data-[layout=bullets]:[&>li:is([data-augment=true],[data-granted-skill=true])]:gap-2 in-data-[layout=bullets]:[&>li:is([data-augment=true],[data-granted-skill=true])]:text-left [&>li:is([data-augment=true],[data-granted-skill=true])]:list-none"
+  "m-0 list-none p-0 text-center [&+&]:mt-(--equipment-rule-gap) [&+&]:border-t [&+&]:border-rule-strong [&+&]:pt-(--equipment-rule-gap) [&>li]:my-(--equipment-line-gap) [&>li:first-child]:mt-0 [&>li:last-child]:mb-0 [&>li]:wrap-anywhere [&>li::marker]:[color:color-mix(in_srgb,currentColor_50%,transparent)] [&>li[data-kind=desecrated]]:desecrated-wash data-[explicit=true]:[&>[data-kind=normal]]:text-item-explicit in-data-[layout=bullets]:list-disc in-data-[layout=bullets]:text-left in-data-[layout=bullets]:[&>li:not([data-granted-skill=true]):not([data-augment=true])]:[--equipment-affix-indent:1.25em] in-data-[layout=bullets]:[&>li:not([data-granted-skill=true]):not([data-augment=true])]:ml-(--equipment-affix-indent) in-data-[layout=bullets]:[&>li:is([data-augment=true],[data-granted-skill=true])]:flex in-data-[layout=bullets]:[&>li:is([data-augment=true],[data-granted-skill=true])]:items-start in-data-[layout=bullets]:[&>li:is([data-augment=true],[data-granted-skill=true])]:justify-start in-data-[layout=bullets]:[&>li:is([data-augment=true],[data-granted-skill=true])]:gap-2 in-data-[layout=bullets]:[&>li:is([data-augment=true],[data-granted-skill=true])]:text-left [&>li:is([data-augment=true],[data-granted-skill=true])]:list-none"
+
+/* Every rule sits --equipment-rule-gap from the content on either side;
+   affix lists drop the line gap at their edges so it never adds to it. */
+const augmentGroup =
+  "py-(--equipment-rule-gap) [&+&]:border-t [&+&]:border-rule-strong"
 
 export function ItemTooltipContent({
   item,
@@ -102,7 +107,7 @@ export function ItemTooltipContent({
     <>
       <header
         data-slot="equipment-card-header"
-        className="border-b border-(--inspection-border) px-5.5 py-3.5 text-left data-[layout=centered]:px-12 data-[layout=centered]:text-center"
+        className="border-b border-(--inspection-border) px-5.5 py-3.5 text-left data-[layout=centered]:px-12! data-[layout=centered]:text-center"
         data-layout={affixLayout}
       >
         <div className="min-w-0">
@@ -130,7 +135,7 @@ export function ItemTooltipContent({
         </div>
       </header>
       <div
-        className="px-(--equipment-content-inset) py-4 text-left [--equipment-content-inset:22px] data-[layout=centered]:text-center max-sm:py-3.5 max-sm:[--equipment-content-inset:16px]"
+        className="px-(--equipment-content-inset) py-4 text-left [--equipment-content-inset:22px] [--equipment-rule-gap:11px] data-[layout=centered]:text-center max-sm:py-3.5 max-sm:[--equipment-content-inset:16px]"
         data-layout={affixLayout}
       >
         {details.properties.length > 0 && (
@@ -169,7 +174,7 @@ export function ItemTooltipContent({
         )}
         {(augments.groups.length > 0 || augments.unmatched.length > 0) && (
           <section
-            className={`${modifiers} mt-2 border-t border-rule-strong`}
+            className={`${modifiers} mt-(--equipment-rule-gap) border-t border-rule-strong first:mt-0 first:border-t-0`}
             data-layout={affixLayout}
             aria-label="Augments"
           >
@@ -179,7 +184,7 @@ export function ItemTooltipContent({
               )
               .map((group, index) => (
                 <div
-                  className="py-1.5 [&+&]:border-t [&+&]:border-rule"
+                  className={augmentGroup}
                   key={index}
                 >
                   {!group.lines.length && augmentIcons(group.augments)}
@@ -193,7 +198,7 @@ export function ItemTooltipContent({
                 </div>
               ))}
             {visible(augments.unmatched).length > 0 && (
-              <div className="py-1.5 [&+&]:border-t [&+&]:border-rule">
+              <div className={augmentGroup}>
                 {renderModifiers(
                   augments.unmatched,
                   "Other augment effects",
@@ -207,7 +212,7 @@ export function ItemTooltipContent({
         {details.modifiers.length > 0 && (
           <div
             data-slot="equipment-card-modifiers"
-            className={`${modifiers} border-t border-rule-strong py-1.75 first:mt-2`}
+            className={`${modifiers} mt-(--equipment-rule-gap) border-t border-rule-strong pt-(--equipment-rule-gap) first:mt-0 first:border-t-0 first:pt-0 [section+&]:mt-0`}
             data-layout={affixLayout}
           >
             {renderModifiers(
@@ -241,7 +246,7 @@ export function ItemTooltipContent({
           </p>
         )}
         {!inline && (
-          <footer className="mt-3 border-t border-rule pt-2.5 text-center text-2xs leading-loose text-ink-muted">
+          <footer className="mt-(--equipment-rule-gap) border-t border-rule-strong pt-2.5 text-center text-2xs leading-loose text-ink-muted">
             <span className="pointer-coarse:hidden [&_kbd]:px-1 [&_kbd]:py-0.25 [&_kbd]:text-fine">
               Hold <Kbd>Alt</Kbd> to inspect • <Kbd>P</Kbd> to keep open
               <span aria-hidden="true"> • </span>

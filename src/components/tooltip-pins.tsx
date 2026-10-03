@@ -636,7 +636,11 @@ export function InspectionTooltipContent({
           props.positionerAdornment
         )
       }
-      data-pin-control={canPin || fallbackClose || undefined}
+      // Room for the control is kept whenever pinning is possible, so the
+      // content never shifts as the pin appears and disappears.
+      data-pin-control={
+        (context?.enabled && pinningEnabled) || fallbackClose || undefined
+      }
       {...(freeze && anchor
         ? ({
             anchor,

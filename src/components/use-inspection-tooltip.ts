@@ -2,10 +2,16 @@ import { useEffect, useRef, useState } from "react"
 import type { ComponentProps } from "react"
 import type { Popover, PopoverTrigger } from "./ui/popover"
 
+/* The popup Alt or P is currently holding open, if any. */
+let heldBy: { current: boolean } | null = null
+
 /** DOM-triggered inspection. SVG trees keep their own hit testing/anchoring. */
 export function useInspectionTooltip({
   nested = false,
   stickyShortcut = false,
+  /** The popup is showing for another reason (an item kept up by its
+   * augment's tooltip), so its shortcuts should still answer. */
+  shown = false,
 } = {}) {
   const [open, setOpen] = useState(false)
   const [held, setHeld] = useState(false)
@@ -14,8 +20,9 @@ export function useInspectionTooltip({
   const hovering = useRef(false)
   const holding = useRef(false)
   const sticky = useRef(false)
+  const listening = open || shown
   useEffect(() => {
-    if (!open) {
+    if (!listening) {
       sticky.current = false
       return
     }
@@ -40,14 +47,18 @@ export function useInspectionTooltip({
         event.preventDefault()
         sticky.current = !sticky.current
         holding.current = sticky.current
+        if (sticky.current) heldBy = holding
         hoverOnlyRef.current = !sticky.current
         setHoverOnly(hoverOnlyRef.current)
         setHeld(sticky.current)
-        if (!sticky.current && !hovering.current) setOpen(false)
+        if (sticky.current) setOpen(true)
+        else if (!hovering.current) setOpen(false)
       }
       if (event.key === "Alt") {
         holding.current = true
+        heldBy = holding
         setHeld(true)
+        setOpen(true)
       }
     }
     const up = (event: KeyboardEvent) => {
@@ -66,7 +77,7 @@ export function useInspectionTooltip({
       window.removeEventListener("blur", blur)
       holding.current = false
     }
-  }, [open, stickyShortcut])
+  }, [listening, stickyShortcut])
 
   const close = () => {
     setOpen(false)
@@ -100,7 +111,18 @@ export function useInspectionTooltip({
       if (event.pointerType === "touch") return
       hovering.current = true
       if (held && !hoverOnly) return
-      if (event.altKey && !nested) return
+      if (event.altKey && !nested) {
+        // Alt carries a held popup to its pin; popups crossed on the way
+        // stay shut. With nothing held, Alt opens this one already held.
+        if (heldBy?.current && heldBy !== holding) return
+        holding.current = true
+        heldBy = holding
+        hoverOnlyRef.current = true
+        setHoverOnly(true)
+        setHeld(true)
+        setOpen(true)
+        return
+      }
       // A hover is only ever a hover: no focus, no close control. Touch,
       // Enter and Space opt into the interactive form below.
       hoverOnlyRef.current = true

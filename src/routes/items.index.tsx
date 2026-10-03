@@ -1,13 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 import { useDeferredValue, useMemo } from "react"
-import { searchItems } from "../../shared/item-registry"
+import { itemBySlug, searchItems } from "../../shared/item-registry"
 import { useItemRegistry } from "../lib/use-item-registry"
 import { pageShareImage } from "../lib/page-share"
 import { shareMeta } from "../lib/share-meta"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Field, FieldLabel } from "../components/ui/field"
-import { Badge } from "../components/ui/badge"
 import { EmptyState } from "../components/ui/empty-state"
 import { Note } from "../components/ui/note"
 import {
@@ -21,7 +20,8 @@ import {
   PageMeta,
 } from "../components/ui/page-heading"
 import { ReferenceSelect } from "../components/item-registry-controls"
-import { ItemRegistryImage } from "../components/item-registry-image"
+import { ItemResult } from "../components/item-result"
+import { TooltipPinScope } from "../components/tooltip-pins"
 import type { ItemSearch } from "./items"
 
 export const Route = createFileRoute("/items/")({
@@ -36,10 +36,6 @@ export const Route = createFileRoute("/items/")({
   component: ItemsPage,
 })
 const PAGE_SIZE = 60
-const itemNameClass = {
-  unique: "text-sm font-medium text-item-unique",
-  base: "text-sm font-medium",
-}
 const kindHeading = {
   unique: "All uniques",
   base: "All bases",
@@ -160,7 +156,7 @@ function ItemsPage() {
             Loading items…
           </p>
         ) : (
-          <>
+          <TooltipPinScope maxPinnedTooltips={1}>
             <div className="mt-6 flex items-baseline justify-between gap-3 border-b border-rule-strong pb-2">
               <h2 className="font-display text-2xl text-ink">
                 {search.q.trim() ? "Results" : kindHeading[search.kind]}
@@ -179,48 +175,16 @@ function ItemsPage() {
                   className="m-0 grid list-none grid-cols-3 border-l border-rule-strong p-0 max-lg:grid-cols-2 max-md:grid-cols-1"
                 >
                   {results.slice(0, visible).map((item) => (
-                    <li
+                    <ItemResult
                       key={item.slug}
-                      className="min-w-0 border-r border-b border-rule-strong bg-surface"
-                    >
-                      {/* Hover glow: bronze through a radial dither mask baked
-                          to the card's height and centred on the art, like
-                          the currency masthead's glow (scripts/dither-art.mjs). */}
-                      <Link
-                        to="/items/$item"
-                        params={{ item: item.slug }}
-                        search={search}
-                        className="group relative isolate flex h-full w-full items-center gap-3 overflow-hidden px-4 py-2 text-ink no-underline before:pointer-events-none before:absolute before:top-1/2 before:left-9 before:-z-1 before:size-21 before:-translate-x-1/2 before:-translate-y-1/2 before:bg-brand before:mask-(--dither-glow-item) before:mask-no-repeat before:opacity-0 before:transition-opacity before:duration-160 before:content-[''] hover:before:opacity-30 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus focus-visible:before:opacity-30 motion-reduce:before:transition-none max-sm:px-3 max-sm:before:left-8"
-                      >
-                        <ItemRegistryImage src={item.image} />
-                        <span className="flex min-w-0 flex-1 flex-col gap-1">
-                          <strong
-                            className={`truncate ${itemNameClass[item.kind]}`}
-                          >
-                            {item.name}
-                          </strong>
-                          <span className="flex min-w-0 items-center gap-2 font-mono text-label text-ink-muted">
-                            <span className="truncate">
-                              {item.kind === "unique"
-                                ? item.baseName
-                                : item.itemClass}
-                            </span>
-                            {item.kind === "base" &&
-                              item.form !== "original" && (
-                                <Badge variant="outline">{item.form}</Badge>
-                              )}
-                          </span>
-                          <span className="truncate text-xs text-ink-muted">
-                            {item.kind === "unique"
-                              ? (item.modifiers.find(
-                                  (mod) => !mod.variants.length
-                                )?.text ?? item.itemClass)
-                              : item.implicits.join(" · ") ||
-                                "View base stats and modifier reference"}
-                          </span>
-                        </span>
-                      </Link>
-                    </li>
+                      item={item}
+                      base={
+                        item.kind === "unique" && item.baseSlug
+                          ? itemBySlug(catalogue.data, item.baseSlug)
+                          : undefined
+                      }
+                      search={search}
+                    />
                   ))}
                 </ul>
                 {visible < results.length && (
@@ -238,7 +202,7 @@ function ItemsPage() {
                 No items match that search.
               </EmptyState>
             )}
-          </>
+          </TooltipPinScope>
         )}
         <p className="mt-6 text-xs leading-relaxed text-ink-muted">
           Reference data from Path of Building and RePoE. Modifier references
