@@ -104,6 +104,36 @@ export declare const api: {
       } | null
     >;
   };
+  gemBookmarks: {
+    list: FunctionReference<"query", "public", {}, any>;
+    merge: FunctionReference<
+      "mutation",
+      "public",
+      { items: Array<string> },
+      any
+    >;
+    set: FunctionReference<
+      "mutation",
+      "public",
+      { item: string; watched: boolean },
+      any
+    >;
+  };
+  itemBookmarks: {
+    list: FunctionReference<"query", "public", {}, any>;
+    merge: FunctionReference<
+      "mutation",
+      "public",
+      { items: Array<string> },
+      any
+    >;
+    set: FunctionReference<
+      "mutation",
+      "public",
+      { item: string; watched: boolean },
+      any
+    >;
+  };
   patchAnnotations: {
     list: FunctionReference<"query", "public", { threadId: string }, any>;
     merge: FunctionReference<

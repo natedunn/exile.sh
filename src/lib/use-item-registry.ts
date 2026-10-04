@@ -10,9 +10,10 @@ async function readReference<T>(path: string): Promise<T> {
   return response.json() as Promise<T>
 }
 
-export function useItemRegistry() {
+export function useItemRegistry(enabled = true) {
   return useQuery({
     queryKey: ["item-registry", "v1"],
+    enabled,
     queryFn: () => readReference<ItemCatalogue>("/items/v1/catalogue.json"),
     staleTime: Infinity,
     gcTime: 60 * 60 * 1000,

@@ -5,8 +5,6 @@ import { useItemRegistry } from "../lib/use-item-registry"
 import { pageShareImage } from "../lib/page-share"
 import { shareMeta } from "../lib/share-meta"
 import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { Field, FieldLabel } from "../components/ui/field"
 import { EmptyState } from "../components/ui/empty-state"
 import { Note } from "../components/ui/note"
 import {
@@ -20,8 +18,15 @@ import {
   PageMeta,
 } from "../components/ui/page-heading"
 import { ReferenceSelect } from "../components/item-registry-controls"
+import { ReferenceSearchField } from "../components/reference-search-field"
 import { ItemResult } from "../components/item-result"
 import { TooltipPinScope } from "../components/tooltip-pins"
+import {
+  BookmarkedResults,
+  framedCell,
+  framedGrid,
+} from "../components/result-grid"
+import { useItemBookmarks } from "../lib/use-saved-list"
 import type { ItemSearch } from "./items"
 
 export const Route = createFileRoute("/items/")({
@@ -73,7 +78,35 @@ function ItemsPage() {
         : [],
     [catalogue.data, query, search.kind, search.itemClass]
   )
+  const { favorites, toggleFavorite, storageError } = useItemBookmarks()
+  const bookmarkSet = new Set(favorites)
+  // Bookmarks lead a search; with no search they have their own section.
+  const ordered = query.trim()
+    ? [
+        ...results.filter((item) => bookmarkSet.has(item.slug)),
+        ...results.filter((item) => !bookmarkSet.has(item.slug)),
+      ]
+    : results
+  const pinned = query.trim()
+    ? []
+    : results.filter((item) => bookmarkSet.has(item.slug))
   const visible = search.page * PAGE_SIZE
+  const renderItem = (className: string) => (item: (typeof results)[number]) =>
+    catalogue.data && (
+      <ItemResult
+        key={item.slug}
+        item={item}
+        base={
+          item.kind === "unique" && item.baseSlug
+            ? itemBySlug(catalogue.data, item.baseSlug)
+            : undefined
+        }
+        search={search}
+        bookmarked={bookmarkSet.has(item.slug)}
+        onBookmarkedChange={() => toggleFavorite(item.slug)}
+        className={className}
+      />
+    )
   return (
     <div className="pb-12">
       <PageHeading className="-mx-[var(--shell-gutter)] px-[var(--shell-gutter)]">
@@ -95,18 +128,16 @@ function ItemsPage() {
         />
       </PageHeading>
       <div className="-mx-[var(--shell-gutter)] flex flex-wrap items-end gap-4 border-b border-rule-strong px-[var(--shell-gutter)] py-5">
-        <Field className="max-w-180 min-w-0 flex-1 max-sm:basis-full">
-          <FieldLabel htmlFor="item-search">Search items</FieldLabel>
-          <Input
-            id="item-search"
-            disabled={catalogue.isPending}
-            type="search"
-            placeholder="Name, base, or modifier text…"
-            value={search.q}
-            onChange={(event) => patch({ q: event.target.value, page: 1 })}
-            className="h-9"
-          />
-        </Field>
+        <ReferenceSearchField
+          id="item-search"
+          label="Search items"
+          placeholder="Name, base, or modifier text…"
+          disabled={catalogue.isPending}
+          value={search.q}
+          onChange={(q) => patch({ q, page: 1 })}
+          className="max-w-180 min-w-0 flex-1 max-sm:basis-full"
+          inputClassName="h-9"
+        />
         <ReferenceSelect
           id="item-class"
           disabled={catalogue.isPending}
@@ -140,6 +171,12 @@ function ItemsPage() {
         </SegmentedControl>
       </div>
       <div className="pt-4">
+        {storageError && (
+          <Note className="mt-4" role="status">
+            Your browser could not save bookmarks. They will last only for this
+            session.
+          </Note>
+        )}
         {catalogue.isError ? (
           <Note className="mt-6" role="alert">
             Item references could not be loaded.{" "}
@@ -157,7 +194,12 @@ function ItemsPage() {
           </p>
         ) : (
           <TooltipPinScope maxPinnedTooltips={1}>
-            <div className="mt-6 flex items-baseline justify-between gap-3 border-b border-rule-strong pb-2">
+            {pinned.length > 0 && (
+              <BookmarkedResults count={pinned.length} noun="item">
+                {pinned.map(renderItem(framedCell))}
+              </BookmarkedResults>
+            )}
+            <div className="mt-6 flex items-baseline justify-between gap-3 pb-2">
               <h2 className="font-display text-2xl text-ink">
                 {search.q.trim() ? "Results" : kindHeading[search.kind]}
               </h2>
@@ -168,24 +210,8 @@ function ItemsPage() {
             </div>
             {results.length ? (
               <>
-                {/* Cells draw their own right and bottom rules against the
-                    list's left rule, so a short final row closes cleanly. */}
-                <ul
-                  data-testid="item-results"
-                  className="m-0 grid list-none grid-cols-3 border-l border-rule-strong p-0 max-lg:grid-cols-2 max-md:grid-cols-1"
-                >
-                  {results.slice(0, visible).map((item) => (
-                    <ItemResult
-                      key={item.slug}
-                      item={item}
-                      base={
-                        item.kind === "unique" && item.baseSlug
-                          ? itemBySlug(catalogue.data, item.baseSlug)
-                          : undefined
-                      }
-                      search={search}
-                    />
-                  ))}
+                <ul data-testid="item-results" className={framedGrid}>
+                  {ordered.slice(0, visible).map(renderItem(framedCell))}
                 </ul>
                 {visible < results.length && (
                   <Button

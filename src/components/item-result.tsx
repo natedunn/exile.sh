@@ -1,3 +1,4 @@
+import { cn } from "cn"
 import { Link } from "@tanstack/react-router"
 import { useState } from "react"
 import type { BaseReference, ItemReference } from "../../shared/item-registry"
@@ -8,6 +9,8 @@ import { useInspectionTooltip } from "./use-inspection-tooltip"
 import { InspectionTooltipContent } from "./tooltip-pins"
 import { Popover, PopoverTrigger } from "./ui/popover"
 import { ItemTooltipContent } from "./item-tooltip-content"
+import { BookmarkToggle } from "./bookmark-toggle"
+import { resultCell } from "./result-grid"
 import { itemCard } from "./equipment-classes"
 import type {
   EquipmentDetails,
@@ -26,11 +29,17 @@ export function ItemResult({
   item,
   base,
   search,
+  bookmarked,
+  onBookmarkedChange,
+  className = resultCell,
 }: {
   item: ItemReference
   /** The unique's own base, for the stats in the tooltip. */
   base?: ItemReference
   search: ItemSearch
+  bookmarked: boolean
+  onBookmarkedChange: () => void
+  className?: string
 }) {
   const inspection = useInspectionTooltip({ stickyShortcut: true })
   const card = registryEquipment(
@@ -42,7 +51,13 @@ export function ItemResult({
   }>()
 
   return (
-    <li className="min-w-0 border-r border-b border-rule-strong bg-surface">
+    // The whole card, bookmark included, takes the hover and open state.
+    <li
+      className={cn(
+        "flex min-w-0 items-stretch transition-colors duration-160 hover:bg-hover has-[[data-popup-open]]:bg-hover has-[a:focus-visible]:bg-hover motion-reduce:transition-none",
+        className
+      )}
+    >
       <Popover {...inspection.popoverProps}>
         <PopoverTrigger
           nativeButton={false}
@@ -50,7 +65,15 @@ export function ItemResult({
             <Link
               to="/items/$item"
               params={{ item: item.slug }}
-              search={search}
+              // The list's query and page stay on the list, so an item page
+              // is free to use its own search.
+              search={{
+                ...search,
+                q: "",
+                page: 1,
+                variant: undefined,
+                baseForm: undefined,
+              }}
             />
           }
           {...inspection.triggerProps}
@@ -79,7 +102,7 @@ export function ItemResult({
               return pointerAnchor(clientX, clientY)
             })
           }}
-          className="flex h-full w-full items-center gap-3 px-4 py-2 text-ink no-underline transition-colors duration-160 hover:bg-hover focus-visible:bg-hover focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus data-popup-open:bg-hover motion-reduce:transition-none max-sm:px-3"
+          className="flex min-w-0 flex-1 items-center gap-3 py-2 pr-2 pl-4 text-ink no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus max-sm:pl-3"
           aria-label={`${item.name}. View item details`}
         >
           <ItemRegistryImage src={item.image} />
@@ -127,6 +150,11 @@ export function ItemResult({
           />
         </InspectionTooltipContent>
       </Popover>
+      <BookmarkToggle
+        name={item.name}
+        bookmarked={bookmarked}
+        onBookmarkedChange={onBookmarkedChange}
+      />
     </li>
   )
 }

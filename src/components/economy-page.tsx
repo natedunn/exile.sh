@@ -26,7 +26,7 @@ import { useCRPC } from "../lib/convex/crpc"
 import type { Filters } from "../lib/economy-filters"
 import { utc } from "../lib/format"
 import { useMarket } from "../lib/use-market"
-import { useWatchlist } from "../lib/use-watchlist"
+import { useWatchlist } from "../lib/use-saved-list"
 
 export { filters, defaultFilters } from "../lib/economy-filters"
 export type { Filters } from "../lib/economy-filters"

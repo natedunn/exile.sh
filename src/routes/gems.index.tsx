@@ -3,8 +3,14 @@ import { shareMeta } from "../lib/share-meta"
 import { gemSlug } from "../../shared/gem-slug"
 import { useDeferredValue, useMemo } from "react"
 import { GemResult } from "../components/gem-result"
-import { GemSearchField } from "../components/gem-search-field"
+import { ReferenceSearchField } from "../components/reference-search-field"
 import { TooltipPinScope } from "../components/tooltip-pins"
+import {
+  BookmarkedResults,
+  framedCell,
+  resultCell,
+  resultGrid,
+} from "../components/result-grid"
 import { Button } from "../components/ui/button"
 import { EmptyState } from "../components/ui/empty-state"
 import { Field, FieldLabel } from "../components/ui/field"
@@ -19,6 +25,7 @@ import {
 import { useGemCatalogue } from "../lib/use-gem-catalogue"
 import { findGems } from "../lib/gem-search"
 import { useGemSearchIndex } from "../lib/use-gem-search-index"
+import { useGemBookmarks } from "../lib/use-saved-list"
 import type { GemSearch } from "./gems"
 
 export const Route = createFileRoute("/gems/")({
@@ -40,6 +47,7 @@ function GemsPage() {
   const navigate = Route.useNavigate()
   const catalogue = useGemCatalogue()
   const index = useGemSearchIndex()
+  const { favorites, toggleFavorite, storageError } = useGemBookmarks()
   const query = search.q
   const level = String(search.level)
   const quality = String(search.quality)
@@ -58,6 +66,37 @@ function GemsPage() {
     )
     return findGems(references, index.data, deferredQuery)
   }, [catalogue.data, index.data, deferredQuery])
+  const bookmarkSet = new Set(favorites)
+  // Bookmarks lead a search; with no search they have their own section.
+  const ordered = deferredQuery
+    ? [
+        ...results.filter(({ reference }) => bookmarkSet.has(reference.gameId)),
+        ...results.filter(
+          ({ reference }) => !bookmarkSet.has(reference.gameId)
+        ),
+      ]
+    : results
+  const pinned = deferredQuery
+    ? []
+    : results.filter(({ reference }) => bookmarkSet.has(reference.gameId))
+  const renderGem =
+    (className: string) =>
+    ({ reference, match }: (typeof results)[number]) =>
+      catalogue.data && (
+        <GemResult
+          key={reference.gameId}
+          reference={reference}
+          match={match}
+          level={level}
+          quality={quality}
+          slug={gemSlug(catalogue.data, reference)}
+          headers={catalogue.data.headers}
+          search={search}
+          bookmarked={bookmarkSet.has(reference.gameId)}
+          onBookmarkedChange={() => toggleFavorite(reference.gameId)}
+          className={className}
+        />
+      )
 
   return (
     <div className="pb-12">
@@ -80,7 +119,9 @@ function GemsPage() {
         />
       </PageHeading>
       <div className="-mx-[var(--shell-gutter)] flex flex-wrap items-end gap-4 border-b border-rule-strong px-[var(--shell-gutter)] py-5">
-        <GemSearchField
+        <ReferenceSearchField
+          label="Search gems"
+          placeholder="Name, tag, description, or effect text"
           id="gem-search"
           value={query}
           onChange={(value) => patchSearch({ q: value, page: 1 })}
@@ -111,6 +152,12 @@ function GemsPage() {
         </Field>
       </div>
       <div className="pt-4">
+        {storageError && (
+          <Note className="mt-4" role="status">
+            Your browser could not save bookmarks. They will last only for this
+            session.
+          </Note>
+        )}
         {index.isError && (
           <Note className="mt-4" role="status">
             Effect text could not be loaded. Names, tags, and descriptions
@@ -127,6 +174,11 @@ function GemsPage() {
           </p>
         ) : (
           <TooltipPinScope maxPinnedTooltips={1}>
+            {pinned.length > 0 && (
+              <BookmarkedResults count={pinned.length} noun="gem">
+                {pinned.map(renderGem(framedCell))}
+              </BookmarkedResults>
+            )}
             <div className="mt-6 flex items-baseline justify-between gap-3 border-b border-rule-strong pb-2">
               <h2 className="font-display text-2xl text-ink">
                 {query.trim() ? "Results" : "All gems"}
@@ -137,22 +189,8 @@ function GemsPage() {
             </div>
             {results.length ? (
               <>
-                <ul
-                  data-testid="gem-results"
-                  className="m-0 list-none border-x border-b border-rule-strong bg-surface p-0"
-                >
-                  {results.slice(0, visible).map(({ reference, match }) => (
-                    <GemResult
-                      key={reference.gameId}
-                      reference={reference}
-                      match={match}
-                      level={level}
-                      quality={quality}
-                      slug={gemSlug(catalogue.data, reference)}
-                      headers={catalogue.data.headers}
-                      search={search}
-                    />
-                  ))}
+                <ul data-testid="gem-results" className={resultGrid}>
+                  {ordered.slice(0, visible).map(renderGem(resultCell))}
                 </ul>
                 {visible < results.length && (
                   <Button

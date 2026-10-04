@@ -21,6 +21,16 @@ export const api = {
     movers: createApiLeaf<"query", typeof import("../functions/economy").movers>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").movers>("economy:movers"), { type: "query" }),
     overview: createApiLeaf<"query", typeof import("../functions/economy").overview>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/economy").overview>("economy:overview"), { type: "query" }),
   },
+  gemBookmarks: {
+    list: createApiLeaf<"query", typeof import("../functions/gemBookmarks").list>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/gemBookmarks").list>("gemBookmarks:list"), { auth: "required", type: "query" }),
+    merge: createApiLeaf<"mutation", typeof import("../functions/gemBookmarks").merge>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/gemBookmarks").merge>("gemBookmarks:merge"), { auth: "required", type: "mutation" }),
+    set: createApiLeaf<"mutation", typeof import("../functions/gemBookmarks").set>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/gemBookmarks").set>("gemBookmarks:set"), { auth: "required", type: "mutation" }),
+  },
+  itemBookmarks: {
+    list: createApiLeaf<"query", typeof import("../functions/itemBookmarks").list>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/itemBookmarks").list>("itemBookmarks:list"), { auth: "required", type: "query" }),
+    merge: createApiLeaf<"mutation", typeof import("../functions/itemBookmarks").merge>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/itemBookmarks").merge>("itemBookmarks:merge"), { auth: "required", type: "mutation" }),
+    set: createApiLeaf<"mutation", typeof import("../functions/itemBookmarks").set>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/itemBookmarks").set>("itemBookmarks:set"), { auth: "required", type: "mutation" }),
+  },
   patchAnnotations: {
     list: createApiLeaf<"query", typeof import("../functions/patchAnnotations").list>(createGeneratedFunctionReference<"query", "public", typeof import("../functions/patchAnnotations").list>("patchAnnotations:list"), { auth: "required", type: "query" }),
     merge: createApiLeaf<"mutation", typeof import("../functions/patchAnnotations").merge>(createGeneratedFunctionReference<"mutation", "public", typeof import("../functions/patchAnnotations").merge>("patchAnnotations:merge"), { auth: "required", type: "mutation" }),

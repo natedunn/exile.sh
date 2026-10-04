@@ -3,7 +3,7 @@ import { textLink } from "./ui/link-styles"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { useCRPC } from "@/lib/convex/crpc"
-import { useWatchlist } from "@/lib/use-watchlist"
+import { useWatchlist } from "@/lib/use-saved-list"
 import { itemInfo } from "@/lib/catalog"
 import { defaultFilters } from "@/lib/economy-filters"
 import { currencySlug } from "../../shared/currency-slug"
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { EmptyState, EmptyStateText } from "@/components/ui/empty-state"
 import { Panel } from "@/components/ui/panel"
 import { Icon } from "@/components/economy/icon"
+import { GemBookmarks, ItemBookmarks } from "@/components/profile-bookmarks"
 
 export function ProfileSavedData() {
   const crpc = useCRPC()
@@ -85,6 +86,8 @@ export function ProfileSavedData() {
           </Panel>
         )}
       </section>
+      <GemBookmarks />
+      <ItemBookmarks />
       <section aria-labelledby="profile-bins" className="flex flex-col gap-3">
         <h3 id="profile-bins" className="font-display text-2xl text-ink">
           Bookmarked Bins

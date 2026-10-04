@@ -1,3 +1,4 @@
+import { cn } from "cn"
 import { Link } from "@tanstack/react-router"
 import { useState } from "react"
 import { Diamond } from "lucide-react"
@@ -6,6 +7,7 @@ import { GemTooltipContent } from "./skill-gems"
 import { useInspectionTooltip } from "./use-inspection-tooltip"
 import { InspectionTooltipContent } from "./tooltip-pins"
 import { Popover, PopoverTrigger } from "./ui/popover"
+import { BookmarkToggle } from "./bookmark-toggle"
 import { pointerAnchor } from "../lib/pointer-anchor"
 import type { GemSearch } from "../routes/gems"
 
@@ -17,6 +19,9 @@ export function GemResult({
   quality,
   headers,
   search,
+  bookmarked,
+  onBookmarkedChange,
+  className,
 }: {
   reference: GemReference
   /** The gem's readable URL slug (shared/gem-slug). */
@@ -26,6 +31,9 @@ export function GemResult({
   quality: string
   headers?: GemHeaders
   search: GemSearch
+  bookmarked: boolean
+  onBookmarkedChange: () => void
+  className?: string
 }) {
   const inspection = useInspectionTooltip()
   const [hoverAnchor, setHoverAnchor] = useState<{
@@ -44,7 +52,14 @@ export function GemResult({
   }
 
   return (
-    <li className="border-b border-rule last:border-b-0">
+    // The whole card, bookmark included, takes the hover and open state.
+    <li
+      className={cn(
+        "flex min-w-0 items-stretch border-b border-rule last:border-b-0 hover:bg-skill-hover has-[[data-popup-open]]:bg-skill-hover data-[support=true]:hover:bg-support-hover data-[support=true]:has-[[data-popup-open]]:bg-support-hover",
+        className
+      )}
+      data-support={reference.support}
+    >
       <Popover {...inspection.popoverProps}>
         <PopoverTrigger
           nativeButton={false}
@@ -52,8 +67,12 @@ export function GemResult({
             <Link
               to="/gems/$gem"
               params={{ gem: slug }}
+              // The list's query and page stay on the list, so a gem page
+              // is free to use its own search.
               search={{
                 ...search,
+                q: "",
+                page: 1,
                 advancedQuality: undefined,
                 gemLevel:
                   !reference.support && search.level > 1
@@ -92,7 +111,7 @@ export function GemResult({
               return pointerAnchor(clientX, clientY)
             })
           }}
-          className="flex w-full cursor-pointer items-center gap-3 border-0 bg-transparent px-4 py-3 text-left text-ink hover:bg-skill-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus data-popup-open:bg-skill-hover data-[support=true]:hover:bg-support-hover data-[support=true]:data-popup-open:bg-support-hover max-sm:px-3"
+          className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 border-0 bg-transparent py-3 pr-2 pl-4 text-left text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus max-sm:pl-3"
           data-support={reference.support}
           aria-label={`${reference.name}. View ${reference.support ? "" : `level ${gem.level} `}gem details`}
         >
@@ -144,6 +163,11 @@ export function GemResult({
           />
         </InspectionTooltipContent>
       </Popover>
+      <BookmarkToggle
+        name={reference.name}
+        bookmarked={bookmarked}
+        onBookmarkedChange={onBookmarkedChange}
+      />
     </li>
   )
 }

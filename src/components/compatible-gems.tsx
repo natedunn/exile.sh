@@ -5,11 +5,12 @@ import type { CompatibleGem } from "../../shared/gem-compatibility"
 import { findGems } from "../lib/gem-search"
 import { useGemSearchIndex } from "../lib/use-gem-search-index"
 import { useGemCatalogue } from "../lib/use-gem-catalogue"
+import { useGemBookmarks } from "../lib/use-saved-list"
 import { Button } from "./ui/button"
 import { EmptyState } from "./ui/empty-state"
 import { GemSection, GemSectionTitle } from "./gem-section"
 import { GemResult } from "./gem-result"
-import { GemSearchField } from "./gem-search-field"
+import { ReferenceSearchField } from "./reference-search-field"
 import { Note } from "./ui/note"
 import { TooltipPinScope } from "./tooltip-pins"
 
@@ -30,6 +31,7 @@ export function CompatibleGems({
   const index = useGemSearchIndex()
   // Enhance hover details after hydration; reference rows render from loader data.
   const catalogue = useGemCatalogue()
+  const { favorites, toggleFavorite } = useGemBookmarks()
   const slugs = useMemo(
     () =>
       new Map(
@@ -55,7 +57,9 @@ export function CompatibleGems({
     <GemSection aria-labelledby="compatible-gems-title">
       <GemSectionTitle id="compatible-gems-title">{heading}</GemSectionTitle>
       <div className="px-[var(--shell-gutter)]">
-        <GemSearchField
+        <ReferenceSearchField
+          label="Search gems"
+          placeholder="Name, tag, description, or effect text"
           id="compatible-gem-search"
           value={query}
           onChange={(value) => {
@@ -92,6 +96,10 @@ export function CompatibleGems({
                       slug={slugs.get(reference.skillId)!}
                       headers={catalogue.data?.headers}
                       search={search}
+                      bookmarked={favorites.includes(reference.gameId)}
+                      onBookmarkedChange={() =>
+                        toggleFavorite(reference.gameId)
+                      }
                     />
                   ))}
               </ul>

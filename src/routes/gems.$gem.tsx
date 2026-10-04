@@ -44,6 +44,8 @@ import {
 import { gemEffectsQueryOptions } from "../lib/gem-effects"
 import { getGemPage } from "../lib/gem-page"
 import { shareMeta } from "../lib/share-meta"
+import { useGemBookmarks } from "../lib/use-saved-list"
+import { BookmarkButton } from "../components/bookmark-toggle"
 import { defaultGemSearch } from "./gems"
 
 export const Route = createFileRoute("/gems/$gem")({
@@ -178,13 +180,16 @@ function GemDetailPage() {
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">(
     "idle"
   )
+  // Back to the list with its level and quality, but never a query: `q`
+  // is not carried onto gem pages.
   const listSearch = {
-    q: search.q,
+    q: "",
     level: search.level,
     quality: search.quality,
-    page: search.page,
+    page: 1,
   }
   const reference = page.reference
+  const { favorites, toggleFavorite } = useGemBookmarks()
   const skillId = reference.skillId
   const effects = useQuery({
     ...gemEffectsQueryOptions(skillId),
@@ -482,10 +487,14 @@ function GemDetailPage() {
           ) : null}
           <div className="absolute inset-0 dot-screen text-brand/15" />
         </div>
+        <BookmarkButton
+          bookmarked={favorites.includes(reference.gameId)}
+          onClick={() => toggleFavorite(reference.gameId)}
+        />
         <Button
           type="button"
           variant="outline"
-          className="relative z-1 ml-auto shrink-0 bg-paper"
+          className="relative z-1 shrink-0 bg-paper"
           onClick={() => void copyLink()}
         >
           <Copy aria-hidden="true" />

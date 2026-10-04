@@ -7,6 +7,8 @@ import { z } from "zod"
 import { getItemMeta } from "../lib/item-registry-meta"
 import { shareMeta } from "../lib/share-meta"
 import { useItemRegistry } from "../lib/use-item-registry"
+import { useItemBookmarks } from "../lib/use-saved-list"
+import { BookmarkButton } from "../components/bookmark-toggle"
 import type {
   BaseReference,
   ItemReference,
@@ -98,6 +100,7 @@ function ItemDetailPage() {
   const meta = Route.useLoaderData()
   const catalogue = useItemRegistry()
   const item = catalogue.data ? itemBySlug(catalogue.data, slug) : undefined
+  const { favorites, toggleFavorite } = useItemBookmarks()
   const ownBase =
     item?.kind === "base"
       ? item
@@ -116,11 +119,13 @@ function ItemDetailPage() {
       forms.find((form) => form.slug === search.baseForm)) ||
     (ownBase?.kind === "base" ? ownBase : undefined)
   const original = forms.find((form) => form.form === "original")
+  // Back to the list with its filters, but never a query: `q` is not
+  // carried onto item pages.
   const listSearch = {
-    q: search.q,
+    q: "",
     kind: search.kind,
     itemClass: search.itemClass,
-    page: search.page,
+    page: 1,
   }
   const patch = (value: { variant?: number; baseForm?: string }) =>
     void navigate({
@@ -158,6 +163,10 @@ function ItemDetailPage() {
           )}
         </PageHeadingCopy>
         {image && <ItemArt src={image} />}
+        <BookmarkButton
+          bookmarked={favorites.includes(slug)}
+          onClick={() => toggleFavorite(slug)}
+        />
       </PageHeading>
       {catalogue.isError ? (
         <Note className="mt-6" role="alert">

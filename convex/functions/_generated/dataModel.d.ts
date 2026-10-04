@@ -307,6 +307,23 @@ export type DataModel = {
     searchIndexes: {};
     vectorIndexes: {};
   };
+  bookmarks: {
+    document: {
+      item: string;
+      kind: string;
+      userId: string;
+      _id: Id<"bookmarks">;
+      _creationTime: number;
+    };
+    fieldPaths: "_creationTime" | "_id" | "item" | "kind" | "userId";
+    indexes: {
+      by_id: ["_id"];
+      by_creation_time: ["_creationTime"];
+      userId_kind_item: ["userId", "kind", "item", "_creationTime"];
+    };
+    searchIndexes: {};
+    vectorIndexes: {};
+  };
   buildLimits: {
     document: {
       count: number;

@@ -19,14 +19,16 @@ test("gem search settings survive sharing and returning from details", async ({
     .getByRole("link", { name: "Lightning Arrow. View level 16 gem details" })
     .click()
   await expect(page).toHaveURL(/\/gems\/lightning-arrow\?/)
+  expect(new URL(page.url()).searchParams.has("q")).toBe(false)
   await expect(page.getByRole("spinbutton", { name: "Gem level" })).toHaveValue(
     "16"
   )
   await expect(
     page.getByRole("spinbutton", { name: "Gem quality" })
   ).toHaveValue("28")
+  // The list's level and quality come back, but not its query.
   await page.getByRole("link", { name: "All gems" }).click()
-  await expect(search).toHaveValue("Lightning Arrow")
+  await expect(search).toHaveValue("")
   await expect(
     page.getByRole("spinbutton", { name: "Skill gem level" })
   ).toHaveValue("16")
@@ -171,7 +173,7 @@ test("gem details show ranges, selected values and level effects inline", async 
   await page
     .getByRole("link", { name: "Lightning Arrow. View level 1 gem details" })
     .click()
-  await expect(page).toHaveURL(/\/gems\/lightning-arrow\?/)
+  await expect(page).toHaveURL(/\/gems\/lightning-arrow$/)
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Lightning Arrow"
   )
