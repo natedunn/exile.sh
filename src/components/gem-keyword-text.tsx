@@ -1,22 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
 import { createContext, useContext, useMemo } from "react"
 import type { ReactNode } from "react"
+import { keywordIndex } from "../lib/gem-keywords"
+import type { Keyword, KeywordData, KeywordIndex } from "../lib/gem-keywords"
 import { Popover, PopoverTitle, PopoverTrigger } from "./ui/popover"
 import { InspectionTooltipContent } from "./tooltip-pins"
 import { useInspectionTooltip } from "./use-inspection-tooltip"
-
-type Keyword = { term: string; definition: string }
-type KeywordData = {
-  keywords: Partial<Record<string, Keyword>>
-  aliases: Record<string, string>
-  descriptions: Record<string, string>
-}
-type KeywordIndex = {
-  definitions: Partial<Record<string, Keyword>>
-  aliases: Map<string, string>
-  descriptions: Record<string, string>
-  pattern: RegExp
-}
 
 const LIVE_KEYWORDS = "https://repoe-fork.github.io/poe2/keywords.min.json"
 const KeywordContext = createContext<KeywordIndex | null>(null)
@@ -49,25 +38,6 @@ async function loadKeywords(): Promise<KeywordData> {
     keywords,
     aliases: aliases.aliases,
     descriptions: aliases.descriptions,
-  }
-}
-
-function keywordIndex(data: KeywordData): KeywordIndex {
-  const aliases = new Map(Object.entries(data.aliases))
-  for (const [key, keyword] of Object.entries(data.keywords)) {
-    if (!keyword?.term || !keyword.definition) continue
-    aliases.set(keyword.term.toLowerCase(), key)
-    if (/^[A-Z][a-zA-Z]+$/.test(key)) aliases.set(key.toLowerCase(), key)
-  }
-  const names = [...aliases.keys()]
-    .filter((name) => data.keywords[aliases.get(name) ?? ""]?.definition)
-    .sort((a, b) => b.length - a.length)
-    .map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-  return {
-    definitions: data.keywords,
-    aliases,
-    descriptions: data.descriptions,
-    pattern: new RegExp(`\\b(${names.join("|")})\\b`, "gi"),
   }
 }
 
