@@ -1,7 +1,13 @@
+import { readDataJson } from "./data-test-files"
+import type snapshotType1 from "../public/gems/v1/catalogue.json"
 import { describe, expect, it } from "vitest"
-import data from "../public/gems/v1/catalogue.json"
+
 import type { GemCatalogue } from "./gems"
 import { gemBySlug, gemSlug } from "./gem-slug"
+
+const data = readDataJson<typeof snapshotType1>(
+  "../public/gems/v1/catalogue.json"
+)
 
 const catalogue = data as GemCatalogue
 const gems = Object.values(catalogue.gems).filter((gem) => gem.gameId)

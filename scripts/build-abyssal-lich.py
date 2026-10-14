@@ -2,19 +2,26 @@
 Additive assets: existing Lich snapshots/manifests remain immutable.
 Run with Pillow and zstandard. Source options are frozen for verification.
 """
+from data_sources import build_root, pob_revision, tree_versions
 import hashlib, io, json, pathlib, struct, urllib.request
 from PIL import Image
 import zstandard
-ROOT=pathlib.Path(__file__).resolve().parents[1]
-REV='ce566eac45ea8a86477f513c7ee65a1ebe60014e'
+ROOT=build_root(__file__)
+REV=pob_revision('ce566eac45ea8a86477f513c7ee65a1ebe60014e')
 SOURCE=f'https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/{REV}/src/TreeData/'
 DEST=ROOT/'public/pob-trees/ascendancies-v1'
 (DEST/'icons').mkdir(exist_ok=True)
 manifest_path=ROOT/'shared/generated/ascendancy-trees.json'
 manifest=json.loads(manifest_path.read_text())
-fixtures={}
-for version in ['0_3','0_4','0_5']:
+fixture_path=ROOT/'shared/fixtures/pob/abyssal-lich-options.json'
+previous_fixture=json.loads(fixture_path.read_text()) if fixture_path.exists() else {}
+fixtures=previous_fixture.get('versions',{})
+for version in tree_versions(['0_3','0_4','0_5']):
+    if not (DEST/version/'lich.json').exists(): continue
     source=json.load(urllib.request.urlopen(SOURCE+version+'/tree.json'))
+    if not any('Abyssal Lich' in n.get('options',{}) for n in source['nodes'].values()):
+        fixtures.pop(version, None)
+        continue
     base=json.loads((DEST/version/'lich.json').read_text())
     art=json.loads((DEST/version/'lich-art.json').read_text())
     options={key:n.get('options',{}).get('Abyssal Lich',{}) for key,n in source['nodes'].items() if n.get('ascendancyName')=='Lich' and not n.get('isOnlyImage')}

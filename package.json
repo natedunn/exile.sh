@@ -9,7 +9,7 @@
     "dev:vite": "VITE_SITE_URL=${PORTLESS_URL:-} vite dev",
     "dev:shared": "EXILE_CONVEX_MODE=shared node scripts/dev-supervisor.mjs",
     "init": "bun install --frozen-lockfile && bun run convex:init",
-    "build": "vite build",
+    "build": "bun run data:verify && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint src shared convex/lib convex/functions --ignore-pattern \"**/generated/**\" --ignore-pattern \"**/_generated/**\" && node scripts/check-classnames.mjs",
@@ -28,7 +28,17 @@
     "deploy": "wrangler deploy --config dist/server/wrangler.json",
     "deploy:preview": "node scripts/cloudflare-preview-upload.mjs",
     "test:deploy": "node --test scripts/*.test.mjs",
-    "items:refresh": "python3 scripts/update-item-registry.py --refresh && python3 scripts/snapshot-poe2db.py && POE2DB_DRAFTS=scripts/data/poe2db-draft-differences.json vitest run shared/item-registry-poe2db.test.ts"
+    "data:audit": "node scripts/audit-game-data.mjs",
+    "items:refresh": "node scripts/data-pipeline.mjs generate",
+    "data:capture": "node scripts/data-pipeline.mjs capture",
+    "data:generate": "node scripts/data-pipeline.mjs generate",
+    "data:test": "node scripts/data-pipeline.mjs test",
+    "data:check": "node scripts/data-pipeline.mjs check",
+    "data:prepare": "node scripts/data-pipeline.mjs prepare",
+    "data:verify": "node scripts/data-pipeline.mjs verify",
+    "data:plan": "node scripts/data-pipeline.mjs plan",
+    "data:rollback": "node scripts/data-pipeline.mjs rollback",
+    "data:rehearse": "node scripts/rehearse-data-update.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.8.0",

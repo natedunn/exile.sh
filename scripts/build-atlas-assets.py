@@ -3,6 +3,7 @@
 Replace the source fixture and publish a NEW asset revision when updating the snapshot.
 Game data and artwork belong to Grinding Gear Games.
 """
+from data_sources import build_root, source_version
 import concurrent.futures
 import hashlib
 import json
@@ -12,7 +13,7 @@ import urllib.request
 
 from repoe_tree import clean, layout
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 DEST = ROOT / "public/atlas-trees/v2"
 BASE = "https://repoe-fork.github.io/poe2/"
 ART_COMMIT = "90c1873011d9ae53beb49419067e75e0b7ce2353"
@@ -41,13 +42,10 @@ def describe(key, meta):
         fields["options"] = choices["nodes"][key]["options"]
     return fields
 nodes, edges = layout(data, describe)
-source = {"url": BASE + "passive_skill_trees/Atlas.json", "exportVersion": "4.5.5.2",
+source = {"url": BASE + "passive_skill_trees/Atlas.json", "exportVersion": source_version('repoe'),
           "sha256": hashlib.sha256(raw).hexdigest(), "artworkOwner": "Grinding Gear Games", "artworkMirror": ART_BASE}
 paths = {node["icon"] for node in nodes.values() if node["icon"]}
-cached_art = json.loads((ROOT / "public/atlas-trees/v1/art.json").read_text())
 def download(icon):
-    if icon in cached_art and (ROOT / "public" / cached_art[icon].lstrip("/")).exists():
-        return icon, cached_art[icon]
     url = ART_BASE + urllib.parse.quote(icon.split("/")[-1].replace(".dds", ".webp"))
     try:
         content = urllib.request.urlopen(url, timeout=30).read()

@@ -1,7 +1,9 @@
+import { readDataJson } from "./data-test-files"
+import type snapshotType1 from "../public/gems/v1/catalogue.json"
+import type snapshotType2 from "../public/items/v1/catalogue.json"
 import { describe, expect, it } from "vitest"
 import { XMLValidator, XMLParser } from "fast-xml-parser"
-import gems from "../public/gems/v1/catalogue.json"
-import items from "../public/items/v1/catalogue.json"
+
 import catalog from "./catalog.json"
 import { currencyBySlug } from "./currency-slug"
 import { gemBySlug } from "./gem-slug"
@@ -9,6 +11,13 @@ import type { GemCatalogue } from "./gems"
 import { itemBySlug } from "./item-registry"
 import type { ItemCatalogue } from "./item-registry"
 import { sitemapPaths, sitemapXml } from "./sitemap"
+
+const gems = readDataJson<typeof snapshotType1>(
+  "../public/gems/v1/catalogue.json"
+)
+const items = readDataJson<typeof snapshotType2>(
+  "../public/items/v1/catalogue.json"
+)
 
 const catalogue = gems as GemCatalogue
 const itemCatalogue = items as ItemCatalogue

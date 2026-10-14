@@ -1,9 +1,10 @@
+from data_sources import build_root, Accounting, captured_at
 import json,pathlib,hashlib,urllib.request,datetime
-p=pathlib.Path('shared');p.mkdir(exist_ok=True)
+p=build_root(__file__) / 'shared';p.mkdir(exist_ok=True)
 url='https://repoe-fork.github.io/poe2/base_items.min.json'
 with urllib.request.urlopen(url, timeout=60) as response: raw=response.read()
 base=json.loads(raw)
-p.joinpath('catalog-source.json').write_text(json.dumps({'url':url,'retrievedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'sha256':hashlib.sha256(raw).hexdigest(),'artworkOwner':'Grinding Gear Games','metadataProject':'RePoE fork'},indent=2)+'\n')
+p.joinpath('catalog-source.json').write_text(json.dumps({'url':url,'retrievedAt':captured_at(url),'sha256':hashlib.sha256(raw).hexdigest(),'artworkOwner':'Grinding Gear Games','metadataProject':'RePoE fork'},indent=2)+'\n')
 # Catalog all released potential exchange items, so future observations are not limited to the research hour.
 classes={'StackableCurrency','SoulCore','Support Skill Gem','Omen','UncutSkillGemStackable','UncutReservationGemStackable','VaultKey','MapFragment','PinnacleKeyStackable','UncutSupportGemStackable','AtlasCurrency','IncubatorStackable','Breachstone','Expedition2Logbooks'}
 def category(k,v):
@@ -17,9 +18,15 @@ def category(k,v):
  if c=='StackableCurrency':return 'Currency'
  return 'Other'
 a=[]
+accounting=Accounting(p.parent, 'update-catalog')
 for k,v in base.items():
- if v.get('item_class') not in classes or v.get('release_state')!='released':continue
+ if v.get('item_class') not in classes or v.get('release_state')!='released':
+  accounting.add('base',k,'excluded','Not an allowed exchange class or not released',itemClass=v.get('item_class'),releaseState=v.get('release_state'))
+  continue
+ accounting.add('base',k,'imported')
  art=v.get('visual_identity',{}).get('dds_file','')
  a.append({'id':k,'name':v['name'],'category':category(k,v),'icon':'https://repoe-fork.github.io/poe2/'+art.replace('.dds','.webp') if art else '', 'description':v.get('properties',{}).get('description','')})
 p.joinpath('catalog.json').write_text(json.dumps(a,ensure_ascii=False,separators=(',',':'))+'\n')
 print('catalog entries',len(a))
+
+accounting.write()

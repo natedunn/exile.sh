@@ -1,4 +1,5 @@
 """Mirror GGG rune and soul-core artwork from RePoE for equipment overlays."""
+from data_sources import build_root
 import concurrent.futures
 import hashlib
 import json
@@ -6,7 +7,7 @@ import pathlib
 import urllib.parse
 import urllib.request
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 SOURCE = "https://repoe-fork.github.io/poe2/"
 raw = urllib.request.urlopen(SOURCE + "base_items.min.json", timeout=30).read()
 records = {}

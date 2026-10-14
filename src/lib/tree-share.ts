@@ -6,8 +6,8 @@ export const treeShares = {
     title: "Passive Tree",
     path: "/trees/passive",
     description:
-      "Search and inspect every Path of Exile 2 passive skill, with ascendancy overlays and tree versions 0.1 to 0.5.",
-    body: "Search every passive skill, with ascendancy overlays and tree versions 0.1 to 0.5.",
+      "Search and inspect every Path of Exile 2 passive skill, with ascendancy overlays and versioned tree snapshots.",
+    body: "Search every passive skill, with ascendancy overlays and versioned tree snapshots.",
   },
   ascendancies: {
     title: "Ascendancy Trees",

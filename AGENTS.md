@@ -70,3 +70,19 @@ Avoid production builds in the same working directory while a development server
 is running: generated files and caches may be shared. Use an isolated checkout for
 build validation, or report that the build was deferred. Prefer targeted tests,
 type checks, and browser checks against the running server during UI work.
+
+## Game patches and source refreshes
+
+Before updating game data, sources, refresh scripts, league configuration or
+patch-dependent rules, read [the game-data update runbook](docs/game-data-updates.md).
+Sources update independently: preserve the last verified feature snapshot until
+its dependencies are compatible. New leagues and new or substantially changed
+mechanics require manual work by the developer and the implementing agent.
+Preserve published immutable asset URLs and historical saved-build identities.
+Use `bun run data:audit` and compare an isolated candidate against an unchanged
+baseline checkout. Maintain a patch change ledger covering affected data and
+mechanics; the audit report and passing tests do not certify patch readiness.
+Use the [local maintenance CLI](docs/data-maintenance-cli.md) for captures,
+generation, evidence checks and publication preparation. Generators require a
+frozen capture and isolated stage. `data:prepare` requires the candidate's tests
+and `data:check` to pass; preserve the full reviewable release and rollback files.

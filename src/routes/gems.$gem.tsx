@@ -1,3 +1,4 @@
+import { dataReleaseKey } from "../../shared/data-assets"
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
 import { Fragment, useState } from "react"
@@ -76,7 +77,9 @@ export const Route = createFileRoute("/gems/$gem")({
       .parse(search.advancedQuality),
   }),
   loader: async ({ params }) => {
-    const page = await getGemPage({ data: { slug: params.gem } })
+    const page = await getGemPage({
+      data: { slug: params.gem, releaseId: dataReleaseKey },
+    })
     if (!page) throw notFound()
     return page
   },

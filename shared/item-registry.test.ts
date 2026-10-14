@@ -1,5 +1,5 @@
+import { readDataFileSync as readFileSync } from "./data-test-files"
 import { describe, expect, it } from "vitest"
-import { readFileSync } from "node:fs"
 import type {
   BaseReference,
   ItemCatalogue,

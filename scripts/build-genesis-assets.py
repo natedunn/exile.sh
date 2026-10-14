@@ -4,6 +4,7 @@ The export carries stat IDs only, so effects come from the frozen RePoE stat tra
 Replace the source fixtures and publish a NEW asset revision when updating the snapshot.
 Game data and artwork belong to Grinding Gear Games.
 """
+from data_sources import build_root
 import concurrent.futures
 import hashlib
 import json
@@ -13,7 +14,7 @@ import urllib.request
 
 from repoe_tree import clean, layout
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 FIXTURES = ROOT / "shared/fixtures/genesis"
 DEST = ROOT / "public/genesis-trees/v1"
 BASE = "https://repoe-fork.github.io/poe2/"

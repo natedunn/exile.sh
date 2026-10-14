@@ -3,11 +3,13 @@
 Connector rules reference PoB PassiveTree.lua (MIT; license shipped with assets).
 The v4 path excludes image-only decorations and leaves earlier assets intact.
 """
+from data_sources import build_root, pob_revision, tree_versions, Accounting
 import json, math, pathlib, urllib.request
-REVISION = "ce566eac45ea8a86477f513c7ee65a1ebe60014e"
-root = pathlib.Path(__file__).resolve().parents[1] / "public/pob-trees/v4"
+root = build_root(__file__) / "public/pob-trees/v4"
+REVISION = pob_revision("ce566eac45ea8a86477f513c7ee65a1ebe60014e")
 root.mkdir(exist_ok=True)
-for version in ["0_1", "0_2", "0_3", "0_4", "0_5"]:
+accounting = Accounting(root.parents[2], 'build-tree-assets')
+for version in tree_versions(["0_1", "0_2", "0_3", "0_4", "0_5"]):
     target = root / (version + ".json")
     if target.exists():
         continue
@@ -22,7 +24,9 @@ for version in ["0_1", "0_2", "0_3", "0_4", "0_5"]:
         g = by_node.get(key)
         # Decorative cluster images are not allocatable or inspectable passives.
         if not g or n.get("isOnlyImage"):
+            accounting.add("node", version + "/" + key, "excluded" if n.get("isOnlyImage") else "unknown", "Source-flagged image-only decoration" if n.get("isOnlyImage") else "Missing node group")
             continue
+        accounting.add("node", version + "/" + key, "imported")
         orbit = n.get("orbit", 0)
         angle_table = data["constants"].get("orbitAnglesByOrbit")
         angle = angle_table[orbit][n.get("orbitIndex", 0)] if angle_table else 2 * math.pi * n.get("orbitIndex", 0) / data["constants"]["skillsPerOrbit"][orbit]
@@ -56,3 +60,5 @@ for version in ["0_1", "0_2", "0_3", "0_4", "0_5"]:
             edges.append({"from": key, "to": other, "path": path})
     target.write_text(json.dumps({"version": version, "revision": REVISION, "nodes": list(result.values()), "edges": edges}, separators=(",", ":")))
     print(version, len(result), len(edges))
+
+accounting.write()

@@ -1,11 +1,12 @@
 """Extract augment effect text from the same pinned PoB revision as gem artwork."""
+from data_sources import build_root
 import hashlib
 import json
 import pathlib
 import re
 import urllib.request
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 destination = ROOT / 'public/augments/v1'
 if (destination / 'catalogue.json').exists() or (destination / 'source.json').exists():
     raise SystemExit('Published augment data exists; use a new asset revision to update it.')

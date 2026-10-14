@@ -1,10 +1,22 @@
-import { readFileSync, existsSync } from "node:fs"
+import {
+  readDataJson,
+  readDataFileSync as readFileSync,
+  existsDataFileSync as existsSync,
+} from "./data-test-files"
+import type snapshotType1 from "../public/genesis-trees/v1/tree.json"
+import type snapshotType2 from "../public/genesis-trees/v1/art.json"
 import { createHash } from "node:crypto"
 import { describe, expect, it } from "vitest"
-import tree from "../public/genesis-trees/v1/tree.json"
-import art from "../public/genesis-trees/v1/art.json"
+
 import choices from "./fixtures/genesis/options.json"
 import source from "./fixtures/genesis/BrequelTree.json"
+
+const tree = readDataJson<typeof snapshotType1>(
+  "../public/genesis-trees/v1/tree.json"
+)
+const art = readDataJson<typeof snapshotType2>(
+  "../public/genesis-trees/v1/art.json"
+)
 
 describe("Genesis Tree snapshot", () => {
   it("retains every visible source node and valid connections", () => {

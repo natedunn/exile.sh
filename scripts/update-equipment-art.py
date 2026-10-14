@@ -1,8 +1,9 @@
 """Snapshot RePoE equipment metadata and mirror its artwork locally.
 Existing image files are keyed by source path and retained; downloads are bounded.
 """
+from data_sources import build_root
 import concurrent.futures, hashlib, json, pathlib, urllib.request
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 SOURCE = 'https://repoe-fork.github.io/poe2/'
 CLASSES = {'Body Armour','Helmet','Gloves','Boots','Shield','Buckler','Focus','One Hand Mace','Two Hand Mace','Warstaff','Spear','Bow','Crossbow','Talisman','Ring','Amulet','Staff','Belt','Wand','Sceptre','Quiver','LifeFlask','ManaFlask','UtilityFlask','Jewel'}
 art_dir = ROOT / 'public/equipment'

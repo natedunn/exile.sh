@@ -1,3 +1,4 @@
+import { fetchDataAsset, dataReleaseKey } from "../../shared/data-assets"
 import { JewelCardContent } from "./jewel-card-content"
 import type { EquipmentItem } from "../../shared/equipment"
 import { useLayoutEffect, useMemo, useState } from "react"
@@ -23,9 +24,9 @@ const EDGE = 12
 function AugmentDetails({ name, image }: { name: string; image?: string }) {
   const { enabled: showBonded } = useBondedModifiers()
   const catalogue = useQuery<AugmentCatalogue>({
-    queryKey: ["augment-reference", "v1"],
+    queryKey: [dataReleaseKey, "augment-reference", "v1"],
     queryFn: async () => {
-      const response = await fetch("/augments/v1/catalogue.json")
+      const response = await fetchDataAsset("/augments/v1/catalogue.json")
       if (!response.ok) throw new Error("Augment reference unavailable")
       return response.json()
     },

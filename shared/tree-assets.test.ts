@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import { readDataFileSync as readFileSync } from "./data-test-files"
 import { expect, test } from "vitest"
 import { TREE_VERSIONS } from "./tree-versions"
 

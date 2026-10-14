@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Preserve PoB skill names that differ from the published gem catalogue names."""
+from data_sources import build_root
 import concurrent.futures
 import hashlib
 import json
@@ -7,7 +8,7 @@ from pathlib import Path
 import re
 import urllib.request
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 source = json.loads((ROOT / 'public/gems/v1/source.json').read_text())
 catalogue = json.loads((ROOT / 'public/gems/v1/catalogue.json').read_text())['gems']
 references = {}

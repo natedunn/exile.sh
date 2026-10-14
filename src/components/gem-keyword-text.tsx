@@ -1,45 +1,14 @@
+import { keywordIndex, loadGemKeywords } from "../lib/gem-keywords"
+import type { Keyword, KeywordIndex } from "../lib/gem-keywords"
+import { dataReleaseKey } from "../../shared/data-assets"
 import { useQuery } from "@tanstack/react-query"
 import { createContext, useContext, useMemo } from "react"
 import type { ReactNode } from "react"
-import { keywordIndex } from "../lib/gem-keywords"
-import type { Keyword, KeywordData, KeywordIndex } from "../lib/gem-keywords"
 import { Popover, PopoverTitle, PopoverTrigger } from "./ui/popover"
 import { InspectionTooltipContent } from "./tooltip-pins"
 import { useInspectionTooltip } from "./use-inspection-tooltip"
 
-const LIVE_KEYWORDS = "https://repoe-fork.github.io/poe2/keywords.min.json"
 const KeywordContext = createContext<KeywordIndex | null>(null)
-
-async function readJson(url: string): Promise<unknown> {
-  const response = await fetch(url)
-  if (!response.ok)
-    throw new Error(`Keyword source returned ${response.status}`)
-  return response.json()
-}
-
-async function loadKeywords(): Promise<KeywordData> {
-  const aliases = (await readJson("/gems/v1/keyword-aliases.json")) as {
-    aliases: Record<string, string>
-    descriptions: Record<string, string>
-  }
-  let keywords: Partial<Record<string, Keyword>>
-  try {
-    keywords = (await readJson(LIVE_KEYWORDS)) as Partial<
-      Record<string, Keyword>
-    >
-    if (!keywords.Shock?.definition) throw new Error("Invalid keyword source")
-  } catch {
-    const snapshot = (await readJson("/gems/v1/keywords.json")) as {
-      keywords: Partial<Record<string, Keyword>>
-    }
-    keywords = snapshot.keywords
-  }
-  return {
-    keywords,
-    aliases: aliases.aliases,
-    descriptions: aliases.descriptions,
-  }
-}
 
 function plainDefinition(definition: string) {
   return definition
@@ -86,10 +55,9 @@ function GemKeyword({ label, keyword }: { label: string; keyword: Keyword }) {
 
 export function GemKeywordProvider({ children }: { children: ReactNode }) {
   const { data } = useQuery({
-    queryKey: ["gem-keywords", "repoe"],
-    queryFn: loadKeywords,
-    staleTime: 10 * 60 * 1000,
-    refetchInterval: 10 * 60 * 1000,
+    queryKey: [dataReleaseKey, "gem-keywords", "repoe"],
+    queryFn: loadGemKeywords,
+    staleTime: Infinity,
     gcTime: 60 * 60 * 1000,
     retry: 1,
   })

@@ -1,3 +1,4 @@
+import { fetchDataAsset, dataReleaseKey } from "../../shared/data-assets"
 import { PassiveNodeImage } from "./passive-node-image"
 import {
   PassiveLines as Lines,
@@ -499,22 +500,22 @@ function TreeMapWithAscendancy({ defaultAscendancy, ...props }: TreeMapProps) {
     : []
   const choice = choices.find((entry) => entry.value === defaultAscendancy)
   const tree = useQuery({
-    queryKey: ["ascendancy-tree-v1", choice?.data],
+    queryKey: [dataReleaseKey, "ascendancy-tree-v1", choice?.data],
     enabled: Boolean(choice),
     staleTime: Infinity,
     queryFn: async () => {
-      const response = await fetch(choice!.data)
+      const response = await fetchDataAsset(choice!.data)
       if (!response.ok) throw new Error("Ascendancy data unavailable")
       return (await response.json()) as TreeData
     },
   })
   const art = useQuery({
-    queryKey: ["tree-art", choice?.art],
+    queryKey: [dataReleaseKey, "tree-art", choice?.art],
     enabled: Boolean(choice),
     staleTime: Infinity,
     gcTime: Infinity,
     queryFn: async () => {
-      const response = await fetch(choice!.art)
+      const response = await fetchDataAsset(choice!.art)
       if (!response.ok) throw new Error("Ascendancy artwork unavailable")
       return (await response.json()) as Record<string, string>
     },
@@ -923,7 +924,9 @@ function TreeMapRenderer({
   // Static trees are small enough to show artwork from the initial zoom.
   const artworkZoomThreshold = treeType in staticTrees ? 1 : 3
   const artwork = useQuery({
-    queryKey: artworkUrl ? ["tree-art", artworkUrl] : ["tree-art-v2", version],
+    queryKey: artworkUrl
+      ? [dataReleaseKey, "tree-art", artworkUrl]
+      : [dataReleaseKey, "tree-art-v2", version],
     enabled:
       isAscendancyTree ||
       mode === "ascendancy" ||
@@ -933,7 +936,7 @@ function TreeMapRenderer({
     staleTime: Infinity,
     gcTime: Infinity,
     queryFn: async () => {
-      const response = await fetch(
+      const response = await fetchDataAsset(
         artworkUrl ?? "/pob-trees/art-v2/" + version + ".json"
       )
       if (!response.ok) throw new Error("Tree artwork unavailable")
@@ -1898,11 +1901,13 @@ function PassiveTreeContent({
     [weaponSetLists]
   )
   const tree = useQuery({
-    queryKey: ["passive-tree-v4", version],
+    queryKey: [dataReleaseKey, "passive-tree-v4", version],
     enabled: isTreeVersion(version),
     staleTime: Infinity,
     queryFn: async () => {
-      const response = await fetch("/pob-trees/v4/" + version + ".json")
+      const response = await fetchDataAsset(
+        "/pob-trees/v4/" + version + ".json"
+      )
       if (!response.ok) throw new Error("Tree data unavailable")
       return (await response.json()) as TreeData
     },
@@ -1963,12 +1968,14 @@ function PassiveTreeContent({
       )
   }, [tree.data, nodes, ascendancy, version])
   const artwork = useQuery({
-    queryKey: ["tree-art-v2", version],
+    queryKey: [dataReleaseKey, "tree-art-v2", version],
     enabled: !!tree.data,
     staleTime: Infinity,
     gcTime: Infinity,
     queryFn: async () => {
-      const response = await fetch("/pob-trees/art-v2/" + version + ".json")
+      const response = await fetchDataAsset(
+        "/pob-trees/art-v2/" + version + ".json"
+      )
       if (!response.ok) throw new Error("Tree artwork unavailable")
       return (await response.json()) as Record<string, string>
     },
@@ -2363,21 +2370,21 @@ function PassiveAtlasExplorer({
         (showPanel && showAscendancySelector ? section : "None"))
   )
   const center = useQuery({
-    queryKey: ["ascendancy-tree-v1", selectedAscendancy?.data],
+    queryKey: [dataReleaseKey, "ascendancy-tree-v1", selectedAscendancy?.data],
     enabled: type === "passive" && Boolean(selectedAscendancy),
     staleTime: Infinity,
     queryFn: async () => {
-      const response = await fetch(selectedAscendancy!.data)
+      const response = await fetchDataAsset(selectedAscendancy!.data)
       if (!response.ok) throw new Error("Ascendancy data unavailable")
       return (await response.json()) as TreeData
     },
   })
   const centerArt = useQuery({
-    queryKey: ["tree-art", selectedAscendancy?.art],
+    queryKey: [dataReleaseKey, "tree-art", selectedAscendancy?.art],
     enabled: type === "passive" && Boolean(selectedAscendancy),
     staleTime: Infinity,
     queryFn: async () => {
-      const response = await fetch(selectedAscendancy!.art)
+      const response = await fetchDataAsset(selectedAscendancy!.art)
       if (!response.ok) throw new Error("Ascendancy artwork unavailable")
       return (await response.json()) as Record<string, string>
     },
@@ -2407,11 +2414,11 @@ function PassiveAtlasExplorer({
     [version]
   )
   const tree = useQuery({
-    queryKey: ["passive-explorer-v1", version],
+    queryKey: [dataReleaseKey, "passive-explorer-v1", version],
     enabled: !(type in staticTrees),
     staleTime: Infinity,
     queryFn: async () => {
-      const response = await fetch(
+      const response = await fetchDataAsset(
         "/pob-trees/passives-v1/" + version + ".json"
       )
       if (!response.ok) throw new Error("Tree data unavailable")
@@ -2423,11 +2430,11 @@ function PassiveAtlasExplorer({
     type === "passive" || type === "ascendancy" ? undefined : staticTrees[type]
   const isStatic = Boolean(staticTree)
   const staticQuery = useQuery({
-    queryKey: ["static-tree", staticTree?.data],
+    queryKey: [dataReleaseKey, "static-tree", staticTree?.data],
     enabled: isStatic,
     staleTime: Infinity,
     queryFn: async () => {
-      const response = await fetch(staticTree!.data)
+      const response = await fetchDataAsset(staticTree!.data)
       if (!response.ok) throw new Error(`${staticTree!.name} data unavailable`)
       return (await response.json()) as TreeData
     },
@@ -2607,24 +2614,24 @@ function AscendancyTreeContent({
     ? current
     : (choices.find((choice) => choice.value === localSection) ?? current)
   const tree = useQuery({
-    queryKey: ["ascendancy-tree-v1", selected?.data],
+    queryKey: [dataReleaseKey, "ascendancy-tree-v1", selected?.data],
     enabled: Boolean(selected),
     staleTime: Infinity,
     queryFn: async () => {
       if (!selected) throw new Error("Ascendancy tree unavailable")
-      const response = await fetch(selected.data)
+      const response = await fetchDataAsset(selected.data)
       if (!response.ok) throw new Error("Ascendancy tree unavailable")
       return (await response.json()) as TreeData
     },
   })
   useQuery({
-    queryKey: ["tree-art", selected?.art],
+    queryKey: [dataReleaseKey, "tree-art", selected?.art],
     enabled: Boolean(selected),
     staleTime: Infinity,
     gcTime: Infinity,
     queryFn: async () => {
       if (!selected) throw new Error("Tree artwork unavailable")
-      const response = await fetch(selected.art)
+      const response = await fetchDataAsset(selected.art)
       if (!response.ok) throw new Error("Tree artwork unavailable")
       return (await response.json()) as Record<string, string>
     },

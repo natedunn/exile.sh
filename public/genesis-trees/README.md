@@ -1,5 +1,10 @@
 # Genesis Tree
 
+Generator entry points below now run through the [isolated local maintenance
+workflow](../../docs/data-maintenance-cli.md). Direct Python calls refuse to write
+to a working checkout. Freeze inputs and use `data:generate`; publish a new release
+namespace after `data:test` and `data:check`. Historical assets remain unchanged.
+
 `v1` is a standalone snapshot of The Genesis Tree (Breach, Monastery of the Keepers) from RePoE's `BrequelTree` export. It contains 243 nodes across the Currency, Amulet, Ring, Belt, and Breachstone Wombs, and 239 connections. The export's five roots are unnamed, iconless anchors beside each Womb and are omitted, so each Womb roots its branch.
 
 - Source: https://repoe-fork.github.io/poe2/passive_skill_trees/BrequelTree.json

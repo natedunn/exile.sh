@@ -1,3 +1,5 @@
+import { fetchDataAsset } from "../../shared/data-assets"
+
 export type Keyword = { term: string; definition: string }
 export type KeywordData = {
   keywords: Partial<Record<string, Keyword>>
@@ -37,5 +39,29 @@ export function keywordIndex(data: KeywordData): KeywordIndex {
     pattern: names.length
       ? new RegExp(`\\b(${names.join("|")})\\b`, "gi")
       : /(?!)/g,
+  }
+}
+
+export async function loadGemKeywords(): Promise<KeywordData> {
+  const read = async (path: string) => {
+    const response = await fetchDataAsset(path)
+    if (!response.ok)
+      throw new Error(`Keyword reference returned ${response.status}`)
+    return response.json()
+  }
+  const [snapshot, aliases] = await Promise.all([
+    read("/gems/v1/keywords.json") as Promise<
+      Partial<Pick<KeywordData, "keywords">>
+    >,
+    read("/gems/v1/keyword-aliases.json") as Promise<
+      Partial<Omit<KeywordData, "keywords">>
+    >,
+  ])
+  if (!snapshot.keywords || !aliases.aliases || !aliases.descriptions)
+    throw new Error("Incomplete keyword snapshot")
+  return {
+    keywords: snapshot.keywords,
+    aliases: aliases.aliases,
+    descriptions: aliases.descriptions,
   }
 }

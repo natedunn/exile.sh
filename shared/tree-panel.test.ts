@@ -1,17 +1,18 @@
+import { readDataFileSync as readFileSync } from "./data-test-files"
 import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { expect, it } from "vitest"
-import { readFileSync } from "node:fs"
 import type { TreeData } from "./tree-render-model"
 import { TreeExplorer, AscendancyTree } from "../src/components/passive-tree"
 import type { TreePanelOptions } from "../src/components/passive-tree"
+import { dataReleaseKey, dataAssetUrl } from "./data-assets"
 
 function render(options: TreePanelOptions = {}) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
-  client.setQueryData(["passive-explorer-v1", "0_5"], {
+  client.setQueryData([dataReleaseKey, "passive-explorer-v1", "0_5"], {
     nodes: [
       {
         id: "1",
@@ -92,8 +93,9 @@ it.each([1, 2] as const)(
       const client = new QueryClient()
       client.setQueryData(
         [
+          dataReleaseKey,
           "ascendancy-tree-v1",
-          "/pob-trees/ascendancies-v1/0_5/abyssal-lich.json",
+          dataAssetUrl("/pob-trees/ascendancies-v1/0_5/abyssal-lich.json"),
         ],
         tree
       )

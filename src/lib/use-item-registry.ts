@@ -1,3 +1,4 @@
+import { fetchDataAsset, dataReleaseKey } from "../../shared/data-assets"
 import { useQuery } from "@tanstack/react-query"
 import type {
   ItemCatalogue,
@@ -5,14 +6,14 @@ import type {
 } from "../../shared/item-registry"
 
 async function readReference<T>(path: string): Promise<T> {
-  const response = await fetch(path)
+  const response = await fetchDataAsset(path)
   if (!response.ok) throw new Error("Item reference unavailable")
   return response.json() as Promise<T>
 }
 
 export function useItemRegistry(enabled = true) {
   return useQuery({
-    queryKey: ["item-registry", "v1"],
+    queryKey: [dataReleaseKey, "item-registry", "v1"],
     enabled,
     queryFn: () => readReference<ItemCatalogue>("/items/v1/catalogue.json"),
     staleTime: Infinity,
@@ -23,7 +24,7 @@ export function useItemRegistry(enabled = true) {
 
 export function useItemModifiers(enabled: boolean) {
   return useQuery({
-    queryKey: ["item-modifiers", "v1"],
+    queryKey: [dataReleaseKey, "item-modifiers", "v1"],
     queryFn: () => readReference<ModifierCatalogue>("/items/v1/modifiers.json"),
     enabled,
     staleTime: Infinity,

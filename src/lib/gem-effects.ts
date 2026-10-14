@@ -1,11 +1,12 @@
+import { fetchDataAsset, dataReleaseKey } from "../../shared/data-assets"
 import { queryOptions } from "@tanstack/react-query"
 import type { GemEffects } from "../../shared/gems"
 
 export function gemEffectsQueryOptions(skillId: string) {
   return queryOptions<GemEffects>({
-    queryKey: ["gem-effects", "v1", skillId],
+    queryKey: [dataReleaseKey, "gem-effects", "v1", skillId],
     queryFn: async () => {
-      const response = await fetch(
+      const response = await fetchDataAsset(
         `/gems/effects-v1/${encodeURIComponent(skillId)}.json`
       )
       if (!response.ok) throw new Error("Gem effects unavailable")

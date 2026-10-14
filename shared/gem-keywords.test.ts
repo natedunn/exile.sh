@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest"
-import snapshot from "../public/gems/v1/keywords.json"
-import labels from "../public/gems/v1/keyword-aliases.json"
+import type snapshotType from "../public/gems/v1/keywords.json"
+import type labelsType from "../public/gems/v1/keyword-aliases.json"
+import { readDataJson } from "./data-test-files"
 import { keywordIndex } from "../src/lib/gem-keywords"
 
+const snapshot = readDataJson<typeof snapshotType>(
+  "../public/gems/v1/keywords.json"
+)
+const labels = readDataJson<typeof labelsType>(
+  "../public/gems/v1/keyword-aliases.json"
+)
 const index = keywordIndex({ ...labels, keywords: snapshot.keywords })
 
 function matches(text: string) {

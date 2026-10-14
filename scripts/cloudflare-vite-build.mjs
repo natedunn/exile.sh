@@ -1,4 +1,7 @@
 import { spawnSync } from "node:child_process"
+import { verifySelectedRelease } from "./lib/data-acceptance.mjs"
+
+verifySelectedRelease()
 
 const convexUrl = process.env.VITE_CONVEX_URL
 if (!convexUrl) throw new Error("VITE_CONVEX_URL was not provided by Convex.")

@@ -1,11 +1,26 @@
-import { readFileSync, existsSync } from "node:fs"
+import {
+  readDataJson,
+  readDataFileSync as readFileSync,
+  existsDataFileSync as existsSync,
+} from "./data-test-files"
+import type snapshotType1 from "../public/atlas-trees/v2/tree.json"
+import type snapshotType2 from "../public/atlas-trees/v2/art.json"
+import type snapshotType3 from "../public/atlas-trees/v1/tree.json"
 import { createHash } from "node:crypto"
 import { describe, expect, it } from "vitest"
-import tree from "../public/atlas-trees/v2/tree.json"
-import art from "../public/atlas-trees/v2/art.json"
-import previous from "../public/atlas-trees/v1/tree.json"
+
 import choices from "./fixtures/atlas/options.json"
 import source from "./fixtures/atlas/Atlas.json"
+
+const tree = readDataJson<typeof snapshotType1>(
+  "../public/atlas-trees/v2/tree.json"
+)
+const art = readDataJson<typeof snapshotType2>(
+  "../public/atlas-trees/v2/art.json"
+)
+const previous = readDataJson<typeof snapshotType3>(
+  "../public/atlas-trees/v1/tree.json"
+)
 
 describe("Atlas snapshot", () => {
   it("adds choices without changing geometry, stats, or connections", () => {
@@ -62,7 +77,7 @@ describe("Atlas snapshot", () => {
     ).toBe(tree.source.sha256)
     for (const node of tree.nodes) {
       const path = (art as Record<string, string>)[node.icon]
-      expect(path).toMatch(/^\/atlas-trees\/v1\/icons\//)
+      expect(path).toMatch(/^\/atlas-trees\/v\d+\/icons\//)
       expect(existsSync("public" + path)).toBe(true)
     }
   })

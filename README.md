@@ -65,7 +65,14 @@ Use `bun run format` for formatting and `bun run check` to verify it. Domain and
 - [Operations and Cloudflare setup](docs/operations.md)
 - [Implementation plan](docs/plan.md)
 - [API research](docs/research.md)
+- [Game data audit and patch-update runbook](docs/game-data-updates.md)
+- [Local data maintenance commands](docs/data-maintenance-cli.md)
 - [Data attribution](NOTICE.md)
+
+`bun run data:audit` produces a read-only local reference-data report. Add
+`--root <candidate-checkout> --baseline <baseline-checkout>` to inspect changed
+records and coverage before a manual patch refresh. See the runbook for required
+patch evidence; the report does not certify that sources are current.
 
 Cloudflare manages branch-triggered builds and deployments. Non-production branches receive matching isolated Convex preview deployments and aliased Worker preview URLs. There is no GitHub Actions deployment pipeline. Development collection stays paused until its projected usage fits the free allowance.
 

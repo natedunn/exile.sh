@@ -1,3 +1,4 @@
+import { fetchDataAsset, dataReleaseKey } from "../../shared/data-assets"
 import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 import { JewelCardContent } from "./jewel-card-content"
@@ -32,11 +33,13 @@ type Gear = BuildSnapshot["itemSets"][number]
 function useSocketedJewels(build: BuildSnapshot, spec?: Spec, gear?: Gear) {
   const version = spec?.version ?? ""
   const tree = useQuery({
-    queryKey: ["passive-tree-v4", version],
+    queryKey: [dataReleaseKey, "passive-tree-v4", version],
     enabled: isTreeVersion(version),
     staleTime: Infinity,
     queryFn: async () => {
-      const response = await fetch("/pob-trees/v4/" + version + ".json")
+      const response = await fetchDataAsset(
+        "/pob-trees/v4/" + version + ".json"
+      )
       if (!response.ok) throw new Error("Tree data unavailable")
       return (await response.json()) as TreeData
     },
