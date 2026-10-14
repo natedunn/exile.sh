@@ -3,17 +3,19 @@ Run with Pillow and zstandard (same environment as update-tree-art.py).
 Use a new destination revision to update published reference data.
 PoB license: public/pob-trees/LICENSE-PoB.txt. Game data/art © GGG.
 """
+from data_sources import build_root, pob_revision, target_patch, Accounting
 import concurrent.futures, hashlib, io, json, pathlib, re, struct, urllib.request, urllib.parse
 from PIL import Image
 import zstandard
-ROOT = pathlib.Path(__file__).resolve().parents[1]
-REVISION = 'ce566eac45ea8a86477f513c7ee65a1ebe60014e'
+ROOT = build_root(__file__)
+REVISION = pob_revision('ce566eac45ea8a86477f513c7ee65a1ebe60014e')
 SOURCE = f'https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/{REVISION}/src/Data/'
 DEST = ROOT / 'public/gems/v1'
 if (DEST / 'catalogue.json').exists():
     raise SystemExit('Published catalogue exists; use a new asset revision to update it.')
 (DEST / 'icons').mkdir(parents=True, exist_ok=True)
 hashes = {}
+accounting = Accounting(ROOT, 'update-gem-art')
 def fetch(url):
     content = urllib.request.urlopen(url, timeout=30).read()
     hashes[url] = hashlib.sha256(content).hexdigest()
@@ -71,8 +73,10 @@ def mirror(path):
         out = io.BytesIO(); img.save(out, format='WEBP', quality=90, method=6)
         content = out.getvalue(); name = hashlib.sha256(content).hexdigest()[:24]+'.webp'
         (DEST / 'icons' / name).write_bytes(content)
+        accounting.add('artwork', path, 'imported')
         return path.replace('/4k/', '/').lower(), '/gems/v1/icons/'+name
     except Exception as error:
+        accounting.add('artwork', path, 'partial', str(error))
         print('Missing artwork:', path, str(error), flush=True)
         return path.replace('/4k/', '/').lower(), ''
 for path, image in concurrent.futures.ThreadPoolExecutor(max_workers=6).map(mirror, sorted(paths)):
@@ -82,6 +86,7 @@ records = {}
 for gem_id, block in re.findall(r'\["([^"]+)"\] = \{(.*?)\n\t\},', gems, re.S):
     effect = string(block, 'grantedEffectId')
     ref = skills.get(effect, {})
+    accounting.add('gem', gem_id, 'imported' if ref else 'unknown', '' if ref else 'Missing skill definition', skillId=effect)
     game_id = string(block, 'gameId')
     icon = ref.get('icon') or repoe.get(game_id, {}).get('icon_dds_file') or ''
     icon = icon.replace('/4k/', '/')
@@ -97,6 +102,7 @@ for gem_id, block in re.findall(r'\["([^"]+)"\] = \{(.*?)\n\t\},', gems, re.S):
 for effect, ref in skills.items():
     if any(r['skillId'] == effect for r in records.values()): continue
     records[effect] = {'name': ref['name'], 'skillId': effect, 'gameId': '', 'variantId': '', 'description': ref['description'], 'tags': '', 'type': 'Support' if ref['support'] else 'Skill', 'support': ref['support'], 'color': ref['color'], 'image': images.get(ref['icon'].lower(), '')}
-(DEST / 'catalogue.json').write_text(json.dumps({'version': '0.5', 'gems': records}, separators=(',', ':'), ensure_ascii=False)+'\n')
-(DEST / 'source.json').write_text(json.dumps({'revision':REVISION,'source':SOURCE,'supportIconMetadata':repoe_url,'sha256':hashes,'artworkOwner':'Grinding Gear Games'}, indent=2)+'\n')
+(DEST / 'catalogue.json').write_text(json.dumps({'version': target_patch(), 'gems': records}, separators=(',', ':'), ensure_ascii=False)+'\n')
+(DEST / 'source.json').write_text(json.dumps({'revision':REVISION,'source':SOURCE,'supportIconMetadata':repoe_url,'sha256':dict(sorted(hashes.items())),'artworkOwner':'Grinding Gear Games'}, indent=2)+'\n')
+accounting.write()
 print(f'{len(records)} references, {sum(bool(r["image"]) for r in records.values())} with artwork; {len(images)} icons extracted')

@@ -8,6 +8,10 @@ The managed build deploys production Convex before Cloudflare publishes the Work
 
 ## Data collection
 
+For game patches, staggered source updates and league rollover, follow the
+[game-data update runbook](game-data-updates.md) before refreshing references or
+changing collection configuration.
+
 The hourly cron runs at minute 5 and exits unless the Convex server environment variable `COLLECTOR_ENABLED=true`. `GGG_CONTACT` defaults to the project contact. Neither belongs in a `VITE_` variable. The separate cleanup cron runs at minute 35, deleting up to 200 expired item-day buckets and 24 expired completion records per execution. Price history and completion records retain 92 full UTC days plus the current partial day. Raw source archives retain eight days; a separate 24-record batch clears old archive files while keeping their completion records, using an `archive-cleanup` checkpoint in the collector table. A cleanup backlog can temporarily retain more.
 
 A bounded manual import does not require enabling the continuous collector:

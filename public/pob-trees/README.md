@@ -1,5 +1,10 @@
 # PoE2 passive tree data
 
+Generator entry points below now run through the [isolated local maintenance
+workflow](../../docs/data-maintenance-cli.md). Direct Python calls refuse to write
+to a working checkout. Freeze inputs and use `data:generate`; publish a new release
+namespace after `data:test` and `data:check`. Historical assets remain unchanged.
+
 Game data © Grinding Gear Games. Derived from the versioned tree JSON distributed by PathOfBuildingCommunity/PathOfBuilding-PoE2. The source commit is recorded in each file; regeneration is in `scripts/build-tree-assets.py`. These assets contain names, descriptions and coordinates, not CDN icons. Existing version files must not be replaced; use a new asset revision if a patch changes a tree under an existing version label.
 
 PoB source license is included in LICENSE-PoB.txt. The application is not affiliated with or endorsed by Grinding Gear Games.

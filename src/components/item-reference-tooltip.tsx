@@ -1,3 +1,4 @@
+import { fetchDataAsset, dataReleaseKey } from "../../shared/data-assets"
 import { createContext, useContext } from "react"
 import { useQueries } from "@tanstack/react-query"
 import type { GemCatalogue, GemReference } from "../../shared/gems"
@@ -30,7 +31,7 @@ export function useItemNodeReference(names: string[]) {
   const unique = [...new Set(names.map((name) => name.toLowerCase()))]
   const queries = useQueries({
     queries: unique.map((name) => ({
-      queryKey: ["item-node-reference", "v1", version, name],
+      queryKey: [dataReleaseKey, "item-node-reference", "v1", version, name],
       enabled: isTreeVersion(version),
       staleTime: Infinity,
       retry: false,
@@ -44,7 +45,7 @@ export function useItemNodeReference(names: string[]) {
         )
           .join("")
           .slice(0, 24)
-        const response = await fetch(
+        const response = await fetchDataAsset(
           `/pob-trees/node-reference-v1/${version}/${key}.json`,
           { signal: AbortSignal.timeout(10_000) }
         )

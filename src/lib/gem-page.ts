@@ -3,7 +3,15 @@ import { z } from "zod"
 import type { GemHeaderLevel } from "../../shared/gems"
 
 export const getGemPage = createServerFn({ method: "GET" })
-  .validator(z.object({ slug: z.string().max(120) }))
+  .validator(
+    z.object({
+      slug: z.string().max(120),
+      releaseId: z
+        .string()
+        .regex(/^[a-z0-9][a-z0-9-]{2,79}$/)
+        .default("legacy"),
+    })
+  )
   .handler(async ({ data }) => {
     const [
       { gemCatalogue, gemHeaders, gemEffects, gemCompatibility },
@@ -14,13 +22,13 @@ export const getGemPage = createServerFn({ method: "GET" })
       import("../../shared/gem-slug"),
       import("../../shared/gem-compatibility"),
     ])
-    const catalogue = await gemCatalogue()
+    const catalogue = await gemCatalogue(data.releaseId)
     const reference = gemBySlug(catalogue, data.slug)
     if (!reference) return null
     const [headers, effects, compatibility] = await Promise.all([
-      gemHeaders(),
-      gemEffects(reference.skillId),
-      gemCompatibility(),
+      gemHeaders(data.releaseId),
+      gemEffects(reference.skillId, data.releaseId),
+      gemCompatibility(data.releaseId),
     ])
     const levels: Partial<Record<string, GemHeaderLevel>> =
       headers.skills[reference.skillId] ?? {}

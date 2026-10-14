@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import { readDataFileSync as readFileSync } from "./data-test-files"
 import { describe, expect, it } from "vitest"
 import choices from "./generated/ascendancy-trees.json"
 import backgrounds from "./generated/ascendancy-backgrounds.json"

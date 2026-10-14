@@ -1,9 +1,18 @@
+import { readDataJson } from "./data-test-files"
+import type snapshotType1 from "../public/gems/v1/catalogue.json"
+import type snapshotType2 from "../public/gems/v1/support-compatibility.json"
 import { describe, expect, it } from "vitest"
-import catalogueData from "../public/gems/v1/catalogue.json"
-import compatibility from "../public/gems/v1/support-compatibility.json"
+
 import type { GemCatalogue } from "./gems"
 import { gemBySlug } from "./gem-slug"
 import { compatibleGems } from "./gem-compatibility"
+
+const catalogueData = readDataJson<typeof snapshotType1>(
+  "../public/gems/v1/catalogue.json"
+)
+const compatibility = readDataJson<typeof snapshotType2>(
+  "../public/gems/v1/support-compatibility.json"
+)
 
 const catalogue = catalogueData as GemCatalogue
 

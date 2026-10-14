@@ -3,10 +3,18 @@ import { itemBySlug } from "../../shared/item-registry"
 import { z } from "zod"
 
 export const getItemMeta = createServerFn({ method: "GET" })
-  .validator(z.object({ slug: z.string().max(200) }))
+  .validator(
+    z.object({
+      slug: z.string().max(200),
+      releaseId: z
+        .string()
+        .regex(/^[a-z0-9][a-z0-9-]{2,79}$/)
+        .default("legacy"),
+    })
+  )
   .handler(async ({ data }) => {
     const { itemCatalogue } = await import("./assets.server")
-    const item = itemBySlug(await itemCatalogue(), data.slug)
+    const item = itemBySlug(await itemCatalogue(data.releaseId), data.slug)
     if (!item) return null
     return {
       name: item.name,

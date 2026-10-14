@@ -1,13 +1,14 @@
 """Split pinned v4 trees into independently cacheable ascendancy snapshots.
 Artwork manifests contain only each ascendancy's icons; image files remain shared.
 """
+from data_sources import build_root, tree_versions, selected_trees
 import json, pathlib, re
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 DEST = ROOT / "public/pob-trees/ascendancies-v1"
 manifest_path = ROOT / "shared/generated/ascendancy-trees.json"
 previous = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
-manifest = {}
-for file in sorted((ROOT / "public/pob-trees/v4").glob("*.json")):
+manifest = {k: v for k, v in previous.items() if k not in tree_versions(list(previous))}
+for file in selected_trees(sorted((ROOT / "public/pob-trees/v4").glob("*.json"))):
     version = file.stem
     tree = json.loads(file.read_text())
     art = json.loads((ROOT / f"public/pob-trees/art-v2/{version}.json").read_text())
@@ -25,8 +26,6 @@ for file in sorted((ROOT / "public/pob-trees/v4").glob("*.json")):
         base = f'/pob-trees/ascendancies-v1/{version}/{slug}'
         manifest[version].append({'value':name,'label':name,'data':base+'.json','art':base+'-art.json'})
 for version, choices in previous.items():
-    variants = [c for c in choices if c['value'] == 'Abyssal Lich']
-    manifest[version].extend(variants)
     manifest[version].sort(key=lambda c: c['value'])
 (ROOT / 'shared/generated/ascendancy-trees.json').write_text(json.dumps(manifest, separators=(',',':')))
 print(sum(len(v) for v in manifest.values()), 'ascendancy snapshots')

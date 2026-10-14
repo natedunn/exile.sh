@@ -1,4 +1,8 @@
-import { existsSync, readFileSync } from "node:fs"
+import {
+  existsDataFileSync as existsSync,
+  readDataFileSync as readFileSync,
+  canonicalAssetPath,
+} from "./data-test-files"
 import { expect, test } from "vitest"
 import { describeEquipment, equipmentJewelSlots } from "./equipment"
 import { parseBuild } from "./pob"
@@ -159,7 +163,7 @@ test("real exported equipment resolves to locally mirrored images", () => {
   )
   for (const saved of build.items.filter((i) => equipped.has(i.id))) {
     const details = describeEquipment(saved)
-    expect(details.artwork?.image, saved.name).toMatch(
+    expect(canonicalAssetPath(details.artwork?.image), saved.name).toMatch(
       /^\/equipment\/.+\.webp$/
     )
   }
@@ -185,7 +189,7 @@ test("socket artwork preserves order, duplicates, and empty or unknown sockets",
     "Future Core",
     "Iron Rune",
   ])
-  expect(details.socketContents[0].image).toMatch(
+  expect(canonicalAssetPath(details.socketContents[0].image)).toMatch(
     /^\/equipment\/sockets\/.+\.webp$/
   )
   expect(details.socketContents[1].image).toBeUndefined()

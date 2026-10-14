@@ -26,6 +26,9 @@ todos.json
 
 test-results/
 playwright-report/
+__pycache__/
+.data-work/
+.data-publication.lock
 # Regenerate with bun run cf:types.
 worker-configuration.d.ts
 

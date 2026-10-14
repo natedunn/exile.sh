@@ -1,9 +1,10 @@
 """Build a text index from the published gem effect references."""
+from data_sources import build_root
 
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 SOURCE = ROOT / "public/gems/effects-v1"
 DESTINATION = ROOT / "public/gems/v1/search-index.json"
 CATALOGUE = ROOT / "public/gems/v1/catalogue.json"

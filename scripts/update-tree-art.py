@@ -3,15 +3,16 @@
 Run with Python dependencies Pillow and zstandard. Each manifest is version-pinned;
 existing manifests are immutable (use a new art revision to change extraction).
 """
+from data_sources import build_root, pob_revision, selected_trees
 import hashlib, io, json, pathlib, struct, urllib.request
 from PIL import Image
 import zstandard
-ROOT = pathlib.Path(__file__).resolve().parents[1]
-REVISION = "ce566eac45ea8a86477f513c7ee65a1ebe60014e"
+ROOT = build_root(__file__)
+REVISION = pob_revision("ce566eac45ea8a86477f513c7ee65a1ebe60014e")
 SOURCE = f"https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/{REVISION}/src/TreeData/"
 dest = ROOT / "public/pob-trees/art-v2"
 (dest / "icons").mkdir(parents=True, exist_ok=True)
-for tree_file in sorted((ROOT / "public/pob-trees/v4").glob("*.json")):
+for tree_file in selected_trees(sorted((ROOT / "public/pob-trees/v4").glob("*.json"))):
     version = tree_file.stem
     if (dest / (version + ".json")).exists():
         continue

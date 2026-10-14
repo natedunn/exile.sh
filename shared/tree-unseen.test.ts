@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import { readDataFileSync as readFileSync } from "./data-test-files"
 import { expect, test } from "vitest"
 import unseen from "./generated/tree-unseen.json"
 
@@ -13,7 +13,12 @@ for (const [version, ids] of Object.entries(unseen.versions)) {
       revision: string
       nodes: { id: string; ascendancy: string; name: string }[]
     }
-    expect(tree.revision).toBe(unseen.revision)
+    const revisions = unseen as typeof unseen & {
+      revisions?: Record<string, string>
+    }
+    expect(tree.revision).toBe(
+      revisions.revisions?.[version] ?? unseen.revision
+    )
     expect(new Set(ids).size).toBe(ids.length)
     expect(ids.length).toBe(version === "0_4" || version === "0_5" ? 176 : 0)
     for (const id of ids) {

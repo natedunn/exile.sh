@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Generate individual anointment references from the pinned local tree assets."""
+from data_sources import build_root, selected_trees
 import hashlib
 import json
 from pathlib import Path
 
-root = Path(__file__).resolve().parents[1]
+root = build_root(__file__)
 output = root / 'public/pob-trees/node-reference-v1'
 count = 0
-for source in sorted((root / 'public/pob-trees/v4').glob('*.json')):
+for source in selected_trees(sorted((root / 'public/pob-trees/v4').glob('*.json'))):
     version = source.stem
     tree = json.loads(source.read_text())
     art = json.loads((root / f'public/pob-trees/art-v2/{version}.json').read_text())

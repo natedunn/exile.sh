@@ -207,7 +207,7 @@ test("base form switch shows deltas, persists, and fits mobile", async ({
   // Base pages link between each form's own page.
   await page.goto("/items/base-grand-cuisses")
   await page
-    .getByRole("group", { name: "Base form" })
+    .getByRole("navigation", { name: "Base form" })
     .getByRole("link", { name: "Runeforged" })
     .click()
   await expect(page).toHaveURL(/base-runeforged-grand-cuisses/)

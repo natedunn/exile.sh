@@ -3,6 +3,7 @@
 Only generated Lua literals are parsed. Upstream code is never executed.
 Matches use base skill types; build-specific type changes are out of scope.
 """
+from data_sources import build_root
 
 import hashlib
 import json
@@ -10,7 +11,7 @@ import pathlib
 import re
 import urllib.request
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 GEMS = ROOT / "public/gems/v1"
 SOURCE = json.loads((GEMS / "source.json").read_text())
 CATALOGUE = json.loads((GEMS / "catalogue.json").read_text())["gems"]

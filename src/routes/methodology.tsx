@@ -1,3 +1,4 @@
+import { dataAssetUrl } from "../../shared/data-assets"
 import { pageShareImage } from "../lib/page-share"
 import { shareMeta } from "../lib/share-meta"
 import { filters, defaultFilters } from "../components/economy-page"
@@ -173,8 +174,8 @@ function Methodology() {
       <H2>Skill and support gems</H2>
       <P>
         Gem levels, quality, enabled state, and corruption come from the saved
-        PoB export. Tooltip descriptions and tags use a pinned PoB 0.5
-        reference, which may differ from older builds. They describe the base
+        PoB export. Tooltip descriptions and tags use a pinned PoB reference
+        snapshot, which may differ from older builds. They describe the base
         skill, not its calculated effect in your build.
       </P>
       <P>
@@ -187,7 +188,10 @@ function Methodology() {
         requiring actor-level interpolation are omitted and flagged as
         incomplete. These references load on demand and are cached separately
         for each skill.{" "}
-        <a href="/gems/effects-v1/source.json">Gem effects source manifest</a>.
+        <a href={dataAssetUrl("/gems/effects-v1/source.json")}>
+          Gem effects source manifest
+        </a>
+        .
       </P>
       <P>
         Gem icons are extracted from PoB’s official game-art atlas, with missing
@@ -197,18 +201,17 @@ function Methodology() {
         </a>
         . Artwork is served locally, loaded on demand, and cached using
         versioned paths and content hashes.{" "}
-        <a href="/gems/v1/source.json">Gem source manifest</a>. Unmatched gems
-        retain their saved values and a fallback icon.
+        <a href={dataAssetUrl("/gems/v1/source.json")}>Gem source manifest</a>.
+        Unmatched gems retain their saved values and a fallback icon.
       </P>
       <P>
         Gem keyword explanations use the{" "}
         <a href="https://repoe-fork.github.io/poe2/keywords.min.json">
           RePoE PoE2 keyword export
         </a>
-        , which is extracted from game data. The gem page checks for updated
-        definitions and keeps a local snapshot for when the source is
-        unavailable. Linked terms in gem descriptions come from RePoE’s skill
-        data. RePoE is a community source, so updates may arrive after a game
+        , which is extracted from game data. Definitions and linked terms are
+        frozen with the gem reference snapshot and reviewed before an update
+        ships. RePoE is a community source, so updates may arrive after a game
         patch.
       </P>
       <H2>Names, artwork, and ownership</H2>

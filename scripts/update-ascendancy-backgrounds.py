@@ -2,17 +2,22 @@
 Run with Pillow and zstandard. Placement follows PoB's centered DrawAsset quad,
 whose source width/height are half-extents. No runtime upstream requests.
 """
+from data_sources import build_root, pob_revision, tree_versions
 import hashlib, io, json, pathlib, struct, urllib.request
 from PIL import Image
 import zstandard
-ROOT = pathlib.Path(__file__).resolve().parents[1]
-REVISION = "ce566eac45ea8a86477f513c7ee65a1ebe60014e"
+ROOT = build_root(__file__)
+REVISION = pob_revision("ce566eac45ea8a86477f513c7ee65a1ebe60014e")
 SOURCE = f"https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/{REVISION}/src/TreeData/"
 DEST = ROOT / "public/pob-trees/ascendancy-v1"
 DEST.mkdir(parents=True, exist_ok=True)
-versions = {}
+manifest_path = ROOT / "shared/generated/ascendancy-backgrounds.json"
+previous = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+versions = previous.get("versions", {})
+revisions = previous.get("revisions", {version: previous.get("revision") for version in versions})
 encoded = {}
-for version in ["0_1", "0_2", "0_3", "0_4", "0_5"]:
+for version in tree_versions(["0_1", "0_2", "0_3", "0_4", "0_5"]):
+    revisions[version] = REVISION
     data = json.load(urllib.request.urlopen(SOURCE + version + "/tree.json"))
     backgrounds = {a["name"]: a["background"] for c in data["classes"] for a in c.get("ascendancies", []) if a.get("background")}
     wanted = {bg["image"] for bg in backgrounds.values()}
@@ -44,4 +49,4 @@ for version in ["0_1", "0_2", "0_3", "0_4", "0_5"]:
             encoded[signature] = images[name]
     versions[version] = {name: {"image": images[bg["image"]], "x": bg["x"], "y": bg["y"], "width": bg["width"] * 2, "height": bg["height"] * 2} for name,bg in backgrounds.items()}
     print(version, len(backgrounds), flush=True)
-(ROOT / "shared/generated/ascendancy-backgrounds.json").write_text(json.dumps({"source": SOURCE, "revision": REVISION, "artworkOwner": "Grinding Gear Games", "versions": versions}, separators=(",", ":")))
+(ROOT / "shared/generated/ascendancy-backgrounds.json").write_text(json.dumps({"source": SOURCE, "revision": REVISION, "artworkOwner": "Grinding Gear Games", "versions": versions, "revisions": revisions}, separators=(",", ":")))

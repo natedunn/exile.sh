@@ -88,18 +88,23 @@ difference nobody can explain stays failing and is raised, never listed.
 
 ## Data and refresh
 
-To refresh, run `bun run items:refresh`. It imports changed sources
-(`update-item-registry.py --refresh`), captures PoeDB again, and runs the
-cross-check, writing paste-ready drafts for any unexplained difference to
-`scripts/data/poe2db-draft-differences.json` (ignored by git). Drafts have
-blank reasons and silence nothing until investigated.
+Before a patch refresh, follow the [game-data update runbook](game-data-updates.md).
+It covers independent source readiness, manual mechanics review and publishing
+compatible assets. The refresh command below is development tooling; passing its
+comparison does not establish target-patch readiness.
 
-Run `python3 scripts/update-item-registry.py` from any directory. It uses only the
-Python standard library. `public/items/v1/source.json` records the pinned PoB
-revision, exact RePoE URLs, SHA-256 hashes, counts, excluded unique diagnostics,
-and coverage limitations. Normal runs verify the cached/downloaded sources
-against the manifest. To deliberately import changed sources, run with
-`--refresh`, review the generated diff, and run the registry tests.
+Refresh through the [local maintenance CLI](data-maintenance-cli.md): draft and
+review a plan for `items`, capture pinned PoB/RePoE inputs, compatible PoE2DB pages
+and local recipe/accepted-difference fixtures, then generate into a new candidate directory.
+`bun run items:refresh --capture <capture> --out <candidate>` is an alias for that
+isolated generation. It does not download sources or overwrite published assets.
+
+The importer uses the Python standard library. `public/items/v1/source.json`
+records provenance in the legacy snapshot; selected new snapshots are addressed
+through `shared/data-release.json`. Candidates record exact source/output hashes,
+extraction decisions, missing data and patch evidence. Run candidate tests and
+`data:check` before `data:prepare`. Unexplained differences remain blockers; the
+agent must investigate and obtain the owner's review of accepted exceptions.
 
 The importer uses visible PoB base definitions, hidden Runeforged/Runemastered
 definitions, and released RePoE metadata,

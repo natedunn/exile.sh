@@ -1,14 +1,15 @@
+import { fetchDataAsset, dataReleaseKey } from "../../shared/data-assets"
 import { useQuery } from "@tanstack/react-query"
 import type { GemCatalogue, GemHeaders } from "../../shared/gems"
 
 export function useGemCatalogue(enabled = true) {
   return useQuery<GemCatalogue>({
-    queryKey: ["gem-reference", "v1", "headers-v1"],
+    queryKey: [dataReleaseKey, "gem-reference", "v1", "headers-v1"],
     enabled,
     queryFn: async () => {
       const [catalogueResponse, headersResponse] = await Promise.all([
-        fetch("/gems/v1/catalogue.json"),
-        fetch("/gems/v1/headers.json"),
+        fetchDataAsset("/gems/v1/catalogue.json"),
+        fetchDataAsset("/gems/v1/headers.json"),
       ])
       if (!catalogueResponse.ok || !headersResponse.ok)
         throw new Error("Gem reference unavailable")

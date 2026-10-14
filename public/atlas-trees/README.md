@@ -1,5 +1,10 @@
 # Atlas passive tree
 
+Generator entry points below now run through the [isolated local maintenance
+workflow](../../docs/data-maintenance-cli.md). Direct Python calls refuse to write
+to a working checkout. Freeze inputs and use `data:generate`; publish a new release
+namespace after `data:test` and `data:check`. Historical assets remain unchanged.
+
 `v1` is a standalone Path of Exile 2 Atlas snapshot from RePoE's **4.5.5.2** export, not a historical character-tree version. It contains 537 playable/starting-point nodes and 586 connections. The 38 explicitly image-only decorations are excluded.
 
 - Source: https://repoe-fork.github.io/poe2/passive_skill_trees/Atlas.json
@@ -15,4 +20,6 @@ https://poe2db.tw/us/Atlas_passive_skill on 2026-09-13. Each entry is tied to it
 node ID, name, source stats, and the original export hash. Multiline effects stay
 within one choice; internal hidden stats are excluded. Revalidate this supplement
 when changing the Atlas snapshot. This does not establish a public patch mapping.
-The builder now emits v2 and reuses local v1 artwork without downloading it again.
+The isolated builder emits v2 from frozen artwork inputs. Legacy v1 artwork stays
+available; new candidates read captured bytes instead of silently reusing cached
+images under the same source path.

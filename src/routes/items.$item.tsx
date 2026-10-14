@@ -1,3 +1,4 @@
+import { dataAssetUrl, dataReleaseKey } from "../../shared/data-assets"
 import { cn } from "cn"
 import { textLink } from "../components/ui/link-styles"
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
@@ -61,7 +62,9 @@ export const Route = createFileRoute("/items/$item")({
       .parse(search.variant),
   }),
   loader: async ({ params }) => {
-    const meta = await getItemMeta({ data: { slug: params.item } })
+    const meta = await getItemMeta({
+      data: { slug: params.item, releaseId: dataReleaseKey },
+    })
     if (!meta) throw notFound()
     return meta
   },
@@ -260,7 +263,10 @@ function ItemDetailPage() {
               RePoE
             </a>
             .{" "}
-            <a href="/items/v1/source.json" className="text-brand underline">
+            <a
+              href={dataAssetUrl("/items/v1/source.json")}
+              className="text-brand underline"
+            >
               Snapshot sources and coverage
             </a>
             .

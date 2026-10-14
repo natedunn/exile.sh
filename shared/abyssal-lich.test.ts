@@ -1,4 +1,7 @@
-import { readFileSync, existsSync } from "node:fs"
+import {
+  readDataFileSync as readFileSync,
+  existsDataFileSync as existsSync,
+} from "./data-test-files"
 import { expect, test } from "vitest"
 import manifest from "./generated/ascendancy-trees.json"
 import fixture from "./fixtures/pob/abyssal-lich-options.json"

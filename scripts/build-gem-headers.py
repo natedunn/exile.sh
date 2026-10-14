@@ -1,4 +1,5 @@
 """Extract tooltip header values from the same pinned PoB sources as the gem catalogue."""
+from data_sources import build_root
 
 import hashlib
 import json
@@ -6,7 +7,7 @@ import re
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 CATALOGUE = ROOT / "public/gems/v1/catalogue.json"
 DESTINATION = ROOT / "public/gems/v1/headers.json"
 REVISION = json.loads((ROOT / "public/gems/v1/source.json").read_text())["revision"]
@@ -71,5 +72,5 @@ for filename in ("act_str", "act_dex", "act_int", "sup_str", "sup_dex", "sup_int
         if levels:
             skills[skill_id] = levels
 
-DESTINATION.write_text(json.dumps({"version": REVISION, "sha256": hashes, "gems": gems, "skills": skills}, separators=(",", ":"), ensure_ascii=False) + "\n")
+DESTINATION.write_text(json.dumps({"version": REVISION, "sha256": dict(sorted(hashes.items())), "gems": gems, "skills": skills}, separators=(",", ":"), ensure_ascii=False) + "\n")
 print(f"Extracted {len(gems)} gem headers and {len(skills)} skill level tables")

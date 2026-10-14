@@ -1,4 +1,5 @@
 """Mirror PoE2 keyword definitions and link labels from RePoE game data."""
+from data_sources import build_root
 
 import hashlib
 import json
@@ -6,7 +7,7 @@ import re
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 DEST = ROOT / "public/gems/v1"
 CATALOGUE = DEST / "catalogue.json"
 BASE = "https://repoe-fork.github.io/poe2/"

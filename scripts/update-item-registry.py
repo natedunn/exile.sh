@@ -5,6 +5,7 @@ verify source hashes and refuse to silently change the published game data.
 PoB's visible bases provide an allowlist: RePoE contains inherited PoE1 content.
 This is a reference catalogue, not proof of crafting reachability.
 """
+from data_sources import build_root, pob_revision, Accounting
 import concurrent.futures
 import hashlib
 import json
@@ -14,9 +15,9 @@ import sys
 import tempfile
 import urllib.request
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 DEST = ROOT / 'public/items/v1'
-REV = 'ce566eac45ea8a86477f513c7ee65a1ebe60014e'
+REV = pob_revision('ce566eac45ea8a86477f513c7ee65a1ebe60014e')
 POB = f'https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/{REV}/src/Data/'
 REPOE = 'https://repoe-fork.github.io/poe2/'
 CACHE = pathlib.Path(tempfile.gettempdir()) / 'exile-item-registry-v1'
@@ -24,6 +25,7 @@ CACHE.mkdir(exist_ok=True)
 manifest = DEST / 'source.json'
 previous = json.loads(manifest.read_text()) if manifest.exists() else None
 hashes = {}
+accounting = Accounting(ROOT, 'update-item-registry')
 
 
 def fetch(url):
@@ -109,11 +111,15 @@ for key, value in raw_mods.items():
     sacrifice = key.startswith('CorruptionUpgrade') and value['generation_type'] == 'unique'
     # Keep special sources in the reference pool, never present them as normal rolls.
     if value['generation_type'] not in ['prefix', 'suffix', 'corrupted', 'instilled'] and not sacrifice:
+        accounting.add('mod', key, 'excluded', 'Unsupported generation type', generationType=value['generation_type'], domain=value['domain'])
         continue
     if value['domain'] not in ['item', 'flask', 'misc', 'jewel', 'abyss_jewel', 'desecrated']:
+        accounting.add('mod', key, 'excluded', 'Unsupported domain', domain=value['domain'])
         continue
     if (key not in mod_ids and not sacrifice) or not value.get('text') or 'UNUSED' in key.upper():
+        accounting.add('mod', key, 'excluded', 'Missing PoB ID, untranslated text or UNUSED identity', inPob=key in mod_ids, hasText=bool(value.get('text')), unused='UNUSED' in key.upper())
         continue
+    accounting.add('mod', key, 'imported')
     mods[key] = {
         'id': key, 'name': value['name'], 'text': mod_text(value['text']),
         'level': value['required_level'], 'affix': 'corrupted' if sacrifice else value['generation_type'],
@@ -208,23 +214,29 @@ augment_diagnostics = []
 for key, value in raw_augments.items():
     base = raw_bases.get(key)
     if not base or base.get('release_state') != 'released':
+        accounting.add('augment', key, 'excluded', 'No released base item')
         augment_diagnostics.append({'id': key, 'reason': 'No released base item'})
         continue
     effects = []
     for slot, effect in value['categories'].items():
         if slot not in AUGMENT_SLOTS:
             if slot not in ARMOUR + MARTIAL + CASTER + ['Sceptre']:
+                accounting.add('augmentSlot', key + '/' + slot, 'unknown', 'Unknown slot', slot=slot)
                 augment_diagnostics.append({'id': key, 'reason': 'Unknown slot ' + slot})
                 continue
             AUGMENT_SLOTS[slot] = [slot]
         # Some stats have no translation in the export; record rather than invent them.
         if effect.get('stats') and not effect.get('stat_text'):
+            accounting.add('augmentTranslation', key + '/' + slot, 'partial', 'Untranslated stats', stats=effect.get('stats'))
             augment_diagnostics.append({'id': key, 'reason': 'Untranslated stats for ' + slot})
         text = [mod_text(t) for t in effect.get('stat_text', [])]
         bonded = [mod_text(t) for t in effect.get('bonded_stat_text', [])]
         if text or bonded:
             effects.append({'slot': slot, 'text': text, 'bonded': bonded})
     image = base.get('visual_identity', {}).get('dds_file', '')
+    accounting.add('augment', key, 'imported' if effects else 'partial', '' if effects else 'No translated effects', type=value['type_id'])
+    if value['type_id'] not in AUGMENT_TYPES:
+        accounting.add('augmentType', key, 'unknown', 'Unknown augment type', type=value['type_id'])
     augments.append({
         'id': key, 'name': base['name'], 'type': AUGMENT_TYPES.get(value['type_id'], value['type_id']),
         'level': value.get('required_level', 0), 'image': REPOE + image.replace('.dds', '.webp') if image else '',
@@ -273,10 +285,13 @@ bases = {}
 base_diagnostics = []
 for key, value in raw_bases.items():
     if value['name'] not in visible_names or value.get('release_state') != 'released':
+        accounting.add('base', key, 'excluded', 'Not in PoB visible allowlist or not released', releaseState=value.get('release_state'), name=value['name'])
         continue
     if value['domain'] not in ['item', 'flask', 'misc', 'jewel', 'abyss_jewel']:
+        accounting.add('base', key, 'excluded', 'Unsupported base domain', domain=value['domain'])
         continue
     if not any(set(value['tags']) == hint['tags'] for hint in base_hints[value['name']]):
+        accounting.add('base', key, 'excluded', 'Tags do not match a PoB definition', tags=value['tags'])
         continue
     image = value.get('visual_identity', {}).get('dds_file', '')
     same_name = [b for b in raw_bases.values() if b['name'] == value['name'] and b.get('release_state') == 'released' and any(set(b['tags']) == hint['tags'] for hint in base_hints[value['name']])]
@@ -285,8 +300,10 @@ for key, value in raw_bases.items():
         raise ValueError('Duplicate base slug: ' + item_slug)
     hint = matching_hint(value)
     if not hint:
+        accounting.add('base', key, 'unknown', 'Ambiguous PoB definition')
         base_diagnostics.append({'id': key, 'reason': 'Ambiguous PoB definition'})
         continue
+    accounting.add('base', key, 'imported', output=item_slug)
     properties = dict(value['properties'])
     ward = hint['armour'].get('Ward')
     if ward is not None:
@@ -314,13 +331,16 @@ for value in raw_uniques.values():
 uniques = {}
 diagnostics = []
 for name in files['Uniques']:
-    for block in re.findall(r'\[\[(.*?)\]\]', sources[POB + 'Uniques/' + name], re.S):
+    for block_index, block in enumerate(re.findall(r'\[\[(.*?)\]\]', sources[POB + 'Uniques/' + name], re.S)):
         lines = [line.strip() for line in block.strip().splitlines() if line.strip()]
+        identity = name + '#' + str(block_index)
         if len(lines) < 2 or lines[0] not in unique_art:
+            accounting.add('pobUnique', identity, 'excluded', 'Incomplete definition or missing RePoE unique identity', name=lines[0] if lines else '')
             continue
         item_name, base_name = lines[:2]
         candidates = by_name.get(base_name, [])
         if not candidates or len({candidate['item_class'] for candidate in candidates}) != 1:
+            accounting.add('pobUnique', identity, 'unknown', 'No unambiguous released base', name=item_name)
             diagnostics.append({'name': item_name, 'reason': 'No unambiguous released base'})
             continue
         variants = [line[len('Variant: '):] for line in lines if line.startswith('Variant: ')]
@@ -359,6 +379,7 @@ for name in files['Uniques']:
         item_slug = 'unique-' + slug(item_name) + '-' + slug(base_name)
         if item_slug in uniques:
             raise ValueError('Ambiguous unique: ' + item_name)
+        accounting.add('pobUnique', identity, 'imported', output=item_slug)
         uniques[item_slug] = {
             'slug': item_slug, 'kind': 'unique', 'name': item_name, 'baseName': base_name,
             'baseSlug': 'base-' + slug(base_name) if 'base-' + slug(base_name) in bases else None,
@@ -421,6 +442,13 @@ for unique in uniques.values():
     if paths:
         unique['runeforging'] = {'source': published['source'], 'sourceVersion': 'Reviewed ' + published['reviewed'], 'paths': paths}
 
+# RePoE unique identities may have no matching imported PoB definition.
+for key, value in raw_uniques.items():
+    outputs = [u['slug'] for u in uniques.values() if u['name'] == value['name']]
+    accounting.add('repoeUnique', key, 'imported' if outputs else 'excluded', '' if outputs else 'No imported PoB unique definition', outputs=outputs)
+for family, raw in [('mod', raw_mods), ('base', raw_bases), ('augment', raw_augments), ('repoeUnique', raw_uniques)]:
+    assert all(family + ':' + key in accounting.records for key in raw), 'Unaccounted ' + family
+accounting.write()
 DEST.mkdir(parents=True, exist_ok=True)
 # Split heavy modifier data from the searchable catalogue; loaded on base pages only.
 for filename, data in [('catalogue.json', {'version': 'v1', 'items': {**bases, **uniques}}), ('modifiers.json', {'mods': mods, 'essences': essences, 'augments': augments, 'augmentSlots': AUGMENT_SLOTS, 'influences': influences})]:

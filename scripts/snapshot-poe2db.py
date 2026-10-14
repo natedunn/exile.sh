@@ -10,6 +10,7 @@ Base and desecrated modifiers carry no id on PoeDB, so they are keyed by
 affix name, level, modifier group and roll numbers: immune to wording
 differences, but still telling a one-handed range from a two-handed one.
 """
+from data_sources import build_root, Accounting, captured_at
 import datetime
 import html
 import json
@@ -21,7 +22,7 @@ import time
 import urllib.error
 import urllib.request
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
+ROOT = build_root(__file__)
 DEST = ROOT / 'scripts/data/poe2db-modifier-pools.json'
 SOURCE = 'https://poe2db.tw/us/'
 CACHE = pathlib.Path(tempfile.gettempdir()) / 'exile-poe2db-v1'
@@ -91,11 +92,14 @@ def pools(view):
 
 
 pages = {}
+accounting = Accounting(ROOT, 'snapshot-poe2db')
 for page in PAGES:
     body = fetch(page)
     start = body.find('ModsView(') if body else -1
     if start < 0:
+        accounting.add('page', page, 'unknown' if body else 'excluded', 'Missing ModsView payload' if body else 'Captured HTTP 404')
         continue
+    accounting.add('page', page, 'imported')
     view, _ = json.JSONDecoder().raw_decode(body[start + len('ModsView('):])
     option = view['opt']
     pages[page] = {
@@ -107,9 +111,10 @@ for page in PAGES:
 if len(pages) < 40:
     raise SystemExit(f'Only {len(pages)} PoeDB pages carried modifier data; the page format may have changed.')
 
+accounting.write()
 DEST.write_text(json.dumps({
     'source': SOURCE,
-    'captured': datetime.date.today().isoformat(),
+    'captured': captured_at()[:10],
     'purpose': 'Independent cross-check of the generated item registry. Not a data source.',
     'pages': pages,
 }, indent=1, ensure_ascii=False, sort_keys=True) + '\n', encoding='utf-8')

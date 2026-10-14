@@ -7,10 +7,11 @@ stats. Actor-level interpolation and build-specific quality bonuses are not gues
 Quality contributions, including Gemling Legionnaire's Advanced Thaumaturgy,
 are displayed separately from base effects.
 """
+from data_sources import build_root, pob_revision, Accounting
 import hashlib, json, math, pathlib, re, sys, tempfile, urllib.request
 from lupa.lua51 import LuaRuntime
-ROOT = pathlib.Path(__file__).resolve().parents[1]
-REV = 'ce566eac45ea8a86477f513c7ee65a1ebe60014e'
+ROOT = build_root(__file__)
+REV = pob_revision('ce566eac45ea8a86477f513c7ee65a1ebe60014e')
 SOURCE = f'https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/{REV}/src/'
 DEST = ROOT / 'public/gems/effects-v1'
 CACHE = pathlib.Path(tempfile.gettempdir()) / ('exile-gem-effects-' + REV)
@@ -20,6 +21,7 @@ if (DEST / 'source.json').exists():
     if '--refresh' not in sys.argv or existing['revision'] != REV:
         raise SystemExit('Published effects exist; use --refresh for the same revision or a new revision to update them.')
 hashes = {}
+accounting = Accounting(ROOT, 'update-gem-effects')
 failures = {}
 def fetch(path):
     if path in failures: raise RuntimeError(failures[path])
@@ -81,22 +83,28 @@ count = 0
 for effect in required:
     assert re.fullmatch(r'[a-zA-Z0-9_]+',effect),effect
     skill=skills[effect]
-    if skill is None or skill['statSets'] is None: continue
+    if skill is None or skill['statSets'] is None:
+        accounting.add('skill', effect, 'unknown', 'Missing skill or stat sets')
+        continue
+    accounting.add('skill', effect, 'imported')
     result={'sets':{}}
     for index,statset in enumerate(values(skill['statSets']),1):
         scope=statset['statDescriptionScope'] or ('gem_stat_descriptions' if skill['support'] else 'skill_stat_descriptions')
         compiled={'label':statset['label'] or skill['name'],'levels':{},'quality':{}}
         for level,leveldata in statset['levels'].items():
-            if not isinstance(level,(float,int)) or not 1<=level<=100: continue
-            stats={}; incomplete=False
+            if not isinstance(level,(float,int)) or not 1<=level<=100:
+                accounting.add('level', effect + '/' + str(index) + '/' + str(level), 'excluded', 'Outside supported numerical level range')
+                continue
+            stats={}; incomplete=False; omitted=[]
             for pos,stat in enumerate(values(statset['stats']),1):
                 interpolation=leveldata['statInterpolation']
                 if interpolation is not None and interpolation[pos] not in [None,1]:
-                    incomplete=True;continue
+                    incomplete=True;omitted.append({'stat': stat, 'interpolation': interpolation[pos]});continue
                 stats[stat]=leveldata[pos] if leveldata[pos] is not None else 1
             for stat in values(statset['constantStats']): stats[stat[1]]=stats.get(stat[1],0)+(stat[2] or 0)
             rendered,failed=lines(stats,scope)
             compiled['levels'][str(int(level))]={'lines':rendered,'partial':incomplete or failed}
+            accounting.add('level', effect + '/' + str(index) + '/' + str(int(level)), 'partial' if incomplete or failed else 'imported', 'Unsupported interpolation or translation failure' if incomplete or failed else '', stats=list(stats), omitted=omitted, diagnostics=diagnostics[-1:] if failed else [])
         quality_stats = [s for s in values(skill['qualityStats']) if not values(s[3]) or index-1 in values(s[3])]
         if quality_stats:
             for quality in range(1,101):
@@ -104,6 +112,7 @@ for effect in required:
                 for stat in quality_stats: stats[stat[1]]=stats.get(stat[1],0)+math.trunc(stat[2]*quality)
                 rendered,failed=lines(stats,scope,True)
                 compiled['quality'][str(quality)]={'lines':rendered,'partial':failed}
+                if failed: accounting.add('quality', effect + '/' + str(index) + '/' + str(quality), 'partial', 'Translation failed', stats=list(stats))
         gemling_stats = [s for s in values(skill['altQualityStats']) if not values(s[3]) or index-1 in values(s[3])]
         if gemling_stats:
             compiled['gemlingQuality']={}
@@ -112,9 +121,11 @@ for effect in required:
                 for stat in gemling_stats: stats[stat[1]]=stats.get(stat[1],0)+math.trunc(stat[2]*quality)
                 rendered,failed=lines(stats,scope,True)
                 compiled['gemlingQuality'][str(quality)]={'lines':rendered,'partial':failed}
+                if failed: accounting.add('gemlingQuality', effect + '/' + str(index) + '/' + str(quality), 'partial', 'Translation failed', stats=list(stats))
         result['sets'][str(index)]=compiled
     (DEST/(effect+'.json')).write_text(json.dumps(result,separators=(',',':'),ensure_ascii=False)+'\n')
     count+=1
     if count%100==0:print(count,'skills compiled',flush=True)
-(DEST/'source.json').write_text(json.dumps({'source':SOURCE,'revision':REV,'sha256':hashes,'artworkOwner':'Grinding Gear Games','qualityRange':[1,100],'limitations':['Actor-level interpolated values are omitted and marked partial.','Standard and Advanced Thaumaturgy quality effects are separate; equipment and other passive bonuses are not applied.'],'diagnostics':sorted(set(diagnostics))},indent=2)+'\n')
+(DEST/'source.json').write_text(json.dumps({'source':SOURCE,'revision':REV,'sha256':dict(sorted(hashes.items())),'artworkOwner':'Grinding Gear Games','qualityRange':[1,100],'limitations':['Actor-level interpolated values are omitted and marked partial.','Standard and Advanced Thaumaturgy quality effects are separate; equipment and other passive bonuses are not applied.'],'diagnostics':sorted(set(diagnostics))},indent=2)+'\n')
+accounting.write()
 print('Compiled',count,'skills;',len(set(diagnostics)),'unique translation diagnostics',flush=True)

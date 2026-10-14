@@ -92,14 +92,13 @@ test("level 40 skill gems retain their data and shareable settings", async ({
 test("gem keywords explain mechanics in descriptions and effects", async ({
   page,
 }) => {
-  await page.route(
-    "https://repoe-fork.github.io/poe2/keywords.min.json",
-    (route) =>
-      route.fulfill({
-        json: {
+  await page.route("**/gems/v1/keywords.json", (route) =>
+    route.fulfill({
+      json: {
+        keywords: {
           Chain: {
             term: "Chain",
-            definition: "Updated chaining rule from game data.",
+            definition: "Pinned chaining rule from game data.",
           },
           Lightning: {
             term: "Lightning Damage",
@@ -107,10 +106,11 @@ test("gem keywords explain mechanics in descriptions and effects", async ({
           },
           Shock: {
             term: "Shock",
-            definition: "Updated Shock rule from game data.",
+            definition: "Pinned Shock rule from game data.",
           },
         },
-      })
+      },
+    })
   )
   await page.goto("/gems/lightning-arrow")
   const description = page.locator('[data-slot="gem-description"]')
@@ -125,7 +125,7 @@ test("gem keywords explain mechanics in descriptions and effects", async ({
   await chaining.hover()
   await expect(
     page.locator('[data-tooltip-kind="keyword"][data-open]').filter({
-      hasText: "Updated chaining rule from game data.",
+      hasText: "Pinned chaining rule from game data.",
     })
   ).toBeVisible()
   const shock = page
@@ -137,17 +137,25 @@ test("gem keywords explain mechanics in descriptions and effects", async ({
   await shock.press("Enter")
   await expect(
     page.locator('[data-tooltip-kind="keyword"][data-open]').filter({
-      hasText: "Updated Shock rule from game data.",
+      hasText: "Pinned Shock rule from game data.",
     })
   ).toBeVisible()
 })
 
-test("gem keyword definitions fall back to the mirrored game data", async ({
+test("live keyword changes cannot override the pinned game reference", async ({
   page,
 }) => {
+  let externalRequests = 0
   await page.route(
     "https://repoe-fork.github.io/poe2/keywords.min.json",
-    (route) => route.abort()
+    (route) => {
+      externalRequests++
+      return route.fulfill({
+        json: {
+          Shock: { term: "Shock", definition: "Unreviewed future mechanic" },
+        },
+      })
+    }
   )
   await page.goto("/gems/lightning-arrow")
   const shock = page
@@ -160,6 +168,7 @@ test("gem keyword definitions fall back to the mirrored game data", async ({
   await expect(
     page.locator('[data-tooltip-kind="keyword"][data-open]')
   ).toContainText("causes targets to take 20% increased damage")
+  expect(externalRequests).toBe(0)
 })
 
 test("gem details show ranges, selected values and level effects inline", async ({
@@ -324,6 +333,8 @@ test("support gem page lists and searches compatible skill gems", async ({
   page,
 }) => {
   await page.goto("/gems/loyalty?gemQuality=28")
+  // Rows are server-rendered; wait for the client keyword provider before typing.
+  await expect(page.locator('[data-slot="gem-keyword"]').first()).toBeVisible()
   await expect(
     page.getByRole("spinbutton", { name: "Gem quality" })
   ).toHaveCount(0)
@@ -373,6 +384,7 @@ test("gem detail toolbar copies selected settings", async ({ page }) => {
   await page.goto(
     "/gems/lightning-arrow?gemLevel=16&gemQuality=20&advancedQuality=1"
   )
+  await expect(page.locator('[data-slot="gem-keyword"]').first()).toBeVisible()
   const advancedQuality = page.getByRole("button", {
     name: "Advanced Thaumaturgy",
   })
@@ -420,6 +432,7 @@ test("skill gem page lists and searches compatible support gems", async ({
   page,
 }) => {
   await page.goto("/gems/lightning-arrow?q=lightning")
+  await expect(page.locator('[data-slot="gem-keyword"]').first()).toBeVisible()
   const compatible = page.getByRole("region", {
     name: "Compatible support gems",
   })
