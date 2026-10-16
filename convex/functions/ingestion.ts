@@ -98,6 +98,9 @@ export const ingest = privateAction
     }
     let next = hour
     let delay = 5000
+    // Set when GGG is unreachable, overloaded or rate limiting rather than
+    // returning data this collector cannot process.
+    let transient = false
     try {
       const previous = await store.imported({ hour })
       if (previous?.status !== "complete") {
@@ -117,14 +120,19 @@ export const ingest = privateAction
               },
               signal: AbortSignal.timeout(30_000),
             }
-          )
+          ).catch((error: unknown) => {
+            transient = true
+            throw error
+          })
           delay = retryDelay(
             response.headers,
             response.status,
             state?.failures ?? 0
           )
-          if (response.status !== 200)
+          if (response.status !== 200) {
+            transient = response.status === 429 || response.status >= 500
             throw new Error(`GGG HTTP ${response.status}`)
+          }
           raw = await boundedBody(response)
         }
         const feed = exchangeSchema.parse(
@@ -220,13 +228,14 @@ export const ingest = privateAction
         cursor: next,
         nextAllowedAt: Date.now() + delay,
         error: message,
+        transient,
       })
       if ((state?.failures ?? 0) < 4)
         await createIngestionCaller(ctx)
           .schedule.after(delay)
           .ingest({ ...input, ...(automatic ? {} : { hour }), remaining })
       console.error(
-        JSON.stringify({ event: "ingestion-failed", hour, message })
+        JSON.stringify({ event: "ingestion-failed", hour, message, transient })
       )
       return { status: "error", hour, message }
     }
