@@ -73,6 +73,7 @@ export const release = privateMutation
       cursor: z.number(),
       nextAllowedAt: z.number(),
       error: z.string(),
+      transient: z.boolean().optional(),
     })
   )
   .mutation(async ({ ctx, input }) => {
@@ -80,13 +81,20 @@ export const release = privateMutation
       where: { key: "poe2" },
     })
     if (!row || row.leaseToken !== input.token) return
+    // Upstream outages keep backing off but stop short of the five-failure
+    // circuit, so collection resumes on its own once GGG recovers.
+    const failures = input.error
+      ? input.transient
+        ? Math.min(row.failures + 1, 4)
+        : row.failures + 1
+      : 0
     await ctx.orm
       .update(collector)
       .set({
         leaseUntil: 0,
         cursor: Math.max(row.cursor, input.cursor),
         nextAllowedAt: input.nextAllowedAt,
-        failures: input.error ? row.failures + 1 : 0,
+        failures,
         lastError: input.error,
       })
       .where(eq(collector.id, row.id))

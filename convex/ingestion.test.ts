@@ -20,6 +20,7 @@ vi.mock("./functions/generated/store.runtime", () => ({
       cursor: number
       nextAllowedAt: number
       error: string
+      transient?: boolean
     }) => ctx.runMutation(internal.store.release, args),
     begin: (args: FunctionArgs<typeof internal.store.begin>) =>
       ctx.runMutation(internal.store.begin, args),
@@ -161,4 +162,43 @@ test("a timed-out fetch waits a minute before its first retry", async () => {
     failures: 1,
     nextAllowedAt: now + 60_000,
   })
+})
+
+test("an upstream outage never opens the circuit and recovers by itself", async () => {
+  const { t, at, fetcher } = setup()
+  const ok = fetcher.getMockImplementation()!
+  fetcher.mockImplementation(async () => new Response("", { status: 503 }))
+  await t.action(internal.ingestion.ingest, {})
+  await t.finishAllScheduledFunctions(() => vi.runOnlyPendingTimers())
+  // The first attempt plus four quick retries, then the hourly cron takes over.
+  expect(fetcher).toHaveBeenCalledTimes(5)
+  for (let tick = 0; tick < 3; tick++) {
+    vi.advanceTimersByTime(HOUR * 1000)
+    await t.action(internal.ingestion.ingest, {})
+  }
+  expect(await t.query(internal.store.state, {})).toMatchObject({
+    failures: 4,
+    lastError: "GGG HTTP 503",
+  })
+  fetcher.mockImplementation(ok)
+  vi.advanceTimersByTime(HOUR * 1000)
+  expect(await t.action(internal.ingestion.ingest, {})).toMatchObject({
+    status: "complete",
+    hour: at - 29 * HOUR,
+  })
+  expect((await t.query(internal.store.state, {}))?.failures).toBe(0)
+})
+
+test("unprocessable source data still opens the circuit", async () => {
+  const { t, fetcher } = setup()
+  fetcher.mockImplementation(async () => new Response("{}", { status: 200 }))
+  await t.action(internal.ingestion.ingest, {})
+  await t.finishAllScheduledFunctions(() => vi.runOnlyPendingTimers())
+  expect(fetcher).toHaveBeenCalledTimes(5)
+  vi.advanceTimersByTime(HOUR * 1000)
+  expect(await t.action(internal.ingestion.ingest, {})).toMatchObject({
+    status: "error",
+    message: expect.stringContaining("circuit is open"),
+  })
+  expect(fetcher).toHaveBeenCalledTimes(5)
 })
