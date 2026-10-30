@@ -59,10 +59,13 @@ function Masthead({ className }: { className?: string }) {
    the colophon. */
 export function SiteLayout({ children }: { children: ReactNode }) {
   const f = useShellFilters()
-  // Detail and settings pages run their sidebar divider down to the footer.
+  // Detail, settings and patch notes pages run their column divider down to
+  // the footer.
   const isDetail = useLocation({
     select: (location) =>
-      /^\/((gems|currency)\/[^/]+|settings(\/.*)?)\/?$/.test(location.pathname),
+      /^\/((gems|currency)\/[^/]+|settings(\/.*)?|patch-notes(\/[^/]+)?)\/?$/.test(
+        location.pathname
+      ),
   })
   return (
     <div
