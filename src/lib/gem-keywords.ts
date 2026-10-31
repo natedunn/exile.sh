@@ -13,8 +13,110 @@ export type KeywordIndex = {
   pattern: RegExp
 }
 
+/* Labels the game never links. Swept on 2026-10-30 against RePoE's stat
+ * descriptions (every item, unique and passive line) and skill text: each
+ * appears there only as plain text. "maximum" alone is plain 2,095 times. */
+const unlinked = new Set([
+  "additional projectiles",
+  "ancient",
+  "attack's",
+  "augments",
+  "avatar of fire",
+  "ballista totems",
+  "banner skills",
+  "boons",
+  "brittle",
+  "cartographer's strongbox",
+  "chaos inoculation",
+  "claws",
+  "corrupted items",
+  "crafted",
+  "crafted modifiers",
+  "desecrated ground",
+  "detonator skills",
+  "effigy",
+  "enraged",
+  "essence of delirium",
+  "extra chaos damage",
+  "extra cold damage",
+  "extra content",
+  "extra fire damage",
+  "extra lightning damage",
+  "foci",
+  "fracture",
+  "gloom shrine",
+  "haste aura",
+  "herald skills",
+  "hiveblood",
+  "increased area of effect",
+  "increased life",
+  "increased stun threshold",
+  "life loss",
+  "link skills",
+  "map owner",
+  "maximum",
+  "maximum quality",
+  "merging",
+  "mirrored",
+  "mirrored items",
+  "offering skills",
+  "omen",
+  "orb of alteration",
+  "phasing",
+  "powerful minions",
+  "quivers",
+  "relic",
+  "resolute technique",
+  "shields",
+  "slower",
+  "splitting",
+  "staves",
+  "stuns",
+  "surge",
+  "talismans",
+  "unique map",
+  "unleash",
+  "upfront costs",
+  "wand",
+  "wands",
+])
+
+/* Labels the game links to a different keyword than the generated alias. */
+const relinked: Record<string, string> = {
+  empowered: "Empowered",
+  empowerment: "Empowered",
+  invocation: "Invoke",
+}
+
+const compact = (text: string) => text.toLowerCase().replace(/[^a-z0-9]/g, "")
+
+/* The game labels a keyword by context: "[ManaLeech|Mana]" inside a leech
+ * sentence. The generated aliases keep such labels when the keyword's ID
+ * starts with them, which turns every "Mana" into Mana Leech. A shortened
+ * label stays only when it is the same word less an ending ("Ailment" for
+ * Ailments, "Banners" for Banner); a different, shorter word goes. */
+function contextOnly(name: string, key: string, keyword: Keyword) {
+  const full = [key, keyword.term].map(compact)
+  const label = compact(name)
+  const stem = label.replace(/(?:es|ed|ing|s|d)$/, "")
+  const shortened = full.some(
+    (word) => word.startsWith(label) && word.length > label.length
+  )
+  const sameWord = full.some((word) =>
+    [label, stem].some(
+      (part) => word.startsWith(part) && word.length - part.length <= 4
+    )
+  )
+  return shortened && !sameWord
+}
+
 export function keywordIndex(data: KeywordData): KeywordIndex {
-  const aliases = new Map(Object.entries(data.aliases))
+  const aliases = new Map(
+    Object.entries(data.aliases).filter(([name, key]) => {
+      const keyword = data.keywords[key]
+      return !keyword || !contextOnly(name, key, keyword)
+    })
+  )
   for (const [key, keyword] of Object.entries(data.keywords)) {
     if (!keyword?.term || !keyword.definition) continue
     aliases.set(keyword.term.toLowerCase(), key)
@@ -26,12 +128,24 @@ export function keywordIndex(data: KeywordData): KeywordIndex {
     aliases.set(`${type} charge`, "Charges")
     aliases.set(`${type} charges`, "Charges")
   }
+  // Last, so a keyword's own name cannot bring an unlinked label back.
+  for (const name of unlinked) aliases.delete(name)
+  for (const [name, key] of Object.entries(relinked)) aliases.set(name, key)
+  // "Gain" is the keyword for damage gained as extra damage. The game links
+  // it only in that sense ("Gain 10% of Damage as Extra Fire Damage"), so
+  // a bare "Gain 1 Rage on Hit" stays plain text.
+  const gain = /^gain(?:s|ed|ing)?$/
   const names = [...aliases.keys()]
     .filter(
-      (name) => name && data.keywords[aliases.get(name) ?? ""]?.definition
+      (name) =>
+        name &&
+        !gain.test(name) &&
+        data.keywords[aliases.get(name) ?? ""]?.definition
     )
     .sort((a, b) => b.length - a.length)
     .map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+  if (data.keywords[aliases.get("gain") ?? ""]?.definition)
+    names.push(String.raw`gain(?:s|ed|ing)?(?=[^.\n]*\bas extra\b)`)
   return {
     definitions: data.keywords,
     aliases,

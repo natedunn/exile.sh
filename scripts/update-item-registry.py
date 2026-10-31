@@ -45,13 +45,18 @@ def clean(text):
     return re.sub(r'\[([^\[\]]+)\]', lambda m: m[1].split('|')[-1], text)
 
 
-def mod_text(text):
-    """Modifier text with every roll range written low to high. The export
-    keeps a negative stat's order, so "reduced" lines read "(60-56)%"."""
+def ordered_ranges(text):
+    """Every roll range written low to high. The export keeps a negative
+    stat's order, so "reduced" lines read "(60-56)%"."""
     def ordered(m):
         low, high = sorted([m[1], m[2]], key=float)
         return f'({low}-{high})'
-    return re.sub(r'\((\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)\)', ordered, clean(text))
+    return re.sub(r'\((\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)\)', ordered, text)
+
+
+def mod_text(text):
+    """Display text: game markup removed and ranges ordered low to high."""
+    return ordered_ranges(clean(text))
 
 
 def item_class(text):
@@ -283,6 +288,8 @@ def matching_hint(value):
 
 bases = {}
 base_diagnostics = []
+# PoB's implicit text keeps the game's keyword markup; kept for the links.
+base_hints_implicits = {}
 for key, value in raw_bases.items():
     if value['name'] not in visible_names or value.get('release_state') != 'released':
         accounting.add('base', key, 'excluded', 'Not in PoB visible allowlist or not released', releaseState=value.get('release_state'), name=value['name'])
@@ -317,6 +324,7 @@ for key, value in raw_bases.items():
         'form': 'runemastered' if value['name'].startswith('Runemastered ') else ('runeforged' if value['name'].startswith('Runeforged ') or 'runeforged' in value['tags'] else 'original'),
         'implicits': [clean(text) for text in hint['implicits']],
     }
+    base_hints_implicits[item_slug] = hint['implicits']
 
 # Unique-only bases can be hidden in PoB, so resolve them separately but require
 # a released RePoE base and a name in RePoE's unique stash catalogue.
@@ -448,16 +456,33 @@ for key, value in raw_uniques.items():
     accounting.add('repoeUnique', key, 'imported' if outputs else 'excluded', '' if outputs else 'No imported PoB unique definition', outputs=outputs)
 for family, raw in [('mod', raw_mods), ('base', raw_bases), ('augment', raw_augments), ('repoeUnique', raw_uniques)]:
     assert all(family + ':' + key in accounting.records for key in raw), 'Unaccounted ' + family
+# The game's own keyword links for displayed lines. PoB writes unique text
+# without markup, so each line is matched to RePoE's marked-up modifier text;
+# a line with no exact match keeps no links rather than guessing by word.
+marked = {}
+for value in raw_mods.values():
+    for line in (value.get('text') or '').split('\n'):
+        if '[' in line:
+            marked.setdefault(mod_text(line), ordered_ranges(line))
+for base in bases.values():
+    for raw in base_hints_implicits.get(base['slug'], []):
+        for line in raw.split('\n'):
+            if '[' in line:
+                marked.setdefault(mod_text(line), ordered_ranges(line))
+shown = {line for unique in uniques.values() for effect in unique['modifiers'] for line in effect['text'].split('\n')}
+shown |= {line for base in bases.values() for text in base['implicits'] for line in text.split('\n')}
+keyword_markup = {line: marked[line] for line in sorted(shown) if line in marked}
+
 accounting.write()
 DEST.mkdir(parents=True, exist_ok=True)
 # Split heavy modifier data from the searchable catalogue; loaded on base pages only.
-for filename, data in [('catalogue.json', {'version': 'v1', 'items': {**bases, **uniques}}), ('modifiers.json', {'mods': mods, 'essences': essences, 'augments': augments, 'augmentSlots': AUGMENT_SLOTS, 'influences': influences})]:
+for filename, data in [('catalogue.json', {'version': 'v1', 'items': {**bases, **uniques}}), ('modifiers.json', {'mods': mods, 'essences': essences, 'augments': augments, 'augmentSlots': AUGMENT_SLOTS, 'influences': influences}), ('keyword-markup.json', {'lines': keyword_markup})]:
     (DEST / filename).write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':')) + '\n')
 manifest.write_text(json.dumps({
     'pobRevision': REV, 'repoeSource': REPOE,
     'runeforgingMappings': {'file': 'scripts/data/unique-runeforging.json', 'sha256': hashlib.sha256(recipe_file.read_bytes()).hexdigest(), 'coverage': 'Published unique recipes resolved only against unambiguous imported base identities; unresolved paths are excluded. Absence does not mean an upgrade is impossible.', 'uniques': sum('runeforging' in u for u in uniques.values()), 'publishedRecipes': {'file': 'scripts/data/runeforging-recipes.json', 'sha256': hashlib.sha256(published_file.read_bytes()).hexdigest(), 'source': published['source']}},
     'sha256': dict(sorted(hashes.items())), 'artworkOwner': 'Grinding Gear Games',
-    'counts': {'bases': len(bases), 'uniques': len(uniques), 'modifiers': len(mods), 'essences': len(essences), 'augments': len(augments)},
+    'counts': {'bases': len(bases), 'uniques': len(uniques), 'modifiers': len(mods), 'essences': len(essences), 'augments': len(augments), 'keywordMarkupLines': len(keyword_markup)},
     'limitations': ['Reference data does not prove crafting reachability.', 'Complex multi-variant uniques are reference-only.', 'Hidden PoB bases are excluded except released Runeforged and Runemastered forms. Ambiguous base definitions are excluded.', 'PoB and RePoE releases may differ; source hashes identify the exact inputs.'],
     'diagnostics': diagnostics, 'baseDiagnostics': base_diagnostics, 'recipeDiagnostics': recipe_diagnostics,
     'essenceDiagnostics': essence_diagnostics, 'augmentDiagnostics': augment_diagnostics,

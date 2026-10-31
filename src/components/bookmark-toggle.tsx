@@ -1,4 +1,5 @@
 import { Bookmark } from "lucide-react"
+import { cn } from "cn"
 import { Button } from "./ui/button"
 
 /* The icon-only ghost bookmark button on a gem or item result. */
@@ -35,16 +36,21 @@ export function BookmarkToggle({
 export function BookmarkButton({
   bookmarked,
   onClick,
+  className,
 }: {
   bookmarked: boolean
   onClick: () => void
+  className?: string
 }) {
   return (
     <Button
       type="button"
       variant="outline"
       aria-pressed={bookmarked}
-      className="relative z-1 ml-auto shrink-0 bg-paper aria-pressed:border-brand-deep aria-pressed:bg-notice aria-pressed:text-brand"
+      className={cn(
+        "relative z-1 ml-auto shrink-0 bg-paper aria-pressed:border-brand-deep aria-pressed:bg-notice aria-pressed:text-brand",
+        className
+      )}
       onClick={onClick}
     >
       <Bookmark
