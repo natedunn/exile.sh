@@ -2,7 +2,7 @@ import { dataAssetUrl, dataReleaseKey } from "../../shared/data-assets"
 import { cn } from "cn"
 import { textLink } from "../components/ui/link-styles"
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
-import { useState } from "react"
+import { Fragment, useState } from "react"
 import type * as React from "react"
 import { z } from "zod"
 import { getItemMeta } from "../lib/item-registry-meta"
@@ -41,14 +41,18 @@ import {
 } from "../components/build/stats-ledger"
 import { GemSection, GemSectionTitle } from "../components/gem-section"
 import { ReferenceSelect } from "../components/item-registry-controls"
-import { BaseFormSwitch, RuneforgingPaths } from "../components/item-base-forms"
+import { BaseFormSwitch } from "../components/item-base-forms"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../components/ui/tooltip"
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../components/ui/popover"
 import { ItemModifierPool } from "../components/item-modifier-pool"
+import {
+  GemKeywordProvider,
+  GemKeywordText,
+} from "../components/gem-keyword-text"
+import { uniqueStatRows } from "../../shared/unique-stats"
 
 export const Route = createFileRoute("/items/$item")({
   validateSearch: (search): { variant?: number; baseForm?: string } => ({
@@ -138,12 +142,33 @@ function ItemDetailPage() {
     })
   // The loader already knows the name and art, so the masthead renders
   // before the catalogue arrives.
+  // A unique's figures include its own modifiers: the chosen variant's, or
+  // on a complex unique only those every variant shares.
+  // A base page lists the uniques built on it, and those a runeforging
+  // recipe moves onto it.
+  const uniquesOnBase =
+    item?.kind === "base" && catalogue.data
+      ? Object.values(catalogue.data.items).filter(
+          (other): other is UniqueReference =>
+            other.kind === "unique" &&
+            (other.baseSlug === item.slug ||
+              other.runeforging?.paths.some((path) => path.to === item.slug) ===
+                true)
+        )
+      : []
+  const uniqueTexts =
+    item?.kind === "unique"
+      ? (item.complex
+          ? item.modifiers.filter((mod) => !mod.variants.length)
+          : uniqueModifiers(item, search.variant ?? 0)
+        ).map((mod) => mod.text)
+      : undefined
   const titleTone = item?.kind === "unique" ? uniqueTitle : undefined
   const name = item?.name ?? meta.name
   const image = item?.image ?? meta.image
   return (
     <div className="flex min-w-0 flex-1 flex-col">
-      <PageHeading className="-mx-[var(--shell-gutter)] px-[var(--shell-gutter)] pt-12">
+      <PageHeading className="-mx-[var(--shell-gutter)] px-[var(--shell-gutter)] pt-12 max-sm:flex-wrap">
         <Link
           to="/items"
           search={listSearch}
@@ -151,24 +176,27 @@ function ItemDetailPage() {
         >
           ← All items
         </Link>
-        <PageHeadingCopy className="max-w-3xl">
-          <PageTitle className={titleTone}>{name}</PageTitle>
-          {item && (
-            <PageMeta>
-              <span>
-                <strong>{item.itemClass}</strong>
-              </span>
-              <span>
-                {item.kind === "unique" ? item.baseName : formLabel(item)}
-              </span>
-              {base && <span>Drop level {base.dropLevel}</span>}
-            </PageMeta>
-          )}
-        </PageHeadingCopy>
-        {image && <ItemArt src={image} />}
+        <div className="relative z-1 flex min-w-0 items-end gap-8 max-sm:basis-full max-sm:flex-col max-sm:items-start">
+          {image && <ItemArt src={image} unique={meta.kind === "unique"} />}
+          <PageHeadingCopy className="max-w-3xl">
+            <PageTitle className={titleTone}>{name}</PageTitle>
+            {item && (
+              <PageMeta>
+                <span>
+                  <strong>{item.itemClass}</strong>
+                </span>
+                <span>
+                  {item.kind === "unique" ? item.baseName : formLabel(item)}
+                </span>
+                {base && <span>Drop level {base.dropLevel}</span>}
+              </PageMeta>
+            )}
+          </PageHeadingCopy>
+        </div>
         <BookmarkButton
           bookmarked={favorites.includes(slug)}
           onClick={() => toggleFavorite(slug)}
+          className="max-sm:ml-0"
         />
       </PageHeading>
       {catalogue.isError ? (
@@ -199,44 +227,43 @@ function ItemDetailPage() {
         </EmptyState>
       ) : (
         <>
-          <div className="-mx-[var(--shell-gutter)] grid min-w-0 border-b border-rule-strong lg:grid-cols-[minmax(0,1fr)_420px]">
-            <div className="min-w-0 lg:border-r lg:border-rule-strong">
-              {item.kind === "unique" ? (
-                <UniqueModifiers
-                  item={item}
-                  variant={search.variant ?? 0}
-                  onVariant={(variant) => patch({ variant })}
-                />
-              ) : (
-                <BaseImplicits item={base ?? item} />
-              )}
-            </div>
-            <aside className="min-w-0 max-lg:border-t max-lg:border-rule-strong">
-              <BaseLedger
+          {/* Modifiers then base stats, each the full width: a sidebar
+              ledger beside a few modifier lines left most of the page
+              empty, so the ledger's groups sit side by side instead. */}
+          <div className="-mx-[var(--shell-gutter)] min-w-0 border-b border-rule-strong">
+            {item.kind === "unique" ? (
+              <UniqueModifiers
                 item={item}
-                base={base}
-                original={original !== base ? original : undefined}
-                formSwitch={
-                  base &&
-                  forms.length > 1 && (
-                    <BaseFormSwitch
-                      forms={forms}
-                      selected={base}
-                      onSelect={
-                        item.kind === "unique"
-                          ? (baseForm) => patch({ baseForm })
-                          : undefined
-                      }
-                    />
-                  )
-                }
-                paths={
-                  item.kind === "unique" && (
-                    <RuneforgingPaths item={item} catalogue={catalogue.data} />
-                  )
-                }
+                variant={search.variant ?? 0}
+                onVariant={(variant) => patch({ variant })}
               />
-            </aside>
+            ) : (
+              // A base with no implicit shows no implicit section at all.
+              (base ?? item).implicits.length > 0 && (
+                <BaseImplicits item={base ?? item} />
+              )
+            )}
+            <BaseLedger
+              item={item}
+              base={base}
+              original={original !== base ? original : undefined}
+              modifiers={uniqueTexts}
+              uniques={uniquesOnBase}
+              formSwitch={
+                base &&
+                forms.length > 1 && (
+                  <BaseFormSwitch
+                    forms={forms}
+                    selected={base}
+                    onSelect={
+                      item.kind === "unique"
+                        ? (baseForm) => patch({ baseForm })
+                        : undefined
+                    }
+                  />
+                )
+              }
+            />
           </div>
           {base && (
             <div className="-mx-[var(--shell-gutter)]">
@@ -270,6 +297,18 @@ function ItemDetailPage() {
               Snapshot sources and coverage
             </a>
             .
+            {item.kind === "unique" && item.runeforging && (
+              <>
+                {" "}
+                <a
+                  href={item.runeforging.source}
+                  className="text-brand underline"
+                >
+                  Runeforging recipe source
+                </a>{" "}
+                ({item.runeforging.sourceVersion}).
+              </>
+            )}
           </p>
         </>
       )}
@@ -287,29 +326,36 @@ function formLabel(item: BaseReference) {
       : "Runemastered base"
 }
 
-/* The item's own art, undithered, standing in the masthead's right side
- * on a faint bronze glow. */
-function ItemArt({ src }: { src: string }) {
+/* The item's own art, undithered, in the inventory frame the build page
+ * uses for gear, so it sits in the masthead as an item rather than floating.
+ * The frame is a fixed square; the art scales inside it and never squishes. */
+function ItemArt({ src, unique }: { src: string; unique: boolean }) {
   const [failed, setFailed] = useState(false)
   if (failed) return null
   return (
     <div
       aria-hidden="true"
-      className="relative z-1 ml-auto flex shrink-0 items-center justify-center self-stretch px-6 before:absolute before:inset-0 before:bg-[radial-gradient(closest-side,color-mix(in_oklch,var(--color-brand)_14%,transparent),transparent)] before:content-[''] max-sm:px-0"
+      className="pointer-events-none flex size-36 shrink-0 max-sm:size-24"
     >
-      <img
-        src={src}
-        alt=""
-        decoding="async"
-        onError={() => setFailed(true)}
-        className="relative max-h-44 w-auto max-w-40 object-contain drop-shadow-[0_8px_24px_rgb(0_0_0/0.6)] max-sm:max-h-24 max-sm:max-w-20"
-      />
+      <div
+        className="item-slot p-2.5 max-sm:p-2 [&>img]:size-full"
+        data-rarity={unique ? "UNIQUE" : undefined}
+      >
+        <img
+          src={src}
+          alt=""
+          decoding="async"
+          onError={() => setFailed(true)}
+        />
+      </div>
     </div>
   )
 }
 
+/* Always bulleted here, whatever the tooltip layout setting: the same
+ * half-tone disc and indent as the bullet layout in item tooltips. */
 const modifierList =
-  "m-0 list-none space-y-2 p-0 text-lg leading-relaxed font-medium"
+  "m-0 list-disc space-y-2 p-0 text-lg leading-relaxed font-medium [&>li]:ml-[1.25em] [&>li::marker]:[color:color-mix(in_srgb,currentColor_50%,transparent)]"
 
 function UniqueModifiers({
   item,
@@ -329,132 +375,183 @@ function UniqueModifiers({
   const implicits = item.complex ? [] : effects.slice(0, item.implicitCount)
   const explicits = item.complex ? effects : effects.slice(item.implicitCount)
   return (
-    <GemSection aria-labelledby="item-modifiers-title">
-      <GemSectionTitle id="item-modifiers-title">Modifiers</GemSectionTitle>
-      {item.variants.length > 1 && !item.complex && (
-        <div className="mt-4 max-w-sm px-[var(--shell-gutter)]">
-          <ReferenceSelect
-            id="unique-variant"
-            label="Variant"
-            value={String(selected)}
-            options={item.variants.map((option) => ({
-              value: String(option.id),
-              label: option.name,
-            }))}
-            onChange={(value) => onVariant(Number(value))}
-          />
+    <GemKeywordProvider>
+      <GemSection aria-labelledby="item-modifiers-title">
+        <GemSectionTitle id="item-modifiers-title">Modifiers</GemSectionTitle>
+        {item.variants.length > 1 && !item.complex && (
+          <div className="mt-4 max-w-sm px-[var(--shell-gutter)]">
+            <ReferenceSelect
+              id="unique-variant"
+              label="Variant"
+              value={String(selected)}
+              options={item.variants.map((option) => ({
+                value: String(option.id),
+                label: option.name,
+              }))}
+              onChange={(value) => onVariant(Number(value))}
+            />
+          </div>
+        )}
+        <div
+          className="mt-5 px-[var(--shell-gutter)]"
+          data-testid="unique-modifiers"
+        >
+          {implicits.length > 0 && (
+            <ul
+              className={`${modifierList} mb-4 border-b border-rule pb-4 text-ink`}
+            >
+              {implicits.map((mod, index) => (
+                <li key={`${mod.text}-${index}`}>
+                  <GemKeywordText text={mod.text} />
+                </li>
+              ))}
+            </ul>
+          )}
+          {explicits.length === 0 ? (
+            <p className="text-sm text-ink-muted">
+              No explicit modifiers. See the item details for sockets.
+            </p>
+          ) : (
+            <ul className={`${modifierList} text-ink`}>
+              {explicits.map((mod, index) => (
+                <li
+                  key={`${mod.text}-${index}`}
+                  className="whitespace-pre-line"
+                >
+                  <GemKeywordText text={mod.text} />
+                  {item.complex && mod.variants.length > 0 && (
+                    <span className="mt-0.5 block mono-label font-normal text-ink-muted">
+                      {mod.variants
+                        .map(
+                          (id) =>
+                            item.variants.find((option) => option.id === id)
+                              ?.name
+                        )
+                        .filter(Boolean)
+                        .join(" / ") || "Conditional variant"}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          {item.complex && (
+            <Note className="mt-6">
+              This unique has multiple variable modifier sets. The label under
+              each modifier names its variants; they are alternatives, not one
+              combined item.
+            </Note>
+          )}
         </div>
-      )}
-      <div
-        className="mt-5 px-[var(--shell-gutter)]"
-        data-testid="unique-modifiers"
-      >
-        {implicits.length > 0 && (
-          <ul
-            className={`${modifierList} mb-4 border-b border-rule pb-4 text-item-augment`}
-          >
-            {implicits.map((mod, index) => (
-              <li key={`${mod.text}-${index}`}>{mod.text}</li>
-            ))}
-          </ul>
-        )}
-        {explicits.length === 0 ? (
-          <p className="text-sm text-ink-muted">
-            No explicit modifiers. See the item details for sockets.
-          </p>
-        ) : (
-          <ul className={`${modifierList} text-item-modifier`}>
-            {explicits.map((mod, index) => (
-              <li key={`${mod.text}-${index}`} className="whitespace-pre-line">
-                {mod.text}
-                {item.complex && mod.variants.length > 0 && (
-                  <span className="mt-0.5 block mono-label font-normal text-ink-muted">
-                    {mod.variants
-                      .map(
-                        (id) =>
-                          item.variants.find((option) => option.id === id)?.name
-                      )
-                      .filter(Boolean)
-                      .join(" / ") || "Conditional variant"}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-        {item.complex && (
-          <Note className="mt-6">
-            This unique has multiple variable modifier sets. The label under
-            each modifier names its variants; they are alternatives, not one
-            combined item.
-          </Note>
-        )}
-      </div>
-    </GemSection>
+      </GemSection>
+    </GemKeywordProvider>
   )
 }
 
 function BaseImplicits({ item }: { item: BaseReference }) {
   return (
-    <GemSection aria-labelledby="item-implicits-title">
-      <GemSectionTitle id="item-implicits-title">Implicits</GemSectionTitle>
-      <div className="mt-5 px-[var(--shell-gutter)]">
-        {item.implicits.length ? (
-          <ul className={`${modifierList} text-item-augment`}>
+    <GemKeywordProvider>
+      <GemSection aria-labelledby="item-implicits-title">
+        <GemSectionTitle id="item-implicits-title">Implicits</GemSectionTitle>
+        <div className="mt-5 px-[var(--shell-gutter)]">
+          <ul className={`${modifierList} text-ink`}>
             {item.implicits.map((text, index) => (
               <li key={index} className="whitespace-pre-line">
-                {text}
+                <GemKeywordText text={text} />
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="text-sm text-ink-muted">
-            This base has no implicit modifier.
-          </p>
-        )}
-      </div>
-    </GemSection>
+        </div>
+      </GemSection>
+    </GemKeywordProvider>
   )
 }
 
 /* Unique metadata lines, normalised for a name/value ledger. */
 function detailRows(item: UniqueReference) {
-  return item.metadata.map((text) => {
+  return item.metadata.flatMap((text) => {
+    // The level requirement belongs with the other requirements.
+    if (levelLine.test(text)) return []
     if (text.startsWith("Sockets:")) {
       const count = text.slice(8).trim().split(/\s+/).length
-      return {
-        label: "Sockets",
-        value: `${count} ${text.includes("J") ? "jewel" : "augment"}`,
-      }
+      return [
+        {
+          label: "Sockets",
+          value: `${count} ${text.includes("J") ? "jewel" : "augment"}`,
+        },
+      ]
     }
     const plain = text.replace(/(?:unique|normal)\{([^}]+)\}/g, "$1")
     const split = plain.indexOf(":")
-    return split > 0
-      ? { label: plain.slice(0, split), value: plain.slice(split + 1).trim() }
-      : { label: plain, value: "" }
+    return [
+      split > 0
+        ? { label: plain.slice(0, split), value: plain.slice(split + 1).trim() }
+        : { label: plain, value: "" },
+    ]
   })
 }
 
-/* "-5%" and "1.20" read as numbers; ranges such as "10–20" do not. */
-function statNumber(value: string | undefined) {
-  const match = value?.match(/^(-?\d+(?:\.\d+)?)(%?)$/)
-  return match ? { amount: Number(match[1]), unit: match[2] } : undefined
+const levelLine = /^Requires Level (\d+)$/
+
+/* A unique's own level requirement. Its modifiers can raise it above the
+ * base's (Temporalis needs 64 on a level 22 Silk Robe); attributes stay
+ * the base's. */
+function uniqueLevel(item: ItemReference) {
+  if (item.kind !== "unique") return undefined
+  for (const text of item.metadata) {
+    const match = text.match(levelLine)
+    if (match) return match[1]
+  }
+  return undefined
+}
+
+function withLevel(
+  requirements: { label: string; value: string }[],
+  level?: string
+) {
+  return level
+    ? [
+        { label: "Level", value: level },
+        ...requirements.filter((row) => row.label !== "Level"),
+      ]
+    : requirements
+}
+
+/* "-5%", "1.20" and "267–312" as a low/high pair; a figure such as
+ * "(24–26) to (41–43)" does not compare. */
+function statSpan(value: string | undefined) {
+  const match = value?.match(/^(-?\d+(?:\.\d+)?)(?:–(-?\d+(?:\.\d+)?))?(%?)$/)
+  if (!match) return undefined
+  // An unmatched group is undefined at runtime, though typed as a string.
+  const [, low, high = low, unit] = match as (string | undefined)[]
+  return { low: Number(low), high: Number(high), unit: unit ?? "" }
 }
 
 /** The change from the original form, as the gem page shows level
- * changes: "(+53)" for Ward a form adds, "(−22)" for armour it trades. */
+ * changes: "(+53)" for Ward a form adds, "(−22)" for armour it trades,
+ * "(−56 to −66)" where the figure is a rolled range. */
 function statDelta(before: string | undefined, after: string) {
-  const next = statNumber(after)
+  const next = statSpan(after)
   if (!next) return null
-  const previous = before === undefined ? 0 : statNumber(before)?.amount
-  if (previous === undefined) return null
-  const difference = Math.round((next.amount - previous) * 100) / 100
-  if (difference === 0) return null
-  return `(${difference > 0 ? "+" : "−"}${Math.abs(difference)}${next.unit})`
+  const previous = before === undefined ? { low: 0, high: 0 } : statSpan(before)
+  if (!previous) return null
+  const signed = (value: number) =>
+    `${value > 0 ? "+" : "−"}${Math.abs(value)}${next.unit}`
+  const low = Math.round((next.low - previous.low) * 100) / 100
+  const high = Math.round((next.high - previous.high) * 100) / 100
+  if (low === 0 && high === 0) return null
+  return low === high
+    ? `(${signed(low)})`
+    : `(${signed(low)} to ${signed(high)})`
 }
 
-function ledgerRows(base?: BaseReference) {
-  const rows = base ? baseStatRows(base) : []
+/** A unique's rows carry its own local modifiers; a base's are its own. */
+function ledgerRows(base?: BaseReference, modifiers?: string[]) {
+  const rows = !base
+    ? []
+    : modifiers
+      ? uniqueStatRows(base, modifiers)
+      : baseStatRows(base)
   return {
     properties: rows.filter(
       (row) => !row.label.startsWith("Requires ") && row.label !== "Drop level"
@@ -472,18 +569,33 @@ function BaseLedger({
   item,
   base,
   original,
+  modifiers,
+  uniques = [],
   formSwitch,
-  paths,
 }: {
   item: ItemReference
   base?: BaseReference
   /** The family's original form, when the shown base is another form. */
   original?: BaseReference
+  /** A unique's modifiers, applied to its base for its own figures. */
+  modifiers?: string[]
+  /** On a base page, the uniques that can be this base. */
+  uniques?: UniqueReference[]
   formSwitch?: React.ReactNode
-  paths?: React.ReactNode
 }) {
-  const { properties, requirements } = ledgerRows(base)
-  const before = original ? ledgerRows(original) : undefined
+  const level = uniqueLevel(item)
+  const rows = ledgerRows(base, modifiers)
+  const { properties } = rows
+  const requirements = withLevel(rows.requirements, level)
+  // The original form compares under the same modifiers and unique level,
+  // so only what the form itself changes reads as a difference.
+  const originalRows = original ? ledgerRows(original, modifiers) : undefined
+  // On a unique the comparison is the same unique on its original base.
+  const compared = item.kind === "unique" ? item.name : original?.name
+  const before = originalRows && {
+    ...originalRows,
+    requirements: withLevel(originalRows.requirements, level),
+  }
   const previous = new Map(
     before
       ? [
@@ -496,7 +608,20 @@ function BaseLedger({
         ]
       : []
   )
-  const details = item.kind === "unique" ? detailRows(item) : []
+  // A unique names its base first, linked when the base has a page.
+  const details =
+    item.kind === "unique"
+      ? [
+          {
+            label: "Base",
+            value: base?.name ?? item.baseName,
+            slug: base?.slug,
+          },
+          ...detailRows(item),
+        ]
+      : uniques.length
+        ? [{ label: "Uniques", value: "", uniques }]
+        : []
   const groups = [
     ["Properties", properties],
     ["Requirements", requirements],
@@ -505,44 +630,71 @@ function BaseLedger({
   const tags = base?.tags.filter((tag) => tag !== "default") ?? []
   return (
     <GemSection aria-labelledby="item-base-title">
-      <GemSectionTitle id="item-base-title">
-        {item.kind === "unique" ? "Base" : "Base stats"}
-      </GemSectionTitle>
+      <GemSectionTitle id="item-base-title">Stats</GemSectionTitle>
       {formSwitch && (
-        <div className="mt-4 grid gap-3 px-[var(--shell-gutter)]">
+        <div className="mt-4 grid px-[var(--shell-gutter)] lg:grid-cols-[minmax(0,26rem)]">
           {formSwitch}
-          {paths}
         </div>
       )}
-      {item.kind === "unique" && base && (
-        <p className="mt-4 px-[var(--shell-gutter)] text-sm text-ink-muted">
-          Unmodified{" "}
-          <Link
-            to="/items/$item"
-            params={{ item: base.slug }}
-            search={{ q: "", kind: "base", itemClass: "", page: 1 }}
-            className="text-brand underline decoration-dotted underline-offset-4"
-          >
-            {base.name}
-          </Link>{" "}
-          values, before quality and unique modifiers.
-        </p>
-      )}
-      <TooltipProvider delay={0}>
-        <StatsBody className="mt-4 px-[var(--shell-gutter)]">
-          {groups.map(
-            ([title, list]) =>
-              list.length > 0 && (
-                <StatsSection key={title}>
-                  <StatsHeading>{title}</StatsHeading>
-                  <StatsList>
-                    {list.map(({ label, value }) => {
-                      const delta =
-                        original && title !== "Details"
-                          ? statDelta(previous.get(`${title}:${label}`), value)
-                          : null
-                      return (
-                        <StatsRow key={label} label={label}>
+      <StatsBody className="mt-6 px-[var(--shell-gutter)] lg:grid-cols-4 lg:gap-x-10">
+        {groups.map(
+          ([title, list]) =>
+            list.length > 0 && (
+              <StatsSection key={title}>
+                <StatsHeading>{title}</StatsHeading>
+                <StatsList className="[&>*:last-child]:border-b-0">
+                  {list.map((row) => {
+                    const { label, value } = row
+                    const slug = "slug" in row ? row.slug : undefined
+                    const linked = "uniques" in row ? row.uniques : undefined
+                    const delta =
+                      original && title !== "Details"
+                        ? statDelta(previous.get(`${title}:${label}`), value)
+                        : null
+                    return (
+                      <StatsRow key={label} label={label}>
+                        {linked ? (
+                          <span>
+                            {linked.map((unique, index) => (
+                              <Fragment key={unique.slug}>
+                                {index > 0 && ", "}
+                                <Link
+                                  to="/items/$item"
+                                  params={{ item: unique.slug }}
+                                  search={{
+                                    q: "",
+                                    kind: "unique",
+                                    itemClass: "",
+                                    page: 1,
+                                    // Opened on this base when a recipe
+                                    // moves the unique here.
+                                    baseForm:
+                                      unique.baseSlug === base?.slug
+                                        ? undefined
+                                        : base?.slug,
+                                  }}
+                                  className="text-brand underline decoration-dotted underline-offset-4"
+                                >
+                                  {unique.name}
+                                </Link>
+                              </Fragment>
+                            ))}
+                          </span>
+                        ) : slug ? (
+                          <Link
+                            to="/items/$item"
+                            params={{ item: slug }}
+                            search={{
+                              q: "",
+                              kind: "base",
+                              itemClass: "",
+                              page: 1,
+                            }}
+                            className="text-brand underline decoration-dotted underline-offset-4"
+                          >
+                            {value}
+                          </Link>
+                        ) : (
                           <span
                             className={
                               title === "Requirements"
@@ -552,52 +704,58 @@ function BaseLedger({
                           >
                             {value}
                           </span>
-                          {delta && original && (
-                            <FormDelta text={delta} original={original.name} />
-                          )}
-                        </StatsRow>
-                      )
-                    })}
-                  </StatsList>
-                </StatsSection>
-              )
-          )}
-          {!base && details.length === 0 && (
-            <p className="text-sm text-ink-muted">
-              No base record is available for this item.
-            </p>
-          )}
-        </StatsBody>
-      </TooltipProvider>
-      {tags.length > 0 && (
-        <div className="mt-6 px-[var(--shell-gutter)]">
-          <h3 className="mb-2 mono-label text-ink-muted">Tags</h3>
-          <div className="flex flex-wrap gap-1.5">
-            {tags.map((tag) => (
-              <Badge key={tag} variant="outline">
-                {tag.replaceAll("_", " ")}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
+                        )}
+                        {delta && compared && (
+                          <FormDelta text={delta} original={compared} />
+                        )}
+                      </StatsRow>
+                    )
+                  })}
+                </StatsList>
+              </StatsSection>
+            )
+        )}
+        {tags.length > 0 && (
+          <StatsSection>
+            <StatsHeading>Tags</StatsHeading>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {tags.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="outline"
+                  size="sm"
+                  className="text-ink-soft"
+                >
+                  {tag.replaceAll("_", " ")}
+                </Badge>
+              ))}
+            </div>
+          </StatsSection>
+        )}
+      </StatsBody>
     </GemSection>
   )
 }
 
+/* Opens on hover and on tap, so touch screens can read it too. */
 function FormDelta({ text, original }: { text: string; original: string }) {
   return (
-    <Tooltip>
-      <TooltipTrigger
-        render={<span />}
-        tabIndex={0}
+    <Popover>
+      <PopoverTrigger
+        openOnHover
+        delay={0}
         data-slot="base-form-delta"
         className="ml-2 cursor-pointer text-brand underline decoration-dotted underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
         {text}
-      </TooltipTrigger>
-      <TooltipContent>Compared with {original}.</TooltipContent>
-    </Tooltip>
+      </PopoverTrigger>
+      <PopoverContent
+        side="top"
+        className="w-fit max-w-xs px-3 py-1.5 font-sans text-xs"
+      >
+        Compared with the original {original}.
+      </PopoverContent>
+    </Popover>
   )
 }
 

@@ -1,5 +1,12 @@
 import { useDeferredValue, useId, useMemo, useRef, useState } from "react"
-import { ChevronRight, Columns2, Package, Rows3 } from "lucide-react"
+import {
+  Check,
+  ChevronRight,
+  Columns2,
+  Package,
+  RotateCcw,
+  Rows3,
+} from "lucide-react"
 import { cn } from "cn"
 import type {
   AugmentOutcome,
@@ -105,11 +112,11 @@ const essenceFamily = (name: string) =>
 const matches = (query: string, ...values: string[]) =>
   !query || values.join(" ").toLocaleLowerCase().includes(query)
 
-/* One jump link per source: its prefix and suffix tables share a chip. */
+/* One filter chip per source: its prefix and suffix tables share a chip. */
 function navGroups(categories: Category[]) {
   const groups = new Map<string, { id: string; label: string; count: number }>()
   for (const category of categories) {
-    const label = category.title.replace(/ (?:prefixes|suffixes)$/, "")
+    const label = groupLabel(category)
     const count =
       category.kind === "mods" ? category.families.length : category.rows.length
     const group = groups.get(label)
@@ -131,6 +138,8 @@ export function ItemModifierPool({
   const catalogue = useItemModifiers(true)
   const [query, setQuery] = useState("")
   const [level, setLevel] = useState<number | null>(null)
+  // Sources the chips narrow the pool to; empty shows every source.
+  const [shown, setShown] = useState<ReadonlySet<string>>(() => new Set())
   const search = useDeferredValue(query.trim().toLocaleLowerCase())
 
   const categories = useMemo(() => {
@@ -264,7 +273,18 @@ export function ItemModifierPool({
   })
 
   const layout = useModifierPoolLayout()
-  const sections = poolSections(filtered, layout)
+  const sections = poolSections(
+    shown.size
+      ? filtered.filter((category) => shown.has(groupLabel(category)))
+      : filtered,
+    layout
+  )
+  const toggleShown = (label: string) =>
+    setShown((previous) => {
+      const next = new Set(previous)
+      if (!next.delete(label)) next.add(label)
+      return next
+    })
 
   return (
     <GemSection
@@ -301,6 +321,19 @@ export function ItemModifierPool({
             compact
           />
         </Field>
+        <Button
+          variant="outline"
+          className="h-10"
+          disabled={!query && level === null && shown.size === 0}
+          onClick={() => {
+            setQuery("")
+            setLevel(null)
+            setShown(new Set())
+          }}
+        >
+          <RotateCcw aria-hidden="true" />
+          Reset
+        </Button>
         {!unique && (
           // Two columns need the room; narrow screens always stack.
           <Field className="ml-auto max-md:hidden">
@@ -328,21 +361,44 @@ export function ItemModifierPool({
         )}
       </div>
       {filtered.length > 0 && (
-        <nav
-          aria-label="Modifier categories"
-          className="mt-5 flex flex-wrap gap-1.5 px-[var(--shell-gutter)]"
-        >
-          {navGroups(filtered).map((group) => (
-            <a
-              key={group.id}
-              href={`#mods-${group.id}`}
-              className="inline-flex h-7 items-center gap-2 rounded border border-rule-strong px-2 mono-label text-ink-muted hover:border-brand-deep hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-            >
-              {group.label}
-              <span className="figure text-brand">{group.count}</span>
-            </a>
-          ))}
-        </nav>
+        // Chips filter in place rather than jump, so search, item level and
+        // layout stay in reach above the tables they narrow.
+        <div className="mt-5 grid gap-2 px-[var(--shell-gutter)]">
+          <span
+            id="modifier-sources-label"
+            className="mono-label text-label text-ink-muted"
+          >
+            Show only these sources
+          </span>
+          <div
+            role="group"
+            aria-labelledby="modifier-sources-label"
+            className="flex flex-wrap gap-1.5"
+          >
+            {navGroups(filtered).map((group) => {
+              const selected = shown.has(group.label)
+              return (
+                <Button
+                  key={group.id}
+                  variant="pill"
+                  className="h-7 gap-2 px-2 text-label data-active:border-brand data-active:bg-brand data-active:text-paper data-active:hover:border-brand data-active:hover:text-paper"
+                  active={selected}
+                  aria-pressed={selected}
+                  onClick={() => toggleShown(group.label)}
+                >
+                  {group.label}
+                  {/* The tick takes the count's place, so the chip keeps
+                      its width as it toggles. */}
+                  {selected ? (
+                    <Check aria-hidden="true" className="size-3.5" />
+                  ) : (
+                    <span className="figure text-brand">{group.count}</span>
+                  )}
+                </Button>
+              )
+            })}
+          </div>
+        </div>
       )}
       {catalogue.isError ? (
         <Note className="mx-[var(--shell-gutter)] mt-6" role="alert">

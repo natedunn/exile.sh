@@ -19,6 +19,7 @@ export const getItemMeta = createServerFn({ method: "GET" })
     return {
       name: item.name,
       slug: item.slug,
+      kind: item.kind,
       image: item.image,
       description:
         item.kind === "unique"

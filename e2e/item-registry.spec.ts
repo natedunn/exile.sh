@@ -84,6 +84,70 @@ test("base modifier tables split by source and respect item level", async ({
   await expect(prefixes).toContainText("Nothing matches these filters.")
 })
 
+test("source chips narrow the pool in place and reset restores it", async ({
+  page,
+}) => {
+  await page.goto("/items/base-fur-plate")
+  const sources = page.getByRole("group", { name: "Show only these sources" })
+  const reset = page.getByRole("button", { name: "Reset" })
+  await expect(reset).toBeDisabled()
+  const desecrated = sources.getByRole("button", { name: /^Desecrated/ })
+  await desecrated.click()
+  await expect(desecrated).toHaveAttribute("aria-pressed", "true")
+  await expect(reset).toBeEnabled()
+  await expect(
+    page.getByTestId("modifier-table-desecrated-suffix")
+  ).toBeVisible()
+  await expect(page.getByTestId("modifier-table-prefix")).toHaveCount(0)
+  await expect(page.getByTestId("modifier-table-augments")).toHaveCount(0)
+  // A second chip adds its source; the search stays where it was.
+  await sources.getByRole("button", { name: /^Augments/ }).click()
+  await expect(page.getByTestId("modifier-table-augments")).toBeVisible()
+  await expect(
+    page.getByTestId("modifier-table-desecrated-suffix")
+  ).toBeVisible()
+  const search = page.getByLabel("Search modifiers", { exact: true })
+  await expect(search).toBeInViewport()
+  await search.fill("life")
+  // Reset clears the chips and the search together.
+  await reset.click()
+  await expect(desecrated).toHaveAttribute("aria-pressed", "false")
+  await expect(search).toHaveValue("")
+  await expect(page.getByTestId("modifier-table-prefix")).toBeVisible()
+  await expect(reset).toBeDisabled()
+  // Typing alone is enough to enable it.
+  await search.fill("life")
+  await expect(reset).toBeEnabled()
+})
+
+test("a unique's raised level requirement replaces its base's", async ({
+  page,
+}) => {
+  // Temporalis needs level 64 on a Silk Robe, which alone needs 22.
+  await page.goto("/items/unique-temporalis-silk-robe")
+  const base = page.locator("section[aria-labelledby=item-base-title]")
+  await expect(
+    base.getByRole("link", { name: "Silk Robe", exact: true })
+  ).toHaveAttribute("href", /\/items\/base-silk-robe/)
+  // Energy shield is also 64 here, so read the Level row itself.
+  await expect(base).toContainText(/Level\s*64/)
+  await expect(base).not.toContainText(/Level\s*22/)
+  await expect(base).not.toContainText("Requires Level")
+})
+
+test("a base lists and links the uniques built on it", async ({ page }) => {
+  await page.goto("/items/base-iron-ring")
+  const stats = page.locator("section[aria-labelledby=item-base-title]")
+  await expect(stats).toContainText("Uniques")
+  await expect(stats.getByRole("link", { name: "Venopuncture" })).toBeVisible()
+  // A recipe's target base opens the unique already on that form.
+  await page.goto("/items/base-runemastered-grand-cuisses")
+  await stats.getByRole("link", { name: "Ab Aeterno" }).click()
+  await expect(page).toHaveURL(
+    /unique-ab-aeterno-grand-cuisses\?baseForm=base-runemastered-grand-cuisses/
+  )
+})
+
 test("influence pools only appear where their warp rune fits", async ({
   page,
 }) => {

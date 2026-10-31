@@ -1,13 +1,9 @@
 import { cn } from "cn"
-import { textLink } from "./ui/link-styles"
 import { Link } from "@tanstack/react-router"
-import type {
-  BaseReference,
-  ItemCatalogue,
-  UniqueReference,
-} from "../../shared/item-registry"
+import type { BaseReference } from "../../shared/item-registry"
 import { baseStatRows } from "../../shared/item-registry"
 import { ReferenceSelect } from "./item-registry-controls"
+import { buttonVariants } from "./ui/button"
 import { SegmentedControl, SegmentedControlItem } from "./ui/segmented-control"
 
 const formName = {
@@ -51,12 +47,13 @@ export function BaseFormSwitch({
       Object.keys(formName).indexOf(a.form) -
       Object.keys(formName).indexOf(b.form)
   )
-  const Container = onSelect ? SegmentedControl : "nav"
-  return (
-    <Container
+  // Both read as one segmented control; base pages render each segment as
+  // a link to that form's page, uniques as a button that swaps in place.
+  const segments = (
+    <SegmentedControl
       role={onSelect ? "group" : undefined}
-      aria-label="Base form"
-      className={onSelect ? "flex w-full [&>*]:flex-1" : "flex flex-wrap gap-4"}
+      aria-label={onSelect ? "Base form" : undefined}
+      className="flex w-full [&>*]:flex-1 max-sm:[&>*]:px-2"
     >
       {ordered.map((base) =>
         onSelect ? (
@@ -76,14 +73,15 @@ export function BaseFormSwitch({
             resetScroll={false}
             key={base.slug}
             aria-current={base.slug === selected.slug ? "page" : undefined}
-            className={cn(textLink, "aria-[current=page]:text-ink")}
+            className={cn(buttonVariants({ variant: "segment", size: "nav" }))}
           >
             {formName[base.form]}
           </Link>
         )
       )}
-    </Container>
+    </SegmentedControl>
   )
+  return onSelect ? segments : <nav aria-label="Base form">{segments}</nav>
 }
 
 function disambiguation(base: BaseReference) {
@@ -97,36 +95,5 @@ function disambiguation(base: BaseReference) {
       )
       .map((row) => `${row.label} ${row.value}`)
       .join(", ")
-  )
-}
-
-/* The recorded upgrade paths behind a unique's form choices. */
-export function RuneforgingPaths({
-  item,
-  catalogue,
-}: {
-  item: UniqueReference
-  catalogue: ItemCatalogue
-}) {
-  if (!item.runeforging) return null
-  return (
-    <div className="text-xs leading-relaxed text-ink-muted">
-      <ul className="m-0 list-none space-y-1 p-0">
-        {item.runeforging.paths.map((path) => (
-          <li key={path.craftId}>
-            {catalogue.items[path.from].name} →{" "}
-            <span className="text-ink-soft">
-              {catalogue.items[path.to].name}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <a
-        href={item.runeforging.source}
-        className="mt-2 inline-block text-brand underline decoration-dotted underline-offset-4"
-      >
-        Recipe source · {item.runeforging.sourceVersion}
-      </a>
-    </div>
   )
 }
