@@ -192,9 +192,10 @@ test("gem details show ranges, selected values and level effects inline", async 
   await expect(page.locator('[data-slot="gem-description"]')).toContainText(
     "Fire a charged arrow"
   )
+  // The gem icon sits in a slot left of the title, as on item pages.
   await expect(
-    page.locator('img[src="/art/lightning-arrow-hover.webp"]')
-  ).toBeVisible()
+    page.locator('[data-slot="page-heading"] .item-slot img')
+  ).toHaveAttribute("src", /\/gems\/v1\/icons\/.+\.webp$/)
 
   const properties = page.locator('[data-slot="gem-properties"]')
   await expect(properties).toContainText("6–40 Mana")

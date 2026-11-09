@@ -1,11 +1,13 @@
 import { dataReleaseKey } from "../../shared/data-assets"
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
 import { useQuery } from "@tanstack/react-query"
-import { Fragment, useState } from "react"
+import { Fragment, useMemo, useState } from "react"
 import { Check, Copy, Square } from "lucide-react"
 import { z } from "zod"
 import type { GemReference, SavedGem } from "../../shared/gems"
 import { gemEffectValues } from "../../shared/gems"
+import { attackDamagePercent, gemScaling } from "../../shared/gem-scaling"
+import { GemScalingSection } from "../components/gem-scaling"
 import { CompatibleGems } from "../components/compatible-gems"
 import { EffectList } from "../components/effect-list"
 import { GemSection, GemSectionTitle } from "../components/gem-section"
@@ -47,6 +49,7 @@ import { getGemPage } from "../lib/gem-page"
 import { shareMeta } from "../lib/share-meta"
 import { useGemBookmarks } from "../lib/use-saved-list"
 import { BookmarkButton } from "../components/bookmark-toggle"
+import { ReferenceArt } from "../components/reference-art"
 import { defaultGemSearch } from "./gems"
 
 export const Route = createFileRoute("/gems/$gem")({
@@ -251,6 +254,18 @@ function GemDetailPage() {
   const currentLevel = page.levels[String(level ?? 1)]
   const selectedLevel = level === null ? firstLevel : currentLevel
   const tags = gemTags(reference)
+  const scaling = useMemo(
+    () =>
+      reference.support
+        ? null
+        : gemScaling({
+            attack: reference.type === "Attack",
+            levels: page.levels,
+            setMultipliers: page.setMultipliers,
+            effects: effects.data,
+          }),
+    [reference, page.levels, page.setMultipliers, effects.data]
+  )
 
   const rangeValue = (start: number | undefined, end: number | undefined) =>
     start === undefined
@@ -321,22 +336,21 @@ function GemDetailPage() {
       delta: level === null ? null : change(start, selected, "%"),
     })
   }
-  if (reference.type === "Attack" && firstLevel?.baseMultiplier !== undefined) {
-    const start = Math.round(firstLevel.baseMultiplier * 100)
-    const selected =
-      selectedLevel?.baseMultiplier === undefined
-        ? undefined
-        : Math.round(selectedLevel.baseMultiplier * 100)
-    const end =
-      lastLevel?.baseMultiplier === undefined
-        ? undefined
-        : Math.round(lastLevel.baseMultiplier * 100)
-    propertyRows.push({
-      label: "Attack damage",
-      value: `${rangeValue(start, level === null ? end : selected)}% of base`,
+  const attackDamage = (gemLevel: number, setId?: string) =>
+    attackDamagePercent(page.levels, page.setMultipliers, gemLevel, setId)
+  const attackDamageRow = (setId?: string) => {
+    if (reference.type !== "Attack") return null
+    if (setId !== undefined && page.setMultipliers === null) return null
+    const start = attackDamage(1, setId)
+    if (start === undefined) return null
+    const selected = attackDamage(level ?? 1, setId)
+    return {
+      value: `${rangeValue(start, level === null ? attackDamage(rangeEnd, setId) : selected)}% of base`,
       delta: level === null ? null : change(start, selected, "%"),
-    })
+    }
   }
+  const skillDamage = attackDamageRow()
+  if (skillDamage) propertyRows.push({ label: "Attack damage", ...skillDamage })
   if (firstLevel?.critChance !== undefined)
     propertyRows.push({
       label: "Critical hit chance",
@@ -405,6 +419,7 @@ function GemDetailPage() {
       return {
         id,
         label: set.label || reference.name || "Effects",
+        damage: attackDamageRow(id),
         baselineLines: beforeLines,
         lines:
           level === null && first.base && last.base
@@ -455,58 +470,46 @@ function GemDetailPage() {
         >
           ← All gems
         </Link>
-        <PageHeadingCopy className="max-w-3xl">
-          <PageTitle>{page.name}</PageTitle>
-          {tags.length > 0 && (
-            <div data-slot="gem-header-tags" className="flex flex-wrap gap-1.5">
-              {tags.map((tag) => (
-                <Badge key={tag} variant="brand" size="sm">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+        <div className="relative z-1 flex min-w-0 items-end gap-8 max-sm:basis-full max-sm:flex-col max-sm:items-start">
+          {reference.image && (
+            <ReferenceArt key={reference.image} src={reference.image} />
           )}
-        </PageHeadingCopy>
-        {/* Gem art cannot be pre-baked, so one dithered radial mask thins the
-          art and dot screen out toward every edge of the heading. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 w-1/2 overflow-hidden [mask-image:var(--dither-glow-masthead)] [mask-size:100%_100%] [mask-repeat:no-repeat] opacity-70 max-sm:w-2/3 max-sm:opacity-35"
-        >
-          {skillId === "LightningArrowPlayer" ? (
-            <img
-              src="/art/lightning-arrow-hover.webp"
-              alt=""
-              width="699"
-              height="369"
-              className="size-full object-cover object-top"
-            />
-          ) : reference.image && !reference.support ? (
-            <img
-              src={reference.image}
-              alt=""
-              className="absolute top-0 left-[68%] aspect-square h-full -translate-x-1/2 [mask-image:radial-gradient(closest-side,black_45%,transparent)] brightness-125 contrast-125 grayscale saturate-200 sepia [image-rendering:pixelated]"
-            />
-          ) : null}
-          <div className="absolute inset-0 dot-screen text-brand/15" />
+          <PageHeadingCopy className="max-w-3xl">
+            <PageTitle>{page.name}</PageTitle>
+            {tags.length > 0 && (
+              <div
+                data-slot="gem-header-tags"
+                className="flex flex-wrap gap-1.5"
+              >
+                {tags.map((tag) => (
+                  <Badge key={tag} variant="brand" size="sm">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </PageHeadingCopy>
         </div>
-        <BookmarkButton
-          bookmarked={favorites.includes(reference.gameId)}
-          onClick={() => toggleFavorite(reference.gameId)}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          className="relative z-1 shrink-0 bg-paper"
-          onClick={() => void copyLink()}
-        >
-          <Copy aria-hidden="true" />
-          {copyState === "copied"
-            ? "Copied"
-            : copyState === "error"
-              ? "Couldn’t copy link"
-              : "Copy link"}
-        </Button>
+        {/* Grouped so the pair stays together when the heading wraps. */}
+        <div className="relative z-1 flex shrink-0 items-center gap-3">
+          <BookmarkButton
+            bookmarked={favorites.includes(reference.gameId)}
+            onClick={() => toggleFavorite(reference.gameId)}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            className="relative z-1 shrink-0 bg-paper"
+            onClick={() => void copyLink()}
+          >
+            <Copy aria-hidden="true" />
+            {copyState === "copied"
+              ? "Copied"
+              : copyState === "error"
+                ? "Couldn’t copy link"
+                : "Copy link"}
+          </Button>
+        </div>
       </PageHeading>
       <GemKeywordProvider>
         <div className="-mx-[var(--shell-gutter)] grid min-w-0 flex-1 lg:grid-cols-[minmax(0,1fr)_420px]">
@@ -559,6 +562,25 @@ function GemDetailPage() {
                       {/* A set's lines and quality belong to it: an
                             indent groups them under its heading. */}
                       <div className="mt-3 pl-3.5">
+                        {set.damage && (
+                          <p
+                            data-slot="gem-set-damage"
+                            className="mb-2 font-display text-lg leading-relaxed text-ink"
+                          >
+                            <span className="text-ink-muted">
+                              Attack damage:
+                            </span>{" "}
+                            {set.damage.value}
+                            {set.damage.delta && (
+                              <span className="ml-2">
+                                <GemLevelDelta
+                                  text={`(${set.damage.delta})`}
+                                  slot="gem-property-delta"
+                                />
+                              </span>
+                            )}
+                          </p>
+                        )}
                         {set.lines.length > 0 && (
                           <EffectList
                             data-slot="gem-effect-lines"
@@ -648,6 +670,13 @@ function GemDetailPage() {
                 </p>
               )}
             </GemSection>
+            {scaling && (
+              <GemScalingSection
+                scaling={scaling}
+                selectedLevel={level}
+                onSelectLevel={setLevel}
+              />
+            )}
             <CompatibleGems
               key={reference.skillId}
               gem={reference}

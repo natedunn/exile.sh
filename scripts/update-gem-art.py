@@ -83,10 +83,18 @@ for path, image in concurrent.futures.ThreadPoolExecutor(max_workers=6).map(mirr
     if image: images[path] = image
 gems = fetch(SOURCE + 'Gems.lua').decode()
 records = {}
+# Gems.lua can repeat a key (SkillGemSkeletalSniper at ce566eac). A Lua table
+# constructor keeps the last value, so the last definition is the one used.
+definitions, repeated = {}, set()
 for gem_id, block in re.findall(r'\["([^"]+)"\] = \{(.*?)\n\t\},', gems, re.S):
+    if gem_id in definitions:
+        repeated.add(gem_id)
+    definitions[gem_id] = block
+for gem_id, block in definitions.items():
     effect = string(block, 'grantedEffectId')
     ref = skills.get(effect, {})
-    accounting.add('gem', gem_id, 'imported' if ref else 'unknown', '' if ref else 'Missing skill definition', skillId=effect)
+    reason = 'Missing skill definition' if not ref else 'Repeated key in Gems.lua; last definition used, as in Lua' if gem_id in repeated else ''
+    accounting.add('gem', gem_id, 'imported' if ref else 'unknown', reason, skillId=effect)
     game_id = string(block, 'gameId')
     icon = ref.get('icon') or repoe.get(game_id, {}).get('icon_dds_file') or ''
     icon = icon.replace('/4k/', '/')

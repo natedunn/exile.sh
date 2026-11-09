@@ -44,6 +44,9 @@ export type GemHeaders = {
     }
   >
   skills: Record<string, Record<string, GemHeaderLevel>>
+  /** Per stat set damage overrides: skill ID → set index → level → multiplier.
+   * A set without an entry at a level uses the skill level's multiplier. */
+  setMultipliers?: Record<string, Record<string, Record<string, number>>>
 }
 type GemLookup = {
   refs: GemReference[]

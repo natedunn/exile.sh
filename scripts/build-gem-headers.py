@@ -49,6 +49,7 @@ for _, block in re.findall(r'\["([^"]+)"\] = \{(.*?)\n\t\},', fetch("Gems.lua"),
     gems[game_id] = entry
 
 skills = {}
+set_multipliers = {}
 for filename in ("act_str", "act_dex", "act_int", "sup_str", "sup_dex", "sup_int", "other"):
     source = fetch(f"Skills/{filename}.lua")
     for skill_id, block in re.findall(r'skills\["([^"]+)"\] = \{(.*?)(?=\nskills\[|\Z)', source, re.S):
@@ -71,6 +72,25 @@ for filename in ("act_str", "act_dex", "act_int", "sup_str", "sup_dex", "sup_int
                 levels[level] = entry
         if levels:
             skills[skill_id] = levels
+        # A stat set's level values override the skill's (CalcActiveSkill.lua
+        # copies the skill level, then each set level key). Only damage
+        # multipliers are overridden per set, e.g. Boneshatter's Shockwave.
+        stat_sets = re.search(r"\n\tstatSets = \{(.*)", block, re.S)
+        if stat_sets:
+            overrides = {}
+            for index, set_block in re.findall(r"\n\t\t\[(\d+)\] = \{(.*?)\n\t\t\},", stat_sets[1], re.S):
+                set_levels = re.search(r"\n\t\t\tlevels = \{(.*?)\n\t\t\t\},", set_block, re.S)
+                if not set_levels:
+                    continue
+                values = {}
+                for level, line in re.findall(r"^\t\t\t\t\[(\d+)\] = \{([^\n]*)\},?$", set_levels[1], re.M):
+                    value = number(line, "baseMultiplier")
+                    if value is not None:
+                        values[level] = value
+                if values:
+                    overrides[index] = values
+            if overrides:
+                set_multipliers[skill_id] = overrides
 
-DESTINATION.write_text(json.dumps({"version": REVISION, "sha256": dict(sorted(hashes.items())), "gems": gems, "skills": skills}, separators=(",", ":"), ensure_ascii=False) + "\n")
-print(f"Extracted {len(gems)} gem headers and {len(skills)} skill level tables")
+DESTINATION.write_text(json.dumps({"version": REVISION, "sha256": dict(sorted(hashes.items())), "gems": gems, "skills": skills, "setMultipliers": set_multipliers}, separators=(",", ":"), ensure_ascii=False) + "\n")
+print(f"Extracted {len(gems)} gem headers, {len(skills)} skill level tables and {len(set_multipliers)} stat-set damage tables")

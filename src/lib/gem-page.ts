@@ -42,6 +42,11 @@ export const getGemPage = createServerFn({ method: "GET" })
         ? headers.gems[reference.gameId]
         : undefined,
       levels,
+      // Null until headers carry per-set multipliers: falling back to the
+      // skill's multiplier would show a set like Shockwave the wrong damage.
+      setMultipliers: headers.setMultipliers
+        ? (headers.setMultipliers[reference.skillId] ?? {})
+        : null,
       effects,
       compatible: compatibleGems(reference, catalogue, compatibility),
     }
