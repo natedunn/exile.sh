@@ -325,6 +325,21 @@ test("offline generation, review, publication and rollback retention rehearse en
   for (const path of ["scripts", "src"])
     cpSync(join(projectRoot, path), join(checkout, path), { recursive: true })
   cpSync(join(projectRoot, "package.json"), join(checkout, "package.json"))
+  // The copied selection may already name published releases; verification
+  // of the rehearsal needs their assets and records as well.
+  for (const id of new Set(
+    Object.values(readJson(join(checkout, "shared/data-release.json")).releases)
+  )) {
+    cpSync(
+      join(projectRoot, "public/data-releases", id),
+      join(checkout, "public/data-releases", id),
+      { recursive: true }
+    )
+    cpSync(
+      join(projectRoot, "data/releases", `${id}.json`),
+      join(checkout, "data/releases", `${id}.json`)
+    )
+  }
   const old = readFileSync(join(checkout, "shared/catalog.json"))
   preparePublication(candidate, { checkout })
   assert.equal(verifySelectedRelease(checkout).ready, true)

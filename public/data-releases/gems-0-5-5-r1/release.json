@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "releaseId": "gems-0-5-5-r1",
+  "targetPatch": "0.5.5",
+  "features": [
+    "gems"
+  ],
+  "candidateFingerprint": "d3ffe3649f2ed90f4f926f1f773fa431b8a60653403e9cae82dfcb322021ff49",
+  "reviewFingerprint": "28950e839372b027cbb928155928ded9896465a5025223d73539e018db498ef4",
+  "recordPath": "data/releases/gems-0-5-5-r1.json",
+  "recordSha256": "3f6aa3025679edc425e12cecae4b3bce3db41fe02ea1a5680a56435133f8faa9"
+}

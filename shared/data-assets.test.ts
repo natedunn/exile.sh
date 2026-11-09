@@ -57,9 +57,10 @@ it("uses frozen keyword definitions without any live request", async () => {
   expect((await loadGemKeywords()).keywords.Shock?.definition).toBe(
     "Pinned definition"
   )
+  // Requests follow the selected release, whichever namespace that is.
   expect(requests.sort()).toEqual([
-    "/gems/v1/keyword-aliases.json",
-    "/gems/v1/keywords.json",
+    dataAssetUrl("/gems/v1/keyword-aliases.json"),
+    dataAssetUrl("/gems/v1/keywords.json"),
   ])
 })
 

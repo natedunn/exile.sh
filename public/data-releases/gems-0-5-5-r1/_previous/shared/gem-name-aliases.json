@@ -1,0 +1,31 @@
+{
+  "revision": "ce566eac45ea8a86477f513c7ee65a1ebe60014e",
+  "aliases": {
+    "compose requiem": ["CrossbowRequiemAmmoPlayer"],
+    "fire spell on melee hit": ["MetaCastFireSpellOnHitPlayer"],
+    "load armour piercing rounds": ["ArmourPiercingBoltsAmmoPlayer"],
+    "load explosive shot": ["ExplosiveShotAmmoPlayer"],
+    "load fragmentation rounds": ["FragmentationRoundsAmmoPlayer"],
+    "load galvanic shards": ["GalvanicShardsAmmoPlayer"],
+    "load glacial bolt": ["GlacialBoltAmmoPlayer"],
+    "load hailstorm rounds": ["HailstormRoundsAmmoPlayer"],
+    "load high velocity rounds": ["HighVelocityRoundsAmmoPlayer"],
+    "load ice shards": ["IceShardsAmmoPlayer"],
+    "load incendiary shot": ["IncendiaryShotAmmoPlayer"],
+    "load permafrost bolts": ["PermafrostBoltsAmmoPlayer"],
+    "load plasma blast": ["PlasmaBlastAmmoPlayer"],
+    "load rapid shot": ["RapidShotAmmoPlayer"],
+    "load shockburst rounds": ["ShockburstRoundsAmmoPlayer"],
+    "load siege cascade": ["SiegeCascadeAmmoPlayer"],
+    "load stormblast bolts": ["StormblastBoltsAmmoPlayer"],
+    "skeletal arsonist minion": ["SummonSkeletalArsonistsPlayer"],
+    "skeletal brute minion": ["SummonSkeletalBrutesPlayer"],
+    "skeletal cleric minion": ["SummonSkeletalClericsPlayer"],
+    "skeletal frost mage minion": ["SummonSkeletalFrostMagesPlayer"],
+    "skeletal reaver minion": ["SummonSkeletalReaversPlayer"],
+    "skeletal sniper minion": ["SummonSkeletalSnipersPlayer"],
+    "skeletal storm mage minion": ["SummonSkeletalStormMagesPlayer"],
+    "skeletal warrior minion": ["SummonSkeletalWarriorsPlayer"],
+    "spectre: {0} ": ["SummonSpectrePlayer"]
+  }
+}

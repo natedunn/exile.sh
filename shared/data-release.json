@@ -1,6 +1,11 @@
 {
   "schemaVersion": 1,
-  "releaseId": "legacy",
-  "prefixes": {},
-  "releases": {}
+  "releaseId": "gems-0-5-5-r1",
+  "prefixes": {
+    "/gems/v1/": "/data-releases/gems-0-5-5-r1/gems/v1/",
+    "/gems/effects-v1/": "/data-releases/gems-0-5-5-r1/gems/effects-v1/"
+  },
+  "releases": {
+    "gems": "gems-0-5-5-r1"
+  }
 }
