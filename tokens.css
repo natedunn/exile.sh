@@ -227,6 +227,15 @@
   --dither-glow-masthead: url("/art/glow-masthead.png");
   /* Resolution-independent dot screen for small surfaces. */
   --dot-screen: radial-gradient(circle, currentColor 0.8px, transparent 1px);
+
+  /* Chart series, in this fixed order. Validated as a set against the
+     dark surface #14110e (dataviz validate_palette.js, dark, all pairs): lightness band,
+     chroma floor, CVD ΔE ≥ 10.6, normal-vision ΔE ≥ 22.7, ≥ 3:1 contrast.
+     Three only; a fourth series becomes another chart. Kept out of @theme:
+     no utility uses them, and Tailwind drops unused theme variables. */
+  --color-series-1: #bf8532;
+  --color-series-2: #2784d5;
+  --color-series-3: #b84999;
 }
 
 /* shadcn semantic names, so registry components render in the palette. */

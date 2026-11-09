@@ -2,7 +2,7 @@ import { dataAssetUrl, dataReleaseKey } from "../../shared/data-assets"
 import { cn } from "cn"
 import { textLink } from "../components/ui/link-styles"
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
-import { Fragment, useState } from "react"
+import { Fragment } from "react"
 import type * as React from "react"
 import { z } from "zod"
 import { getItemMeta } from "../lib/item-registry-meta"
@@ -40,6 +40,7 @@ import {
   StatsSection,
 } from "../components/build/stats-ledger"
 import { GemSection, GemSectionTitle } from "../components/gem-section"
+import { ReferenceArt } from "../components/reference-art"
 import { ReferenceSelect } from "../components/item-registry-controls"
 import { BaseFormSwitch } from "../components/item-base-forms"
 import {
@@ -177,7 +178,9 @@ function ItemDetailPage() {
           ← All items
         </Link>
         <div className="relative z-1 flex min-w-0 items-end gap-8 max-sm:basis-full max-sm:flex-col max-sm:items-start">
-          {image && <ItemArt src={image} unique={meta.kind === "unique"} />}
+          {image && (
+            <ReferenceArt src={image} unique={meta.kind === "unique"} />
+          )}
           <PageHeadingCopy className="max-w-3xl">
             <PageTitle className={titleTone}>{name}</PageTitle>
             {item && (
@@ -329,29 +332,6 @@ function formLabel(item: BaseReference) {
 /* The item's own art, undithered, in the inventory frame the build page
  * uses for gear, so it sits in the masthead as an item rather than floating.
  * The frame is a fixed square; the art scales inside it and never squishes. */
-function ItemArt({ src, unique }: { src: string; unique: boolean }) {
-  const [failed, setFailed] = useState(false)
-  if (failed) return null
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none flex size-36 shrink-0 max-sm:size-24"
-    >
-      <div
-        className="item-slot p-2.5 max-sm:p-2 [&>img]:size-full"
-        data-rarity={unique ? "UNIQUE" : undefined}
-      >
-        <img
-          src={src}
-          alt=""
-          decoding="async"
-          onError={() => setFailed(true)}
-        />
-      </div>
-    </div>
-  )
-}
-
 /* Always bulleted here, whatever the tooltip layout setting: the same
  * half-tone disc and indent as the bullet layout in item tooltips. */
 const modifierList =

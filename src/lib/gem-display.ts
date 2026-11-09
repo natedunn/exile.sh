@@ -1,4 +1,6 @@
 import type { GemReference } from "../../shared/gems"
+import type { ScalingPoint } from "../../shared/gem-scaling"
+import { number } from "./format"
 
 /** The gem's type followed by its tags, without repeats: the header badges. */
 export function gemTags(reference: GemReference) {
@@ -84,4 +86,12 @@ export function effectIncreaseParts(
     if (percent) current[index + 1] = current[index + 1].slice(1)
   }
   return result
+}
+
+/** A scaling value with its unit; a damage range keeps both ends. */
+export function formatScalingPoint(point: ScalingPoint | null, unit: string) {
+  if (!point) return "—"
+  if (point.low !== undefined && point.high !== undefined)
+    return `${number(point.low)}–${number(point.high)}${unit}`
+  return `${number(point.value)}${unit}`
 }
