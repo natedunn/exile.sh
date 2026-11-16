@@ -1,0 +1,81 @@
+name: PoE2 patch triage
+on:
+  schedule:
+    - cron: "43 12 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Read official notes and report classifications without creating or updating issues"
+        type: boolean
+        default: true
+  pull_request:
+    paths:
+      - "scripts/patch-watch*"
+      - ".github/workflows/patch-watch.yml"
+      - "shared/forum-news.ts"
+      - "shared/fetch-forum.ts"
+permissions:
+  contents: read
+concurrency:
+  group: poe2-patch-triage-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'scheduled' }}
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: node --test scripts/patch-watch-core.test.mjs
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.9"
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun test scripts/patch-watch-source.test.ts
+  watch:
+    if: github.event_name != 'pull_request'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.9"
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - name: Check official patches
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            bun scripts/patch-watch.ts --dry-run
+          else
+            bun scripts/patch-watch.ts
+          fi
+  report-failure:
+    needs: [test, watch]
+    if: always() && github.event_name != 'pull_request' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run) && (needs.test.result == 'failure' || needs.watch.result == 'failure')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Report setup or execution failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- exile-patch-watch-failure:v1 -->';
+            const issues = await github.paginate(github.rest.issues.listForRepo, {...context.repo, state: 'all', per_page: 100});
+            const existing = issues.find(i => !i.pull_request && i.user?.login === 'github-actions[bot]' && i.user?.type === 'Bot' && i.body?.startsWith(marker));
+            if (existing?.state === 'open') return;
+            const body = `${marker}\n@natedunn The patch watcher failed during setup or execution. Inspect https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}, repair the failure and rerun. No successful patch check is claimed. This issue is reused until recovery.`;
+            if (existing) await github.rest.issues.update({...context.repo, issue_number: existing.number, state: 'open', body});
+            else await github.rest.issues.create({...context.repo, title: 'PoE2 patch watcher needs attention', body});
